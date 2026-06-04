@@ -1,0 +1,57 @@
+{
+  "webUrl": "https://kiuq.kiuq.net",
+  "batching": {
+    "enabled": true,
+    "windowMs": 30000
+  },
+  "groupIds": {
+    "default": "120363427487007208@g.us",
+    "tasks": "",
+    "quality_checks": "",
+    "followups": "",
+    "notifications": ""
+  },
+  "events": {
+    "tasks": {
+      "enabled": true,
+      "task_assigned": true,
+      "task_in_progress": true,
+      "task_submitted": true,
+      "task_needs_fix": true,
+      "task_completed": true,
+      "task_approved": true
+    },
+    "quality_checks": {
+      "enabled": true,
+      "issue_reported": true,
+      "issue_fixed": true,
+      "issue_approved": true,
+      "review_requested": true
+    },
+    "followups": {
+      "enabled": true,
+      "followup_due_today": true,
+      "followup_overdue": true,
+      "followup_completed": true
+    },
+    "notifications": {
+      "enabled": true
+    }
+  },
+  "templates": {
+    "task_assigned": "📋 *New Task Assigned*\n\nWebsite: {website}\nTask: {title}\nAssigned To: {user}\nPriority: {priority}\n\nOpen:\n{taskUrl}",
+    "task_in_progress": "🚀 *Task in Progress*\n\nWebsite: {website}\nTask: {title}\nAssigned To: {user}\nPriority: {priority}\n\nOpen:\n{taskUrl}",
+    "task_submitted": "👀 *Task Submitted for Review*\n\nWebsite: {website}\nTask: {title}\nAssigned To: {user}\nPriority: {priority}\n\nOpen:\n{taskUrl}",
+    "task_needs_fix": "⚠️ *Task Needs Fix*\n\nWebsite: {website}\nTask: {title}\nAssigned To: {user}\nPriority: {priority}\n\nOpen:\n{taskUrl}",
+    "task_completed": "✅ *Task Completed*\n\nWebsite: {website}\nTask: {title}\nAssigned To: {user}\nPriority: {priority}\n\nOpen:\n{taskUrl}",
+    "task_approved": "🎉 *Task Approved*\n\nWebsite: {website}\nTask: {title}\nAssigned To: {user}\nPriority: {priority}\n\nOpen:\n{taskUrl}",
+    "quality_reported": "🔍 *Quality Issue Reported*\n\nWebsite: {website}\nIssue: {title}\nReported By: {user}\nPriority: {priority}\n\nOpen:\n{issueUrl}",
+    "quality_fixed": "🛠️ *Quality Issue Fixed*\n\nWebsite: {website}\nIssue: {title}\nAssigned To: {user}\n\nOpen:\n{issueUrl}",
+    "quality_approved": "✅ *Quality Issue Approved*\n\nWebsite: {website}\nIssue: {title}\nApproved By: {user}\n\nOpen:\n{issueUrl}",
+    "quality_needs_review": "👀 *Quality Issue Review Requested*\n\nWebsite: {website}\nIssue: {title}\nAssigned To: {user}\n\nOpen:\n{issueUrl}",
+    "followup_due_today": "📅 *Followup Due Today*\n\nWebsite: {website}\nType: {type}\nAssigned To: {user}\n\nOpen:\n{followupUrl}",
+    "followup_overdue": "🚨 *Followup Overdue*\n\nWebsite: {website}\nType: {type}\nAssigned To: {user}\n\nOpen:\n{followupUrl}",
+    "followup_completed": "✅ *Followup Completed*\n\nWebsite: {website}\nType: {type}\nCompleted By: {user}\n\nOpen:\n{followupUrl}",
+    "general_notification": "🔔 *Notification Alert*\n\nTitle: {title}\nMessage: {message}"
+  }
+}

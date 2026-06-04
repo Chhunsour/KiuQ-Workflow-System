@@ -1,0 +1,33 @@
+# Node / Vite
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Environment secrets
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+.env.*.local
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+supabase/migrations/.trash/
+
+# Tauri
+web/src-tauri/target/
+web/src-tauri/gen/
+web/src-tauri/WixTools/

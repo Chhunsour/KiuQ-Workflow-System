@@ -1,0 +1,39 @@
+2026/06/04-07:26:45.910 123ebe Reusing MANIFEST /Users/sour/Documents/Wordpress prompt System/notification-service/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
+2026/06/04-07:26:45.912 123ebe Recovering log #21
+2026/06/04-07:26:45.913 123ebe Reusing old log /Users/sour/Documents/Wordpress prompt System/notification-service/.wwebjs_auth/session/Default/Local Storage/leveldb/000021.log 
+2026/06/04-07:28:47.087 123ec1 Level-0 table #25: started
+2026/06/04-07:28:47.090 123ec1 Level-0 table #25: 15855 bytes OK
+2026/06/04-07:28:47.092 123ec1 Delete type=0 #21
+2026/06/04-14:47:23.864 123ebe Level-0 table #27: started
+2026/06/04-14:47:23.875 123ebe Level-0 table #27: 18075 bytes OK
+2026/06/04-14:47:23.878 123ebe Delete type=0 #24
+2026/06/04-14:47:23.885 123ec1 Compacting 4@0 + 1@1 files
+2026/06/04-14:47:23.890 123ec1 Generated table #28@0: 60 keys, 3443 bytes
+2026/06/04-14:47:23.890 123ec1 Compacted 4@0 + 1@1 files => 3443 bytes
+2026/06/04-14:47:23.892 123ec1 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/06/04-14:47:23.892 123ec1 Delete type=2 #20
+2026/06/04-14:47:23.893 123ec1 Delete type=2 #22
+2026/06/04-14:47:23.893 123ec1 Delete type=2 #27
+2026/06/04-14:47:23.893 123ec1 Delete type=2 #25
+2026/06/04-14:47:23.893 123ec1 Delete type=2 #18
+2026/06/04-20:01:46.835 123ec1 Level-0 table #30: started
+2026/06/04-20:01:46.843 123ec1 Level-0 table #30: 15410 bytes OK
+2026/06/04-20:01:46.854 123ec1 Delete type=0 #26
+2026/06/05-00:22:27.434 123ec1 Level-0 table #32: started
+2026/06/05-00:22:27.437 123ec1 Level-0 table #32: 14009 bytes OK
+2026/06/05-00:22:27.441 123ec1 Delete type=0 #29
+2026/06/05-03:18:26.463 123ec1 Level-0 table #34: started
+2026/06/05-03:18:26.465 123ec1 Level-0 table #34: 13217 bytes OK
+2026/06/05-03:18:26.467 123ec1 Delete type=0 #31
+2026/06/05-06:48:17.818 123ec1 Level-0 table #36: started
+2026/06/05-06:48:17.828 123ec1 Level-0 table #36: 13936 bytes OK
+2026/06/05-06:48:17.831 123ec1 Delete type=0 #33
+2026/06/05-06:48:17.839 123ebe Compacting 4@0 + 1@1 files
+2026/06/05-06:48:17.844 123ebe Generated table #37@0: 60 keys, 3422 bytes
+2026/06/05-06:48:17.844 123ebe Compacted 4@0 + 1@1 files => 3422 bytes
+2026/06/05-06:48:17.845 123ebe compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/06/05-06:48:17.845 123ebe Delete type=2 #28
+2026/06/05-06:48:17.845 123ebe Delete type=2 #34
+2026/06/05-06:48:17.845 123ebe Delete type=2 #36
+2026/06/05-06:48:17.845 123ebe Delete type=2 #32
+2026/06/05-06:48:17.845 123ebe Delete type=2 #30

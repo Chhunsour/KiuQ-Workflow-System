@@ -1,0 +1,30 @@
+2026/06/03-11:59:39.814 99fed Reusing MANIFEST /Users/sour/Documents/Wordpress prompt System/notification-service/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
+2026/06/03-11:59:39.816 99fed Recovering log #7
+2026/06/03-11:59:39.816 99fed Reusing old log /Users/sour/Documents/Wordpress prompt System/notification-service/.wwebjs_auth/session/Default/Local Storage/leveldb/000007.log 
+2026/06/03-17:33:06.429 99fed Level-0 table #11: started
+2026/06/03-17:33:06.436 99fed Level-0 table #11: 15944 bytes OK
+2026/06/03-17:33:06.438 99fed Delete type=0 #7
+2026/06/03-19:20:11.312 99ff3 Level-0 table #13: started
+2026/06/03-19:20:11.315 99ff3 Level-0 table #13: 13118 bytes OK
+2026/06/03-19:20:11.317 99ff3 Delete type=0 #10
+2026/06/03-22:47:11.967 99ff3 Level-0 table #15: started
+2026/06/03-22:47:11.991 99ff3 Level-0 table #15: 13198 bytes OK
+2026/06/03-22:47:11.995 99ff3 Delete type=0 #12
+2026/06/04-01:26:13.856 99ff3 Level-0 table #17: started
+2026/06/04-01:26:13.867 99ff3 Level-0 table #17: 13362 bytes OK
+2026/06/04-01:26:13.874 99ff3 Delete type=0 #14
+2026/06/04-01:26:13.878 99ff3 Compacting 4@0 + 1@1 files
+2026/06/04-01:26:13.885 99ff3 Generated table #18@0: 51 keys, 4093 bytes
+2026/06/04-01:26:13.885 99ff3 Compacted 4@0 + 1@1 files => 4093 bytes
+2026/06/04-01:26:13.886 99ff3 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/06/04-01:26:13.887 99ff3 Delete type=2 #15
+2026/06/04-01:26:13.887 99ff3 Delete type=2 #17
+2026/06/04-01:26:13.887 99ff3 Delete type=2 #13
+2026/06/04-01:26:13.887 99ff3 Delete type=2 #11
+2026/06/04-01:26:13.887 99ff3 Delete type=2 #8
+2026/06/04-03:46:25.229 99ff3 Level-0 table #20: started
+2026/06/04-03:46:25.243 99ff3 Level-0 table #20: 13269 bytes OK
+2026/06/04-03:46:25.247 99ff3 Delete type=0 #16
+2026/06/04-05:57:54.178 99ff3 Level-0 table #22: started
+2026/06/04-05:57:54.192 99ff3 Level-0 table #22: 13309 bytes OK
+2026/06/04-05:57:54.195 99ff3 Delete type=0 #19

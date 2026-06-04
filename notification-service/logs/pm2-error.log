@@ -1,0 +1,10 @@
+2026-06-04 07:06:56 +07:00: [WhatsApp] Error sending message to 120363427487007208@g.us: Error: Attempted to use detached Frame '62A0A5200E7008A6E74872732B1E9DCC'.
+2026-06-04 07:06:56 +07:00:     at CdpFrame.<anonymous> (/Users/sour/Documents/Wordpress prompt System/notification-service/node_modules/puppeteer-core/src/util/decorators.ts:61:15)
+2026-06-04 07:06:56 +07:00:     at CdpPage.evaluate (/Users/sour/Documents/Wordpress prompt System/notification-service/node_modules/puppeteer-core/src/api/Page.ts:2362:35)
+2026-06-04 07:06:56 +07:00:     at Client.sendMessage (/Users/sour/Documents/Wordpress prompt System/notification-service/node_modules/whatsapp-web.js/src/Client.js:1533:44)
+2026-06-04 07:06:56 +07:00:     at sendWhatsAppMessage (/Users/sour/Documents/Wordpress prompt System/notification-service/dist/whatsapp.js:151:22)
+2026-06-04 07:06:56 +07:00:     at sendBatch (/Users/sour/Documents/Wordpress prompt System/notification-service/dist/queue.js:310:40)
+2026-06-04 07:06:56 +07:00:     at Timeout.<anonymous> (/Users/sour/Documents/Wordpress prompt System/notification-service/dist/queue.js:84:13)
+2026-06-04 07:06:56 +07:00:     at listOnTimeout (node:internal/timers:605:17)
+2026-06-04 07:06:56 +07:00:     at process.processTimers (node:internal/timers:541:7)
+2026-06-04 07:06:56 +07:00: [Queue] Failed to send batch of 1 items.

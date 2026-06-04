@@ -1,0 +1,20 @@
+# Node / Vite
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Editor
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+.DS_Store
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+src-tauri/WixTools/
