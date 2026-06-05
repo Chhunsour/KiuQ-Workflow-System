@@ -19,7 +19,7 @@
     <!-- Today's Followups — team summary -->
     <div class="mt-5">
       <h3 class="section-title mb-2.5">Today's Followups</h3>
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div
           v-for="fu in followupSummary"
           :key="fu.key"
@@ -201,6 +201,7 @@ const todayDow = new Date().getDay(); // 0=Sun
 
 const blogPending = computed(() => followup.blogPendingCount());
 const pluginPending = computed(() => followup.pluginPendingCount());
+const speedPending = computed(() => followup.speedPendingCount());
 
 // eBay pending = active members who haven't marked done today (Mon–Sat only)
 const ebayPending = computed(() => {
@@ -237,6 +238,13 @@ const followupSummary = computed(() => [
     pending: ebayPending.value,
     to: '/followup/ebay-click',
     icon: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
+  },
+  {
+    key: 'speed',
+    label: 'Website Optimization',
+    pending: speedPending.value,
+    to: '/followup/speed-optimization',
+    icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'
   }
 ]);
 
@@ -257,7 +265,8 @@ const loadDashboardData = async () => {
     await Promise.all([
       followup.fetchBlogSlots(),
       followup.fetchPluginSlots(),
-      followup.fetchEbayEntries()
+      followup.fetchEbayEntries(),
+      followup.fetchSpeedSlots()
     ]);
   } catch {
     // dashboard should not block on followup errors

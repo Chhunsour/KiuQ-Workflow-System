@@ -28,6 +28,10 @@
           <span class="fu-pill-num">{{ ebayDoneTotal }}/{{ ebayRequiredTotal }}</span>
           <span class="fu-pill-label">eBay</span>
         </div>
+        <div class="fu-pill">
+          <span class="fu-pill-num">{{ speedDoneTotal }}/{{ speedTotal }}</span>
+          <span class="fu-pill-label">Speed</span>
+        </div>
       </div>
     </section>
 
@@ -110,7 +114,8 @@
         <h2 class="fu-card-title">Website Optimization</h2>
         <p class="fu-card-desc">Run a weekly speed check &amp; performance review per website.</p>
         <div class="fu-card-foot">
-          <RouterLink to="/followup/speed-optimization" class="fu-card-btn fu-card-btn--solo">
+          <span v-if="auth.isAdmin" class="fu-card-stat">{{ speedDoneTotal }}/{{ speedTotal }} done</span>
+          <RouterLink to="/followup/speed-optimization" :class="auth.isAdmin ? 'fu-card-btn' : 'fu-card-btn fu-card-btn--solo'">
             Open
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </RouterLink>
@@ -155,6 +160,10 @@
           <span class="fu-stat-num">{{ ebayDoneTotal }}/{{ ebayRequiredTotal }}</span>
           <span class="fu-stat-label">eBay clicks done</span>
         </div>
+        <div class="fu-stat">
+          <span class="fu-stat-num">{{ speedDoneTotal }}/{{ speedTotal }}</span>
+          <span class="fu-stat-label">Speed optimization done</span>
+        </div>
       </div>
 
       <!-- Loading -->
@@ -172,6 +181,7 @@
           <div class="fu-th">Blog</div>
           <div class="fu-th">Plugin</div>
           <div class="fu-th">eBay</div>
+          <div class="fu-th">Speed</div>
           <div class="fu-th fu-th-overall">Overall</div>
         </div>
         <div v-for="r in rows" :key="r.member.id" class="fu-trow">
@@ -200,6 +210,9 @@
           </div>
           <div class="fu-td">
             <span class="fu-pill" :class="pillClass(r.ebay.state)">{{ r.ebay.label }}</span>
+          </div>
+          <div class="fu-td">
+            <span class="fu-pill" :class="pillClass(r.speed.state)">{{ r.speed.label }}</span>
           </div>
           <div class="fu-td fu-td-overall">
             <span class="fu-overall" :class="r.allDone ? 'fu-overall--done' : 'fu-overall--pending'">
@@ -427,6 +440,35 @@ const ebayCell = (memberId: string): Cell => {
   return { state: 'pending', label: `${done}/${required}` };
 };
 
+// Speed: count DONE speed slots vs all this week's slots for websites owned by this member
+const speedCell = (memberId: string): Cell => {
+  const ownWebsites = data.websites.filter((wsite) => wsite.createdBy === memberId);
+  if (ownWebsites.length === 0) return { state: 'none', label: '—' };
+
+  const { monStr } = weekBounds();
+  let done = 0;
+  let total = 0;
+  let missed = 0;
+  let pending = 0;
+
+  ownWebsites.forEach((wsite) => {
+    total++;
+    const slot = followup.speedSlots.find(
+      (s) => s.websiteId === wsite.id && s.weekStart === monStr
+    );
+    const st = slot?.status ?? 'pending';
+    if (st === 'done') done++;
+    else if (st === 'missed') missed++;
+    else pending++;
+  });
+
+  if (total === 0) return { state: 'none', label: '—' };
+  if (done >= total) return { state: 'done', label: 'Done' };
+  if (done === 0 && missed > 0 && pending === 0)
+    return { state: 'missed', label: `0/${total}` };
+  return { state: 'pending', label: `${done}/${total}` };
+};
+
 const pillClass = (s: CellState) => ({
   'fu-pill--done': s === 'done',
   'fu-pill--pending': s === 'pending',
@@ -439,6 +481,7 @@ interface Row {
   blog: Cell;
   plugin: Cell;
   ebay: Cell;
+  speed: Cell;
   doneCount: number;
   requiredCount: number;
   allDone: boolean;
@@ -452,8 +495,9 @@ const rows = computed<Row[]>(() => {
       const blog = blogCell(member.id);
       const plugin = pluginCell(member.id);
       const ebay = ebayCell(member.id);
+      const speed = speedCell(member.id);
       // Only count cells that actually apply (state !== 'none')
-      const cells = [blog, plugin, ebay].filter((c) => c.state !== 'none');
+      const cells = [blog, plugin, ebay, speed].filter((c) => c.state !== 'none');
       const requiredCount = cells.length;
       const doneCount = cells.filter((c) => c.state === 'done').length;
       return {
@@ -461,6 +505,7 @@ const rows = computed<Row[]>(() => {
         blog,
         plugin,
         ebay,
+        speed,
         doneCount,
         requiredCount,
         allDone: requiredCount > 0 && doneCount === requiredCount
@@ -547,6 +592,29 @@ const ebayStats = computed(() => {
 const ebayDoneTotal = computed(() => ebayStats.value.done);
 const ebayRequiredTotal = computed(() => ebayStats.value.required);
 
+// Sum of all active members' scheduled speed slots this week
+const speedStats = computed(() => {
+  let total = 0;
+  let done = 0;
+  const { monStr } = weekBounds();
+  for (const m of summaryMembers.value) {
+    const ownWebsites = data.websites.filter((wsite) => wsite.createdBy === m.id);
+    ownWebsites.forEach((wsite) => {
+      total++;
+      const slot = followup.speedSlots.find(
+        (s) => s.websiteId === wsite.id && s.weekStart === monStr
+      );
+      if (slot && slot.status === 'done') {
+        done++;
+      }
+    });
+  }
+  return { total, done };
+});
+
+const speedTotal = computed(() => speedStats.value.total);
+const speedDoneTotal = computed(() => speedStats.value.done);
+
 // ── Load ─────────────────────────────────────────────────────────────────────
 onMounted(async () => {
   if (!auth.isAdmin) return;
@@ -558,7 +626,8 @@ onMounted(async () => {
       followup.fetchBlogSlots(),
       followup.fetchPluginSlots(),
       followup.fetchEbayEntries(),
-      followup.fetchBlogSchedules()
+      followup.fetchBlogSchedules(),
+      followup.fetchSpeedSlots()
     ]);
   } catch (err) {
     console.error('[followup-summary] load failed', err);
@@ -855,7 +924,7 @@ onMounted(async () => {
 .fu-thead,
 .fu-trow {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
   align-items: center;
   gap: 0.5rem;
   padding: 0.7rem 1rem;
