@@ -158,13 +158,6 @@
               {{ viewMode === 'daily' ? 'Today' : viewMode === 'weekly' ? 'This Week' : 'This Month' }}
             </button>
           </div>
-
-          <input
-            v-model="search"
-            class="input fu-summary-search"
-            type="search"
-            placeholder="Search member…"
-          />
         </div>
       </div>
 
@@ -268,7 +261,6 @@ const data = useDataStore();
 const followup = useFollowupStore();
 
 const loading = ref(false);
-const search = ref('');
 
 // ── Timezone-safe date helpers (local parts, never toISOString) ──────────────
 const iso = (d: Date) =>
@@ -678,9 +670,7 @@ interface Row {
 }
 
 const rows = computed<Row[]>(() => {
-  const q = search.value.trim().toLowerCase();
   return summaryMembers.value
-    .filter((m) => !q || m.fullName.toLowerCase().includes(q) || m.email.toLowerCase().includes(q))
     .map((member) => {
       const blog = blogCell(member.id);
       const plugin = pluginCell(member.id);
@@ -1153,7 +1143,6 @@ onMounted(async () => {
   color: var(--text-muted);
   margin: 0.25rem 0 0;
 }
-.fu-summary-search { max-width: 16rem; }
 
 .fu-summary-toolbar {
   display: flex;
