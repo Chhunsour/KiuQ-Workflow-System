@@ -409,8 +409,9 @@ const waitingReviewCount = computed(() =>
   myAssignments.value.filter((a) => a.status === 'submitted').length
 );
 
-// ── Focus tasks ───────────────────────────────────────────────────────────────
-const todayIso = new Date().toISOString().slice(0, 10);
+const localIso = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const todayIso = localIso(new Date());
 
 interface FocusTask {
   id: string;
@@ -507,11 +508,11 @@ const getThisWeekMonday = () => {
   d.setHours(0, 0, 0, 0);
   const day = d.getDay();
   d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
-  return d.toISOString().slice(0, 10);
+  return localIso(d);
 };
 
 const thisWeekMonday = getThisWeekMonday();
-const todayStr       = new Date().toISOString().slice(0, 10);
+const todayStr       = localIso(new Date());
 
 const myBlogSlots = computed(() =>
   followup.blogSlots.filter((s) => s.websiteId && myWebsites.value.some((w) => w.id === s.websiteId))

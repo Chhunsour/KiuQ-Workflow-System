@@ -196,7 +196,9 @@ const projectName = (assignmentId: string) =>
 const memberName = (id: string | null) => (id ? data.memberById(id)?.fullName ?? 'Team member' : 'Team member');
 
 // ── Followup team summary ─────────────────────────────────────────────────────
-const todayStr = new Date().toISOString().slice(0, 10);
+const localIso = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const todayStr = localIso(new Date());
 const todayDow = new Date().getDay(); // 0=Sun
 
 const blogPending = computed(() => followup.blogPendingCount());
