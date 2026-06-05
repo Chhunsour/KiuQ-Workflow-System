@@ -128,14 +128,44 @@
       <div class="fu-summary-head">
         <div>
           <h2 class="fu-summary-title">Team Followup Summary</h2>
-          <p class="fu-summary-sub">{{ weekRangeLabel }} — who has completed their followups and who hasn't.</p>
+          <p class="fu-summary-sub">{{ periodSubLabel }} — who has completed their followups and who hasn't.</p>
         </div>
-        <input
-          v-model="search"
-          class="input fu-summary-search"
-          type="search"
-          placeholder="Search member…"
-        />
+        <div class="fu-summary-toolbar">
+          <!-- Mode Toggle -->
+          <div class="fu-mode-toggle">
+            <button
+              v-for="m in (['daily', 'weekly', 'monthly'] as const)"
+              :key="m"
+              type="button"
+              class="fu-mode-btn"
+              :class="{ 'fu-mode-btn--active': viewMode === m }"
+              @click="setViewMode(m)"
+            >
+              {{ capitalize(m) }}
+            </button>
+          </div>
+
+          <!-- Date/Period Switcher -->
+          <div class="fu-period-switcher">
+            <button class="fu-nav-btn" type="button" @click="adjustPeriod(-1)" aria-label="Previous period">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <span class="fu-period-text">{{ currentPeriodLabel }}</span>
+            <button class="fu-nav-btn" type="button" @click="adjustPeriod(1)" aria-label="Next period">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            <button class="fu-reset-btn" type="button" @click="resetPeriod">
+              {{ viewMode === 'daily' ? 'Today' : viewMode === 'weekly' ? 'This Week' : 'This Month' }}
+            </button>
+          </div>
+
+          <input
+            v-model="search"
+            class="input fu-summary-search"
+            type="search"
+            placeholder="Search member…"
+          />
+        </div>
       </div>
 
       <!-- Top stat row -->
@@ -245,7 +275,76 @@ const iso = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const today = iso(new Date());
 
+const viewMode = ref<'daily' | 'weekly' | 'monthly'>('weekly');
+const periodOffset = ref(0);
+
+const setViewMode = (mode: 'daily' | 'weekly' | 'monthly') => {
+  viewMode.value = mode;
+  periodOffset.value = 0;
+};
+
+const adjustPeriod = (delta: number) => {
+  periodOffset.value += delta;
+};
+
+const resetPeriod = () => {
+  periodOffset.value = 0;
+};
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Resolve target bounds/labels
+const dailyBounds = computed(() => {
+  const t = new Date();
+  t.setDate(t.getDate() + periodOffset.value);
+  const dateStr = iso(t);
+  const formatted = t.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  return { dateStr, label: formatted };
+});
+
+const weeklyBounds = computed(() => {
+  const t = new Date();
+  const dow = t.getDay();
+  const diffToMon = dow === 0 ? -6 : 1 - dow;
+  const mon = new Date(t);
+  mon.setDate(t.getDate() + diffToMon + periodOffset.value * 7);
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  const monStr = iso(mon);
+  const sunStr = iso(sun);
+
+  const fmt = (s: string) =>
+    new Date(`${s}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return { monStr, sunStr, label: `Week of ${fmt(monStr)} – ${fmt(sunStr)}` };
+});
+
+const monthlyBounds = computed(() => {
+  const t = new Date();
+  const target = new Date(t.getFullYear(), t.getMonth() + periodOffset.value, 1);
+  const start = new Date(target.getFullYear(), target.getMonth(), 1);
+  const end = new Date(target.getFullYear(), target.getMonth() + 1, 0);
+  const startStr = iso(start);
+  const endStr = iso(end);
+  const label = target.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  return { startStr, endStr, label };
+});
+
+const currentPeriodLabel = computed(() => {
+  if (viewMode.value === 'daily') return dailyBounds.value.label;
+  if (viewMode.value === 'weekly') return weeklyBounds.value.label;
+  return monthlyBounds.value.label;
+});
+
+const periodSubLabel = computed(() => {
+  if (viewMode.value === 'daily') return `Day of ${dailyBounds.value.label}`;
+  if (viewMode.value === 'weekly') return weeklyBounds.value.label;
+  return `Month of ${monthlyBounds.value.label}`;
+});
+
 const weekBounds = () => {
+  if (viewMode.value === 'weekly') {
+    return { monStr: weeklyBounds.value.monStr, sunStr: weeklyBounds.value.sunStr };
+  }
   const t = new Date();
   const dow = t.getDay();
   const diffToMon = dow === 0 ? -6 : 1 - dow;
@@ -255,13 +354,6 @@ const weekBounds = () => {
   sun.setDate(mon.getDate() + 6);
   return { monStr: iso(mon), sunStr: iso(sun) };
 };
-
-const weekRangeLabel = computed(() => {
-  const { monStr, sunStr } = weekBounds();
-  const fmt = (s: string) =>
-    new Date(`${s}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  return `Week of ${fmt(monStr)} – ${fmt(sunStr)}`;
-});
 
 const initials = (name: string) =>
   (name || '?').trim().split(/\s+/).slice(0, 2).map((p) => p[0] ?? '').join('').toUpperCase() || '?';
@@ -285,57 +377,44 @@ interface BlogDay {
 
 const SHORT_DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-const blogWeekDays = (websiteId: string): BlogDay[] => {
-  const { monStr, sunStr } = weekBounds();
+const isBlogDateRequired = (websiteId: string, dateStr: string, schedule: any | null): boolean => {
+  const cur = new Date(`${dateStr}T12:00:00`);
+  const dow = cur.getDay();
+  const dayOfMonth = cur.getDate();
+
+  if (!schedule) {
+    return [2, 6].includes(dow);
+  }
+  if (schedule.kind === 'custom') {
+    return schedule.customDates.includes(dateStr);
+  }
+  if (schedule.kind === 'weekly') {
+    return (schedule.weekdays || []).includes(dow);
+  }
+  if (schedule.kind === 'monthly') {
+    const lastDay = new Date(cur.getFullYear(), cur.getMonth() + 1, 0).getDate();
+    const wantedDays = (schedule.monthlyDays ?? [])
+      .filter((d: any) => Number.isInteger(d) && d >= 1 && d <= 31)
+      .map((d: any) => Math.min(d, lastDay));
+    if (wantedDays.includes(dayOfMonth)) return true;
+    if (wantedDays.length === 0 && schedule.monthlyTarget) {
+      const slot = followup.blogSlots.find(
+        (s) => s.websiteId === websiteId && s.scheduledDate === dateStr
+      );
+      return !!slot;
+    }
+  }
+  return false;
+};
+
+const blogDaysInCustomRange = (websiteId: string, startIso: string, endIso: string): BlogDay[] => {
   const schedule = followup.scheduleFor(websiteId);
-
-  // Pre-resolve the per-kind "is required today?" check.
-  const weeklyDows = new Set<number>(
-    !schedule
-      ? [2, 6]                                                  // legacy default
-      : schedule.kind === 'weekly' && schedule.weekdays.length > 0
-        ? schedule.weekdays
-        : []
-  );
-  const customSet = new Set<string>(
-    schedule?.kind === 'custom' ? schedule.customDates : []
-  );
-
   const days: BlogDay[] = [];
-  const cur = new Date(`${monStr}T12:00:00`);
-  const end = new Date(`${sunStr}T12:00:00`);
+  const cur = new Date(`${startIso}T12:00:00`);
+  const end = new Date(`${endIso}T12:00:00`);
   while (cur <= end) {
     const dateStr = iso(cur);
-    const dow = cur.getDay();
-    const dayOfMonth = cur.getDate();
-    let required = false;
-    let label = '';
-
-    if (schedule?.kind === 'monthly') {
-      const lastDay = new Date(cur.getFullYear(), cur.getMonth() + 1, 0).getDate();
-      const wantedDays = (schedule.monthlyDays ?? [])
-        .filter((d) => Number.isInteger(d) && d >= 1 && d <= 31)
-        .map((d) => Math.min(d, lastDay));
-      if (wantedDays.includes(dayOfMonth)) {
-        required = true;
-        label = String(dayOfMonth);
-      } else if (wantedDays.length === 0 && schedule.monthlyTarget) {
-        // Legacy monthly_target — defer to whatever slot the store placed.
-        const slot = followup.blogSlots.find(
-          (s) => s.websiteId === websiteId && s.scheduledDate === dateStr
-        );
-        if (slot) {
-          required = true;
-          label = String(dayOfMonth);
-        }
-      }
-    } else if (customSet.has(dateStr)) {
-      required = true;
-      label = String(dayOfMonth);
-    } else if (weeklyDows.has(dow)) {
-      required = true;
-      label = SHORT_DAY[dow];
-    }
+    const required = isBlogDateRequired(websiteId, dateStr, schedule);
 
     if (required) {
       const slot = followup.blogSlots.find(
@@ -351,14 +430,20 @@ const blogWeekDays = (websiteId: string): BlogDay[] => {
       } else if (dateStr > today) {
         state = 'upcoming';
       }
-      days.push({ label, date: dateStr, dow, state });
+      days.push({ label: SHORT_DAY[cur.getDay()], date: dateStr, dow: cur.getDay(), state });
     }
     cur.setDate(cur.getDate() + 1);
   }
   return days;
 };
 
-// Blog: count actual DONE blog slots vs all scheduled slots this week for websites owned by this member
+const blogWeekDays = (websiteId: string): BlogDay[] => {
+  const start = viewMode.value === 'weekly' ? weeklyBounds.value.monStr : monthlyBounds.value.startStr;
+  const end = viewMode.value === 'weekly' ? weeklyBounds.value.sunStr : monthlyBounds.value.endStr;
+  return blogDaysInCustomRange(websiteId, start, end);
+};
+
+// Blog: count actual DONE blog slots vs all scheduled slots in selected period
 const blogCell = (memberId: string): Cell => {
   const ownWebsites = data.websites.filter((wsite) => wsite.createdBy === memberId);
   if (ownWebsites.length === 0) return { state: 'none', label: '—' };
@@ -368,12 +453,89 @@ const blogCell = (memberId: string): Cell => {
   let missed = 0;
   let pending = 0;
 
+  if (viewMode.value === 'daily') {
+    const targetDate = dailyBounds.value.dateStr;
+    ownWebsites.forEach((wsite) => {
+      const schedule = followup.scheduleFor(wsite.id);
+      const isRequired = isBlogDateRequired(wsite.id, targetDate, schedule);
+      if (isRequired) {
+        total++;
+        const slot = followup.blogSlots.find(
+          (s) => s.websiteId === wsite.id && s.scheduledDate === targetDate
+        );
+        const isDone = slot && (slot.status === 'done' || slot.status === 'late');
+        const isMissed = slot ? slot.status === 'missed' : targetDate < today;
+        if (isDone) done++;
+        else if (isMissed) missed++;
+        else pending++;
+      }
+    });
+  } else {
+    const start = viewMode.value === 'weekly' ? weeklyBounds.value.monStr : monthlyBounds.value.startStr;
+    const end = viewMode.value === 'weekly' ? weeklyBounds.value.sunStr : monthlyBounds.value.endStr;
+    ownWebsites.forEach((wsite) => {
+      const days = blogDaysInCustomRange(wsite.id, start, end);
+      days.forEach((d) => {
+        total++;
+        if (d.state === 'done') done++;
+        else if (d.state === 'missed') missed++;
+        else pending++;
+      });
+    });
+  }
+
+  if (total === 0) return { state: 'none', label: '—' };
+  if (done >= total) return { state: 'done', label: 'Done' };
+  if (done === 0 && missed > 0 && pending === 0)
+    return { state: 'missed', label: `0/${total}` };
+  return { state: 'pending', label: `${done}/${total}` };
+};
+
+// Plugin: count DONE plugin slots vs all in selected period for websites owned by this member
+const pluginCell = (memberId: string): Cell => {
+  const ownWebsites = data.websites.filter((wsite) => wsite.createdBy === memberId);
+  if (ownWebsites.length === 0) return { state: 'none', label: '—' };
+
+  if (viewMode.value === 'daily') {
+    const targetDate = dailyBounds.value.dateStr;
+    let completedCount = 0;
+    ownWebsites.forEach((wsite) => {
+      const slot = followup.pluginSlots.find(
+        (s) => s.websiteId === wsite.id && s.completedBy === memberId && s.completedAt?.startsWith(targetDate)
+      );
+      if (slot && slot.status === 'done') completedCount++;
+    });
+    if (completedCount > 0) return { state: 'done', label: `${completedCount} Done` };
+    return { state: 'none', label: '—' };
+  }
+
+  let done = 0;
+  let total = 0;
+  let missed = 0;
+  let pending = 0;
+
+  const targetStarts = new Set<string>();
+  if (viewMode.value === 'weekly') {
+    targetStarts.add(weeklyBounds.value.monStr);
+  } else {
+    const { startStr, endStr } = monthlyBounds.value;
+    const cur = new Date(`${startStr}T12:00:00`);
+    const end = new Date(`${endStr}T12:00:00`);
+    while (cur <= end) {
+      if (cur.getDay() === 1) targetStarts.add(iso(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+  }
+
   ownWebsites.forEach((wsite) => {
-    const days = blogWeekDays(wsite.id);
-    days.forEach((d) => {
+    targetStarts.forEach((ws) => {
       total++;
-      if (d.state === 'done') done++;
-      else if (d.state === 'missed') missed++;
+      const slot = followup.pluginSlots.find(
+        (s) => s.websiteId === wsite.id && s.weekStart === ws
+      );
+      const st = slot?.status ?? 'pending';
+      if (st === 'done') done++;
+      else if (st === 'missed') missed++;
       else pending++;
     });
   });
@@ -385,82 +547,109 @@ const blogCell = (memberId: string): Cell => {
   return { state: 'pending', label: `${done}/${total}` };
 };
 
-// Plugin: count DONE plugin slots vs all this week's slots for websites owned by this member
-const pluginCell = (memberId: string): Cell => {
-  const ownWebsites = data.websites.filter((wsite) => wsite.createdBy === memberId);
-  if (ownWebsites.length === 0) return { state: 'none', label: '—' };
-
-  const { monStr } = weekBounds();
-  let done = 0;
-  let total = 0;
-  let missed = 0;
-  let pending = 0;
-
-  ownWebsites.forEach((wsite) => {
-    total++;
-    const slot = followup.pluginSlots.find(
-      (s) => s.websiteId === wsite.id && s.weekStart === monStr
-    );
-    const st = slot?.status ?? 'pending';
-    if (st === 'done') done++;
-    else if (st === 'missed') missed++;
-    else pending++;
-  });
-
-  if (total === 0) return { state: 'none', label: '—' };
-  if (done >= total) return { state: 'done', label: 'Done' };
-  if (done === 0 && missed > 0 && pending === 0)
-    return { state: 'missed', label: `0/${total}` };
-  return { state: 'pending', label: `${done}/${total}` };
-};
-
-// eBay: required Mon–Sat (skip Sun); this week's done count
+// eBay: required Mon–Sat (skip Sun)
 const ebayCell = (memberId: string): Cell => {
-  const { monStr } = weekBounds();
   const doneDates = new Set(
     followup.ebayEntries
       .filter((e) => e.userId === memberId && e.status === 'done')
       .map((e) => e.date)
   );
-  const mon = new Date(`${monStr}T12:00:00`);
+
+  if (viewMode.value === 'daily') {
+    const targetDate = dailyBounds.value.dateStr;
+    const targetDow = new Date(`${targetDate}T12:00:00`).getDay();
+    if (targetDow === 0) return { state: 'none', label: '—' }; // Sunday
+    if (doneDates.has(targetDate)) return { state: 'done', label: 'Done' };
+    if (targetDate < today) return { state: 'missed', label: 'Missed' };
+    if (targetDate > today) return { state: 'none', label: '—' };
+    return { state: 'pending', label: 'Pending' };
+  }
+
   let required = 0;
   let done = 0;
   let missed = 0;
-  for (let i = 0; i < 6; i++) {
-    const d = new Date(mon);
-    d.setDate(mon.getDate() + i);
-    const ds = iso(d);
-    if (ds > today) continue;
-    required++;
-    if (doneDates.has(ds)) done++;
-    else if (ds < today) missed++;
+
+  if (viewMode.value === 'weekly') {
+    const { monStr } = weeklyBounds.value;
+    const mon = new Date(`${monStr}T12:00:00`);
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(mon);
+      d.setDate(mon.getDate() + i);
+      const ds = iso(d);
+      if (ds > today) continue;
+      required++;
+      if (doneDates.has(ds)) done++;
+      else if (ds < today) missed++;
+    }
+  } else {
+    const { startStr, endStr } = monthlyBounds.value;
+    const cur = new Date(`${startStr}T12:00:00`);
+    const end = new Date(`${endStr}T12:00:00`);
+    while (cur <= end) {
+      const ds = iso(cur);
+      const dow = cur.getDay();
+      if (dow !== 0 && ds <= today) {
+        required++;
+        if (doneDates.has(ds)) done++;
+        else if (ds < today) missed++;
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
   }
+
   if (required === 0) return { state: 'none', label: '—' };
   if (done >= required) return { state: 'done', label: 'Done' };
   if (missed > 0 && done === 0) return { state: 'missed', label: `0/${required}` };
   return { state: 'pending', label: `${done}/${required}` };
 };
 
-// Speed: count DONE speed slots vs all this week's slots for websites owned by this member
+// Speed: count DONE speed slots vs all in selected period for websites owned by this member
 const speedCell = (memberId: string): Cell => {
   const ownWebsites = data.websites.filter((wsite) => wsite.createdBy === memberId);
   if (ownWebsites.length === 0) return { state: 'none', label: '—' };
 
-  const { monStr } = weekBounds();
+  if (viewMode.value === 'daily') {
+    const targetDate = dailyBounds.value.dateStr;
+    let completedCount = 0;
+    ownWebsites.forEach((wsite) => {
+      const slot = followup.speedSlots.find(
+        (s) => s.websiteId === wsite.id && s.completedBy === memberId && s.completedAt?.startsWith(targetDate)
+      );
+      if (slot && slot.status === 'done') completedCount++;
+    });
+    if (completedCount > 0) return { state: 'done', label: `${completedCount} Done` };
+    return { state: 'none', label: '—' };
+  }
+
   let done = 0;
   let total = 0;
   let missed = 0;
   let pending = 0;
 
+  const targetStarts = new Set<string>();
+  if (viewMode.value === 'weekly') {
+    targetStarts.add(weeklyBounds.value.monStr);
+  } else {
+    const { startStr, endStr } = monthlyBounds.value;
+    const cur = new Date(`${startStr}T12:00:00`);
+    const end = new Date(`${endStr}T12:00:00`);
+    while (cur <= end) {
+      if (cur.getDay() === 1) targetStarts.add(iso(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+  }
+
   ownWebsites.forEach((wsite) => {
-    total++;
-    const slot = followup.speedSlots.find(
-      (s) => s.websiteId === wsite.id && s.weekStart === monStr
-    );
-    const st = slot?.status ?? 'pending';
-    if (st === 'done') done++;
-    else if (st === 'missed') missed++;
-    else pending++;
+    targetStarts.forEach((ws) => {
+      total++;
+      const slot = followup.speedSlots.find(
+        (s) => s.websiteId === wsite.id && s.weekStart === ws
+      );
+      const st = slot?.status ?? 'pending';
+      if (st === 'done') done++;
+      else if (st === 'missed') missed++;
+      else pending++;
+    });
   });
 
   if (total === 0) return { state: 'none', label: '—' };
@@ -525,18 +714,32 @@ const membersWithPending = computed(
   () => rows.value.filter((r) => !r.allDone && r.requiredCount > 0).length
 );
 
-// Sum of all active members' scheduled blog slots this week
+// Sum of all active members' scheduled blog slots in selected period
 const blogStats = computed(() => {
   let total = 0;
   let done = 0;
   for (const m of summaryMembers.value) {
     const ownWebsites = data.websites.filter((wsite) => wsite.createdBy === m.id);
     ownWebsites.forEach((wsite) => {
-      const days = blogWeekDays(wsite.id);
-      days.forEach((d) => {
-        total++;
-        if (d.state === 'done') done++;
-      });
+      if (viewMode.value === 'daily') {
+        const targetDate = dailyBounds.value.dateStr;
+        const schedule = followup.scheduleFor(wsite.id);
+        if (isBlogDateRequired(wsite.id, targetDate, schedule)) {
+          total++;
+          const slot = followup.blogSlots.find(
+            (s) => s.websiteId === wsite.id && s.scheduledDate === targetDate
+          );
+          if (slot && (slot.status === 'done' || slot.status === 'late')) done++;
+        }
+      } else {
+        const start = viewMode.value === 'weekly' ? weeklyBounds.value.monStr : monthlyBounds.value.startStr;
+        const end = viewMode.value === 'weekly' ? weeklyBounds.value.sunStr : monthlyBounds.value.endStr;
+        const days = blogDaysInCustomRange(wsite.id, start, end);
+        days.forEach((d) => {
+          total++;
+          if (d.state === 'done') done++;
+        });
+      }
     });
   }
   return { total, done };
@@ -545,22 +748,45 @@ const blogStats = computed(() => {
 const blogTotal = computed(() => blogStats.value.total);
 const blogDoneTotal = computed(() => blogStats.value.done);
 
-// Sum of all active members' scheduled plugin slots this week
+// Sum of all active members' scheduled plugin slots in selected period
 const pluginStats = computed(() => {
   let total = 0;
   let done = 0;
-  const { monStr } = weekBounds();
   for (const m of summaryMembers.value) {
     const ownWebsites = data.websites.filter((wsite) => wsite.createdBy === m.id);
-    ownWebsites.forEach((wsite) => {
-      total++;
-      const slot = followup.pluginSlots.find(
-        (s) => s.websiteId === wsite.id && s.weekStart === monStr
-      );
-      if (slot && slot.status === 'done') {
-        done++;
+    if (viewMode.value === 'daily') {
+      const targetDate = dailyBounds.value.dateStr;
+      ownWebsites.forEach((wsite) => {
+        const slot = followup.pluginSlots.find(
+          (s) => s.websiteId === wsite.id && s.completedBy === m.id && s.completedAt?.startsWith(targetDate)
+        );
+        if (slot && slot.status === 'done') {
+          total++;
+          done++;
+        }
+      });
+    } else {
+      const targetStarts = new Set<string>();
+      if (viewMode.value === 'weekly') {
+        targetStarts.add(weeklyBounds.value.monStr);
+      } else {
+        const cur = new Date(`${monthlyBounds.value.startStr}T12:00:00`);
+        const end = new Date(`${monthlyBounds.value.endStr}T12:00:00`);
+        while (cur <= end) {
+          if (cur.getDay() === 1) targetStarts.add(iso(cur));
+          cur.setDate(cur.getDate() + 1);
+        }
       }
-    });
+      ownWebsites.forEach((wsite) => {
+        targetStarts.forEach((ws) => {
+          total++;
+          const slot = followup.pluginSlots.find(
+            (s) => s.websiteId === wsite.id && s.weekStart === ws
+          );
+          if (slot && slot.status === 'done') done++;
+        });
+      });
+    }
   }
   return { total, done };
 });
@@ -569,8 +795,6 @@ const pluginTotal = computed(() => pluginStats.value.total);
 const pluginDoneTotal = computed(() => pluginStats.value.done);
 
 const ebayStats = computed(() => {
-  const { monStr } = weekBounds();
-  const mon = new Date(`${monStr}T12:00:00`);
   let required = 0;
   let done = 0;
   for (const m of summaryMembers.value) {
@@ -579,13 +803,37 @@ const ebayStats = computed(() => {
         .filter((e) => e.userId === m.id && e.status === 'done')
         .map((e) => e.date)
     );
-    for (let i = 0; i < 6; i++) {
-      const d = new Date(mon);
-      d.setDate(mon.getDate() + i);
-      const ds = iso(d);
-      if (ds > today) continue;
-      required++;
-      if (doneDates.has(ds)) done++;
+    if (viewMode.value === 'daily') {
+      const targetDate = dailyBounds.value.dateStr;
+      const dow = new Date(`${targetDate}T12:00:00`).getDay();
+      if (dow !== 0) {
+        required++;
+        if (doneDates.has(targetDate)) done++;
+      }
+    } else if (viewMode.value === 'weekly') {
+      const bounds = weeklyBounds.value;
+      const mon = new Date(`${bounds.monStr}T12:00:00`);
+      for (let i = 0; i < 6; i++) {
+        const d = new Date(mon);
+        d.setDate(mon.getDate() + i);
+        const ds = iso(d);
+        if (ds > today) continue;
+        required++;
+        if (doneDates.has(ds)) done++;
+      }
+    } else {
+      const bounds = monthlyBounds.value;
+      const cur = new Date(`${bounds.startStr}T12:00:00`);
+      const end = new Date(`${bounds.endStr}T12:00:00`);
+      while (cur <= end) {
+        const ds = iso(cur);
+        const dow = cur.getDay();
+        if (dow !== 0 && ds <= today) {
+          required++;
+          if (doneDates.has(ds)) done++;
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
     }
   }
   return { required, done };
@@ -593,22 +841,45 @@ const ebayStats = computed(() => {
 const ebayDoneTotal = computed(() => ebayStats.value.done);
 const ebayRequiredTotal = computed(() => ebayStats.value.required);
 
-// Sum of all active members' scheduled speed slots this week
+// Sum of all active members' scheduled speed slots in selected period
 const speedStats = computed(() => {
   let total = 0;
   let done = 0;
-  const { monStr } = weekBounds();
   for (const m of summaryMembers.value) {
     const ownWebsites = data.websites.filter((wsite) => wsite.createdBy === m.id);
-    ownWebsites.forEach((wsite) => {
-      total++;
-      const slot = followup.speedSlots.find(
-        (s) => s.websiteId === wsite.id && s.weekStart === monStr
-      );
-      if (slot && slot.status === 'done') {
-        done++;
+    if (viewMode.value === 'daily') {
+      const targetDate = dailyBounds.value.dateStr;
+      ownWebsites.forEach((wsite) => {
+        const slot = followup.speedSlots.find(
+          (s) => s.websiteId === wsite.id && s.completedBy === m.id && s.completedAt?.startsWith(targetDate)
+        );
+        if (slot && slot.status === 'done') {
+          total++;
+          done++;
+        }
+      });
+    } else {
+      const targetStarts = new Set<string>();
+      if (viewMode.value === 'weekly') {
+        targetStarts.add(weeklyBounds.value.monStr);
+      } else {
+        const cur = new Date(`${monthlyBounds.value.startStr}T12:00:00`);
+        const end = new Date(`${monthlyBounds.value.endStr}T12:00:00`);
+        while (cur <= end) {
+          if (cur.getDay() === 1) targetStarts.add(iso(cur));
+          cur.setDate(cur.getDate() + 1);
+        }
       }
-    });
+      ownWebsites.forEach((wsite) => {
+        targetStarts.forEach((ws) => {
+          total++;
+          const slot = followup.speedSlots.find(
+            (s) => s.websiteId === wsite.id && s.weekStart === ws
+          );
+          if (slot && slot.status === 'done') done++;
+        });
+      });
+    }
   }
   return { total, done };
 });
@@ -883,6 +1154,98 @@ onMounted(async () => {
   margin: 0.25rem 0 0;
 }
 .fu-summary-search { max-width: 16rem; }
+
+.fu-summary-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.fu-mode-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--card-bg);
+}
+
+.fu-mode-btn {
+  padding: 0.42rem 0.8rem;
+  font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-right: 1px solid var(--border);
+  transition: background 150ms, color 150ms;
+}
+
+.fu-mode-btn:last-child {
+  border-right: none;
+}
+
+.fu-mode-btn--active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.fu-period-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.2rem 0.5rem;
+  background: var(--card-bg);
+}
+
+.fu-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 150ms;
+}
+
+.fu-nav-btn:hover {
+  background: var(--soft-bg);
+}
+
+.fu-period-text {
+  font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--text-main);
+  min-width: 8.5rem;
+  text-align: center;
+}
+
+.fu-reset-btn {
+  font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--primary);
+  background: var(--soft-bg);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: opacity 120ms;
+  white-space: nowrap;
+}
+
+.fu-reset-btn:hover {
+  opacity: 0.85;
+}
 
 .fu-stat-row {
   display: grid;
