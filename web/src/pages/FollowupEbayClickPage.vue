@@ -210,6 +210,7 @@ import PageHeader from '@/components/ui/PageHeader.vue';
 import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import FollowupMemberGroups from '@/components/followup/FollowupMemberGroups.vue';
 import { usePageRealtime } from '@/services/realtimeService';
+import { normalizeRole } from '@/lib/roles';
 
 usePageRealtime(['ebay_click_followup']);
 
@@ -427,7 +428,7 @@ const selfMissedWeek = computed(() =>
 // ── Admin summary cards ──────────────────────────────────────────────────────
 
 const activeMembers = computed(() =>
-  data.members.filter((m) => m.status === 'active')
+  data.members.filter((m) => m.status === 'active' && normalizeRole(m.role) !== 'supervisor')
 );
 
 const completedToday = computed(() => {

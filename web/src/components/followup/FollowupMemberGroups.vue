@@ -248,6 +248,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type Member, type Website } from '@/stores/data';
 import { useFollowupStore } from '@/stores/followup';
 import { presenceStatusFor } from '@/lib/presence';
+import { normalizeRole } from '@/lib/roles';
 
 type Kind = 'blog' | 'plugin' | 'ebay';
 type StatusKind = 'done' | 'pending' | 'missed' | 'no_work_day';
@@ -332,7 +333,7 @@ const monthBounds = () => {
 // visibleGroups). eBay: admins now appear too since they also do the
 // daily click. Admins remain excluded from the leaderboard separately.
 const activeMembers = computed(() =>
-  data.members.filter((m) => m.status === 'active')
+  data.members.filter((m) => m.status === 'active' && normalizeRole(m.role) !== 'supervisor')
 );
 
 // Per-day blog status for THIS week, scoped to the website's saved

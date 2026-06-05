@@ -231,6 +231,7 @@ import { RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type Member } from '@/stores/data';
 import { useFollowupStore } from '@/stores/followup';
+import { normalizeRole } from '@/lib/roles';
 
 const auth = useAuthStore();
 const data = useDataStore();
@@ -267,7 +268,7 @@ const initials = (name: string) =>
 
 // ── Members shown: active members + admins who own websites ──────────────────
 const summaryMembers = computed(() =>
-  data.members.filter((m) => m.status === 'active')
+  data.members.filter((m) => m.status === 'active' && normalizeRole(m.role) !== 'supervisor')
 );
 
 // ── Status calc ──────────────────────────────────────────────────────────────
