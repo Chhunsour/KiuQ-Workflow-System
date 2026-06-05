@@ -72,7 +72,7 @@
                     v-if="member.avatarUrl"
                     :src="member.avatarUrl"
                     :alt="`${member.fullName || 'Member'} avatar`"
-                    class="h-full w-full object-cover"
+                    class="h-full w-full object-cover cursor-pointer transition hover:scale-110"
                   />
                   <span v-else>{{ initials(member.fullName || member.email) }}</span>
                 </button>
@@ -128,7 +128,7 @@
                 v-if="selectedMember.avatarUrl"
                 :src="selectedMember.avatarUrl"
                 :alt="`${selectedMember.fullName || 'Member'} avatar`"
-                class="h-full w-full object-cover"
+                class="h-full w-full object-cover cursor-pointer transition hover:scale-105"
               />
               <span v-else>{{ initials(selectedMember.fullName || selectedMember.email) }}</span>
             </button>
@@ -227,38 +227,8 @@
       </template>
     </Modal>
 
-    <Modal
-      :open="photoOpen"
-      :title="photoMember ? `${photoMember.fullName || photoMember.email} photo` : 'Profile photo'"
-      subtitle="Quick profile photo preview."
-      size="sm"
-      @close="photoOpen = false"
-    >
-      <div v-if="photoMember" class="space-y-4">
-        <div class="rounded-card border border-border bg-soft/40 p-3">
-          <img
-            v-if="photoMember.avatarUrl"
-            :src="photoMember.avatarUrl"
-            :alt="`${photoMember.fullName || 'Member'} profile photo`"
-            class="mx-auto max-h-[55vh] w-full rounded-card object-contain"
-          />
-          <div
-            v-else
-            class="mx-auto flex h-56 w-56 max-w-full items-center justify-center rounded-full bg-soft text-primary ui-font text-5xl font-semibold"
-          >
-            {{ initials(photoMember.fullName || photoMember.email) }}
-          </div>
-        </div>
-        <div class="text-center">
-          <div class="ui-font text-sm font-semibold text-text-main">{{ photoMember.fullName || 'Unnamed member' }}</div>
-          <div class="mt-1 text-xs text-text-muted">{{ photoMember.email }}</div>
-        </div>
-      </div>
-      <template #footer>
-        <button class="btn-secondary" type="button" @click="photoOpen = false">Close</button>
-      </template>
-    </Modal>
 
+    <!-- Deactivate Confirmation -->
     <!-- Deactivate Confirmation -->
     <Modal :open="deactivateOpen" title="Deactivate user?" subtitle="This user will lose access but data stays intact." size="md" @close="deactivateOpen = false">
       <div v-if="deactivateTarget" class="space-y-4">
@@ -387,6 +357,7 @@ import { roleBadgeClass, roleLabel } from '@/lib/roles';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type ActivityAction, type Member, type MemberStatus } from '@/stores/data';
 import { supabase } from '@/lib/supabase';
+import { useImagePreviewStore } from '@/stores/imagePreview';
 
 const auth = useAuthStore();
 const data = useDataStore();
@@ -396,8 +367,7 @@ const modalOpen = ref(false);
 const saving = ref(false);
 const formRef = ref<{ model: Member } | null>(null);
 const selectedMemberId = ref('');
-const photoOpen = ref(false);
-const photoMember = ref<Member | null>(null);
+const previewStore = useImagePreviewStore();
 
 const deactivateOpen = ref(false);
 const deactivateTarget = ref<Member | null>(null);
@@ -533,8 +503,14 @@ const selectMember = (member: Member) => {
   selectedMemberId.value = member.id;
 };
 const openPhoto = (member: Member) => {
-  photoMember.value = member;
-  photoOpen.value = true;
+  if (member.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: member.avatarUrl,
+      fullName: member.fullName,
+      email: member.email,
+      role: member.role
+    });
+  }
 };
 const closeModal = () => (modalOpen.value = false);
 

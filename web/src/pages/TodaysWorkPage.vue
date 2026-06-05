@@ -210,7 +210,13 @@
               <template v-for="member in cardMembers(activeCard)" :key="member.id">
                 <div class="td-member-chip" :title="member.fullName || member.email">
                   <div class="td-member-avatar">
-                    <img v-if="member.avatarUrl" :src="member.avatarUrl" :alt="member.fullName" class="td-avatar-img" />
+                    <img
+                      v-if="member.avatarUrl"
+                      :src="member.avatarUrl"
+                      :alt="member.fullName"
+                      class="td-avatar-img cursor-pointer transition hover:scale-110"
+                      @click.prevent.stop="openPhotoPreview(member)"
+                    />
                     <span v-else class="td-avatar-initials">{{ (member.fullName || member.email).slice(0,2).toUpperCase() }}</span>
                   </div>
                   <span class="td-member-name">{{ member.fullName || member.email }}</span>
@@ -306,7 +312,13 @@
               <div v-else class="cs-list">
                 <article v-for="comment in activeCard.comments" :key="comment.id" class="cs-card" :class="{ 'cs-card--own': comment.userId === auth.user?.id }">
                   <div class="cs-avatar" :title="memberName(comment.userId)">
-                    <img v-if="memberById(comment.userId)?.avatarUrl" :src="memberById(comment.userId)!.avatarUrl" :alt="memberName(comment.userId)" class="cs-avatar-img" />
+                    <img
+                      v-if="memberById(comment.userId)?.avatarUrl"
+                      :src="memberById(comment.userId)!.avatarUrl"
+                      :alt="memberName(comment.userId)"
+                      class="cs-avatar-img cursor-pointer transition hover:scale-110"
+                      @click.prevent.stop="openPhotoPreview(memberById(comment.userId))"
+                    />
                     <span v-else class="cs-avatar-initials">{{ commentInitials(comment.userId) }}</span>
                   </div>
                   <div class="cs-body">
@@ -332,7 +344,13 @@
               </div>
               <div class="cs-input-row">
                 <div class="cs-avatar cs-avatar--sm">
-                  <img v-if="auth.profile?.avatarUrl" :src="auth.profile.avatarUrl" :alt="auth.profile?.fullName || 'You'" class="cs-avatar-img" />
+                  <img
+                    v-if="auth.profile?.avatarUrl"
+                    :src="auth.profile.avatarUrl"
+                    :alt="auth.profile?.fullName || 'You'"
+                    class="cs-avatar-img cursor-pointer transition hover:scale-110"
+                    @click.prevent.stop="openPhotoPreview(auth.profile)"
+                  />
                   <span v-else class="cs-avatar-initials">{{ selfInitials }}</span>
                 </div>
                 <div class="cs-input-wrap">
@@ -528,6 +546,19 @@ import TaskDeadlineBadge from '@/components/ui/TaskDeadlineBadge.vue';
 import Modal from '@/components/ui/Modal.vue';
 import QuickAddTaskModal from '@/components/board/QuickAddTaskModal.vue';
 import MonthSelector from '@/components/board/MonthSelector.vue';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+
+const previewStore = useImagePreviewStore();
+const openPhotoPreview = (member: any) => {
+  if (member?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: member.avatarUrl,
+      fullName: member.fullName || member.name || member.email || 'Member',
+      email: member.email,
+      role: member.role
+    });
+  }
+};
 import TaskCard from '@/components/board/TaskCard.vue';
 import TaskImagePreviewModal from '@/components/board/TaskImagePreviewModal.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';

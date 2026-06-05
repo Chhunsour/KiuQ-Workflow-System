@@ -4,7 +4,7 @@
       <section class="member-board-header card">
         <div class="member-heading">
           <span class="member-avatar large">
-            <img v-if="selectedMember.avatarUrl" :src="selectedMember.avatarUrl" :alt="selectedMember.fullName || selectedMember.email" loading="lazy" />
+            <img v-if="selectedMember.avatarUrl" :src="selectedMember.avatarUrl" :alt="selectedMember.fullName || selectedMember.email" loading="lazy" class="cursor-pointer transition hover:scale-110" @click.prevent.stop="openPhotoPreview(selectedMember)" />
             <span v-else>{{ initials(selectedMember.fullName, selectedMember.email) }}</span>
           </span>
           <div>
@@ -137,7 +137,7 @@
         <article v-for="member in filteredMembers" :key="member.id" class="member-card">
           <div class="member-card-profile">
             <span class="member-avatar member-avatar-lg">
-              <img v-if="member.avatarUrl" :src="member.avatarUrl" :alt="member.fullName || member.email" loading="lazy" />
+              <img v-if="member.avatarUrl" :src="member.avatarUrl" :alt="member.fullName || member.email" loading="lazy" class="cursor-pointer transition hover:scale-110" @click.prevent.stop="openPhotoPreview(member)" />
               <span v-else>{{ initials(member.fullName, member.email) }}</span>
             </span>
             <span class="presence-dot" :class="member.currentStatus" :title="presenceLabel(member)" />
@@ -207,6 +207,19 @@ import MonthSelector from '@/components/board/MonthSelector.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type Member, type PromptAssignment, type Role } from '@/stores/data';
 import { usePageRealtime } from '@/services/realtimeService';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+const previewStore = useImagePreviewStore();
+
+const openPhotoPreview = (member: any) => {
+  if (member?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: member.avatarUrl,
+      fullName: member.fullName,
+      email: member.email,
+      role: member.role
+    });
+  }
+};
 
 usePageRealtime(['prompt_assignments', 'section_tasks', 'submissions', 'profiles', 'websites', 'blockers']);
 

@@ -69,6 +69,8 @@
               :src="primaryMember.avatarUrl"
               :alt="primaryMember.fullName || primaryMember.email"
               loading="lazy"
+              class="cursor-pointer transition hover:scale-110"
+              @click.prevent.stop="openPhotoPreview"
             />
             <span v-else>{{ memberInitials(primaryMember) }}</span>
           </span>
@@ -110,6 +112,19 @@
 import { computed, ref } from 'vue';
 import TaskDeadlineBadge from '@/components/ui/TaskDeadlineBadge.vue';
 import TaskImagePreviewModal from '@/components/board/TaskImagePreviewModal.vue';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+
+const previewStore = useImagePreviewStore();
+const openPhotoPreview = () => {
+  if (primaryMember.value?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: primaryMember.value.avatarUrl,
+      fullName: primaryMember.value.fullName || primaryMember.value.email || 'Member',
+      email: primaryMember.value.email,
+      role: primaryMember.value.role
+    });
+  }
+};
 import { useDataStore, type Member } from '@/stores/data';
 
 interface CardData {

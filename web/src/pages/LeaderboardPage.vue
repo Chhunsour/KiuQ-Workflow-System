@@ -69,7 +69,13 @@
 
             <template v-if="slot.row">
               <span class="lb-podium-avatar" :class="`lb-ring-${slot.rank}`">
-                <img v-if="slot.row.avatarUrl" :src="slot.row.avatarUrl" :alt="slot.row.fullName" />
+                <img
+                  v-if="slot.row.avatarUrl"
+                  :src="slot.row.avatarUrl"
+                  :alt="slot.row.fullName"
+                  class="cursor-pointer transition hover:scale-110"
+                  @click.prevent.stop="openPhotoPreview(slot.row)"
+                />
                 <span v-else>{{ initials(slot.row.fullName) }}</span>
               </span>
               <h2 class="lb-podium-name">{{ slot.row.fullName }}</h2>
@@ -108,7 +114,13 @@
             >
               <div class="lb-row-rank" :class="row.rank <= 3 ? `lb-row-rank-${row.rank}` : ''">{{ row.rank }}</div>
               <span class="lb-row-avatar">
-                <img v-if="row.avatarUrl" :src="row.avatarUrl" :alt="row.fullName" />
+                <img
+                  v-if="row.avatarUrl"
+                  :src="row.avatarUrl"
+                  :alt="row.fullName"
+                  class="cursor-pointer transition hover:scale-110"
+                  @click.prevent.stop="openPhotoPreview(row)"
+                />
                 <span v-else>{{ initials(row.fullName) }}</span>
               </span>
               <div class="lb-row-info">
@@ -211,6 +223,18 @@ import Modal from '@/components/ui/Modal.vue';
 import MonthSelector from '@/components/board/MonthSelector.vue';
 import { supabase, supabaseConfigured } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/auth';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+
+const previewStore = useImagePreviewStore();
+const openPhotoPreview = (member: any) => {
+  if (member?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: member.avatarUrl,
+      fullName: member.fullName,
+      role: member.role
+    });
+  }
+};
 import { roleBadgeClass, roleLabel } from '@/lib/roles';
 
 // ── Scoring (mirrors get_team_leaderboard in migration 0070) ──────────────────

@@ -28,21 +28,52 @@
     </div>
   </div>
   <RouterView v-else />
+
+  <!-- Global Profile Picture Preview Modal -->
+  <Modal
+    :open="preview.isOpen"
+    :title="preview.payload ? `${preview.payload.fullName} photo` : 'Profile photo'"
+    subtitle="Profile photo preview."
+    size="sm"
+    @close="preview.closePreview"
+  >
+    <div v-if="preview.payload" class="space-y-4">
+      <div class="rounded-card border border-border bg-soft/40 p-3">
+        <img
+          v-if="preview.payload.avatarUrl"
+          :src="preview.payload.avatarUrl"
+          :alt="`${preview.payload.fullName} profile photo`"
+          class="mx-auto max-h-[55vh] w-full rounded-card object-contain"
+        />
+      </div>
+      <div class="text-center">
+        <div class="ui-font text-sm font-semibold text-text-main">{{ preview.payload.fullName }}</div>
+        <div v-if="preview.payload.email" class="mt-1 text-xs text-text-muted">{{ preview.payload.email }}</div>
+        <div v-if="preview.payload.role" class="mt-1 text-xs text-primary font-semibold">{{ preview.payload.role }}</div>
+      </div>
+    </div>
+    <template #footer>
+      <button class="btn-secondary" type="button" @click="preview.closePreview">Close</button>
+    </template>
+  </Modal>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import AppLoadingScreen from '@/components/ui/AppLoadingScreen.vue';
+import Modal from '@/components/ui/Modal.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRealtimeService, usePageRealtime } from '@/services/realtimeService';
 import { useNotificationsStore } from '@/stores/notifications';
 import { usePushNotifications } from '@/composables/usePushNotifications';
 import { firebaseConfigured } from '@/lib/firebase';
+import { useImagePreviewStore } from '@/stores/imagePreview';
 
 const auth = useAuthStore();
 const realtime = useRealtimeService();
 const notifs = useNotificationsStore();
+const preview = useImagePreviewStore();
 const router = useRouter();
 const authTimedOut = ref(false);
 

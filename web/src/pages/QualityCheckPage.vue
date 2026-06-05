@@ -367,6 +367,8 @@
                         :src="memberById(issue.assignedTo)?.avatarUrl"
                         :alt="memberName(issue.assignedTo)"
                         loading="lazy"
+                        class="cursor-pointer transition hover:scale-110"
+                        @click.stop.prevent="openPhotoPreview(memberById(issue.assignedTo))"
                       />
                       <span v-else>{{ initials(memberName(issue.assignedTo)) }}</span>
                     </span>
@@ -539,6 +541,19 @@ import ManageClassesModal from '@/components/quality/ManageClassesModal.vue';
 import ArrangeWebsitesModal from '@/components/quality/ArrangeWebsitesModal.vue';
 import { playCardDropSound } from '@/composables/useCardDropSound';
 import { useAuthStore } from '@/stores/auth';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+
+const previewStore = useImagePreviewStore();
+const openPhotoPreview = (member: any) => {
+  if (member?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: member.avatarUrl,
+      fullName: member.fullName,
+      email: member.email,
+      role: member.role
+    });
+  }
+};
 import { useDataStore, type Member } from '@/stores/data';
 import {
   useQualityCheckStore,

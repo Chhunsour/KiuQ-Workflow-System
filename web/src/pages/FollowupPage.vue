@@ -214,7 +214,8 @@
                 v-if="r.member.avatarUrl"
                 :src="r.member.avatarUrl"
                 :alt="r.member.fullName"
-                class="fu-avatar-img"
+                class="fu-avatar-img cursor-pointer transition hover:scale-110"
+                @click.prevent.stop="openPhotoPreview(r.member)"
                 @error="(e) => ((e.target as HTMLImageElement).style.display = 'none')"
               />
               <span v-else>{{ initials(r.member.fullName) }}</span>
@@ -253,6 +254,19 @@ import { computed, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type Member } from '@/stores/data';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+
+const previewStore = useImagePreviewStore();
+const openPhotoPreview = (member: any) => {
+  if (member?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: member.avatarUrl,
+      fullName: member.fullName,
+      email: member.email,
+      role: member.role
+    });
+  }
+};
 import { useFollowupStore } from '@/stores/followup';
 import { normalizeRole } from '@/lib/roles';
 

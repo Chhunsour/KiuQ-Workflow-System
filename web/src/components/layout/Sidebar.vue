@@ -146,7 +146,8 @@
             v-if="auth.profile?.avatarUrl"
             :src="auth.profile.avatarUrl"
             :alt="`${auth.profile.fullName || 'User'} avatar`"
-            class="h-full w-full object-cover"
+            class="h-full w-full object-cover cursor-pointer transition hover:scale-110"
+            @click.prevent.stop="openPhotoPreview(auth.profile)"
           />
           <span v-else>{{ initials }}</span>
         </div>
@@ -183,6 +184,19 @@ defineEmits<{ (e: 'close'): void }>();
 const route = useRoute();
 const auth = useAuthStore();
 const data = useDataStore();
+import { useImagePreviewStore } from '@/stores/imagePreview';
+const previewStore = useImagePreviewStore();
+
+const openPhotoPreview = (member: any) => {
+  if (member?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: member.avatarUrl,
+      fullName: member.fullName || 'You',
+      email: member.email,
+      role: member.role
+    });
+  }
+};
 
 const refreshPage = () => {
   window.location.reload();

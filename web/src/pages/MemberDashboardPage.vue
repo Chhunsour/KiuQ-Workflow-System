@@ -4,7 +4,13 @@
     <div class="md-header">
       <div class="md-header-left">
         <div class="md-avatar">
-          <img v-if="auth.profile?.avatarUrl" :src="auth.profile.avatarUrl" alt="" class="md-avatar-img" />
+          <img
+            v-if="auth.profile?.avatarUrl"
+            :src="auth.profile.avatarUrl"
+            alt=""
+            class="md-avatar-img cursor-pointer transition hover:scale-110"
+            @click.prevent.stop="openPhotoPreview"
+          />
           <span v-else class="md-avatar-initials">{{ initials }}</span>
         </div>
         <div>
@@ -361,6 +367,19 @@
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+
+const previewStore = useImagePreviewStore();
+const openPhotoPreview = () => {
+  if (auth.profile?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: auth.profile.avatarUrl,
+      fullName: auth.profile.fullName,
+      email: auth.profile.email,
+      role: auth.profile.role
+    });
+  }
+};
 import { useDataStore } from '@/stores/data';
 import { useFollowupStore } from '@/stores/followup';
 import { roleLabel } from '@/lib/roles';

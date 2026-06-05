@@ -85,7 +85,14 @@
           </button>
           <div class="ecf-viewing-member">
             <div class="ecf-member-avatar ecf-member-avatar--sm">
-              <img v-if="viewingMember?.avatarUrl" :src="viewingMember.avatarUrl" :alt="viewingMember?.fullName" class="ecf-avatar-img" @error="(e) => ((e.target as HTMLImageElement).style.display = 'none')" />
+              <img
+                v-if="viewingMember?.avatarUrl"
+                :src="viewingMember.avatarUrl"
+                :alt="viewingMember?.fullName"
+                class="ecf-avatar-img cursor-pointer transition hover:scale-110"
+                @click.prevent.stop="openPhotoPreview"
+                @error="(e) => ((e.target as HTMLImageElement).style.display = 'none')"
+              />
               <span v-else>{{ initials(viewingMember?.fullName ?? '?') }}</span>
             </div>
             <span class="ecf-viewing-name">{{ viewingMember?.fullName }}</span>
@@ -207,6 +214,19 @@ import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
 import { useFollowupStore } from '@/stores/followup';
 import PageHeader from '@/components/ui/PageHeader.vue';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+
+const previewStore = useImagePreviewStore();
+const openPhotoPreview = () => {
+  if (viewingMember.value?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: viewingMember.value.avatarUrl,
+      fullName: viewingMember.value.fullName,
+      email: viewingMember.value.email,
+      role: viewingMember.value.role
+    });
+  }
+};
 import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import FollowupMemberGroups from '@/components/followup/FollowupMemberGroups.vue';
 import { usePageRealtime } from '@/services/realtimeService';

@@ -53,6 +53,8 @@
                 v-if="profile.avatarUrl"
                 :src="profile.avatarUrl"
                 :alt="`${displayName} avatar`"
+                class="cursor-pointer transition hover:scale-105"
+                @click.prevent.stop="openPhotoPreview"
               />
               <span v-else>{{ initials(displayName) }}</span>
             </div>
@@ -320,6 +322,19 @@ import {
   type LeaderboardRow
 } from '@/lib/leaderboard';
 import { useAuthStore } from '@/stores/auth';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+
+const previewStore = useImagePreviewStore();
+const openPhotoPreview = () => {
+  if (profile.value?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: profile.value.avatarUrl,
+      fullName: profile.value.fullName || profile.value.username || displayName.value,
+      email: profile.value.email,
+      role: profile.value.role
+    });
+  }
+};
 import {
   useDataStore,
   type ActivityAction,

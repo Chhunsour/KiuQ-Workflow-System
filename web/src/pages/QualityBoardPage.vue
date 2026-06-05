@@ -146,6 +146,8 @@
                           :src="memberById(issue.assignedTo)?.avatarUrl"
                           :alt="memberName(issue.assignedTo)"
                           loading="lazy"
+                          class="cursor-pointer transition hover:scale-110"
+                          @click.stop.prevent="openPhotoPreview(memberById(issue.assignedTo))"
                         />
                         <span v-else>{{ initials(memberName(issue.assignedTo)) }}</span>
                       </span>
@@ -207,9 +209,22 @@ import {
 import { usePageRealtime, pushToast } from '@/services/realtimeService';
 
 usePageRealtime(['quality_issues', 'quality_issue_comments', 'websites']);
+import { useImagePreviewStore } from '@/stores/imagePreview';
 
 const route = useRoute();
 const auth  = useAuthStore();
+const previewStore = useImagePreviewStore();
+
+const openPhotoPreview = (member: any) => {
+  if (member?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: member.avatarUrl,
+      fullName: member.fullName,
+      email: member.email,
+      role: member.role
+    });
+  }
+};
 const data  = useDataStore();
 const qc    = useQualityCheckStore();
 

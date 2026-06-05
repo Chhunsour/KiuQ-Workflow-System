@@ -50,7 +50,7 @@
           @click="selectMember(member)"
         >
           <span class="tm-card-avatar">
-            <img v-if="member.avatarUrl" :src="member.avatarUrl" :alt="`${member.fullName || 'Member'} avatar`" />
+            <img v-if="member.avatarUrl" :src="member.avatarUrl" :alt="`${member.fullName || 'Member'} avatar`" class="cursor-pointer transition hover:scale-110" @click.prevent.stop="openPhotoPreview(member)" />
             <span v-else>{{ initials(member.fullName || member.email) }}</span>
           </span>
           <div class="tm-card-body">
@@ -66,7 +66,7 @@
       <aside v-if="selectedMember" class="tm-profile">
         <div class="tm-profile-hero">
           <span class="tm-profile-avatar">
-            <img v-if="selectedMember.avatarUrl" :src="selectedMember.avatarUrl" :alt="`${selectedMember.fullName || 'Member'} avatar`" />
+            <img v-if="selectedMember.avatarUrl" :src="selectedMember.avatarUrl" :alt="`${selectedMember.fullName || 'Member'} avatar`" class="cursor-pointer transition hover:scale-105" @click.prevent.stop="openPhotoPreview(selectedMember)" />
             <span v-else>{{ initials(selectedMember.fullName || selectedMember.email) }}</span>
           </span>
           <h2 class="tm-profile-name">{{ selectedMember.fullName || 'Unnamed member' }}</h2>
@@ -102,6 +102,19 @@ import { computed, onMounted, ref } from 'vue';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import { roleBadgeClass, roleLabel, normalizeRole } from '@/lib/roles';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+const previewStore = useImagePreviewStore();
+
+const openPhotoPreview = (member: any) => {
+  if (member?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: member.avatarUrl,
+      fullName: member.fullName,
+      email: member.email,
+      role: member.role
+    });
+  }
+};
 import { supabase } from '@/lib/supabase';
 
 interface DirectoryMember {

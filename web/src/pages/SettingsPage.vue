@@ -306,7 +306,12 @@
                         >
                           <div class="flex items-center gap-2 min-w-0">
                             <div class="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary text-[10px] font-bold">
-                              <img v-if="m.avatarUrl" :src="m.avatarUrl" class="h-full w-full object-cover" />
+                              <img
+                                v-if="m.avatarUrl"
+                                :src="m.avatarUrl"
+                                class="h-full w-full object-cover cursor-pointer transition hover:scale-110"
+                                @click.prevent.stop="openPhotoPreview(m)"
+                              />
                               <span v-else>{{ initials(m.fullName || m.email) }}</span>
                             </div>
                             <div class="min-w-0">
@@ -339,7 +344,12 @@
                         >
                           <div class="flex items-center gap-2 min-w-0">
                             <div class="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-border text-text-muted text-[10px] font-bold">
-                              <img v-if="m.avatarUrl" :src="m.avatarUrl" class="h-full w-full object-cover" />
+                              <img
+                                v-if="m.avatarUrl"
+                                :src="m.avatarUrl"
+                                class="h-full w-full object-cover cursor-pointer transition hover:scale-110"
+                                @click.prevent.stop="openPhotoPreview(m)"
+                              />
                               <span v-else>{{ initials(m.fullName || m.email) }}</span>
                             </div>
                             <div class="min-w-0">
@@ -387,6 +397,19 @@ import { RouterLink } from 'vue-router';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import PushNotificationCard from '@/components/ui/PushNotificationCard.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+
+const previewStore = useImagePreviewStore();
+const openPhotoPreview = (member: any) => {
+  if (member?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: member.avatarUrl,
+      fullName: member.fullName,
+      email: member.email,
+      role: member.role
+    });
+  }
+};
 import { useDataStore } from '@/stores/data';
 import { isSoundEnabled, setSoundEnabled, playNotificationSound } from '@/composables/useNotificationSound';
 import { supabase, supabaseConfigured } from '@/lib/supabase';

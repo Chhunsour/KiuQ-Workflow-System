@@ -34,7 +34,8 @@
                 v-if="form.avatarUrl"
                 :src="form.avatarUrl"
                 :alt="`${form.fullName || 'User'} avatar`"
-                class="h-full w-full object-cover"
+                class="h-full w-full object-cover cursor-pointer transition hover:scale-105"
+                @click.prevent.stop="openPhotoPreview"
               />
               <span v-else class="ui-font text-3xl font-semibold">{{ initials(form.fullName || form.email) }}</span>
             </div>
@@ -197,6 +198,19 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import PageHeader from '@/components/ui/PageHeader.vue';
+import { useImagePreviewStore } from '@/stores/imagePreview';
+
+const previewStore = useImagePreviewStore();
+const openPhotoPreview = () => {
+  if (form.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: form.avatarUrl,
+      fullName: form.fullName || form.email,
+      email: form.email,
+      role: form.role
+    });
+  }
+};
 import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import FormInput from '@/components/ui/FormInput.vue';
 import FormSelect from '@/components/ui/FormSelect.vue';
