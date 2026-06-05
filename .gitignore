@@ -31,3 +31,9 @@ supabase/migrations/.trash/
 web/src-tauri/target/
 web/src-tauri/gen/
 web/src-tauri/WixTools/
+
+# WhatsApp Session Cache
+.wwebjs_auth/
+.wwebjs_cache/
+notification-service/.wwebjs_auth/
+notification-service/.wwebjs_cache/
