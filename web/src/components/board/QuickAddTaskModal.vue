@@ -15,7 +15,7 @@
             <input v-model="newTask.title" class="input rounded-xl border-border/80 focus:ring-2 focus:ring-primary/20 transition-all px-4 py-2.5" placeholder="Example: Update hero section copy" />
           </div>
 
-          <div class="form-group">
+          <div class="form-group" style="position: relative; z-index: 30;">
             <label class="label text-sm font-semibold text-text-main mb-1.5">Assign to members <span class="text-status-needs-fix-fg">*</span></label>
             <MemberMultiSelect v-model="newTask.memberIds" />
           </div>

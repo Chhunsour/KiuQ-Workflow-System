@@ -175,6 +175,7 @@ onBeforeUnmount(() => {
 .member-multi-select {
   position: relative;
   width: 100%;
+  z-index: 20;
 }
 
 .select-trigger {

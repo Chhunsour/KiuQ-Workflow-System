@@ -2539,3 +2539,337 @@
 2026-06-05 07:18:06 +07:00: [Health] 2026-06-05T00:18:06.636Z | WhatsApp Status: DISCONNECTED | RAM Heap: 33 MB / Total: 35 MB
 2026-06-05 07:23:06 +07:00: [Health] 2026-06-05T00:23:06.636Z | WhatsApp Status: DISCONNECTED | RAM Heap: 33 MB / Total: 35 MB
 2026-06-05 07:28:06 +07:00: [Health] 2026-06-05T00:28:06.636Z | WhatsApp Status: DISCONNECTED | RAM Heap: 24 MB / Total: 35 MB
+2026-06-05 07:33:06 +07:00: [Health] 2026-06-05T00:33:06.635Z | WhatsApp Status: DISCONNECTED | RAM Heap: 24 MB / Total: 35 MB
+2026-06-05 07:36:23 +07:00: 
+2026-06-05 07:36:23 +07:00: [App] Received shutdown signal (SIGINT). Preparing for clean termination...
+2026-06-05 07:36:23 +07:00: [Queue] Flushing all pending batches before exit...
+2026-06-05 07:36:23 +07:00: [Supabase] Stopping all realtime listeners...
+2026-06-05 07:36:24 +07:00: ==================================================
+2026-06-05 07:36:24 +07:00:     KIUQ WHATSAPP NOTIFICATION SERVICE STARTING   
+2026-06-05 07:36:24 +07:00: ==================================================
+2026-06-05 07:36:24 +07:00: [App] Configurations loaded successfully.
+2026-06-05 07:36:24 +07:00: [App] Target Web URL: https://kiuq.kiuq.net
+2026-06-05 07:36:24 +07:00: [App] Debounce Event Batching: ENABLED (30000ms)
+2026-06-05 07:36:24 +07:00: [WhatsApp] Initializing client...
+2026-06-05 07:41:24 +07:00: [Health] 2026-06-05T00:41:24.215Z | WhatsApp Status: DISCONNECTED | RAM Heap: 27 MB / Total: 29 MB
+2026-06-05 07:46:24 +07:00: [Health] 2026-06-05T00:46:24.214Z | WhatsApp Status: DISCONNECTED | RAM Heap: 27 MB / Total: 30 MB
+2026-06-05 07:50:01 +07:00: 
+2026-06-05 07:50:01 +07:00: [App] Received shutdown signal (SIGINT). Preparing for clean termination...
+2026-06-05 07:50:01 +07:00: [Queue] Flushing all pending batches before exit...
+2026-06-05 07:50:01 +07:00: [Supabase] Stopping all realtime listeners...
+2026-06-05 07:50:02 +07:00: ==================================================
+2026-06-05 07:50:02 +07:00:     KIUQ WHATSAPP NOTIFICATION SERVICE STARTING   
+2026-06-05 07:50:02 +07:00: ==================================================
+2026-06-05 07:50:02 +07:00: [App] Configurations loaded successfully.
+2026-06-05 07:50:02 +07:00: [App] Target Web URL: https://kiuq.kiuq.net
+2026-06-05 07:50:02 +07:00: [App] Debounce Event Batching: ENABLED (30000ms)
+2026-06-05 07:50:02 +07:00: [WhatsApp] Initializing client...
+2026-06-05 07:50:07 +07:00: [WhatsApp] Authentication successful. Session stored locally.
+2026-06-05 07:50:07 +07:00: [WhatsApp] Client is ready and connected!
+2026-06-05 07:50:07 +07:00: 
+2026-06-05 07:50:07 +07:00: ==================================================
+2026-06-05 07:50:07 +07:00:          DISCOVERED WHATSAPP GROUP CHATS
+2026-06-05 07:50:07 +07:00: ==================================================
+2026-06-05 07:50:07 +07:00:  • Group Name : "Website Development KiuQ"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363425376511866@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "Website Workflow System"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363409243043032@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "Website’s Team Report"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363409185960970@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "KiuQ Digital Media Workspace"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363404581796961@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "Vaper"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363422607467550@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "Football -Kiuq"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363420509628489@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "Website Team's Tasks Notifications"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363427487007208@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "Digital Media @KiuQ.com Team"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363401995559430@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "Cambodia Office KiuQ.com"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363424023075692@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "SM Activity"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363408195098740@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "rg eyke"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363405571990836@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "KP 14-15"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363407881084399@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00:  • Group Name : "Ux Ui"
+2026-06-05 07:50:07 +07:00:    Group ID   : "120363423550794990@g.us"
+2026-06-05 07:50:07 +07:00:  ------------------------------------------------
+2026-06-05 07:50:07 +07:00: ==================================================
+2026-06-05 07:50:07 +07:00: 
+2026-06-05 07:50:07 +07:00: [App] WhatsApp client ready. Activating database realtime hooks...
+2026-06-05 07:50:07 +07:00: [Supabase] Initializing realtime listeners...
+2026-06-05 07:50:07 +07:00: [Supabase] Subscription status for channel "realtime:tasks-changes": SUBSCRIBED
+2026-06-05 07:50:07 +07:00: [Supabase] Subscription status for channel "realtime:quality-changes": SUBSCRIBED
+2026-06-05 07:50:07 +07:00: [Supabase] Subscription status for channel "realtime:blog-slots-changes": SUBSCRIBED
+2026-06-05 07:50:07 +07:00: [Supabase] Subscription status for channel "realtime:plugin-slots-changes": SUBSCRIBED
+2026-06-05 07:50:07 +07:00: [Supabase] Subscription status for channel "realtime:speed-slots-changes": SUBSCRIBED
+2026-06-05 07:50:07 +07:00: [Supabase] Subscription status for channel "realtime:ebay-followup-changes": SUBSCRIBED
+2026-06-05 07:50:07 +07:00: [Supabase] Subscription status for channel "realtime:notification-changes": SUBSCRIBED
+2026-06-05 07:50:10 +07:00: 
+2026-06-05 07:50:10 +07:00: [App] Received shutdown signal (SIGINT). Preparing for clean termination...
+2026-06-05 07:50:10 +07:00: [Queue] Flushing all pending batches before exit...
+2026-06-05 07:50:10 +07:00: [Supabase] Stopping all realtime listeners...
+2026-06-05 07:50:10 +07:00: [Supabase] Subscription status for channel "realtime:tasks-changes": CLOSED
+2026-06-05 07:50:10 +07:00: [Supabase] Subscription status for channel "realtime:quality-changes": CLOSED
+2026-06-05 07:50:10 +07:00: [Supabase] Subscription status for channel "realtime:blog-slots-changes": CLOSED
+2026-06-05 07:50:10 +07:00: [Supabase] Subscription status for channel "realtime:plugin-slots-changes": CLOSED
+2026-06-05 07:50:10 +07:00: [Supabase] Subscription status for channel "realtime:speed-slots-changes": CLOSED
+2026-06-05 07:50:10 +07:00: [Supabase] Subscription status for channel "realtime:ebay-followup-changes": CLOSED
+2026-06-05 07:50:10 +07:00: [Supabase] Subscription status for channel "realtime:notification-changes": CLOSED
+2026-06-05 07:50:10 +07:00: ==================================================
+2026-06-05 07:50:10 +07:00:     KIUQ WHATSAPP NOTIFICATION SERVICE STARTING   
+2026-06-05 07:50:10 +07:00: ==================================================
+2026-06-05 07:50:10 +07:00: [App] Configurations loaded successfully.
+2026-06-05 07:50:10 +07:00: [App] Target Web URL: https://kiuq.kiuq.net
+2026-06-05 07:50:10 +07:00: [App] Debounce Event Batching: ENABLED (30000ms)
+2026-06-05 07:50:10 +07:00: [WhatsApp] Initializing client...
+2026-06-05 07:50:15 +07:00: [WhatsApp] Authentication successful. Session stored locally.
+2026-06-05 07:50:15 +07:00: [WhatsApp] Client is ready and connected!
+2026-06-05 07:50:15 +07:00: 
+2026-06-05 07:50:15 +07:00: ==================================================
+2026-06-05 07:50:15 +07:00:          DISCOVERED WHATSAPP GROUP CHATS
+2026-06-05 07:50:15 +07:00: ==================================================
+2026-06-05 07:50:15 +07:00:  • Group Name : "Website Development KiuQ"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363425376511866@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "Website Workflow System"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363409243043032@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "Website’s Team Report"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363409185960970@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "KiuQ Digital Media Workspace"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363404581796961@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "Vaper"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363422607467550@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "Football -Kiuq"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363420509628489@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "Website Team's Tasks Notifications"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363427487007208@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "Digital Media @KiuQ.com Team"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363401995559430@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "Cambodia Office KiuQ.com"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363424023075692@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "SM Activity"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363408195098740@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "rg eyke"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363405571990836@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "KP 14-15"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363407881084399@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00:  • Group Name : "Ux Ui"
+2026-06-05 07:50:15 +07:00:    Group ID   : "120363423550794990@g.us"
+2026-06-05 07:50:15 +07:00:  ------------------------------------------------
+2026-06-05 07:50:15 +07:00: ==================================================
+2026-06-05 07:50:15 +07:00: 
+2026-06-05 07:50:15 +07:00: [App] WhatsApp client ready. Activating database realtime hooks...
+2026-06-05 07:50:15 +07:00: [Supabase] Initializing realtime listeners...
+2026-06-05 07:50:15 +07:00: [Supabase] Subscription status for channel "realtime:tasks-changes": SUBSCRIBED
+2026-06-05 07:50:15 +07:00: [Supabase] Subscription status for channel "realtime:quality-changes": SUBSCRIBED
+2026-06-05 07:50:15 +07:00: [Supabase] Subscription status for channel "realtime:blog-slots-changes": SUBSCRIBED
+2026-06-05 07:50:15 +07:00: [Supabase] Subscription status for channel "realtime:plugin-slots-changes": SUBSCRIBED
+2026-06-05 07:50:15 +07:00: [Supabase] Subscription status for channel "realtime:speed-slots-changes": SUBSCRIBED
+2026-06-05 07:50:15 +07:00: [Supabase] Subscription status for channel "realtime:ebay-followup-changes": SUBSCRIBED
+2026-06-05 07:50:15 +07:00: [Supabase] Subscription status for channel "realtime:notification-changes": SUBSCRIBED
+2026-06-05 07:50:27 +07:00: 
+2026-06-05 07:50:27 +07:00: [App] Received shutdown signal (SIGINT). Preparing for clean termination...
+2026-06-05 07:50:27 +07:00: [Queue] Flushing all pending batches before exit...
+2026-06-05 07:50:27 +07:00: [Supabase] Stopping all realtime listeners...
+2026-06-05 07:50:27 +07:00: [Supabase] Subscription status for channel "realtime:tasks-changes": CLOSED
+2026-06-05 07:50:27 +07:00: [Supabase] Subscription status for channel "realtime:quality-changes": CLOSED
+2026-06-05 07:50:27 +07:00: [Supabase] Subscription status for channel "realtime:blog-slots-changes": CLOSED
+2026-06-05 07:50:27 +07:00: [Supabase] Subscription status for channel "realtime:plugin-slots-changes": CLOSED
+2026-06-05 07:50:27 +07:00: [Supabase] Subscription status for channel "realtime:speed-slots-changes": CLOSED
+2026-06-05 07:50:27 +07:00: [Supabase] Subscription status for channel "realtime:ebay-followup-changes": CLOSED
+2026-06-05 07:50:27 +07:00: [Supabase] Subscription status for channel "realtime:notification-changes": CLOSED
+2026-06-05 07:50:27 +07:00: ==================================================
+2026-06-05 07:50:27 +07:00:     KIUQ WHATSAPP NOTIFICATION SERVICE STARTING   
+2026-06-05 07:50:27 +07:00: ==================================================
+2026-06-05 07:50:27 +07:00: [App] Configurations loaded successfully.
+2026-06-05 07:50:27 +07:00: [App] Target Web URL: https://kiuq.kiuq.net
+2026-06-05 07:50:27 +07:00: [App] Debounce Event Batching: ENABLED (30000ms)
+2026-06-05 07:50:27 +07:00: [WhatsApp] Initializing client...
+2026-06-05 07:50:31 +07:00: [WhatsApp] Authentication successful. Session stored locally.
+2026-06-05 07:50:31 +07:00: [WhatsApp] Client is ready and connected!
+2026-06-05 07:50:31 +07:00: 
+2026-06-05 07:50:31 +07:00: ==================================================
+2026-06-05 07:50:31 +07:00:          DISCOVERED WHATSAPP GROUP CHATS
+2026-06-05 07:50:31 +07:00: ==================================================
+2026-06-05 07:50:31 +07:00:  • Group Name : "Website Development KiuQ"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363425376511866@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "Website Workflow System"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363409243043032@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "Website’s Team Report"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363409185960970@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "KiuQ Digital Media Workspace"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363404581796961@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "Vaper"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363422607467550@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "Football -Kiuq"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363420509628489@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "Website Team's Tasks Notifications"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363427487007208@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "Digital Media @KiuQ.com Team"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363401995559430@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "Cambodia Office KiuQ.com"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363424023075692@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "SM Activity"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363408195098740@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "rg eyke"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363405571990836@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "KP 14-15"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363407881084399@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00:  • Group Name : "Ux Ui"
+2026-06-05 07:50:31 +07:00:    Group ID   : "120363423550794990@g.us"
+2026-06-05 07:50:31 +07:00:  ------------------------------------------------
+2026-06-05 07:50:31 +07:00: ==================================================
+2026-06-05 07:50:31 +07:00: 
+2026-06-05 07:50:31 +07:00: [App] WhatsApp client ready. Activating database realtime hooks...
+2026-06-05 07:50:31 +07:00: [Supabase] Initializing realtime listeners...
+2026-06-05 07:50:32 +07:00: [Supabase] Subscription status for channel "realtime:tasks-changes": SUBSCRIBED
+2026-06-05 07:50:32 +07:00: [Supabase] Subscription status for channel "realtime:quality-changes": SUBSCRIBED
+2026-06-05 07:50:32 +07:00: [Supabase] Subscription status for channel "realtime:blog-slots-changes": SUBSCRIBED
+2026-06-05 07:50:32 +07:00: [Supabase] Subscription status for channel "realtime:plugin-slots-changes": SUBSCRIBED
+2026-06-05 07:50:32 +07:00: [Supabase] Subscription status for channel "realtime:speed-slots-changes": SUBSCRIBED
+2026-06-05 07:50:32 +07:00: [Supabase] Subscription status for channel "realtime:ebay-followup-changes": SUBSCRIBED
+2026-06-05 07:50:32 +07:00: [Supabase] Subscription status for channel "realtime:notification-changes": SUBSCRIBED
+2026-06-05 07:50:44 +07:00: [Supabase] Received task change: DELETE
+2026-06-05 07:50:47 +07:00: [Supabase] Received task change: DELETE
+2026-06-05 07:50:51 +07:00: [Supabase] Received task change: DELETE
+2026-06-05 07:50:54 +07:00: [Supabase] Received task change: DELETE
+2026-06-05 07:51:00 +07:00: [Supabase] Received task change: INSERT
+2026-06-05 07:51:00 +07:00: [Supabase] Received task change: INSERT
+2026-06-05 07:51:00 +07:00: [Supabase] Received task change: INSERT
+2026-06-05 07:51:00 +07:00: [Supabase] Received task change: INSERT
+2026-06-05 07:51:00 +07:00: [Supabase] Received new notification row
+2026-06-05 07:51:00 +07:00: [Supabase] Received new notification row
+2026-06-05 07:51:00 +07:00: [Supabase] Received new notification row
+2026-06-05 07:51:00 +07:00: [Supabase] Received new notification row
+2026-06-05 07:51:01 +07:00: [Queue] Started new batch timer for group: 120363427487007208@g.us (window: 30000ms)
+2026-06-05 07:51:31 +07:00: [Queue] Flushing batch of 4 event(s) and 0 text message(s) to: 120363427487007208@g.us
+2026-06-05 07:51:31 +07:00: [WhatsApp] Sending message to: 120363427487007208@g.us
+2026-06-05 07:51:31 +07:00: [WhatsApp] Message content:
+2026-06-05 07:51:31 +07:00: 📋 *Tasks*
+2026-06-05 07:51:31 +07:00: 🌐 `KiuQ System`
+2026-06-05 07:51:31 +07:00: ──────────────────────────
+2026-06-05 07:51:31 +07:00: • New Assignment for Lin
+2026-06-05 07:51:31 +07:00:   📋 *Task:* General Work Board Task
+2026-06-05 07:51:31 +07:00: • New Assignment for Sokheang
+2026-06-05 07:51:31 +07:00:   📋 *Task:* General Work Board Task
+2026-06-05 07:51:31 +07:00: • New Assignment for Sor
+2026-06-05 07:51:31 +07:00:   📋 *Task:* General Work Board Task
+2026-06-05 07:51:31 +07:00: • New Assignment for Samnang
+2026-06-05 07:51:31 +07:00:   📋 *Task:* General Work Board Task
+2026-06-05 07:51:31 +07:00: ──────────────────────────
+2026-06-05 07:51:31 +07:00: 🔗 https://kiuq.kiuq.net/work-board/my
+2026-06-05 07:51:31 +07:00: ----------------------
+2026-06-05 07:51:38 +07:00: [Queue] Successfully sent batch of 4 items.
+2026-06-05 07:52:13 +07:00: 
+2026-06-05 07:52:13 +07:00: [App] Received shutdown signal (SIGINT). Preparing for clean termination...
+2026-06-05 07:52:13 +07:00: [Queue] Flushing all pending batches before exit...
+2026-06-05 07:52:13 +07:00: [Supabase] Stopping all realtime listeners...
+2026-06-05 07:52:13 +07:00: [Supabase] Subscription status for channel "realtime:tasks-changes": CLOSED
+2026-06-05 07:52:13 +07:00: [Supabase] Subscription status for channel "realtime:quality-changes": CLOSED
+2026-06-05 07:52:13 +07:00: [Supabase] Subscription status for channel "realtime:blog-slots-changes": CLOSED
+2026-06-05 07:52:13 +07:00: [Supabase] Subscription status for channel "realtime:plugin-slots-changes": CLOSED
+2026-06-05 07:52:13 +07:00: [Supabase] Subscription status for channel "realtime:speed-slots-changes": CLOSED
+2026-06-05 07:52:13 +07:00: [Supabase] Subscription status for channel "realtime:ebay-followup-changes": CLOSED
+2026-06-05 07:52:13 +07:00: [Supabase] Subscription status for channel "realtime:notification-changes": CLOSED
+2026-06-05 07:52:14 +07:00: ==================================================
+2026-06-05 07:52:14 +07:00:     KIUQ WHATSAPP NOTIFICATION SERVICE STARTING   
+2026-06-05 07:52:14 +07:00: ==================================================
+2026-06-05 07:52:14 +07:00: [App] Configurations loaded successfully.
+2026-06-05 07:52:14 +07:00: [App] Target Web URL: https://kiuq.kiuq.net
+2026-06-05 07:52:14 +07:00: [App] Debounce Event Batching: ENABLED (30000ms)
+2026-06-05 07:52:14 +07:00: [WhatsApp] Initializing client...
+2026-06-05 07:52:18 +07:00: [WhatsApp] Authentication successful. Session stored locally.
+2026-06-05 07:52:18 +07:00: [WhatsApp] Client is ready and connected!
+2026-06-05 07:52:18 +07:00: 
+2026-06-05 07:52:18 +07:00: ==================================================
+2026-06-05 07:52:18 +07:00:          DISCOVERED WHATSAPP GROUP CHATS
+2026-06-05 07:52:18 +07:00: ==================================================
+2026-06-05 07:52:18 +07:00:  • Group Name : "Website Development KiuQ"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363425376511866@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "Website Workflow System"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363409243043032@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "Website’s Team Report"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363409185960970@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "Website Team's Tasks Notifications"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363427487007208@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "KiuQ Digital Media Workspace"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363404581796961@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "Vaper"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363422607467550@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "Football -Kiuq"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363420509628489@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "Digital Media @KiuQ.com Team"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363401995559430@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "Cambodia Office KiuQ.com"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363424023075692@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "SM Activity"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363408195098740@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "rg eyke"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363405571990836@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "KP 14-15"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363407881084399@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00:  • Group Name : "Ux Ui"
+2026-06-05 07:52:18 +07:00:    Group ID   : "120363423550794990@g.us"
+2026-06-05 07:52:18 +07:00:  ------------------------------------------------
+2026-06-05 07:52:18 +07:00: ==================================================
+2026-06-05 07:52:18 +07:00: 
+2026-06-05 07:52:18 +07:00: [App] WhatsApp client ready. Activating database realtime hooks...
+2026-06-05 07:52:18 +07:00: [Supabase] Initializing realtime listeners...
+2026-06-05 07:52:19 +07:00: [Supabase] Subscription status for channel "realtime:tasks-changes": SUBSCRIBED
+2026-06-05 07:52:19 +07:00: [Supabase] Subscription status for channel "realtime:quality-changes": SUBSCRIBED
+2026-06-05 07:52:19 +07:00: [Supabase] Subscription status for channel "realtime:blog-slots-changes": SUBSCRIBED
+2026-06-05 07:52:19 +07:00: [Supabase] Subscription status for channel "realtime:plugin-slots-changes": SUBSCRIBED
+2026-06-05 07:52:19 +07:00: [Supabase] Subscription status for channel "realtime:speed-slots-changes": SUBSCRIBED
+2026-06-05 07:52:19 +07:00: [Supabase] Subscription status for channel "realtime:ebay-followup-changes": SUBSCRIBED
+2026-06-05 07:52:19 +07:00: [Supabase] Subscription status for channel "realtime:notification-changes": SUBSCRIBED
