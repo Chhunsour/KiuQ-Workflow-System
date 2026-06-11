@@ -5,7 +5,7 @@
       subtitle="All saved website profiles — yours and ones assigned to you."
     >
       <template #actions>
-        <RouterLink to="/websites/new" class="btn-primary">
+        <RouterLink v-if="!auth.isViewer" to="/websites/new" class="btn-primary">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
@@ -87,8 +87,8 @@
           <!-- Actions -->
           <div class="mw-card-actions">
             <RouterLink :to="`/websites/${w.id}/edit`" class="btn-secondary mw-btn">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-              Edit
+              <svg v-if="!auth.isViewer" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+              {{ auth.isViewer ? 'View Details' : 'Edit' }}
             </RouterLink>
             <a
               v-if="w.domain"
@@ -101,7 +101,7 @@
               Open
             </a>
             <button
-              v-if="canDelete(w)"
+              v-if="canDelete(w) && !auth.isViewer"
               class="btn-danger mw-btn mw-btn--icon"
               title="Delete website"
               @click="confirmDelete(w)"
@@ -118,7 +118,7 @@
         :description="search || filterMemberId || filterType ? 'No websites match your current filters.' : 'Add your first website to get started.'"
       >
         <template #action>
-          <RouterLink to="/websites/new" class="btn-primary">New Website</RouterLink>
+          <RouterLink v-if="!auth.isViewer" to="/websites/new" class="btn-primary">New Website</RouterLink>
         </template>
       </EmptyState>
     </LoadingBlock>

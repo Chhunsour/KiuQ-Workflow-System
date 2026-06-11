@@ -3,7 +3,7 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { useAuthStore } from '@/stores/auth';
 import type { Role } from '@/stores/data';
-import { isAdminRole, isApprovedStatus, isQualityCheckerRole, normalizeRole } from '@/lib/roles';
+import { isAdminRole, isApprovedStatus, isQualityCheckerRole, isViewerRole, normalizeRole } from '@/lib/roles';
 
 const adminOnly = { requiresAuth: true, roles: ['admin'] as Role[] };
 const memberOnly = { requiresAuth: true, roles: ['member'] as Role[] };
@@ -104,7 +104,6 @@ const routes: RouteRecordRaw[] = [
       { path: 'resources/:id', name: 'resource-detail', meta: adminOrMember, component: () => import('@/pages/ResourceDetailPage.vue') },
       { path: 'leaderboard', name: 'leaderboard', meta: authenticated, component: () => import('@/pages/LeaderboardPage.vue') },
       { path: 'calendar', name: 'calendar', meta: adminOrMember, component: () => import('@/pages/CalendarPage.vue') },
-      { path: 'team-blockers', name: 'team-blockers', meta: adminOnly, component: () => import('@/pages/TeamBlockersPage.vue') },
       { path: 'activity', name: 'activity', meta: adminOnly, component: () => import('@/pages/ActivityPage.vue') },
       { path: 'settings', name: 'settings', meta: adminOrQualityChecker, component: () => import('@/pages/SettingsPage.vue') },
       { path: 'my-dashboard', name: 'member-dashboard', meta: memberOnly, component: () => import('@/pages/MemberDashboardPage.vue') },
@@ -124,6 +123,20 @@ const routes: RouteRecordRaw[] = [
       { path: 'my-submissions', name: 'my-submissions', meta: memberOnly, component: () => import('@/pages/MySubmissionsPage.vue') },
       { path: 'review-feedback', name: 'review-feedback', meta: memberOnly, component: () => import('@/pages/ReviewFeedbackPage.vue') },
       { path: 'notifications', name: 'notifications', meta: authenticated, component: () => import('@/pages/NotificationsPage.vue') },
+      {
+        path: 'admin/notifications/task-alerts',
+        name: 'task-alerts-admin',
+        component: () => import('@/pages/TaskAlertsAdminPage.vue'),
+        beforeEnter: (to, from, next) => {
+          const auth = useAuthStore();
+          const role = normalizeRole(auth.profile?.role);
+          if (role === 'admin' || role === 'owner' || role === 'head') {
+            next();
+          } else {
+            next(homePathForRole(auth.profile?.role || null));
+          }
+        }
+      },
       { path: 'followup', name: 'followup', meta: adminOrMember, component: () => import('@/pages/FollowupPage.vue') },
       { path: 'followup/blog', name: 'followup-blog', meta: adminOrMember, component: () => import('@/pages/FollowupBlogPage.vue') },
       { path: 'followup/blog/:websiteId', name: 'followup-blog-tracker', meta: adminOrMember, component: () => import('@/pages/FollowupBlogTrackerPage.vue') },
@@ -167,6 +180,14 @@ const routes: RouteRecordRaw[] = [
       { path: 'prompt/builder/:promptId', name: 'prompt-workflow-builder-prompt', meta: adminOrMember, component: () => import('@/pages/PromptWorkflowBuilderPage.vue') },
       { path: 'prompt/website/:websiteId', name: 'prompt-website', meta: adminOrMember, component: () => import('@/pages/PromptWebsitePage.vue') },
       { path: 'prompt/website/:websiteId/page/:pageType', name: 'prompt-page-group', meta: adminOrMember, component: () => import('@/pages/PromptPageGroupPage.vue') },
+
+      // ── Reports Dashboard ──────────────────────────────────────────────────
+      {
+        path: 'reports',
+        name: 'reports-dashboard',
+        component: () => import('@/pages/reports/PerformanceDocumentationPage.vue'),
+        meta: authenticated
+      },
 
       // ── Command Center (Executive OS) ───────────────────────────────────────
       { path: 'command-center', name: 'command-center', meta: { requiresAuth: true, roles: ['head', 'supervisor'] as Role[] }, component: () => import('@/pages/CommandCenterPage.vue') }
@@ -229,6 +250,18 @@ router.beforeEach(async (to) => {
   // the router level, regardless of what the route's role metadata says.
   if (isQualityCheckerRole(auth.currentRole) && !isQualityCheckerAllowedPath(to.path)) {
     return redirectUnlessCurrent(to.path, QUALITY_CHECKER_HOME);
+  }
+
+  // Viewers cannot access creation or editing routes (read-only enforcement)
+  if (isViewerRole(auth.currentRole) && (
+    to.path === '/websites/new' ||
+    to.path.includes('/edit') ||
+    to.path.includes('/new') ||
+    to.path.includes('/builder') ||
+    to.path.startsWith('/cms/products/') ||
+    to.path.startsWith('/cms/blog/')
+  )) {
+    return redirectUnlessCurrent(to.path, '/my-dashboard');
   }
 
   const roles = to.meta.roles as Role[] | undefined;

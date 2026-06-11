@@ -564,6 +564,37 @@ export const useFollowupStore = defineStore('followup', () => {
 
     const schedule = scheduleFor(websiteId);
     const dates = blogDatesInRange(from, to, schedule);
+
+    // Clean up future pending slots that no longer fit the active schedule (e.g. if we set Temporary Website)
+    const activeIsoDates = new Set(dates.map(d => isoDate(d.date)));
+    const todayIso = isoDate(today);
+
+    try {
+      const { data: pendingSlots } = await supabase
+        .from('blog_upload_slots')
+        .select('id,scheduled_date')
+        .eq('website_id', websiteId)
+        .eq('status', 'pending')
+        .gte('scheduled_date', todayIso);
+
+      if (pendingSlots && pendingSlots.length > 0) {
+        const idsToDelete = pendingSlots
+          .filter(slot => !activeIsoDates.has(slot.scheduled_date))
+          .map(slot => slot.id);
+
+        if (idsToDelete.length > 0) {
+          await supabase
+            .from('blog_upload_slots')
+            .delete()
+            .in('id', idsToDelete);
+
+          blogSlots.value = blogSlots.value.filter(s => !idsToDelete.includes(s.id));
+        }
+      }
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn('[followup] failed to clean up stale blog slots', e);
+    }
+
     if (dates.length === 0) return;
 
     const rows = dates.map(({ date, dow }) => ({
@@ -630,6 +661,29 @@ export const useFollowupStore = defineStore('followup', () => {
         slot.id
       );
     }
+
+    // Notify employee when assigned/reassigned a slot
+    const assignmentChanged = slot.assignedTo && slot.assignedTo !== previous?.assignedTo;
+    if (assignmentChanged) {
+      try {
+        const { useNotificationsStore } = await import('@/stores/notifications');
+        const notifs = useNotificationsStore();
+        const website = await websiteLabel(slot.websiteId);
+        await notifs.createNotification({
+          recipientId: slot.assignedTo!,
+          actorId: auth.user?.id,
+          type: 'blog_followup',
+          title: 'New Blog Followup Assigned',
+          message: `You have been assigned a blog followup task for ${website}: "${slot.blogTitle || 'Blog Upload'}".`,
+          relatedType: 'blog_followup',
+          relatedId: slot.id,
+          relatedWebsiteId: slot.websiteId,
+        });
+      } catch (e) {
+        console.warn('[notification] failed to trigger blog slot assignment notification:', e);
+      }
+    }
+
     return slot;
   };
 
@@ -732,6 +786,29 @@ export const useFollowupStore = defineStore('followup', () => {
         slot.id
       );
     }
+
+    // Notify employee when assigned/reassigned a slot
+    const assignmentChanged = slot.assignedTo && slot.assignedTo !== previous?.assignedTo;
+    if (assignmentChanged) {
+      try {
+        const { useNotificationsStore } = await import('@/stores/notifications');
+        const notifs = useNotificationsStore();
+        const website = await websiteLabel(slot.websiteId);
+        await notifs.createNotification({
+          recipientId: slot.assignedTo!,
+          actorId: auth.user?.id,
+          type: 'plugin_update',
+          title: 'New Plugin Update Assigned',
+          message: `You have been assigned plugin updates for ${website}.`,
+          relatedType: 'plugin_update',
+          relatedId: slot.id,
+          relatedWebsiteId: slot.websiteId,
+        });
+      } catch (e) {
+        console.warn('[notification] failed to trigger plugin slot assignment notification:', e);
+      }
+    }
+
     return slot;
   };
 
@@ -835,6 +912,29 @@ export const useFollowupStore = defineStore('followup', () => {
         slot.id
       );
     }
+
+    // Notify employee when assigned/reassigned a slot
+    const assignmentChanged = slot.assignedTo && slot.assignedTo !== previous?.assignedTo;
+    if (assignmentChanged) {
+      try {
+        const { useNotificationsStore } = await import('@/stores/notifications');
+        const notifs = useNotificationsStore();
+        const website = await websiteLabel(slot.websiteId);
+        await notifs.createNotification({
+          recipientId: slot.assignedTo!,
+          actorId: auth.user?.id,
+          type: 'speed_optimization_followup',
+          title: 'New Speed Optimization Assigned',
+          message: `You have been assigned speed optimization followup for ${website}.`,
+          relatedType: 'speed_optimization_followup',
+          relatedId: slot.id,
+          relatedWebsiteId: slot.websiteId,
+        });
+      } catch (e) {
+        console.warn('[notification] failed to trigger speed slot assignment notification:', e);
+      }
+    }
+
     return slot;
   };
 

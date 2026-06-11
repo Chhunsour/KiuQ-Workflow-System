@@ -86,9 +86,23 @@ const ICON = {
 
 // ── Navigation targets (role-aware), flattened from the sidebar nav ──────────
 const navSource = computed<NavItem[]>(() => {
-  if (auth.isAdmin) return adminNavItems;
-  if (auth.isQualityChecker) return qualityCheckerNavItems;
-  return memberNavItems;
+  let items = auth.isAdmin
+    ? adminNavItems
+    : auth.isQualityChecker
+      ? qualityCheckerNavItems
+      : memberNavItems;
+
+  if (!auth.isHeadOrSupervisor) {
+    items = items.filter((item) => !item.isExecutiveOnly);
+  }
+
+  const userRole = auth.profile?.role ? auth.profile.role.trim().toLowerCase() : '';
+  const isTaskAlertManager = userRole === 'admin' || userRole === 'owner' || userRole === 'head';
+  if (!isTaskAlertManager) {
+    items = items.filter((item) => !item.isTaskAlertManagerOnly);
+  }
+
+  return items;
 });
 
 interface NavTarget { label: string; to: string; icon: string }

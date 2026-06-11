@@ -30,7 +30,7 @@
               :value="hexDigits"
               maxlength="6"
               spellcheck="false"
-              placeholder="3f8dfe"
+              placeholder="15d6c2"
               @input="onHexInput"
               @keydown.enter.prevent="close"
             />
@@ -109,7 +109,7 @@ const PRESETS = [
   '#0f172a', '#475569', '#94a3b8', '#e2e8f0',
   '#ef4444', '#f97316', '#f59e0b', '#eab308',
   '#84cc16', '#22c55e', '#10b981', '#14b8a6',
-  '#06b6d4', '#3b82f6', '#3f8dfe', '#6366f1',
+  '#06b6d4', '#3b82f6', '#15D6C2', '#6366f1',
   '#8b5cf6', '#a855f7', '#d946ef', '#ec4899',
 ];
 
@@ -157,7 +157,7 @@ const contrast = computed(() => {
 // A valid #rrggbb for the native input + preview (falls back to brand blue).
 const normalizedHex = computed(() => {
   const v = (props.modelValue || '').trim();
-  return /^#?[0-9a-fA-F]{6}$/.test(v) ? (v.startsWith('#') ? v : `#${v}`) : '#3f8dfe';
+  return /^#?[0-9a-fA-F]{6}$/.test(v) ? (v.startsWith('#') ? v : `#${v}`) : '#15D6C2';
 });
 const previewColor = computed(() => props.modelValue || '#ffffff');
 const hexDigits = computed(() => (props.modelValue || '').replace('#', ''));

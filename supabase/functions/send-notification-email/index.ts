@@ -52,7 +52,7 @@ const subjectMap: Record<string, string> = {
 
 const buildHtml = (p: NotificationEmailPayload, notifType: string): string => {
   const taskSection = p.task_title
-    ? `<div style="margin:20px 0;padding:16px;background:#f8fbff;border-left:3px solid #3f8dfe;border-radius:8px;">
+    ? `<div style="margin:20px 0;padding:16px;background:#f8fbff;border-left:3px solid #15D6C2;border-radius:8px;">
          <div style="font-size:13px;color:#6b7280;font-weight:600;margin-bottom:4px;">TASK</div>
          <div style="font-size:15px;color:#111827;font-weight:700;">${escHtml(p.task_title)}</div>
          ${p.due_date ? `<div style="font-size:12px;color:#6b7280;margin-top:6px;">Due: ${escHtml(p.due_date)}</div>` : ''}
@@ -77,7 +77,7 @@ const buildHtml = (p: NotificationEmailPayload, notifType: string): string => {
         <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e7eb;">
           <!-- Header -->
           <tr>
-            <td style="background:#3f8dfe;padding:24px 32px;">
+            <td style="background:#15D6C2;padding:24px 32px;">
               <span style="font-size:20px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">KiuQ Website System</span>
             </td>
           </tr>
@@ -88,7 +88,7 @@ const buildHtml = (p: NotificationEmailPayload, notifType: string): string => {
               <p style="margin:0 0 20px;font-size:14px;color:#374151;line-height:1.6;">${escHtml(p.message)}</p>
               ${taskSection}
               <a href="${openLink}"
-                 style="display:inline-block;margin-top:8px;padding:12px 28px;background:#3f8dfe;color:#ffffff;border-radius:999px;font-weight:700;font-size:14px;text-decoration:none;">
+                 style="display:inline-block;margin-top:8px;padding:12px 28px;background:#15D6C2;color:#ffffff;border-radius:999px;font-weight:700;font-size:14px;text-decoration:none;">
                 Open Task
               </a>
             </td>

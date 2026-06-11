@@ -80,6 +80,98 @@
         </div>
       </div>
 
+      <!-- Alert Preferences -->
+      <div class="card card-pad">
+        <h3 class="section-title mb-1">Alert Preferences</h3>
+        <p class="helper mb-5">Choose which notifications you want to receive and how.</p>
+        
+        <div class="space-y-4">
+          <!-- Task Alerts -->
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <div class="ui-font text-sm font-medium text-text-main">Task Alerts</div>
+              <div class="text-xs text-text-muted">Receive alerts when a new task is assigned to you.</div>
+            </div>
+            <button
+              type="button"
+              class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+              :class="prefs.taskAlertsEnabled ? 'bg-primary' : 'bg-border'"
+              role="switch"
+              :aria-checked="prefs.taskAlertsEnabled"
+              @click="togglePref('taskAlertsEnabled')"
+            >
+              <span
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
+                :class="prefs.taskAlertsEnabled ? 'translate-x-5' : 'translate-x-0'"
+              />
+            </button>
+          </div>
+
+          <!-- Follow-Up Alerts -->
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <div class="ui-font text-sm font-medium text-text-main">Follow-Up Alerts</div>
+              <div class="text-xs text-text-muted">Receive reminders for daily slot check-ins and follow-ups.</div>
+            </div>
+            <button
+              type="button"
+              class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+              :class="prefs.followupAlertsEnabled ? 'bg-primary' : 'bg-border'"
+              role="switch"
+              :aria-checked="prefs.followupAlertsEnabled"
+              @click="togglePref('followupAlertsEnabled')"
+            >
+              <span
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
+                :class="prefs.followupAlertsEnabled ? 'translate-x-5' : 'translate-x-0'"
+              />
+            </button>
+          </div>
+
+          <!-- Quality Check Alerts -->
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <div class="ui-font text-sm font-medium text-text-main">Quality Check Alerts</div>
+              <div class="text-xs text-text-muted">Receive alerts when quality check issues are reported or updated.</div>
+            </div>
+            <button
+              type="button"
+              class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+              :class="prefs.qualityAlertsEnabled ? 'bg-primary' : 'bg-border'"
+              role="switch"
+              :aria-checked="prefs.qualityAlertsEnabled"
+              @click="togglePref('qualityAlertsEnabled')"
+            >
+              <span
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
+                :class="prefs.qualityAlertsEnabled ? 'translate-x-5' : 'translate-x-0'"
+              />
+            </button>
+          </div>
+
+          <!-- Desktop Notifications -->
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <div class="ui-font text-sm font-medium text-text-main">Desktop Notifications</div>
+              <div class="text-xs text-text-muted">Enable browser push notifications on this device.</div>
+            </div>
+            <button
+              type="button"
+              class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+              :class="prefs.desktopEnabled ? 'bg-primary' : 'bg-border'"
+              role="switch"
+              :aria-checked="prefs.desktopEnabled"
+              @click="togglePref('desktopEnabled')"
+            >
+              <span
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
+                :class="prefs.desktopEnabled ? 'translate-x-5' : 'translate-x-0'"
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+
       <PushNotificationCard />
 
       <!-- Sound notifications -->
@@ -411,11 +503,27 @@ const openPhotoPreview = (member: any) => {
   }
 };
 import { useDataStore } from '@/stores/data';
+import { useNotificationsStore } from '@/stores/notifications';
 import { isSoundEnabled, setSoundEnabled, playNotificationSound } from '@/composables/useNotificationSound';
 import { supabase, supabaseConfigured } from '@/lib/supabase';
 
 const auth = useAuthStore();
 const data = useDataStore();
+const notifs = useNotificationsStore();
+
+const prefs = computed(() => notifs.preferences || {
+  taskAlertsEnabled: true,
+  followupAlertsEnabled: true,
+  qualityAlertsEnabled: true,
+  desktopEnabled: true,
+  soundEnabled: true,
+});
+
+const togglePref = async (key: 'taskAlertsEnabled' | 'followupAlertsEnabled' | 'qualityAlertsEnabled' | 'desktopEnabled') => {
+  if (!notifs.preferences) return;
+  const currentVal = notifs.preferences[key];
+  await notifs.updatePreferences({ [key]: !currentVal });
+};
 const displayName = ref(auth.profile?.fullName ?? '');
 const saving = ref(false);
 const savingPassword = ref(false);
@@ -519,9 +627,10 @@ const savePassword = async () => {
 const soundEnabled = ref(isSoundEnabled());
 const testingSound = ref(false);
 
-const toggleSound = () => {
+const toggleSound = async () => {
   soundEnabled.value = !soundEnabled.value;
   setSoundEnabled(soundEnabled.value);
+  await notifs.updatePreferences({ soundEnabled: soundEnabled.value });
 };
 
 const testSound = async () => {
@@ -671,7 +780,12 @@ const deleteUpdate = async (id: string) => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await notifs.fetchPreferences();
+  if (notifs.preferences) {
+    soundEnabled.value = notifs.preferences.soundEnabled;
+    setSoundEnabled(soundEnabled.value);
+  }
   if (auth.isAdmin) {
     if (data.members.length === 0) data.fetchMembers();
     fetchUpdates();

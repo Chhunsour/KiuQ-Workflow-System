@@ -333,7 +333,14 @@ const monthBounds = () => {
 // visibleGroups). eBay: admins now appear too since they also do the
 // daily click. Admins remain excluded from the leaderboard separately.
 const activeMembers = computed(() =>
-  data.members.filter((m) => m.status === 'active' && normalizeRole(m.role) !== 'supervisor')
+  data.members.filter((m) => {
+    const role = normalizeRole(m.role);
+    return m.status === 'active' && 
+           role !== 'supervisor' &&
+           role !== 'viewer' &&
+           role !== 'tester' &&
+           role !== 'employee';
+  })
 );
 
 // Per-day blog status for THIS week, scoped to the website's saved
@@ -501,7 +508,6 @@ const ebayWeek = (memberId: string) => {
     const d = new Date(mon);
     d.setDate(mon.getDate() + i);
     const ds = iso(d);
-    if (ds > today) continue;
     required++;
     if (done.has(ds)) completed++;
     else if (ds < today) missed++;
@@ -518,7 +524,6 @@ const ebayMonth = (memberId: string) => {
   const endD = new Date(`${end}T12:00:00`);
   for (let d = new Date(startD); d <= endD; d.setDate(d.getDate() + 1)) {
     const ds = iso(d);
-    if (ds > today) break;
     if (new Date(`${ds}T12:00:00`).getDay() === 0) continue;
     required++;
     if (done.has(ds)) completed++;

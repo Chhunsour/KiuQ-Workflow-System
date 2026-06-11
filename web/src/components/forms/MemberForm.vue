@@ -16,6 +16,7 @@
           { value: 'assistant_head', label: 'Assistant Head' },
           { value: 'team_member', label: 'Team Member' },
           { value: 'quality_checker', label: 'Quality Checker' },
+          { value: 'viewer', label: 'Viewer' },
           { value: 'admin', label: 'Admin (legacy)' },
           { value: 'member', label: 'Team Member (legacy)' },
           { value: 'reviewer', label: 'Reviewer (legacy)' }

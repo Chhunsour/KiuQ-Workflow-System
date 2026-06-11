@@ -281,21 +281,6 @@
                   </div>
                 </div>
               </section>
-
-              <section v-else-if="activeTab === 'blockers'" class="fp-list-section">
-                <EmptyLine v-if="memberBlockers.length === 0" text="No blockers reported yet." />
-                <div v-for="blocker in memberBlockers" v-else :key="blocker.id" class="fp-task-row">
-                  <div class="fp-task-main">
-                    <strong>{{ blocker.reason || 'Blocker' }}</strong>
-                    <span>{{ blocker.helpNeeded || 'No help note.' }}</span>
-                    <p v-if="blocker.adminResponse">Admin response: {{ blocker.adminResponse }}</p>
-                  </div>
-                  <div class="fp-task-meta">
-                    <span>{{ blocker.urgency }}</span>
-                    <StatusBadge :status="blocker.status" />
-                  </div>
-                </div>
-              </section>
             </div>
           </section>
         </template>
@@ -344,7 +329,7 @@ import {
   type Website
 } from '@/stores/data';
 
-type TabKey = 'overview' | 'tasks' | 'websites' | 'submissions' | 'reports' | 'resources' | 'blockers';
+type TabKey = 'overview' | 'tasks' | 'websites' | 'submissions' | 'reports' | 'resources';
 type TaskView = {
   id: string;
   title: string;
@@ -405,8 +390,7 @@ const tabs: { key: TabKey; label: string }[] = [
   { key: 'submissions', label: 'Submissions' },
 
   { key: 'reports', label: 'Reports' },
-  { key: 'resources', label: 'Resources' },
-  { key: 'blockers', label: 'Blockers' }
+  { key: 'resources', label: 'Resources' }
 ];
 
 const buildRowsFor = (period: LeaderboardPeriod) =>
@@ -438,9 +422,6 @@ const memberSectionTasks = computed(() => data.sectionTasks.filter((t) => t.assi
 const memberSubmissions = computed(() => data.submissions.filter((s) => s.submittedBy === userId.value));
 const memberReports = computed(() =>
   data.monthlyReports.filter((report) => report.memberId === userId.value).slice(0, 8)
-);
-const memberBlockers = computed(() =>
-  data.blockers.filter((blocker) => blocker.memberId === userId.value).slice(0, 10)
 );
 const recentActivity = computed(() =>
   data.activityLogs.filter((log) => log.userId === userId.value).slice(0, 12)
@@ -670,7 +651,6 @@ const loadPageData = async () => {
           data.fetchSubmissions(true),
           data.fetchReviewComments(),
           data.fetchMonthlyReports(),
-          data.fetchBlockers(true),
           data.fetchResources(true),
           data.fetchFolders(true),
           data.fetchDocs(true),
@@ -855,7 +835,7 @@ const BadgeGrid = defineComponent({
 
 <style scoped>
 .fp-page {
-  --fp-primary: #3f8dfe;
+  --fp-primary: #15D6C2;
   --fp-primary-soft: color-mix(in srgb, var(--primary) 12%, transparent);
   --fp-card: var(--card-bg);
   --fp-soft: var(--soft-bg);
@@ -1140,7 +1120,7 @@ const BadgeGrid = defineComponent({
 .fp-tab-active {
   background: var(--primary);
   color: white;
-  box-shadow: 0 4px 16px rgba(63, 141, 254, 0.08);
+  box-shadow: 0 4px 16px rgba(21, 214, 194, 0.08);
 }
 
 .fp-tab-body {

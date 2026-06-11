@@ -6,7 +6,7 @@
 
 import type { NotificationType } from '@/stores/notifications';
 
-export type NotificationVariant = 'primary' | 'success' | 'warning' | 'purple' | 'neutral';
+export type NotificationVariant = 'primary' | 'success' | 'warning' | 'purple' | 'neutral' | 'cyan' | 'red';
 
 /**
  * Short, human category label shown in the meta line / badge.
@@ -38,6 +38,8 @@ export const notificationCategoryLabel = (type: NotificationType): string => {
     monthly_report:              'Monthly Report',
     quality_issue_reported:      'Quality Check',
     quality_issue_fixed:         'Quality Check',
+    announcement:                'Announcement',
+    daily_summary:               'Daily Summary',
   };
   return map[type] ?? 'Update';
 };
@@ -85,6 +87,8 @@ export const notificationIconPaths = (type: NotificationType): string => {
     // Quality check → shield (alert vs check)
     quality_issue_reported: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
     quality_issue_fixed:    '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+    announcement:           '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+    daily_summary:          '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/>',
   };
   return map[type] ?? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>';
 };
@@ -95,10 +99,11 @@ export const notificationIconSvg = (type: NotificationType, size = 11): string =
 
 /** Color variant for the icon chip + type badge. */
 export const notificationVariant = (type: NotificationType): NotificationVariant => {
-  if (['task_needs_fix', 'blocker_reported', 'quality_issue_reported'].includes(type)) return 'warning';
-  if (['task_approved', 'task_completed', 'blocker_resolved', 'blog_followup', 'plugin_update', 'ebay_click_followup', 'speed_optimization_followup', 'quality_issue_fixed'].includes(type)) return 'success';
+  if (['task_needs_fix', 'blocker_reported'].includes(type)) return 'warning';
+  if (['task_approved', 'task_completed', 'blocker_resolved', 'blog_followup', 'plugin_update', 'ebay_click_followup', 'speed_optimization_followup'].includes(type)) return 'success';
   if (['task_comment', 'work_reviewed', 'mention'].includes(type)) return 'purple';
-  if (['task_assigned', 'task_updated'].includes(type)) return 'primary';
+  if (['task_assigned', 'task_updated', 'task_deadline_changed'].includes(type)) return 'primary';
+  if (['quality_issue_reported', 'quality_issue_fixed'].includes(type)) return 'cyan';
   return 'neutral';
 };
 
@@ -158,4 +163,97 @@ export const groupNotificationsByDay = <T extends { createdAt: string }>(
     else groups.set(g.key, { ...g, items: [item] });
   }
   return Array.from(groups.values()).sort((a, b) => a.order - b.order);
+};
+
+export interface GroupedNotification {
+  id: string;
+  isGroup: true;
+  actorId: string | null;
+  actorName: string | null;
+  actorAvatarUrl: string | null;
+  type: NotificationType;
+  title: string;
+  message: string;
+  createdAt: string;
+  isRead: boolean;
+  priority: 'critical' | 'high' | 'normal' | 'low';
+  items: any[];
+  relatedWebsiteId: string | null;
+  relatedIssueId: string | null;
+  taskId: string | null;
+}
+
+/** Group consecutive notifications intelligently to reduce noise. */
+export const groupNotificationsIntelligently = (notifsList: any[]): any[] => {
+  const groupsMap = new Map<string, any[]>();
+  const orderedKeys: string[] = [];
+
+  for (const notif of notifsList) {
+    // announcements / daily summaries are not groupable
+    if (!notif.actorId || notif.type === 'announcement' || notif.type === 'daily_summary') {
+      const key = `single-${notif.id}`;
+      groupsMap.set(key, [notif]);
+      orderedKeys.push(key);
+      continue;
+    }
+
+    const dateKey = notificationDayGroup(notif.createdAt).key;
+    // Group by date bucket, actor, type, and website
+    const groupKey = `${notif.actorId}_${notif.type}_${notif.relatedWebsiteId || ''}_${dateKey}`;
+    
+    if (!groupsMap.has(groupKey)) {
+      groupsMap.set(groupKey, []);
+      orderedKeys.push(groupKey);
+    }
+    groupsMap.get(groupKey)!.push(notif);
+  }
+
+  const result: any[] = [];
+  for (const key of orderedKeys) {
+    const items = groupsMap.get(key)!;
+    if (items.length === 1) {
+      result.push({ ...items[0], isGroup: false });
+    } else {
+      const first = items[0];
+      const allUnread = items.some(item => !item.isRead);
+      const maxPriority = items.some(item => item.priority === 'critical') 
+        ? 'critical' 
+        : items.some(item => item.priority === 'high') 
+          ? 'high' 
+          : 'normal';
+
+      const count = items.length;
+      let actionText = 'updated';
+      if (first.type === 'task_assigned') actionText = 'assigned you';
+      else if (first.type === 'task_comment') actionText = 'commented on';
+      else if (first.type === 'mention') actionText = 'mentioned you in';
+      else if (first.type === 'quality_issue_reported') actionText = 'reported';
+      else if (first.type === 'quality_issue_fixed') actionText = 'fixed';
+      else if (first.type === 'blog_followup' || first.type === 'plugin_update' || first.type === 'ebay_click_followup' || first.type === 'speed_optimization_followup') actionText = 'assigned followup for';
+      
+      const unit = first.type.startsWith('quality_') ? 'issues' : 'tasks';
+      const title = `${first.actorName || 'Team member'} ${actionText} ${count} ${unit}`;
+      const message = items.map(item => item.title || item.message).join(' • ');
+
+      result.push({
+        id: `group-${key}`,
+        isGroup: true,
+        actorId: first.actorId,
+        actorName: first.actorName,
+        actorAvatarUrl: first.actorAvatarUrl,
+        type: first.type,
+        title,
+        message,
+        createdAt: first.createdAt,
+        isRead: !allUnread,
+        priority: maxPriority,
+        items,
+        relatedWebsiteId: first.relatedWebsiteId,
+        relatedIssueId: first.relatedIssueId,
+        taskId: first.taskId,
+      });
+    }
+  }
+
+  return result;
 };

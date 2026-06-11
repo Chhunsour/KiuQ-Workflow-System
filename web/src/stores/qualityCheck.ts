@@ -7,7 +7,7 @@ import { useNotificationsStore } from '@/stores/notifications';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type QualityIssueStatus =
-  | 'new_issue' | 'in_progress' | 'fixed' | 'needs_review' | 'approved';
+  | 'new_issue' | 'acknowledged' | 'in_progress' | 'fixed' | 'needs_review' | 'approved' | 'rejected' | 'closed' | 'reopened';
 
 export type QualityIssueType =
   | 'button_fix' | 'broken_link' | 'mobile_responsive' | 'ux_ui_problem'
@@ -33,6 +33,7 @@ export interface QualityIssue {
   updatedAt: string;
   approvedBy: string | null;
   approvedAt: string | null;
+  isArchived?: boolean;
 }
 
 export interface QualityIssueComment {
@@ -71,9 +72,9 @@ export const QUALITY_ISSUE_TYPES: { value: QualityIssueType; label: string }[] =
 ];
 
 export const QUALITY_STATUS_COLUMNS: { value: QualityIssueStatus; label: string }[] = [
-  { value: 'new_issue', label: 'New Issue' },
-  { value: 'fixed',     label: 'Fixed' },
-  { value: 'approved',  label: 'Approved' },
+  { value: 'in_progress',  label: 'Progress' },
+  { value: 'needs_review', label: 'Review' },
+  { value: 'approved',     label: 'Completed' }
 ];
 
 // ─── Row mappers ──────────────────────────────────────────────────────────────
@@ -95,6 +96,7 @@ interface IssueRow {
   updated_at: string;
   approved_by: string | null;
   approved_at: string | null;
+  is_archived?: boolean;
 }
 
 const rowToIssue = (r: IssueRow): QualityIssue => ({
@@ -113,7 +115,8 @@ const rowToIssue = (r: IssueRow): QualityIssue => ({
   createdAt: r.created_at,
   updatedAt: r.updated_at,
   approvedBy: r.approved_by,
-  approvedAt: r.approved_at
+  approvedAt: r.approved_at,
+  isArchived: r.is_archived || false
 });
 
 interface CommentRow {
@@ -162,7 +165,7 @@ const rowToClass = (r: ClassRow): QualityClass => ({
   id: r.id,
   name: r.name,
   description: r.description ?? '',
-  color: r.color || '#3f8dfe',
+  color: r.color || '#15D6C2',
   sortOrder: r.sort_order ?? 0,
   createdBy: r.created_by,
   createdAt: r.created_at,
@@ -231,7 +234,7 @@ export const useQualityCheckStore = defineStore('qualityCheck', () => {
       .insert({
         name: input.name.trim(),
         description: input.description ?? '',
-        color: input.color ?? '#3f8dfe',
+        color: input.color ?? '#15D6C2',
         sort_order: classes.value.length,
         created_by: uid
       })
@@ -331,7 +334,7 @@ export const useQualityCheckStore = defineStore('qualityCheck', () => {
       // Explicit columns — only the fields rowToIssue reads.
       let q = supabase
         .from('quality_issues')
-        .select('id,website_id,title,description,page_url,issue_type,priority,status,assigned_to,screenshot_url,due_date,created_by,created_at,updated_at,approved_by,approved_at')
+        .select('id,website_id,title,description,page_url,issue_type,priority,status,assigned_to,screenshot_url,due_date,created_by,created_at,updated_at,approved_by,approved_at,is_archived')
         .order('updated_at', { ascending: false });
       if (websiteId) q = q.eq('website_id', websiteId);
       const { data, error: err } = await q;
@@ -375,7 +378,7 @@ export const useQualityCheckStore = defineStore('qualityCheck', () => {
       // Explicit columns — only the fields rowToIssue reads.
       const { data, error: err } = await supabase
         .from('quality_issues')
-        .select('id,website_id,title,description,page_url,issue_type,priority,status,assigned_to,screenshot_url,due_date,created_by,created_at,updated_at,approved_by,approved_at')
+        .select('id,website_id,title,description,page_url,issue_type,priority,status,assigned_to,screenshot_url,due_date,created_by,created_at,updated_at,approved_by,approved_at,is_archived')
         .in('website_id', ids)
         .order('updated_at', { ascending: false });
       if (err) { error.value = err.message; return; }
@@ -423,7 +426,8 @@ export const useQualityCheckStore = defineStore('qualityCheck', () => {
       assigned_to:    input.assignedTo ?? null,
       screenshot_url: input.screenshotUrl ?? null,
       due_date:       input.dueDate ?? null,
-      created_by:     uid
+      created_by:     uid,
+      status:         'in_progress'
     };
     const { data, error: err } = await supabase
       .from('quality_issues')
@@ -438,9 +442,25 @@ export const useQualityCheckStore = defineStore('qualityCheck', () => {
     const issue = rowToIssue(data);
     issues.value = [issue, ...issues.value];
     const auth = useAuthStore();
+    const notifs = useNotificationsStore();
+    const website = await websiteLabel(issue.websiteId);
+
+    // Notify employee if assigned to them
+    if (issue.assignedTo) {
+      void notifs.createNotification({
+        recipientId: issue.assignedTo,
+        actorId: uid,
+        type: 'quality_issue_reported',
+        title: 'New Quality Issue Assigned',
+        message: `You have been assigned a new Quality Issue: "${issue.title}" on ${website}.`,
+        relatedType: 'quality_issue',
+        relatedId: issue.id,
+        relatedWebsiteId: issue.websiteId,
+        relatedIssueId: issue.id,
+      });
+    }
+
     if (!auth.isAdmin) {
-      const notifs = useNotificationsStore();
-      const website = await websiteLabel(issue.websiteId);
       void notifs.createAdminNotification({
         actorId: auth.user?.id,
         type: 'quality_issue_reported',
@@ -520,29 +540,72 @@ export const useQualityCheckStore = defineStore('qualityCheck', () => {
     const idx = issues.value.findIndex((i) => i.id === id);
     if (idx !== -1) issues.value[idx] = issue;
     const auth = useAuthStore();
-    // Notify admins/heads when a member marks a card Fixed OR sends it to
-    // Waiting Review — both signal "please look at this". Only fire on the
-    // transition into that state (not on every save) to avoid duplicate pings.
-    const reviewSignal =
-      (patch.status === 'fixed' && previous?.status !== 'fixed') ||
-      (patch.status === 'needs_review' && previous?.status !== 'needs_review');
-    if (!auth.isAdmin && reviewSignal) {
-      const waiting = patch.status === 'needs_review';
+
+    // Trigger assignment notification if assignee has changed
+    const assignmentChanged = patch.assignedTo !== undefined && patch.assignedTo !== previous?.assignedTo;
+    if (assignmentChanged && patch.assignedTo) {
       const notifs = useNotificationsStore();
-      void notifs.createAdminNotification({
+      const website = await websiteLabel(issue.websiteId);
+      void notifs.createNotification({
+        recipientId: patch.assignedTo,
         actorId: auth.user?.id,
-        type: 'quality_issue_fixed',
-        title: waiting ? 'Quality issue waiting for review' : 'Quality issue marked fixed',
-        message: waiting
-          ? `${actorName()} sent "${issue.title}" for review.`
-          : `${actorName()} marked "${issue.title}" as fixed.`,
-        link: '/work-board/quality-check',
+        type: 'quality_issue_reported',
+        title: 'Quality Issue Assigned',
+        message: `You have been assigned the Quality Issue: "${issue.title}" on ${website}.`,
         relatedType: 'quality_issue',
         relatedId: issue.id,
         relatedWebsiteId: issue.websiteId,
         relatedIssueId: issue.id,
       });
     }
+    
+    // Notify admins/heads when an employee marks a card Ready For Review (fixed or needs_review)
+    const isManager = ['admin', 'owner', 'head', 'supervisor'].includes(auth.profile?.role || '');
+    const reviewSignal =
+      (patch.status === 'fixed' && previous?.status !== 'fixed') ||
+      (patch.status === 'needs_review' && previous?.status !== 'needs_review');
+    if (!isManager && reviewSignal) {
+      const notifs = useNotificationsStore();
+      void notifs.createAdminNotification({
+        actorId: auth.user?.id,
+        type: 'quality_issue_fixed',
+        title: 'Quality Check Ready For Review',
+        message: `${actorName()} marked Quality Check #QC-${issue.id.slice(0, 8).toUpperCase()} as Ready For Review.`,
+        link: auth.isQualityChecker ? '/quality-check' : '/work-board/quality-check',
+        relatedType: 'quality_issue',
+        relatedId: issue.id,
+        relatedWebsiteId: issue.websiteId,
+        relatedIssueId: issue.id,
+      });
+    }
+    
+    // Notify employee when approved/closed or rejected/reopened
+    if ((patch.status === 'approved' || patch.status === 'closed') &&
+        previous?.status !== 'approved' && previous?.status !== 'closed' && issue.assignedTo) {
+      const notifs = useNotificationsStore();
+      void notifs.createNotification({
+        recipientId: issue.assignedTo,
+        type: 'quality_issue_fixed',
+        title: 'Quality Issue Approved',
+        message: `Your fix for "${issue.title}" has been approved!`,
+        relatedType: 'quality_issue',
+        relatedId: issue.id,
+      });
+    }
+
+    if (patch.status === 'rejected' && previous?.status !== 'rejected' && issue.assignedTo) {
+      const notifs = useNotificationsStore();
+      const reason = (patch as any).rejectionReason || 'No reason provided';
+      void notifs.createNotification({
+        recipientId: issue.assignedTo,
+        type: 'quality_issue_reported',
+        title: 'Quality Check Reverted (Rejected)',
+        message: `Your fix for "${issue.title}" was rejected. Reason: ${reason}`,
+        relatedType: 'quality_issue',
+        relatedId: issue.id,
+      });
+    }
+
     return true;
   };
 
@@ -552,6 +615,17 @@ export const useQualityCheckStore = defineStore('qualityCheck', () => {
   const deleteIssue = async (id: string): Promise<boolean> => {
     if (!supabaseConfigured) return false;
     const { error: err } = await supabase.from('quality_issues').delete().eq('id', id);
+    if (err) { error.value = err.message; return false; }
+    issues.value = issues.value.filter((i) => i.id !== id);
+    return true;
+  };
+
+  const archiveIssue = async (id: string): Promise<boolean> => {
+    if (!supabaseConfigured) return false;
+    const { error: err } = await supabase
+      .from('quality_issues')
+      .update({ is_archived: true })
+      .eq('id', id);
     if (err) { error.value = err.message; return false; }
     issues.value = issues.value.filter((i) => i.id !== id);
     return true;
@@ -578,6 +652,104 @@ export const useQualityCheckStore = defineStore('qualityCheck', () => {
       .single();
     if (err || !data) { console.error('[qualityCheck] addComment', err?.message); return false; }
     comments.value = [...comments.value, rowToComment(data)];
+
+    // Notify mentioned/assignee/creator/admins of the new comment
+    try {
+      const { useDataStore } = await import('@/stores/data');
+      const dataStore = useDataStore();
+      const membersList = dataStore.members;
+
+      const mentionRegex = /@([a-zA-Z0-9_.-]+)/g;
+      const matches = [...message.matchAll(mentionRegex)];
+      const mentionedUsernames = new Set(matches.map(m => m[1].toLowerCase()));
+      const notifiedUserIds = new Set<string>();
+
+      const notifs = useNotificationsStore();
+      const issue = issues.value.find((i) => i.id === issueId);
+      const issueTitle = issue ? issue.title : 'Quality Issue';
+      const website = issue ? await websiteLabel(issue.websiteId) : 'WordPress';
+      const commenterName = actorName();
+
+      for (const username of mentionedUsernames) {
+        const member = membersList.find(m => 
+          m.username?.toLowerCase() === username || 
+          m.fullName?.toLowerCase().replace(/\s+/g, '') === username
+        );
+        if (member && member.id !== uid) {
+          notifiedUserIds.add(member.id);
+          void notifs.createNotification({
+            recipientId: member.id,
+            actorId: uid,
+            type: 'mention',
+            title: '💬 Mentioned in Quality Issue',
+            message: `${commenterName} mentioned you in a comment on "${issueTitle}" (${website}).`,
+            relatedType: 'quality_issue',
+            relatedId: issueId,
+            relatedWebsiteId: issue?.websiteId,
+            relatedIssueId: issueId,
+          });
+        }
+      }
+
+      if (issue) {
+        const isAssignee = issue.assignedTo === uid;
+        if (isAssignee) {
+          // Assignee commented. Notify the creator (if not the assignee) and admins/heads.
+          const recipients = new Set<string>();
+          if (issue.createdBy && issue.createdBy !== uid) {
+            recipients.add(issue.createdBy);
+          }
+          
+          for (const notifiedId of notifiedUserIds) {
+            recipients.delete(notifiedId);
+          }
+
+          if (recipients.size > 0) {
+            await notifs.createNotificationForMany(Array.from(recipients), {
+              actorId: uid,
+              type: 'task_comment',
+              title: '💬 New Quality Issue Comment',
+              message: `${commenterName} (assignee) commented on "${issueTitle}": "${message.trim().slice(0, 60)}${message.length > 60 ? '...' : ''}"`,
+              relatedType: 'quality_issue',
+              relatedId: issueId,
+              relatedWebsiteId: issue.websiteId,
+              relatedIssueId: issueId,
+            });
+          }
+
+          // Also notify admins/heads
+          void notifs.createAdminNotification({
+            actorId: uid,
+            type: 'task_comment',
+            title: '💬 New Quality Issue Comment',
+            message: `${commenterName} (assignee) commented on "${issueTitle}" (${website}).`,
+            link: '/work-board/quality-check',
+            relatedType: 'quality_issue',
+            relatedId: issueId,
+            relatedWebsiteId: issue.websiteId,
+            relatedIssueId: issueId,
+          });
+        } else {
+          // Someone else commented. Notify assignee.
+          if (issue.assignedTo && issue.assignedTo !== uid && !notifiedUserIds.has(issue.assignedTo)) {
+            void notifs.createNotification({
+              recipientId: issue.assignedTo,
+              actorId: uid,
+              type: 'task_comment',
+              title: '💬 New Comment on Assigned Issue',
+              message: `${commenterName} commented on your assigned issue "${issueTitle}": "${message.trim().slice(0, 60)}${message.length > 60 ? '...' : ''}"`,
+              relatedType: 'quality_issue',
+              relatedId: issueId,
+              relatedWebsiteId: issue.websiteId,
+              relatedIssueId: issueId,
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[notification] failed to trigger comment notifications:', e);
+    }
+
     return true;
   };
 
@@ -668,6 +840,7 @@ export const useQualityCheckStore = defineStore('qualityCheck', () => {
     updateIssue,
     moveStatus,
     deleteIssue,
+    archiveIssue,
     addComment,
     createClass,
     updateClass,

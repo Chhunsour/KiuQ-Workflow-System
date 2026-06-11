@@ -17,6 +17,7 @@ export const roleLabel = (role: string | null | undefined) => {
   if (normalized === 'member') return 'Team Member';
   if (normalized === 'team_member') return 'Team Member';
   if (normalized === 'quality_checker') return 'Quality Checker';
+  if (normalized === 'viewer') return 'Viewer';
   return normalized
     .split('_')
     .filter(Boolean)
@@ -83,8 +84,15 @@ export const isQualityCheckerRole = (input: RoleInput) => {
 };
 
 /**
- * Member-class role. True for regular team members AND for Assistant
- * Head (who shares the Team Member dashboard + sidebar by design).
+ * True only for the read-only Viewer role. Excluded from leaderboard and active directory.
+ */
+export const isViewerRole = (input: RoleInput) => {
+  const normalized = normalizeRole(input);
+  return normalized === 'viewer';
+};
+
+/**
+ * Member-class role. True for regular team members, Assistant Head, and Viewers.
  * Excludes head/supervisor/admin/owner/quality_checker/reviewer — they
  * have their own dashboards.
  *
@@ -94,7 +102,8 @@ export const isMemberRole = (input: RoleInput) => {
   const normalized = normalizeRole(input);
   return normalized === 'member'
       || normalized === 'team_member'
-      || normalized === 'assistant_head';
+      || normalized === 'assistant_head'
+      || normalized === 'viewer';
 };
 
 // ── Account status ──────────────────────────────────────────────────────
@@ -117,5 +126,6 @@ export const roleBadgeClass = (role: string | null | undefined) => {
       normalized === 'quality_checker') return 'bg-status-submitted-bg text-status-submitted-fg';
   // Member-class: approved tone
   if (normalized === 'member' || normalized === 'team_member') return 'bg-status-approved-bg text-status-approved-fg';
+  if (normalized === 'viewer') return 'bg-soft text-text-muted';
   return 'bg-soft text-text-muted';
 };

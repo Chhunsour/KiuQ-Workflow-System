@@ -8,6 +8,7 @@ export interface NavItem {
   section?: string;
   isExecutiveOnly?: boolean;
   isLocked?: boolean;
+  isTaskAlertManagerOnly?: boolean;
 }
 
 const svg = (path: string) =>
@@ -80,6 +81,27 @@ const promptChildren: NavItem[] = [
   { label: 'Prompt Builder', to: '/prompt/builder', icon: ICON.plus }
 ];
 
+const adminReportsChildren: NavItem[] = [
+  { label: 'Overview', to: '/reports/overview', icon: ICON.dashboard },
+  { label: 'Daily Reports', to: '/reports/daily', icon: ICON.clock },
+  { label: 'Weekly Reports', to: '/reports/weekly', icon: ICON.calendar },
+  { label: 'Monthly Reports', to: '/reports/monthly', icon: ICON.calendar },
+  { label: 'Member Performance', to: '/reports/member', icon: ICON.profile },
+  { label: 'Team Analytics', to: '/reports/team', icon: ICON.members },
+  { label: 'Activity Logs', to: '/reports/activity', icon: ICON.activity },
+  { label: 'Productivity Insights', to: '/reports/insights', icon: ICON.bolt },
+  { label: 'Exports', to: '/reports/exports', icon: ICON.download },
+  { label: 'Report Settings', to: '/reports/settings', icon: ICON.settings }
+];
+
+const memberReportsChildren: NavItem[] = [
+  { label: 'Overview', to: '/reports/overview', icon: ICON.dashboard },
+  { label: 'Daily Reports', to: '/reports/daily', icon: ICON.clock },
+  { label: 'Weekly Reports', to: '/reports/weekly', icon: ICON.calendar },
+  { label: 'Monthly Reports', to: '/reports/monthly', icon: ICON.calendar },
+  { label: 'Exports', to: '/reports/exports', icon: ICON.download }
+];
+
 export const adminNavItems: NavItem[] = [
   // ── OVERVIEW ──
   { section: 'Overview', label: 'Dashboard', to: '/', icon: ICON.dashboard },
@@ -91,6 +113,7 @@ export const adminNavItems: NavItem[] = [
   { section: 'Operations', label: 'Work Board', to: '/work-board', icon: ICON.board, children: workBoardChildren },
   { label: 'Followup', to: '/followup', icon: ICON.checkDoc, children: followupChildren },
   { label: 'Calendar', to: '/calendar', icon: ICON.calendar },
+  { label: 'Reports', to: '/reports', icon: ICON.activity },
   { label: 'Projects', to: '/projects', icon: ICON.projects },
   { label: 'Folders', to: '/folders', icon: ICON.folders },
 
@@ -106,7 +129,6 @@ export const adminNavItems: NavItem[] = [
   { section: 'Team', label: 'Members', to: '/members', icon: ICON.members },
   { label: 'Reviews', to: '/reviews', icon: ICON.checkDoc },
   { label: 'Leaderboard', to: '/leaderboard', icon: ICON.trophy },
-  { label: 'Team Blockers', to: '/team-blockers', icon: ICON.alert },
   { label: 'Activity', to: '/activity', icon: ICON.activity },
   { label: 'Notes', to: '/notes', icon: ICON.note },
 
@@ -115,7 +137,8 @@ export const adminNavItems: NavItem[] = [
   { label: 'Resources', to: '/resources', icon: ICON.download },
 
   // ── SYSTEM ──
-  { section: 'System', label: 'Settings', to: '/settings', icon: ICON.settings }
+  { section: 'System', label: 'Settings', to: '/settings', icon: ICON.settings },
+  { label: 'Task Alerts', to: '/admin/notifications/task-alerts', icon: ICON.alert, isTaskAlertManagerOnly: true }
 ];
 
 /**
@@ -148,6 +171,7 @@ export const memberNavItems: NavItem[] = [
   },
   { label: 'Followup', to: '/followup', icon: ICON.checkDoc, children: followupChildren },
   { label: 'Calendar', to: '/calendar', icon: ICON.calendar },
+  { label: 'Reports', to: '/reports', icon: ICON.activity },
 
   // ── CONTENT ──
   { section: 'Content', label: 'Websites', to: '/websites', icon: ICON.globe, children: websiteChildren },

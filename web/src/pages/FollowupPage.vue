@@ -7,30 +7,30 @@
         <h1 class="fu-hero-title">Followup Center</h1>
         <p class="fu-hero-sub">Track recurring website responsibilities, maintenance tasks, publishing schedules, and team routines.</p>
       </div>
-      <div v-if="auth.isAdmin" class="fu-hero-metrics" aria-label="Team followup metrics">
-        <div class="fu-pill">
-          <span class="fu-pill-num">{{ membersAllDone }}</span>
-          <span class="fu-pill-label">Fully Done</span>
+      <div class="fu-hero-metrics" aria-label="Team followup metrics">
+        <div class="fu-stat-pill">
+          <span class="fu-stat-pill-num">{{ membersAllDone }}</span>
+          <span class="fu-stat-pill-label">Fully Done</span>
         </div>
-        <div class="fu-pill">
-          <span class="fu-pill-num fu-pill-num--warn">{{ membersWithPending }}</span>
-          <span class="fu-pill-label">Pending</span>
+        <div class="fu-stat-pill">
+          <span class="fu-stat-pill-num fu-stat-pill-num--warn">{{ membersWithPending }}</span>
+          <span class="fu-stat-pill-label">Pending</span>
         </div>
-        <div class="fu-pill">
-          <span class="fu-pill-num">{{ blogDoneTotal }}/{{ blogTotal }}</span>
-          <span class="fu-pill-label">Blog</span>
+        <div class="fu-stat-pill">
+          <span class="fu-stat-pill-num">{{ blogDoneTotal }}/{{ blogTotal }}</span>
+          <span class="fu-stat-pill-label">Blog</span>
         </div>
-        <div class="fu-pill">
-          <span class="fu-pill-num">{{ pluginDoneTotal }}/{{ pluginTotal }}</span>
-          <span class="fu-pill-label">Plugin</span>
+        <div class="fu-stat-pill">
+          <span class="fu-stat-pill-num">{{ pluginDoneTotal }}/{{ pluginTotal }}</span>
+          <span class="fu-stat-pill-label">Plugin</span>
         </div>
-        <div class="fu-pill">
-          <span class="fu-pill-num">{{ ebayDoneTotal }}/{{ ebayRequiredTotal }}</span>
-          <span class="fu-pill-label">eBay</span>
+        <div class="fu-stat-pill">
+          <span class="fu-stat-pill-num">{{ ebayDoneTotal }}/{{ ebayRequiredTotal }}</span>
+          <span class="fu-stat-pill-label">eBay</span>
         </div>
-        <div class="fu-pill">
-          <span class="fu-pill-num">{{ speedDoneTotal }}/{{ speedTotal }}</span>
-          <span class="fu-pill-label">Speed</span>
+        <div class="fu-stat-pill">
+          <span class="fu-stat-pill-num">{{ speedDoneTotal }}/{{ speedTotal }}</span>
+          <span class="fu-stat-pill-label">Speed</span>
         </div>
       </div>
     </section>
@@ -48,7 +48,7 @@
         <h2 class="fu-card-title">Blog Followup</h2>
         <p class="fu-card-desc">Track scheduled blog publishing requirements for each website.</p>
         <div class="fu-card-foot">
-          <span v-if="auth.isAdmin" class="fu-card-stat">{{ blogDoneTotal }}/{{ blogTotal }} done</span>
+          <span class="fu-card-stat">{{ blogDoneTotal }}/{{ blogTotal }} done</span>
           <RouterLink to="/followup/blog" class="fu-card-btn">
             Open
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
@@ -67,7 +67,7 @@
         <h2 class="fu-card-title">Plugin Update</h2>
         <p class="fu-card-desc">Check &amp; update WordPress plugins once per week per website.</p>
         <div class="fu-card-foot">
-          <span v-if="auth.isAdmin" class="fu-card-stat">{{ pluginDoneTotal }}/{{ pluginTotal }} done</span>
+          <span class="fu-card-stat">{{ pluginDoneTotal }}/{{ pluginTotal }} done</span>
           <RouterLink to="/followup/plugins" class="fu-card-btn">
             Open
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
@@ -86,7 +86,7 @@
         <h2 class="fu-card-title">eBay Click Followup</h2>
         <p class="fu-card-desc">Check the eBay listing daily and tick it off when done.</p>
         <div class="fu-card-foot">
-          <span v-if="auth.isAdmin" class="fu-card-stat">{{ ebayDoneTotal }}/{{ ebayRequiredTotal }} done</span>
+          <span class="fu-card-stat">{{ ebayDoneTotal }}/{{ ebayRequiredTotal }} done</span>
           <a
             href="https://www.ebay.com/sch/i.html?_nkw=mini+excavator&_sacat=0&_from=R40&_trksid=p4624852.m570.l1312"
             target="_blank"
@@ -114,8 +114,8 @@
         <h2 class="fu-card-title">Website Optimization</h2>
         <p class="fu-card-desc">Run a weekly speed check &amp; performance review per website.</p>
         <div class="fu-card-foot">
-          <span v-if="auth.isAdmin" class="fu-card-stat">{{ speedDoneTotal }}/{{ speedTotal }} done</span>
-          <RouterLink to="/followup/speed-optimization" :class="auth.isAdmin ? 'fu-card-btn' : 'fu-card-btn fu-card-btn--solo'">
+          <span class="fu-card-stat">{{ speedDoneTotal }}/{{ speedTotal }} done</span>
+          <RouterLink to="/followup/speed-optimization" class="fu-card-btn">
             Open
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </RouterLink>
@@ -123,8 +123,8 @@
       </div>
     </div>
 
-    <!-- ════ Team Followup Summary (admin only) ════ -->
-    <section v-if="auth.isAdmin" class="fu-summary">
+    <!-- ════ Followup Summary ════ -->
+    <section class="fu-summary">
       <div class="fu-summary-head">
         <div>
           <h2 class="fu-summary-title">Team Followup Summary</h2>
@@ -365,9 +365,19 @@ const initials = (name: string) =>
   (name || '?').trim().split(/\s+/).slice(0, 2).map((p) => p[0] ?? '').join('').toUpperCase() || '?';
 
 // ── Members shown: active members + admins who own websites ──────────────────
-const summaryMembers = computed(() =>
-  data.members.filter((m) => m.status === 'active' && normalizeRole(m.role) !== 'supervisor')
-);
+const summaryMembers = computed(() => {
+  const all = data.members.filter((m) => {
+    const role = normalizeRole(m.role);
+    return m.status === 'active' && 
+           role !== 'supervisor' &&
+           role !== 'viewer' &&
+           role !== 'tester' &&
+           role !== 'employee';
+  });
+  if (auth.isAdmin) return all;
+  const userId = auth.user?.id;
+  return all.filter((m) => m.id === userId);
+});
 
 // ── Status calc ──────────────────────────────────────────────────────────────
 type CellState = 'done' | 'pending' | 'missed' | 'none';
@@ -582,7 +592,6 @@ const ebayCell = (memberId: string): Cell => {
       const d = new Date(mon);
       d.setDate(mon.getDate() + i);
       const ds = iso(d);
-      if (ds > today) continue;
       required++;
       if (doneDates.has(ds)) done++;
       else if (ds < today) missed++;
@@ -594,7 +603,7 @@ const ebayCell = (memberId: string): Cell => {
     while (cur <= end) {
       const ds = iso(cur);
       const dow = cur.getDay();
-      if (dow !== 0 && ds <= today) {
+      if (dow !== 0) {
         required++;
         if (doneDates.has(ds)) done++;
         else if (ds < today) missed++;
@@ -821,7 +830,6 @@ const ebayStats = computed(() => {
         const d = new Date(mon);
         d.setDate(mon.getDate() + i);
         const ds = iso(d);
-        if (ds > today) continue;
         required++;
         if (doneDates.has(ds)) done++;
       }
@@ -832,7 +840,7 @@ const ebayStats = computed(() => {
       while (cur <= end) {
         const ds = iso(cur);
         const dow = cur.getDay();
-        if (dow !== 0 && ds <= today) {
+        if (dow !== 0) {
           required++;
           if (doneDates.has(ds)) done++;
         }
@@ -893,7 +901,6 @@ const speedDoneTotal = computed(() => speedStats.value.done);
 
 // ── Load ─────────────────────────────────────────────────────────────────────
 onMounted(async () => {
-  if (!auth.isAdmin) return;
   loading.value = true;
   try {
     await Promise.allSettled([
@@ -963,36 +970,32 @@ onMounted(async () => {
   flex-wrap: wrap;
   gap: 0.4rem;
 }
-.fu-pill {
-  display: flex;
-  flex-direction: column;
-  gap: 0.05rem;
-  padding: 0.4rem 0.7rem;
+.fu-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  min-width: 3.6rem;
+  border-radius: 999px;
   box-shadow: var(--shadow-sm);
 }
-.fu-pill-num {
+.fu-stat-pill-num {
   font-family: 'Jost Numbers', 'Google Sans', sans-serif;
-  font-size: 1.05rem;
+  font-size: 0.8rem;
   font-weight: 800;
   color: var(--text-main);
   line-height: 1;
-  letter-spacing: -0.02em;
-  font-feature-settings: 'tnum' on;
 }
-.fu-pill-num--warn { color: #d97706; }
-:global([data-theme='dark-gray']) .fu-pill-num--warn { color: #fbbf24; }
-.fu-pill-label {
+.fu-stat-pill-num--warn { color: #d97706; }
+:global([data-theme='dark-gray']) .fu-stat-pill-num--warn { color: #fbbf24; }
+.fu-stat-pill-label {
   font-family: 'Jost Numbers', 'Google Sans', sans-serif;
-  font-size: 0.62rem;
-  font-weight: 600;
+  font-size: 0.6rem;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-top: 0.15rem;
 }
 
 /* ── Type cards: 4 / 2 / 2 grid ── */

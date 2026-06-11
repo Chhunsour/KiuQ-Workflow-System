@@ -2,15 +2,7 @@
   <div>
     <PageHeader title="Reviews" subtitle="Review submitted work, approve it, reject it, or request fixes." />
 
-    <div v-if="openBlockers.length > 0" class="mb-5 rounded-card border border-status-needs-fix-bg bg-status-needs-fix-bg/20 px-4 py-3">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div class="ui-font text-sm font-semibold text-status-needs-fix-fg">{{ openBlockers.length }} open blocker{{ openBlockers.length === 1 ? '' : 's' }}</div>
-          <div class="text-xs text-text-muted">Resolve blockers before reviewing related work.</div>
-        </div>
-        <RouterLink to="/team-blockers" class="btn-secondary h-8 px-3 text-xs">Open Blockers</RouterLink>
-      </div>
-    </div>
+
 
     <div class="mb-5 flex flex-wrap items-center gap-3">
       <input v-model="search" class="input max-w-sm" type="search" placeholder="Search submissions..." />
@@ -126,7 +118,6 @@ const search = ref('');
 const statusFilter = ref('');
 const feedback = reactive<Record<string, string>>({});
 const highlightedSubmissionId = ref('');
-const openBlockers = computed(() => data.blockers.filter((b) => b.status === 'open'));
 
 const assignmentById = (id: string) => data.assignments.find((a) => a.id === id);
 const items = computed(() =>
@@ -182,8 +173,7 @@ onMounted(async () => {
     data.fetchAssignments(),
     data.fetchPrompts(),
     data.fetchProjects(),
-    data.fetchMembers(),
-    data.fetchBlockers()
+    data.fetchMembers()
   ]);
 
   const subId = route.query.submission as string;

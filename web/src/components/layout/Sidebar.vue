@@ -37,7 +37,13 @@
         <div v-else-if="item.section && collapsed" class="nav-collapsed-divider" aria-hidden="true" />
         <!-- Group item (has children) -->
         <div v-if="item.children?.length">
-          <div class="nav-item w-full" :class="{ 'nav-item-active': isGroupActive(item) }">
+          <div
+            class="nav-item w-full"
+            :class="{
+              'nav-item-active': isGroupActive(item) && !isParentActiveOnly(item),
+              'nav-group-active-parent': isParentActiveOnly(item)
+            }"
+          >
             <RouterLink
               :to="item.to"
               class="flex min-w-0 flex-1 items-center gap-3 truncate"
@@ -212,6 +218,24 @@ const visibleNavItems = computed(() => {
   if (!auth.isHeadOrSupervisor) {
     items = items.filter((item) => !item.isExecutiveOnly);
   }
+
+  const userRole = auth.profile?.role ? auth.profile.role.trim().toLowerCase() : '';
+  const isTaskAlertManager = userRole === 'admin' || userRole === 'owner' || userRole === 'head';
+  if (!isTaskAlertManager) {
+    items = items.filter((item) => !item.isTaskAlertManagerOnly);
+  }
+
+  if (auth.isViewer) {
+    items = items.map((item) => {
+      if (item.children) {
+        return {
+          ...item,
+          children: item.children.filter((child) => child.to !== '/websites/new')
+        };
+      }
+      return item;
+    });
+  }
   return items;
 });
 const initials = computed(() => {
@@ -241,6 +265,12 @@ const isGroupActive = (item: NavItem) => {
   return item.children?.some((c) => isActive(c)) ?? false;
 };
 
+const isParentActiveOnly = (item: NavItem) => {
+  if (!item.children?.length) return false;
+  if (route.path === item.to) return false;
+  return item.children.some((c) => isActive(c));
+};
+
 // Auto-open the group whose child matches the current route
 const syncOpenGroup = () => {
   for (const item of visibleNavItems.value) {
@@ -268,7 +298,6 @@ onMounted(() => {
     data.fetchAssignments();
     data.fetchSectionTasks();
     data.fetchSubmissions();
-    data.fetchBlockers();
   }
 });
 </script>

@@ -34,7 +34,9 @@ export type NotificationType =
   | 'ebay_click_followup'
   | 'speed_optimization_followup'
   | 'quality_issue_reported'
-  | 'quality_issue_fixed';
+  | 'quality_issue_fixed'
+  | 'announcement'
+  | 'daily_summary';
 
 export interface AppNotification {
   id:           string;
@@ -49,9 +51,18 @@ export interface AppNotification {
   relatedId:    string | null;
   taskId:       string | null;
   submissionId: string | null;
+  link:         string | null;
+  relatedWebsiteId: string | null;
+  relatedIssueId: string | null;
   isRead:       boolean;
   emailSent:    boolean;
   createdAt:    string;
+  priority:     'critical' | 'high' | 'normal' | 'low';
+  seenAt:       string | null;
+  acknowledgedAt: string | null;
+  startedAt:    string | null;
+  completedAt:  string | null;
+  escalationLevel: number;
 }
 
 interface ActorProfile {
@@ -72,6 +83,11 @@ export interface NotificationPreferences {
   promptReplacedEmail: boolean;
   deadlineEmail:       boolean;
   mentionEmail:        boolean;
+  taskAlertsEnabled:   boolean;
+  followupAlertsEnabled: boolean;
+  qualityAlertsEnabled: boolean;
+  soundEnabled:        boolean;
+  desktopEnabled:      boolean;
 }
 
 export interface CreateNotificationInput {
@@ -86,6 +102,9 @@ export interface CreateNotificationInput {
   submissionId?: string;
   /** Optional resolved URL for push notification click. Overrides ROUTE_MAP in edge fn. */
   link?:        string;
+  relatedWebsiteId?: string;
+  relatedIssueId?: string;
+  priority?:    'critical' | 'high' | 'normal' | 'low';
 }
 
 export interface CreateAdminNotificationInput {
@@ -118,6 +137,7 @@ interface AdminNotificationPayload {
   link?: string | null;
   related_website_id?: string | null;
   related_issue_id?: string | null;
+  priority?: 'critical' | 'high' | 'normal' | 'low';
 }
 
 // ── Route map (client-side fallback, mirrors edge function) ───────────────────
@@ -143,6 +163,8 @@ const ROUTE_MAP: Record<NotificationType, string> = {
   speed_optimization_followup: '/followup/speed-optimization',
   quality_issue_reported: '/work-board/quality-check',
   quality_issue_fixed:    '/work-board/quality-check',
+  announcement:           '/notifications',
+  daily_summary:          '/notifications',
 };
 
 // Notification types that should trigger email
@@ -177,9 +199,18 @@ const rowToNotification = (r: any): AppNotification => ({
   relatedId:    r.related_id    ?? null,
   taskId:       r.task_id       ?? null,
   submissionId: r.submission_id ?? null,
+  link:         r.link          ?? null,
+  relatedWebsiteId: r.related_website_id ?? null,
+  relatedIssueId: r.related_issue_id ?? null,
   isRead:       r.is_read,
   emailSent:    r.email_sent,
   createdAt:    r.created_at,
+  priority:     r.priority          || 'normal',
+  seenAt:       r.seen_at           || null,
+  acknowledgedAt: r.acknowledged_at || null,
+  startedAt:    r.started_at        || null,
+  completedAt:  r.completed_at      || null,
+  escalationLevel: r.escalation_level || 0,
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -195,6 +226,11 @@ const rowToPrefs = (r: any): NotificationPreferences => ({
   promptReplacedEmail: r.prompt_replaced_email,
   deadlineEmail:       r.deadline_email,
   mentionEmail:        r.mention_email,
+  taskAlertsEnabled:   r.task_alerts_enabled   !== false,
+  followupAlertsEnabled: r.followup_alerts_enabled !== false,
+  qualityAlertsEnabled: r.quality_alerts_enabled  !== false,
+  soundEnabled:        r.sound_enabled         !== false,
+  desktopEnabled:      r.desktop_enabled       !== false,
 });
 
 const isRoleAdmin = (role: unknown) => {
@@ -213,6 +249,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
   const initialized   = ref(false);
   const unreadCountValue = ref(0);
   const subscribedUserId = ref('');
+  const activeSurpriseTask = ref<AppNotification | null>(null);
   let notificationChannel: RealtimeChannel | null = null;
 
   const unreadCount = computed(() => unreadCountValue.value);
@@ -230,7 +267,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     }
 
     if (options.toast && !exists) {
-      showForegroundToast(notif.title, notif.message);
+      showForegroundToast(notif);
       timing('toast shown', options.timingStart ? `${Math.round(performance.now() - options.timingStart)}ms after action` : '');
     }
   };
@@ -300,7 +337,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       // Explicit columns instead of select('*') — only the fields rowToNotification reads.
       const { data, error } = await supabase
         .from('notifications')
-        .select('id,recipient_id,actor_id,type,title,message,related_type,related_id,task_id,submission_id,is_read,email_sent,created_at')
+        .select('id,recipient_id,actor_id,type,title,message,related_type,related_id,task_id,submission_id,link,related_website_id,related_issue_id,is_read,email_sent,created_at,priority,seen_at,acknowledged_at,started_at,completed_at,escalation_level')
         .eq('recipient_id', auth.user.id)
         .order('created_at', { ascending: false })
         .limit(limit);
@@ -383,10 +420,14 @@ export const useNotificationsStore = defineStore('notifications', () => {
         related_id:    input.relatedId    ?? null,
         task_id:       input.taskId       ?? null,
         submission_id: input.submissionId ?? null,
+        link:          input.link         ?? null,
+        related_website_id: input.relatedWebsiteId ?? null,
+        related_issue_id:   input.relatedIssueId   ?? null,
         is_read:       false,
         email_sent:    false,
+        priority:      input.priority     ?? 'normal',
       })
-      .select('id,recipient_id,actor_id,type,title,message,related_type,related_id,task_id,submission_id,is_read,email_sent,created_at')
+      .select('id,recipient_id,actor_id,type,title,message,related_type,related_id,task_id,submission_id,link,related_website_id,related_issue_id,is_read,email_sent,created_at,priority,seen_at,acknowledged_at,started_at,completed_at,escalation_level')
       .single();
 
     if (error || !data) {
@@ -580,6 +621,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       submission_id: null,
       is_read: false,
       email_sent: false,
+      priority: 'normal',
     };
     console.log('[notification] insert payload', payload);
     timing('notification insert started', { type: 'admin_test' });
@@ -587,7 +629,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     const { data, error } = await supabase
       .from('notifications')
       .insert(payload)
-      .select('id,recipient_id,actor_id,type,title,message,related_type,related_id,task_id,submission_id,is_read,email_sent,created_at')
+      .select('id,recipient_id,actor_id,type,title,message,related_type,related_id,task_id,submission_id,is_read,email_sent,created_at,priority,seen_at,acknowledged_at,started_at,completed_at,escalation_level')
       .single();
 
     if (error) {
@@ -703,9 +745,63 @@ export const useNotificationsStore = defineStore('notifications', () => {
       .eq('is_read', false);
   };
 
+  // ── Seen, Acknowledge, Analytics Actions ───────────────────────────────────
+
+  const markSeen = async (ids: string[]) => {
+    if (!supabaseConfigured || ids.length === 0) return;
+    const nowStr = new Date().toISOString();
+    
+    notifications.value.forEach((n) => {
+      if (ids.includes(n.id) && !n.seenAt) {
+        n.seenAt = nowStr;
+      }
+    });
+
+    await supabase
+      .from('notifications')
+      .update({ seen_at: nowStr })
+      .in('id', ids)
+      .is('seen_at', null);
+  };
+
+  const acknowledgeNotification = async (id: string) => {
+    const n = notifications.value.find((x) => x.id === id);
+    if (!n) return;
+    const nowStr = new Date().toISOString();
+    n.acknowledgedAt = nowStr;
+    n.isRead = true;
+    setUnreadCount(unreadCount.value - 1);
+
+    await supabase
+      .from('notifications')
+      .update({ acknowledged_at: nowStr, is_read: true })
+      .eq('id', id);
+
+    // If task/quality issue, auto-acknowledge the issue status too
+    if (n.type === 'quality_issue_reported' && n.relatedType === 'quality_issue' && n.relatedId) {
+      try {
+        const { useQualityCheckStore } = await import('@/stores/qualityCheck');
+        const qc = useQualityCheckStore();
+        await qc.updateIssue(n.relatedId, { status: 'acknowledged' });
+      } catch (e) {
+        console.error('[notification] auto-acknowledgement of quality issue failed:', e);
+      }
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    if (!supabaseConfigured) return null;
+    const { data, error } = await supabase.rpc('get_notification_analytics');
+    if (error) {
+      console.error('[notification] fetchAnalytics error:', error);
+      return null;
+    }
+    return data;
+  };
+
   // ── Realtime ─────────────────────────────────────────────────────────────
 
-  const handleRealtimeInsert = (row: Record<string, unknown>) => {
+  const handleRealtimeInsert = async (row: Record<string, unknown>) => {
     const auth = useAuthStore();
     if (!auth.user?.id) return;
     // Only handle notifications addressed to the current user
@@ -719,24 +815,36 @@ export const useNotificationsStore = defineStore('notifications', () => {
       timing('realtime received', { id: row['id'] });
     }
 
-    const notif = rowToNotification(row);
+    const rawNotif = rowToNotification(row);
     console.log('[notification] realtime event received', {
-      id: notif.id,
-      recipientId: notif.recipientId,
-      type: notif.type,
+      id: rawNotif.id,
+      recipientId: rawNotif.recipientId,
+      type: rawNotif.type,
       unreadBefore: unreadCount.value,
     });
-    addNotificationLocal(enrichNotification(notif), { toast: true, timingStart: receivedAt });
-    void hydrateExistingNotificationActors([notif]);
+    
+    // Set active surprise task state if it is a new task assignment
+    if (rawNotif.type === 'task_assigned') {
+      activeSurpriseTask.value = rawNotif;
+    }
+    
+    // Hydrate actor profile before adding locally so avatar/name are present on toast
+    const [notif] = await hydrateNotificationActors([rawNotif]);
+    
+    addNotificationLocal(notif, { toast: true, timingStart: receivedAt });
+    showBrowserNotification(notif.title, notif.message);
     console.log('[notification] unread count fetched', {
       userId: auth.user.id,
       total: notifications.value.length,
       unread: unreadCount.value,
     });
-
   };
 
   const handleRealtimeUpdate = (row: Record<string, unknown>) => {
+    const auth = useAuthStore();
+    if (!auth.user?.id) return;
+    if (row['recipient_id'] !== auth.user.id) return;
+
     const idx = notifications.value.findIndex((n) => n.id === row['id']);
     if (idx !== -1) {
       const wasRead = notifications.value[idx].isRead;
@@ -751,7 +859,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     eventType: 'INSERT' | 'UPDATE' | 'DELETE',
     row: Record<string, unknown>
   ) => {
-    if (eventType === 'INSERT') handleRealtimeInsert(row);
+    if (eventType === 'INSERT') void handleRealtimeInsert(row);
     else if (eventType === 'UPDATE') handleRealtimeUpdate(row);
   };
 
@@ -764,7 +872,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
     await unsubscribeNotifications();
     subscribedUserId.value = userId;
-    console.log('[notification] realtime subscribed building channel with filter recipient_id=eq.' + userId);
+    console.log('[notification] realtime subscribed building channel without recipient_id filter');
 
     notificationChannel = supabase.channel(`notifications-personal-${userId}`);
     notificationChannel
@@ -774,7 +882,6 @@ export const useNotificationsStore = defineStore('notifications', () => {
           event: '*',
           schema: 'public',
           table: 'notifications',
-          filter: `recipient_id=eq.${userId}`,
         },
         (payload) => {
           console.log('[notification] realtime event received raw', payload);
@@ -818,6 +925,11 @@ export const useNotificationsStore = defineStore('notifications', () => {
     if (patch.promptReplacedEmail !== undefined) dbPatch['prompt_replaced_email'] = patch.promptReplacedEmail;
     if (patch.deadlineEmail       !== undefined) dbPatch['deadline_email']        = patch.deadlineEmail;
     if (patch.mentionEmail        !== undefined) dbPatch['mention_email']         = patch.mentionEmail;
+    if (patch.taskAlertsEnabled   !== undefined) dbPatch['task_alerts_enabled']   = patch.taskAlertsEnabled;
+    if (patch.followupAlertsEnabled !== undefined) dbPatch['followup_alerts_enabled'] = patch.followupAlertsEnabled;
+    if (patch.qualityAlertsEnabled  !== undefined) dbPatch['quality_alerts_enabled']  = patch.qualityAlertsEnabled;
+    if (patch.soundEnabled         !== undefined) dbPatch['sound_enabled']         = patch.soundEnabled;
+    if (patch.desktopEnabled       !== undefined) dbPatch['desktop_enabled']       = patch.desktopEnabled;
 
     await supabase
       .from('notification_preferences')
@@ -835,25 +947,48 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
   const showBrowserNotification = (title: string, body: string) => {
     if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
-    if (!preferences.value?.browserEnabled) return;
+    const auth = useAuthStore();
+    const isCritical = title.toLowerCase().includes('critical') || body.toLowerCase().includes('critical');
+    const isAdmin = auth.profile?.role && ['admin', 'owner', 'head', 'supervisor'].includes(auth.profile.role);
+    if (!isCritical || !isAdmin) {
+      if (preferences.value && !preferences.value.desktopEnabled) return;
+    }
     new Notification(`KiuQ — ${title}`, { body, icon: '/favicon.svg' });
   };
 
   // ── Foreground toast (shown inside the app when tab is open) ─────────────
 
-  const foregroundToast = ref<{ title: string; body: string } | null>(null);
+  const foregroundToast = ref<any | null>(null);
   let foregroundToastTimer: ReturnType<typeof setTimeout> | null = null;
 
-  const showForegroundToast = (title: string, body: string) => {
-    console.log('[notification] toast shown', { title, body });
-    foregroundToast.value = { title, body };
+  const showForegroundToast = (titleOrNotif: string | AppNotification, body?: string) => {
+    console.log('[notification] toast shown', { titleOrNotif, body });
+    if (typeof titleOrNotif === 'string') {
+      foregroundToast.value = { title: titleOrNotif, message: body ?? '', body: body ?? '' };
+    } else {
+      foregroundToast.value = titleOrNotif;
+    }
     if (foregroundToastTimer) clearTimeout(foregroundToastTimer);
     foregroundToastTimer = setTimeout(() => {
       foregroundToast.value = null;
     }, 5000);
-    setTimeout(() => {
-      void playNotificationSound();
-    }, 0);
+    
+    const title = typeof titleOrNotif === 'string' ? titleOrNotif : titleOrNotif.title;
+    const msg = typeof titleOrNotif === 'string' ? (body ?? '') : titleOrNotif.message;
+
+    const auth = useAuthStore();
+    const isCritical = title.toLowerCase().includes('critical') || msg.toLowerCase().includes('critical');
+    const isAdmin = auth.profile?.role && ['admin', 'owner', 'head', 'supervisor'].includes(auth.profile.role);
+    
+    if (isCritical && isAdmin) {
+      setTimeout(() => {
+        void playNotificationSound();
+      }, 0);
+    } else if (preferences.value?.soundEnabled !== false) {
+      setTimeout(() => {
+        void playNotificationSound();
+      }, 0);
+    }
   };
 
   // ── Reset (on logout) ────────────────────────────────────────────────────
@@ -895,6 +1030,10 @@ export const useNotificationsStore = defineStore('notifications', () => {
     foregroundToast,
     showForegroundToast,
     sendPushNotification,
+    activeSurpriseTask,
+    markSeen,
+    acknowledgeNotification,
+    fetchAnalytics,
     reset,
   };
 });

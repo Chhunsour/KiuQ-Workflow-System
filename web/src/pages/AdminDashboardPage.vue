@@ -7,13 +7,12 @@
       </template>
     </PageHeader>
 
-    <div class="grid grid-cols-2 gap-3 lg:grid-cols-6">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-5">
       <StatCard label="Total Members" :value="data.totalMembers" :icon="icons.members" />
       <StatCard label="Total Projects" :value="data.totalProjects" :icon="icons.projects" />
       <StatCard label="Total Websites" :value="data.totalWebsites" :icon="icons.websites" />
       <StatCard label="Total Prompts" :value="data.totalPrompts" :icon="icons.prompts" />
       <StatCard label="Pending Reviews" :value="data.pendingReviews" :icon="icons.reviews" />
-      <StatCard label="Open Blockers" :value="openBlockers.length" :icon="icons.blockers" />
     </div>
 
     <!-- Today's Followups — team summary -->
@@ -45,7 +44,7 @@
       </div>
     </div>
 
-    <div class="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       <div class="card">
         <div class="border-b border-border px-5 py-3.5">
           <h3 class="section-title">Team Activity</h3>
@@ -60,22 +59,29 @@
       </div>
 
       <div class="card">
-        <div class="flex items-center justify-between border-b border-border px-5 py-3.5">
-          <h3 class="section-title">Team blockers</h3>
-          <RouterLink to="/team-blockers" class="text-sm text-primary hover:underline">View all</RouterLink>
-        </div>
-        <div v-if="openBlockers.length > 0" class="divide-y divide-border">
-          <div v-for="blocker in openBlockers.slice(0, 4)" :key="blocker.id" class="px-5 py-3.5">
-            <div class="ui-font text-sm font-medium text-text-main">{{ blocker.reason || 'Blocker' }}</div>
-            <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-muted">
-              <span>{{ memberName(blocker.memberId) }} · {{ blocker.createdAt }}</span>
-              <RouterLink v-if="blocker.memberId" :to="`/profiles/${blocker.memberId}`" class="text-primary hover:underline">
-                View Full
-              </RouterLink>
-            </div>
+        <div class="border-b border-border px-5 py-3.5 flex items-center justify-between">
+          <div>
+            <h3 class="section-title">Task Alerts Summary</h3>
+            <p class="mt-1 text-xs text-text-muted">Targeted notification delivery status.</p>
           </div>
+          <RouterLink to="/admin/notifications/task-alerts" class="text-xs text-primary hover:underline">
+            Manage
+          </RouterLink>
         </div>
-        <div v-else class="px-6 py-8 text-center text-sm text-text-muted">No open blockers.</div>
+        <div class="p-4 flex flex-col gap-2">
+          <RouterLink
+            v-for="item in taskAlertMetricsList"
+            :key="item.label"
+            to="/admin/notifications/task-alerts"
+            class="flex items-center justify-between rounded-btn bg-soft/40 hover:bg-primary/5 border border-border/40 hover:border-primary/20 px-3 py-1.5 transition-all group"
+          >
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="w-2 h-2 rounded-full shrink-0" :class="item.dotClass" />
+              <span class="text-xs font-semibold text-text-muted group-hover:text-text-main transition-colors truncate">{{ item.label }}</span>
+            </div>
+            <strong class="ui-font text-xs font-bold text-text-main group-hover:text-primary transition-colors shrink-0">{{ item.value }}</strong>
+          </RouterLink>
+        </div>
       </div>
 
       <div class="card">
@@ -148,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import StatCard from '@/components/ui/StatCard.vue';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
@@ -156,36 +162,56 @@ import { RouterLink } from 'vue-router';
 import { isToday, presenceStatusFor } from '@/lib/presence';
 import { useDataStore, type ProjectStatus } from '@/stores/data';
 import { useFollowupStore } from '@/stores/followup';
-import { isLeaderboardParticipant } from '@/lib/roles';
+import { useTaskAlertsStore, type TaskAlertMetrics } from '@/stores/taskAlerts';
+import { isLeaderboardParticipant, normalizeRole } from '@/lib/roles';
 
 const data = useDataStore();
 const followup = useFollowupStore();
+const taskAlertStore = useTaskAlertsStore();
+
+const taskAlertMetrics = ref<TaskAlertMetrics>({
+  activeAlerts: 0,
+  pendingAcknowledgements: 0,
+  overdueAcknowledgements: 0,
+  qualityCheckAlerts: 0,
+  followUpAlerts: 0,
+});
+
+const taskAlertMetricsList = computed(() => [
+  { label: 'Active Alerts', value: taskAlertMetrics.value.activeAlerts, dotClass: 'bg-primary' },
+  { label: 'Pending Acknowledge', value: taskAlertMetrics.value.pendingAcknowledgements, dotClass: 'bg-status-submitted-fg' },
+  { label: 'Overdue (24h+)', value: taskAlertMetrics.value.overdueAcknowledgements, dotClass: 'bg-status-needs-fix-fg' },
+  { label: 'Quality Check Alerts', value: taskAlertMetrics.value.qualityCheckAlerts, dotClass: 'bg-status-rejected-fg' },
+  { label: 'Follow-Up Alerts', value: taskAlertMetrics.value.followUpAlerts, dotClass: 'bg-status-approved-fg' },
+]);
 
 const icons = {
   members: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
   projects: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
   websites: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>',
   prompts: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>',
-  reviews: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5"/></svg>',
-  blockers: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>'
+  reviews: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5"/></svg>'
 };
 
 const anyLoading = computed(() => Object.values(data.loading).some(Boolean));
 const combinedError = computed(() => Object.values(data.errors).find(Boolean) ?? null);
 const recentSubmissions = computed(() => data.submissions.slice(0, 6));
-const openBlockers = computed(() => data.blockers.filter((b) => b.status === 'open'));
-const onlineMembers = computed(() => data.members.filter((m) => presenceStatusFor(m) === 'online'));
-const awayMembers = computed(() => data.members.filter((m) => presenceStatusFor(m) === 'away'));
-const offlineMembers = computed(() => data.members.filter((m) => presenceStatusFor(m) === 'offline'));
+const isWorker = (m: any) => {
+  const r = normalizeRole(m.role);
+  return r !== 'viewer' && r !== 'tester' && r !== 'employee';
+};
+const onlineMembers = computed(() => data.members.filter((m) => isWorker(m) && presenceStatusFor(m) === 'online'));
+const awayMembers = computed(() => data.members.filter((m) => isWorker(m) && presenceStatusFor(m) === 'away'));
+const offlineMembers = computed(() => data.members.filter((m) => isWorker(m) && presenceStatusFor(m) === 'offline'));
 const activeTodayMembers = computed(() =>
-  data.members.filter((m) => isToday(m.lastActiveAt) || m.todayActivityCount > 0)
+  data.members.filter((m) => isWorker(m) && (isToday(m.lastActiveAt) || m.todayActivityCount > 0))
 );
 const teamActivityStats = computed(() => [
   { label: 'Online', value: onlineMembers.value.length },
   { label: 'Away', value: awayMembers.value.length },
   { label: 'Offline', value: offlineMembers.value.length },
   { label: 'Active Today', value: activeTodayMembers.value.length },
-  { label: 'No Activity Today', value: Math.max(data.members.length - activeTodayMembers.value.length, 0) }
+  { label: 'No Activity Today', value: Math.max(data.members.filter(isWorker).length - activeTodayMembers.value.length, 0) }
 ]);
 
 const assignmentById = (id: string) => data.assignments.find((a) => a.id === id);
@@ -272,6 +298,13 @@ const loadDashboardData = async () => {
     ]);
   } catch {
     // dashboard should not block on followup errors
+  }
+  
+  // Task Alerts metrics load
+  try {
+    taskAlertMetrics.value = await taskAlertStore.fetchDashboardMetrics();
+  } catch (err) {
+    console.error('[dashboard] taskAlerts metrics failed', err);
   }
 };
 

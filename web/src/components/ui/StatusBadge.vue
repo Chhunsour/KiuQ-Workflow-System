@@ -31,6 +31,7 @@ export type Status =
   | 'inactive'
   | 'deactivated'
   | 'deleted'
+  | 'postponed'
   | 'in_development';
 
 const props = defineProps<{ status: Status; label?: string }>();
@@ -59,6 +60,7 @@ const map: Record<Status, { label: string; variant: string }> = {
   resolved:         { label: 'Resolved',          variant: 'green'    },
   reviewed:         { label: 'Reviewed',          variant: 'green'    },
   active:           { label: 'Active',            variant: 'green'    },
+  postponed:        { label: 'Postponed',         variant: 'purple'   },
 };
 
 const labelText = computed(() => props.label ?? map[props.status].label);

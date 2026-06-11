@@ -5,7 +5,7 @@
       subtitle="Files, links, notes, and references for your team."
     >
       <template #actions>
-        <button class="btn-primary" type="button" @click="openCreate">
+        <button v-if="!auth.isViewer" class="btn-primary" type="button" @click="openCreate">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
@@ -165,7 +165,7 @@
         title="No resources added yet."
         description="Upload a file, save a link, or create a note to keep your workflow organized."
       >
-        <template #action>
+        <template v-if="!auth.isViewer" #action>
           <button class="btn-primary" type="button" @click="openCreate">Add Resource</button>
         </template>
       </EmptyState>

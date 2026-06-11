@@ -56,6 +56,7 @@ import {
   type WebsiteRow
 } from '@/lib/db';
 import { useAuthStore } from '@/stores/auth';
+import { useFollowupStore } from '@/stores/followup';
 import type { Status } from '@/components/ui/StatusBadge.vue';
 
 // =====================
@@ -72,7 +73,8 @@ export type AssignmentStatus =
   | 'approved'
   | 'needs_fix'
   | 'rejected'
-  | 'needs_resubmission';
+  | 'needs_resubmission'
+  | 'postponed';
 
 export type PromptQualityStatus = 'good' | 'needs_improvement' | 'weak' | 'archived';
 
@@ -133,7 +135,7 @@ export type DocStatus = 'draft' | 'published';
 export type MonthlyReportStatus = 'submitted' | 'reviewed';
 export type BlockerStatus = 'open' | 'resolved';
 export type ThemePreference = 'light' | 'dark-gray';
-export type BoardColumnKey = 'to_do' | 'in_progress' | 'waiting_review' | 'needs_fix' | 'completed';
+export type BoardColumnKey = 'to_do' | 'in_progress' | 'waiting_review' | 'needs_fix' | 'completed' | 'postpone';
 
 export type ActivityAction =
   | 'user_login'
@@ -207,6 +209,7 @@ export interface Member {
   updatedAt: string;
   notes: string;
   lastSeenUpdateId: string;
+  department?: string;
 }
 
 export interface SystemUpdate {
@@ -373,6 +376,7 @@ export interface PromptAssignment {
   assignedAt: string;
   assignedBy: string | null;
   updatedAt: string;
+  isArchived?: boolean;
 }
 
 export interface SectionTask {
@@ -1043,7 +1047,6 @@ export const useDataStore = defineStore('data', () => {
 
     // Ensure followup slots exist for the saved website (fire-and-forget, no await)
     void (async () => {
-      const { useFollowupStore } = await import('@/stores/followup');
       const followup = useFollowupStore();
       await Promise.all([followup.ensureBlogSlots(id!), followup.ensurePluginSlots(id!)]);
     })();
@@ -1586,6 +1589,21 @@ export const useDataStore = defineStore('data', () => {
     return true;
   };
 
+  const archiveAssignment = async (id: string): Promise<boolean> => {
+    if (!ensureConfigured('assignments')) return false;
+    errors.assignments = null;
+    const { error } = await supabase
+      .from('prompt_assignments')
+      .update({ is_archived: true })
+      .eq('id', id);
+    if (error) {
+      errors.assignments = error.message;
+      return false;
+    }
+    assignments.value = assignments.value.filter((a) => a.id !== id);
+    return true;
+  };
+
   const uuid = () =>
     typeof crypto.randomUUID === 'function'
       ? crypto.randomUUID()
@@ -1596,8 +1614,8 @@ export const useDataStore = defineStore('data', () => {
 
   const bulkCreateAssignments = async (
     rows: Array<Omit<PromptAssignment, 'id'>>
-  ): Promise<{ created: number; failed: number; errors: string[] }> => {
-    const result = { created: 0, failed: 0, errors: [] as string[] };
+  ): Promise<{ created: number; failed: number; errors: string[]; data: PromptAssignment[] }> => {
+    const result = { created: 0, failed: 0, errors: [] as string[], data: [] as PromptAssignment[] };
     if (!ensureConfigured('assignments') || rows.length === 0) return result;
     errors.assignments = null;
     const auth = useAuthStore();
@@ -1622,6 +1640,7 @@ export const useDataStore = defineStore('data', () => {
             assignments.value = [a, ...assignments.value];
           }
         });
+        result.data = newAssignments;
         if (import.meta.env.DEV) console.log('[board] local state updated with', newAssignments.length, 'new tasks');
         // Background sync — don't await so the board updates immediately
         void fetchAssignments(true);
@@ -1740,6 +1759,34 @@ export const useDataStore = defineStore('data', () => {
       isResubmission ? 'Work resubmitted for admin review.' : 'Output submitted for admin review.'
     );
     await Promise.allSettled([fetchSubmissions(), fetchAssignments()]);
+
+    // Notify admins of the new submission in the background
+    try {
+      const prompt = prompts.value.find((p) => p.id === assignment.promptId);
+      const promptName = prompt ? prompt.title : 'Task';
+      const website = websites.value.find((w) => w.id === assignment.websiteId);
+      const websiteDomain = website ? website.domain : 'WordPress';
+
+      const title = isResubmission ? '📋 Resubmission Received' : '📋 New Submission Received';
+      const message = `${auth.profile?.fullName || 'A member'} has ${isResubmission ? 'resubmitted' : 'submitted'} work for "${promptName}" on ${websiteDomain}.`;
+
+      const { useNotificationsStore } = await import('@/stores/notifications');
+      const notifs = useNotificationsStore();
+      await notifs.createAdminNotification({
+        actorId: auth.user.id,
+        type: 'submission_received',
+        title,
+        message,
+        link: '/reviews',
+        taskId: assignment.id,
+        relatedType: 'assignment',
+        relatedId: assignment.id,
+        relatedWebsiteId: assignment.websiteId ?? undefined,
+      });
+    } catch (e) {
+      console.warn('[notification] failed to trigger admin notification:', e);
+    }
+
     return true;
   };
 
@@ -1806,6 +1853,52 @@ export const useDataStore = defineStore('data', () => {
     }
 
     await Promise.allSettled([fetchSubmissions(), fetchReviewComments(), fetchAssignments()]);
+
+    // Notify the member about the review outcome in the background
+    if (assignment) {
+      try {
+        const targetMemberId = submission.submittedBy || assignment.assignedMemberId;
+        const prompt = prompts.value.find((p) => p.id === assignment.promptId);
+        const promptName = prompt ? prompt.title : 'Task';
+        const website = websites.value.find((w) => w.id === assignment.websiteId);
+        const websiteDomain = website ? website.domain : 'WordPress';
+
+        const notifType =
+          status === 'approved'
+            ? 'task_approved'
+            : status === 'needs_fix'
+              ? 'task_needs_fix'
+              : 'work_reviewed';
+
+        let title = '📋 Task Approved';
+        let message = `Your submission for "${promptName}" on ${websiteDomain} was approved.`;
+
+        if (status === 'needs_fix') {
+          title = '📋 Task Needs Fix';
+          message = `Your submission for "${promptName}" on ${websiteDomain} needs corrections: ${feedback.trim() || 'Please check feedback.'}`;
+        } else if (status === 'rejected') {
+          title = '📋 Submission Rejected';
+          message = `Your submission for "${promptName}" on ${websiteDomain} was rejected. Feedback: ${feedback.trim() || 'Please contact supervisor.'}`;
+        }
+
+        const { useNotificationsStore } = await import('@/stores/notifications');
+        const notifs = useNotificationsStore();
+        await notifs.createNotification({
+          recipientId: targetMemberId,
+          actorId: auth.user.id,
+          type: notifType,
+          title,
+          message,
+          taskId: assignment.id,
+          relatedType: 'task',
+          relatedId: assignment.id,
+          relatedWebsiteId: assignment.websiteId ?? undefined,
+        });
+      } catch (e) {
+        console.warn('[notification] failed to trigger member notification:', e);
+      }
+    }
+
     return true;
   };
 
@@ -2864,6 +2957,7 @@ export const useDataStore = defineStore('data', () => {
     upsertAssignment,
     bulkCreateAssignments,
     removeAssignment,
+    archiveAssignment,
     submitAssignment,
     reviewSubmission,
     upsertDoc,

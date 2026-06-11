@@ -1033,7 +1033,7 @@ const onNewPost = async () => {
 .cms-sidebar-item--active {
   background: var(--primary-soft);
   border-left: 3px solid var(--primary);
-  box-shadow: inset 2px 0 6px rgba(63, 141, 254, 0.06);
+  box-shadow: inset 2px 0 6px rgba(21, 214, 194, 0.06);
   font-weight: 700;
   transform: scale(1.02);
 }
@@ -1738,11 +1738,11 @@ const onNewPost = async () => {
 }
 .card-hover:hover {
   border-color: color-mix(in srgb, var(--primary) 35%, var(--border)) !important;
-  box-shadow: 0 10px 25px rgba(63, 141, 254, 0.1) !important;
+  box-shadow: 0 10px 25px rgba(21, 214, 194, 0.1) !important;
   transform: translateY(-4px) !important;
 }
 :root[data-theme='dark-gray'] .card-hover:hover {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), 0 0 20px rgba(79, 151, 255, 0.15) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), 0 0 20px rgba(21, 214, 194, 0.15) !important;
 }
 
 /* ── Standard CSS styles from original code ── */
@@ -1845,7 +1845,7 @@ const onNewPost = async () => {
   width: 2rem; height: 2rem;
   border-radius: 9px;
 }
-.cms-kpi-icon--blue   { background: color-mix(in srgb, #3f8dfe 14%, transparent); color: #3f8dfe; }
+.cms-kpi-icon--blue   { background: color-mix(in srgb, #15D6C2 14%, transparent); color: #15D6C2; }
 .cms-kpi-icon--violet { background: color-mix(in srgb, #7c5cfc 15%, transparent); color: #7c5cfc; }
 .cms-kpi-icon--green  { background: color-mix(in srgb, #16a34a 14%, transparent); color: #16a34a; }
 .cms-kpi-icon--slate  { background: var(--soft-bg); color: var(--text-muted); }
@@ -1894,7 +1894,7 @@ const onNewPost = async () => {
   transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .cms-module:hover .cms-module-icon { transform: scale(1.08) rotate(-3deg); }
-.cms-module-icon--product { background: color-mix(in srgb, #3f8dfe 13%, transparent); color: #3f8dfe; }
+.cms-module-icon--product { background: color-mix(in srgb, #15D6C2 13%, transparent); color: #15D6C2; }
 .cms-module-icon--blog    { background: color-mix(in srgb, #7c5cfc 14%, transparent); color: #7c5cfc; }
 .cms-module-headings { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; flex: 1; }
 .cms-module-title {
@@ -2034,7 +2034,7 @@ const onNewPost = async () => {
   border-radius: 6px;
   text-align: center;
 }
-.cms-recent-type.is-product { color: #3f8dfe; background: color-mix(in srgb, #3f8dfe 11%, transparent); }
+.cms-recent-type.is-product { color: #15D6C2; background: color-mix(in srgb, #15D6C2 11%, transparent); }
 .cms-recent-type.is-post    { color: #7c5cfc; background: color-mix(in srgb, #7c5cfc 12%, transparent); }
 .cms-recent-thumb {
   width: 2rem; height: 2rem;

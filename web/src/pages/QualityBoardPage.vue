@@ -91,13 +91,12 @@
             <header class="column-head">
               <div>
                 <h2>{{ col.label }}</h2>
-                <p>{{ columnHelper(col.value) }}</p>
               </div>
               <span>{{ columnIssues(col.value).length }}</span>
             </header>
 
             <button
-              v-if="col.value === 'new_issue'"
+              v-if="col.value === 'in_progress'"
               class="add-card-mini"
               type="button"
               @click="openCreate"
@@ -119,6 +118,28 @@
                 @keydown.enter.prevent="openDetail(issue.id)"
                 @keydown.space.prevent="openDetail(issue.id)"
               >
+                <!-- Manager Options Dropdown Menu -->
+                <div v-if="isManager" class="tc-menu-container" @click.stop>
+                  <button
+                    class="tc-menu-trigger"
+                    type="button"
+                    title="Issue actions"
+                    @click.stop="toggleCardMenu(issue.id)"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+                    </svg>
+                  </button>
+                  <div v-if="activeMenuCardId === issue.id" class="tc-menu-dropdown">
+                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">Edit</button>
+                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">Assign</button>
+                    <button class="tc-menu-item" type="button" @click.stop="handleAlertCard(issue)">Send Alert</button>
+                    <button class="tc-menu-item" type="button" @click.stop="handleReceiptsCard(issue)">View Receipts</button>
+                    <div class="tc-menu-divider" />
+                    <button class="tc-menu-item tc-menu-item--danger" type="button" @click.stop="handleArchiveCard(issue.id)">Archive</button>
+                  </div>
+                </div>
+
                 <!-- Optional cover image -->
                 <div v-if="issue.screenshotUrl" class="tc-image-container">
                   <img class="tc-cover" :src="issue.screenshotUrl" :alt="issue.title" loading="lazy" />
@@ -135,6 +156,28 @@
                     {{ priorityLabel(issue.priority) }}
                   </span>
                   <span v-if="issue.dueDate" class="tc-due-pill">Due {{ formatDate(issue.dueDate) }}</span>
+                </div>
+
+                <!-- Alert Tracking Panel -->
+                <div v-if="isManager && receiptSummaries[issue.id] && receiptSummaries[issue.id].delivered > 0" class="tc-tracking-panel" @click.stop>
+                  <div class="tc-tracking-header">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Alert Status
+                  </div>
+                  <div class="tc-tracking-stats">
+                    <span>Delivered: <strong>Yes</strong></span>
+                    <span>Opened: <strong>{{ receiptSummaries[issue.id].opened > 0 ? 'Yes' : 'No' }}</strong></span>
+                    <span>Acked: <strong>{{ receiptSummaries[issue.id].acknowledged === receiptSummaries[issue.id].delivered ? 'Yes' : 'No' }}</strong></span>
+                  </div>
+                  <div v-if="receiptSummaries[issue.id].lastAlertAt" class="tc-tracking-time">
+                    Last Alert: <strong>{{ formattedAlertDate(receiptSummaries[issue.id].lastAlertAt) }}</strong>
+                  </div>
+                  <div class="tc-tracking-actions">
+                    <button class="tc-track-btn" type="button" @click.stop="handleReceiptsCard(issue)">View Receipts</button>
+                    <button class="tc-track-btn" type="button" :disabled="repushingAlerts[issue.id] || receiptSummaries[issue.id].pending === 0" @click.stop="handleRepushCard(issue.id)">
+                      {{ repushingAlerts[issue.id] ? 'Nudging...' : 'Repush' }}
+                    </button>
+                  </div>
                 </div>
 
                 <div class="tc-footer">
@@ -190,7 +233,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import CreateIssueModal from '@/components/quality/CreateIssueModal.vue';
 import IssueDetailModal from '@/components/quality/IssueDetailModal.vue';
@@ -207,6 +250,7 @@ import {
   type QualityIssuePriority
 } from '@/stores/qualityCheck';
 import { usePageRealtime, pushToast } from '@/services/realtimeService';
+import { useTaskAlertsStore } from '@/stores/taskAlerts';
 
 usePageRealtime(['quality_issues', 'quality_issue_comments', 'websites']);
 import { useImagePreviewStore } from '@/stores/imagePreview';
@@ -214,6 +258,7 @@ import { useImagePreviewStore } from '@/stores/imagePreview';
 const route = useRoute();
 const auth  = useAuthStore();
 const previewStore = useImagePreviewStore();
+const alertsStore = useTaskAlertsStore();
 
 const openPhotoPreview = (member: any) => {
   if (member?.avatarUrl) {
@@ -230,7 +275,89 @@ const qc    = useQualityCheckStore();
 
 const websiteId = computed(() => String(route.params.websiteId || ''));
 const website   = computed(() => data.websites.find((w) => w.id === websiteId.value));
-const issues    = computed(() => qc.issuesForWebsite(websiteId.value));
+const issues    = computed(() => qc.issuesForWebsite(websiteId.value).filter((i) => i.isArchived !== true));
+
+const isManager = computed(() => ['admin', 'owner', 'head', 'supervisor'].includes(auth.currentRole || ''));
+
+const activeMenuCardId = ref<string | null>(null);
+const receiptSummaries = ref<Record<string, any>>({});
+const repushingAlerts = ref<Record<string, boolean>>({});
+
+const toggleCardMenu = (id: string) => {
+  if (activeMenuCardId.value === id) {
+    closeCardMenu();
+  } else {
+    activeMenuCardId.value = id;
+    document.addEventListener('click', closeCardMenu);
+  }
+};
+
+const closeCardMenu = () => {
+  activeMenuCardId.value = null;
+  document.removeEventListener('click', closeCardMenu);
+};
+
+const loadReceiptSummaryForCard = async (issueId: string) => {
+  if (!isManager.value) return;
+  const res = await alertsStore.fetchLinkedReceiptSummary('quality_check_item', issueId);
+  receiptSummaries.value[issueId] = res;
+};
+
+const handleRepushCard = async (issueId: string) => {
+  repushingAlerts.value[issueId] = true;
+  const ok = await alertsStore.repushAlertsForLinkedItem('quality_check_item', issueId);
+  if (ok) {
+    await loadReceiptSummaryForCard(issueId);
+  }
+  repushingAlerts.value[issueId] = false;
+};
+
+const handleAlertCard = (issue: any) => {
+  closeCardMenu();
+  alertsStore.openSendAlertModal({
+    type: 'quality_check_item',
+    id: issue.id,
+    title: issue.title,
+    assigneeId: issue.assignedTo
+  });
+};
+
+const handleReceiptsCard = (issue: any) => {
+  closeCardMenu();
+  alertsStore.openReceiptsModal({
+    type: 'quality_check_item',
+    id: issue.id,
+    title: issue.title
+  });
+};
+
+const handleArchiveCard = async (id: string) => {
+  closeCardMenu();
+  if (window.confirm('Are you sure you want to archive this Quality Check card?')) {
+    const ok = await qc.archiveIssue(id);
+    if (!ok) {
+      alert('Could not archive Quality Check: ' + (qc.error || ''));
+    }
+  }
+};
+
+const formattedAlertDate = (dStr?: string | null) => {
+  if (!dStr) return '—';
+  try {
+    const d = new Date(dStr);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '—';
+  }
+};
+
+watch(() => issues.value, (newIssues) => {
+  if (isManager.value && newIssues) {
+    newIssues.forEach((issue) => {
+      loadReceiptSummaryForCard(issue.id);
+    });
+  }
+}, { immediate: true, deep: true });
 const qualityCheckHome = computed(() => (auth.isQualityChecker ? '/quality-check' : '/work-board/quality-check'));
 
 const loading = ref(false);
@@ -271,17 +398,72 @@ const onDrop = async (status: QualityIssueStatus) => {
   if (!id) return;
   const issue = issues.value.find((i) => i.id === id);
   if (!issue || issue.status === status) return;
-  // Only Head/Supervisor/Admin (isAdmin) and Assistant Head can approve.
-  // Give rookies clear feedback instead of the card silently snapping back.
-  if (!auth.isAdmin && !auth.isAssistantHead && status === 'approved') {
-    pushToast(
-      'Approval needed',
-      'Only a Head or Assistant Head can approve. Move it to "Waiting Review" instead.',
-      'warning',
-      'approve-blocked'
-    );
-    return;
+
+  const isManager = ['admin', 'owner', 'head', 'supervisor'].includes(auth.currentRole || '');
+  
+  if (!isManager) {
+    // Regular employees must be the assignee
+    if (issue.assignedTo !== auth.user?.id) {
+      pushToast('Action Blocked', 'Only the assigned employee can update this Quality Check.', 'warning', 'move-blocked');
+      return;
+    }
+    // Employees cannot transition to Completed
+    if (status === 'approved') {
+      pushToast('Action Blocked', 'Employees cannot approve Quality Checks.', 'warning', 'move-blocked');
+      return;
+    }
+    // Employees can only transition to Review
+    if (status !== 'needs_review') {
+      pushToast('Action Blocked', 'Employees can only transition tasks to Review.', 'warning', 'move-blocked');
+      return;
+    }
+    // Employees can only transition issues currently in Progress
+    const inProgressStatuses = ['in_progress', 'new_issue', 'reopened', 'rejected', 'acknowledged'];
+    if (!inProgressStatuses.includes(issue.status)) {
+      pushToast('Action Blocked', 'You can only transition tasks that are in Progress.', 'warning', 'move-blocked');
+      return;
+    }
+  } else {
+    // Managers: dragging Review -> Progress requires a reason
+    if (status === 'in_progress' && (issue.status === 'needs_review' || issue.status === 'fixed')) {
+      const reason = window.prompt('Please enter a reason for rejecting the fix (required):');
+      if (reason === null) return; // user cancelled
+      if (!reason.trim()) {
+        pushToast('Reason Required', 'You must enter a reason to reject the fix.', 'warning', 'reason-required');
+        return;
+      }
+      const ok = await qc.updateIssue(id, {
+        status: 'rejected',
+        rejectionReason: reason.trim()
+      } as any);
+      if (ok) {
+        playCardDropSound();
+        await qc.addComment(id, `Rejection Reason: ${reason.trim()}`);
+      } else {
+        pushToast('Could not reject issue', qc.error || 'Please try again.', 'warning', 'move-failed');
+      }
+      return;
+    }
   }
+
+  // If transitioning to Ready For Review, check proof of completion
+  if (status === 'needs_review' || status === 'fixed') {
+    let hasLocalProof = !!issue.screenshotUrl || (!!issue.pageUrl && issue.pageUrl.trim() !== '');
+    if (!hasLocalProof) {
+      await qc.fetchComments(id);
+      const comments = qc.commentsForIssue(id);
+      if (comments.length === 0) {
+        pushToast(
+          'Proof Required',
+          'You must provide at least one proof of completion (screenshot, comment, or URL) before submitting for review.',
+          'warning',
+          'proof-required'
+        );
+        return;
+      }
+    }
+  }
+
   const ok = await qc.moveStatus(id, status);
   if (ok) {
     playCardDropSound();
@@ -322,7 +504,15 @@ const filteredIssues = computed(() => {
 
 const columnIssues = (status: QualityIssueStatus) =>
   filteredIssues.value.filter((i) => {
-    if (status === 'new_issue') return i.status === 'new_issue' || i.status === 'in_progress';
+    if (status === 'in_progress') {
+      return i.status === 'in_progress' || i.status === 'new_issue' || i.status === 'reopened' || i.status === 'rejected' || i.status === 'acknowledged';
+    }
+    if (status === 'needs_review') {
+      return i.status === 'needs_review' || i.status === 'fixed';
+    }
+    if (status === 'approved') {
+      return i.status === 'approved' || i.status === 'closed';
+    }
     return i.status === status;
   });
 
@@ -332,31 +522,24 @@ const clearFilters = () => {
 };
 
 // ── Visual helpers ───────────────────────────────────────────────────────
-const COLUMN_ACCENT: Record<QualityIssueStatus, string> = {
-  new_issue:    '#3f8dfe',
+const COLUMN_ACCENT: Record<string, string> = {
   in_progress:  '#f59e0b',
-  fixed:        '#22c55e',
   needs_review: '#a855f7',
   approved:     '#16a34a'
 };
-const COLUMN_HELPER: Record<QualityIssueStatus, string> = {
-  new_issue:    'Just reported',
-  in_progress:  'Being worked on',
-  fixed:        'Member marked fixed',
-  needs_review: 'Awaiting admin review',
-  approved:     'Approved by Head & Assistant Head'
+const COLUMN_HELPER: Record<string, string> = {
+  in_progress:  'Fix in progress',
+  needs_review: 'Ready for review',
+  approved:     'Completed issues'
 };
-// Friendly, instructive empty-column text so rookies know what each lane is for.
-const COLUMN_EMPTY: Record<QualityIssueStatus, string> = {
-  new_issue:    'Nothing new. Tap “+ Add issue” to report a problem.',
+const COLUMN_EMPTY: Record<string, string> = {
   in_progress:  'No cards in progress yet.',
-  fixed:        'Drag a card here once it’s fixed.',
-  needs_review: 'Fixed cards waiting for a Head to review land here.',
+  needs_review: 'Fixed cards waiting for a manager to review.',
   approved:     'Approved cards appear here. 🎉'
 };
-const columnAccent = (s: QualityIssueStatus) => COLUMN_ACCENT[s];
-const columnHelper = (s: QualityIssueStatus) => COLUMN_HELPER[s];
-const columnEmpty  = (s: QualityIssueStatus) => COLUMN_EMPTY[s];
+const columnAccent = (s: QualityIssueStatus) => COLUMN_ACCENT[s] || '#9ca3af';
+const columnHelper = (s: QualityIssueStatus) => COLUMN_HELPER[s] || '';
+const columnEmpty  = (s: QualityIssueStatus) => COLUMN_EMPTY[s] || '';
 
 const assignableMembers = computed<Member[]>(() => {
   if (auth.isQualityChecker) return auth.profile ? [auth.profile] : [];
@@ -383,6 +566,16 @@ const detailIssueId = ref<string | null>(null);
 const openCreate = () => { createOpen.value = true; };
 const onCreated  = () => { createOpen.value = false; };
 const openDetail = (id: string) => { detailIssueId.value = id; };
+
+watch(
+  () => route.query.issue,
+  (newVal: any) => {
+    if (newVal) {
+      detailIssueId.value = String(newVal);
+    }
+  },
+  { immediate: true }
+);
 
 // ── Load ─────────────────────────────────────────────────────────────────
 onMounted(async () => {
@@ -948,5 +1141,162 @@ onMounted(async () => {
 @media (prefers-reduced-motion: reduce) {
   .tc-card,
   .board-column { transition: none !important; animation: none !important; }
+}
+
+/* ── Manager Dropdown menu options ── */
+.tc-menu-container {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+}
+
+.tc-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tc-menu-trigger:hover {
+  background: rgba(15, 23, 42, 0.75);
+  color: #fff;
+}
+
+.tc-menu-dropdown {
+  position: absolute;
+  top: 1.95rem;
+  right: 0;
+  width: 130px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  z-index: 20;
+}
+
+.tc-menu-item {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tc-menu-item:hover {
+  background: var(--soft-bg);
+  color: var(--primary);
+}
+
+.tc-menu-item--danger {
+  color: #ef4444;
+}
+
+.tc-menu-item--danger:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+.tc-menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0.15rem 0;
+}
+
+/* ── Tracking Panel ── */
+.tc-tracking-panel {
+  margin: 0.6rem 0.9rem 0;
+  padding: 0.6rem 0.7rem;
+  background: var(--soft-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.7rem;
+}
+
+.tc-tracking-header {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  color: var(--text-main);
+  text-transform: uppercase;
+  font-size: 0.64rem;
+  margin-bottom: 0.35rem;
+}
+
+.tc-tracking-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.2rem;
+  color: var(--text-muted);
+}
+
+.tc-tracking-stats span {
+  display: block;
+}
+
+.tc-tracking-stats strong {
+  color: var(--text-main);
+}
+
+.tc-tracking-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.tc-track-btn {
+  flex: 1;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 750;
+  padding: 0.2rem 0;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tc-track-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.tc-track-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tc-tracking-time {
+  display: block;
+  font-size: 0.64rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 0.3rem;
+  margin-top: 0.3rem;
 }
 </style>

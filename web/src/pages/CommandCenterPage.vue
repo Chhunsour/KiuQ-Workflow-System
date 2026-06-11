@@ -30,54 +30,7 @@
       </div>
     </header>
 
-    <!-- Executive Metrics Row -->
-    <section class="metrics-section">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-text-soft">Executive Metrics</h3>
-        <button
-          type="button"
-          class="text-xs text-primary font-bold hover:underline flex items-center gap-1"
-          @click="openMetricModal(null)"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Add KPI
-        </button>
-      </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div
-          v-for="m in ccStore.metrics"
-          :key="m.id"
-          class="kpi cursor-pointer relative group transition-all"
-          @click="openMetricModal(m)"
-        >
-          <div class="flex-1">
-            <span class="kpi-label block truncate">{{ m.label }}</span>
-            <span class="kpi-value block mt-1 truncate">{{ m.value }}</span>
-          </div>
-          <div class="flex flex-col items-end gap-1">
-            <span
-              v-if="m.trend"
-              class="badge text-[10px] px-1.5 py-0.5"
-              :class="[
-                m.trend.startsWith('+')
-                  ? 'bg-status-approved-bg text-status-approved-fg'
-                  : m.trend.startsWith('-')
-                    ? 'bg-status-needs-fix-bg text-status-needs-fix-fg'
-                    : 'bg-soft text-text-muted'
-              ]"
-            >
-              {{ m.trend }}
-            </span>
-            <span class="opacity-0 group-hover:opacity-100 text-[10px] text-primary transition-opacity font-medium">
-              Edit
-            </span>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- Workspace Layout -->
     <div class="workspace-container grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6 mt-2">
@@ -431,57 +384,7 @@
       </main>
     </div>
 
-    <!-- Metric Editor Modal -->
-    <Modal :open="metricModalOpen" :title="editingMetricId ? 'Edit Metric' : 'Add Executive Metric'" size="sm" @close="metricModalOpen = false">
-      <div class="flex flex-col gap-4 py-2">
-        <div>
-          <label class="label">Metric Label</label>
-          <input
-            v-model="metricForm.label"
-            type="text"
-            class="input"
-            placeholder="e.g. Monthly Revenue, Conversions"
-            required
-          />
-        </div>
-        <div>
-          <label class="label">Value</label>
-          <input
-            v-model="metricForm.value"
-            type="text"
-            class="input"
-            placeholder="e.g. $45,200, 1.4M, 14%"
-            required
-          />
-        </div>
-        <div>
-          <label class="label">Trend Badge (Optional)</label>
-          <input
-            v-model="metricForm.trend"
-            type="text"
-            class="input"
-            placeholder="e.g. +12.4%, -3.1%, stable"
-          />
-          <span class="helper">Prefix with + for positive green tone, - for red tone.</span>
-        </div>
-      </div>
-      <template #footer>
-        <div class="w-full flex justify-between gap-3 pt-2">
-          <button
-            v-if="editingMetricId"
-            class="btn-danger py-1.5 px-3 text-xs rounded-xl"
-            type="button"
-            @click="deleteMetric"
-          >
-            Delete
-          </button>
-          <div class="flex gap-2 ml-auto">
-            <button class="btn-ghost px-4 py-1.5 text-xs rounded-xl" type="button" @click="metricModalOpen = false">Cancel</button>
-            <button class="btn-primary py-1.5 px-4 text-xs rounded-xl" type="button" @click="saveMetric">Save</button>
-          </div>
-        </div>
-      </template>
-    </Modal>
+
   </div>
   <div v-else class="flex flex-col items-center justify-center py-24 text-center">
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--status-needs-fix-fg)" stroke-width="2">
@@ -495,7 +398,7 @@
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { useCommandCenterStore, type CommandCenterCategory, type CommandCenterEntry, type CommandCenterMetric } from '@/stores/commandCenter';
+import { useCommandCenterStore, type CommandCenterCategory, type CommandCenterEntry } from '@/stores/commandCenter';
 import { usePageRealtime } from '@/services/realtimeService';
 import RichEditor from '@/components/ui/RichEditor.vue';
 import Modal from '@/components/ui/Modal.vue';
@@ -505,7 +408,7 @@ const auth = useAuthStore();
 const ccStore = useCommandCenterStore();
 
 // Subscribe to Command Center tables in Realtime
-usePageRealtime(['command_center_entries', 'command_center_metrics']);
+usePageRealtime(['command_center_entries']);
 
 const activeSection = ref<CommandCenterCategory | 'playbook'>('daily_log');
 const searchQuery = ref('');
@@ -956,64 +859,7 @@ const saveEntryDebounced = async () => {
   }
 };
 
-// ── Metrics Modal & Management ──
-const metricModalOpen = ref(false);
-const editingMetricId = ref<string | null>(null);
-const metricForm = reactive({
-  label: '',
-  value: '',
-  trend: ''
-});
 
-const openMetricModal = (metric: CommandCenterMetric | null) => {
-  if (metric) {
-    editingMetricId.value = metric.id;
-    metricForm.label = metric.label;
-    metricForm.value = metric.value;
-    metricForm.trend = metric.trend;
-  } else {
-    editingMetricId.value = null;
-    metricForm.label = '';
-    metricForm.value = '';
-    metricForm.trend = '';
-  }
-  metricModalOpen.value = true;
-};
-
-const saveMetric = async () => {
-  if (!metricForm.label.trim() || !metricForm.value.trim()) {
-    alert('Please enter label and value.');
-    return;
-  }
-
-  if (editingMetricId.value) {
-    await ccStore.updateMetric(editingMetricId.value, {
-      label: metricForm.label.trim(),
-      value: metricForm.value.trim(),
-      trend: metricForm.trend.trim()
-    });
-    pushToast('Metric updated', 'Successfully saved metric KPI details.', 'success');
-  } else {
-    await ccStore.createMetric(
-      metricForm.label.trim(),
-      metricForm.value.trim(),
-      metricForm.trend.trim()
-    );
-    pushToast('Metric created', 'Successfully added new metric KPI card.', 'success');
-  }
-  metricModalOpen.value = false;
-};
-
-const deleteMetric = async () => {
-  if (!editingMetricId.value) return;
-  if (confirm('Are you sure you want to delete this metric card?')) {
-    const success = await ccStore.deleteMetric(editingMetricId.value);
-    if (success) {
-      pushToast('Metric deleted', 'Removed metric KPI card.', 'info');
-      metricModalOpen.value = false;
-    }
-  }
-};
 
 // Formatting helpers
 const formatDate = (isoString: string) => {
@@ -1036,7 +882,7 @@ const formatDateFull = (isoString: string) => {
 
 onMounted(async () => {
   if (auth.isHeadOrSupervisor) {
-    await Promise.all([ccStore.fetchEntries(), ccStore.fetchMetrics()]);
+    await ccStore.fetchEntries();
     // Auto-select first entry if available
     if (filteredEntries.value.length > 0) {
       selectEntry(filteredEntries.value[0].id);
@@ -1050,10 +896,7 @@ onMounted(async () => {
   max-width: 100%;
 }
 
-.kpi {
-  transition: all 150ms ease;
-  min-height: 72px;
-}
+
 
 .workspace-container {
   align-items: start;

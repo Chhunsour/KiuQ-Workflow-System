@@ -344,7 +344,7 @@ onBeforeUnmount(() => window.removeEventListener('preview-monthly-recap', onPrev
 }
 @keyframes rc-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 /* Per-step gradient themes */
-.rc-theme-1 { background: linear-gradient(150deg, #1e3a8a, #3f8dfe 55%, #6366f1); }
+.rc-theme-1 { background: linear-gradient(150deg, #1e3a8a, #15D6C2 55%, #6366f1); }
 .rc-theme-2 { background: linear-gradient(150deg, #065f46, #10b981 55%, #14b8a6); }
 .rc-theme-3 { background: linear-gradient(150deg, #155e75, #06b6d4 55%, #22d3ee); }
 .rc-theme-4 { background: linear-gradient(150deg, #7c2d12, #f59e0b 55%, #fbbf24); }

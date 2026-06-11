@@ -12,9 +12,11 @@
         <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
         <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
       </svg>
-      <span v-if="notifs.hasUnread" class="nb-badge" aria-live="polite">
-        {{ notifs.unreadCount > 99 ? '99+' : notifs.unreadCount }}
-      </span>
+      <Transition name="nb-badge-pop">
+        <span v-if="notifs.hasUnread" class="nb-badge" aria-live="polite">
+          {{ notifs.unreadCount > 99 ? '99+' : notifs.unreadCount }}
+        </span>
+      </Transition>
     </button>
 
     <!-- Dropdown panel -->
@@ -24,6 +26,24 @@
         <div class="nb-panel-header">
           <span class="nb-panel-title">Notifications</span>
           <div class="nb-panel-actions">
+            <!-- Inline sound toggle -->
+            <button
+              class="nb-sound-toggle"
+              type="button"
+              :title="notifs.preferences?.soundEnabled ? 'Mute Sounds' : 'Unmute Sounds'"
+              @click="toggleSound"
+            >
+              <svg v-if="notifs.preferences?.soundEnabled" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </svg>
+              <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nb-sound-muted">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <line x1="23" y1="9" x2="17" y2="15" />
+                <line x1="17" y1="9" x2="23" y2="15" />
+              </svg>
+            </button>
+
             <button
               v-if="notifs.hasUnread"
               class="nb-action-btn"
@@ -52,54 +72,163 @@
             <div class="nb-loading-row" /><div class="nb-loading-row nb-loading-row--short" />
           </div>
 
-          <div v-else-if="recent.length === 0" class="nb-empty">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3">
-              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-            </svg>
-            <p class="nb-empty-text">You're all caught up!</p>
+          <div v-else-if="recent.length === 0" class="nb-empty-state">
+            <div class="nb-empty-icon-container">
+              <div class="nb-empty-glow" />
+              <svg class="nb-empty-bell-svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+            </div>
+            <p class="nb-empty-title">All caught up!</p>
+            <p class="nb-empty-desc">You don't have any notifications right now.</p>
           </div>
 
-          <template v-for="group in groupedRecent" :key="group.key">
+          <template v-else v-for="group in groupedRecent" :key="group.key">
             <div class="nb-group-head">{{ group.label }}</div>
-            <div
-              v-for="n in group.items"
-              :key="n.id"
-              class="nb-item"
-              :class="{ 'nb-item--unread': !n.isRead }"
-              @click="openNotification(n)"
-            >
-              <div class="nb-item-content">
-                <div class="nb-avatar-wrap" :title="actorName(n)">
-                  <img
-                    v-if="n.actorAvatarUrl"
-                    class="nb-avatar-img"
-                    :src="n.actorAvatarUrl"
-                    :alt="actorName(n)"
-                    loading="lazy"
-                  />
-                  <span v-else class="nb-avatar-fallback">{{ actorInitials(n) }}</span>
-                  <span class="nb-source-icon" :class="`nb-icon--${iconVariant(n.type)}`" v-html="sourceIconSvg(n.type)" />
+            <div class="nb-group-items-wrap">
+              <template v-for="groupItem in group.items" :key="groupItem.id">
+                <!-- Grouped notifications (Accordion) -->
+                <div v-if="groupItem.isGroup" class="nb-group-card" :class="{ 'nb-group-card--expanded': expandedGroups[groupItem.id] }">
+                  <div
+                    class="nb-item nb-group-header-row"
+                    :class="{ 'nb-item--unread': !groupItem.isRead, 'nb-item--critical': groupItem.priority === 'critical' }"
+                    @click="toggleGroup(groupItem.id)"
+                  >
+                    <div class="nb-item-content">
+                      <div class="nb-avatar-wrap" :title="actorName(groupItem)">
+                        <img
+                          v-if="groupItem.actorAvatarUrl"
+                          class="nb-avatar-img"
+                          :src="groupItem.actorAvatarUrl"
+                          :alt="actorName(groupItem)"
+                          loading="lazy"
+                        />
+                        <span v-else class="nb-avatar-fallback">{{ actorInitials(groupItem) }}</span>
+                        <span class="nb-source-icon" :class="`nb-icon--${iconVariant(groupItem.type)}`" v-html="sourceIconSvg(groupItem.type)" />
+                      </div>
+                      <div class="nb-item-body">
+                        <div class="nb-item-meta">
+                          <span>{{ actorName(groupItem) }}</span>
+                          <span aria-hidden="true">•</span>
+                          <span>{{ sourceLabel(groupItem.type) }}</span>
+                        </div>
+                        <div class="nb-item-top">
+                          <div class="nb-item-title">{{ groupItem.title }}</div>
+                          <div class="nb-item-right-actions">
+                            <span v-if="!groupItem.isRead" class="nb-unread-dot" />
+                            <span class="nb-chevron-icon" :class="{ 'nb-chevron-icon--rotated': expandedGroups[groupItem.id] }">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                              </svg>
+                            </span>
+                          </div>
+                        </div>
+                        <div class="nb-item-message">{{ groupItem.message }}</div>
+                        <div class="nb-item-footer">
+                          <span class="nb-item-time">{{ timeAgo(groupItem.createdAt) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Transition name="nb-group-expand">
+                    <div v-if="expandedGroups[groupItem.id]" class="nb-group-children">
+                      <div
+                        v-for="subNotif in groupItem.items"
+                        :key="subNotif.id"
+                        class="nb-sub-item"
+                        :class="{ 'nb-sub-item--unread': !subNotif.isRead, 'nb-sub-item--critical': subNotif.priority === 'critical' }"
+                        @click="openNotification(subNotif)"
+                      >
+                        <div class="nb-sub-item-indicator">
+                          <span v-if="!subNotif.isRead" class="nb-unread-dot-small" />
+                        </div>
+                        <div class="nb-sub-item-body">
+                          <div class="nb-sub-item-title">{{ subNotif.title }}</div>
+                          <div class="nb-sub-item-message">{{ subNotif.message }}</div>
+                          <div class="nb-sub-item-footer">
+                            <span class="nb-sub-item-time">{{ timeAgo(subNotif.createdAt) }}</span>
+                            <div class="nb-sub-item-actions">
+                              <button
+                                v-if="!subNotif.isRead"
+                                class="nb-sub-action-btn nb-sub-action-btn--secondary"
+                                type="button"
+                                @click.stop="notifs.markRead(subNotif.id)"
+                              >
+                                Mark Read
+                              </button>
+                              <button
+                                v-if="hasAction(subNotif)"
+                                class="nb-sub-action-btn"
+                                type="button"
+                                @click.stop="openNotification(subNotif)"
+                              >
+                                {{ actionLabel(subNotif) }}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Transition>
                 </div>
-                <div class="nb-item-body">
-                  <div class="nb-item-meta">
-                    <span>{{ actorName(n) }}</span>
-                    <span aria-hidden="true">•</span>
-                    <span>{{ sourceLabel(n.type) }}</span>
-                  </div>
-                  <div class="nb-item-top">
-                    <div class="nb-item-title">{{ n.title }}</div>
-                    <span v-if="!n.isRead" class="nb-unread-dot" />
-                  </div>
-                  <div class="nb-item-message">{{ n.message }}</div>
-                  <div class="nb-item-footer">
-                    <span class="nb-item-time">{{ timeAgo(n.createdAt) }}</span>
-                    <button v-if="hasAction(n)" class="nb-item-action" type="button" @click.stop="openNotification(n)">
-                      {{ actionLabel(n) }}
-                    </button>
+
+                <!-- Single notification card -->
+                <div
+                  v-else
+                  class="nb-item"
+                  :class="{ 'nb-item--unread': !groupItem.isRead, 'nb-item--critical': groupItem.priority === 'critical' }"
+                  @click="openNotification(groupItem)"
+                >
+                  <div class="nb-item-content">
+                    <div class="nb-avatar-wrap" :title="actorName(groupItem)">
+                      <img
+                        v-if="groupItem.actorAvatarUrl"
+                        class="nb-avatar-img"
+                        :src="groupItem.actorAvatarUrl"
+                        :alt="actorName(groupItem)"
+                        loading="lazy"
+                      />
+                      <span v-else class="nb-avatar-fallback">{{ actorInitials(groupItem) }}</span>
+                      <span class="nb-source-icon" :class="`nb-icon--${iconVariant(groupItem.type)}`" v-html="sourceIconSvg(groupItem.type)" />
+                    </div>
+                    <div class="nb-item-body">
+                      <div class="nb-item-meta">
+                        <span>{{ actorName(groupItem) }}</span>
+                        <span aria-hidden="true">•</span>
+                        <span>{{ sourceLabel(groupItem.type) }}</span>
+                      </div>
+                      <div class="nb-item-top">
+                        <div class="nb-item-title">{{ groupItem.title }}</div>
+                        <span v-if="!groupItem.isRead" class="nb-unread-dot" />
+                      </div>
+                      <div class="nb-item-message">{{ groupItem.message }}</div>
+                      <div class="nb-item-footer">
+                        <span class="nb-item-time">{{ timeAgo(groupItem.createdAt) }}</span>
+                        <div class="nb-item-hover-actions">
+                          <button
+                            v-if="!groupItem.isRead"
+                            class="nb-hover-btn nb-hover-btn--secondary"
+                            type="button"
+                            @click.stop="notifs.markRead(groupItem.id)"
+                          >
+                            Mark Read
+                          </button>
+                          <button
+                            v-if="hasAction(groupItem)"
+                            class="nb-hover-btn"
+                            type="button"
+                            @click.stop="openNotification(groupItem)"
+                          >
+                            {{ actionLabel(groupItem) }}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </template>
             </div>
           </template>
         </div>
@@ -120,6 +249,7 @@ import {
   notificationVariant as iconVariant,
   notificationTimeAgo as timeAgo,
   groupNotificationsByDay,
+  groupNotificationsIntelligently,
 } from '@/lib/notificationDisplay';
 
 const notifs = useNotificationsStore();
@@ -129,8 +259,11 @@ const open   = ref(false);
 const wrapRef = ref<HTMLElement | null>(null);
 const showAdminTestButton = computed(() => import.meta.env.DEV && auth.isAdmin);
 
+const expandedGroups = ref<Record<string, boolean>>({});
+
 const recent = computed(() => notifs.notifications.slice(0, 8));
-const groupedRecent = computed(() => groupNotificationsByDay(recent.value));
+const intelligentRecent = computed(() => groupNotificationsIntelligently(recent.value));
+const groupedRecent = computed(() => groupNotificationsByDay(intelligentRecent.value));
 
 const sourceIconSvg = (type: NotificationType): string => notificationIconSvg(type, 11);
 
@@ -139,6 +272,15 @@ const toggleOpen = async () => {
   if (open.value) {
     await notifs.fetchNotifications(20);
   }
+};
+
+const toggleGroup = (groupId: string) => {
+  expandedGroups.value[groupId] = !expandedGroups.value[groupId];
+};
+
+const toggleSound = async () => {
+  const currentVal = notifs.preferences?.soundEnabled !== false;
+  await notifs.updatePreferences({ soundEnabled: !currentVal });
 };
 
 const markAllRead = async () => {
@@ -170,8 +312,6 @@ const openNotification = async (n: AppNotification) => {
     router.push(`/reviews?submission=${n.submissionId}`);
   } else if (n.type === 'prompt_replaced' && n.relatedId) {
     router.push(`/my-assigned-prompts?prompt=${n.relatedId}`);
-  } else if (n.type === 'blocker_reported' && n.relatedId) {
-    router.push(isAdmin ? `/team-blockers?blocker=${n.relatedId}` : '/team-blockers');
   } else if (n.submissionId) {
     router.push(`/my-submissions?submission=${n.submissionId}`);
   } else if (n.relatedType === 'submission') {
@@ -195,7 +335,7 @@ const hasAction = (n: AppNotification) => {
   return [
     'task_assigned', 'task_updated', 'task_comment', 'task_deadline_changed', 
     'task_needs_fix', 'task_approved', 'task_completed', 'prompt_replaced', 
-    'submission_received', 'blocker_reported', 'blocker_resolved',
+    'submission_received',
     'blog_followup', 'plugin_update', 'ebay_click_followup',
     'speed_optimization_followup', 'quality_issue_reported', 'quality_issue_fixed'
   ].includes(n.type);
@@ -212,8 +352,6 @@ const actionLabel = (n: AppNotification) => {
     task_completed: 'View Task',
     prompt_replaced: 'Open New Prompt',
     submission_received: 'Review Submission',
-    blocker_reported: 'View Blocker',
-    blocker_resolved: 'View Blocker',
     blog_followup: 'View Followup',
     plugin_update: 'View Followup',
     ebay_click_followup: 'View Followup',
@@ -226,9 +364,9 @@ const actionLabel = (n: AppNotification) => {
 
 // ── Actor identity ───────────────────────────────────────────────────────────
 
-const actorName = (n: AppNotification): string => n.actorName || (n.actorId ? 'Team member' : 'System');
+const actorName = (n: any): string => n.actorName || (n.actorId ? 'Team member' : 'System');
 
-const actorInitials = (n: AppNotification): string => {
+const actorInitials = (n: any): string => {
   const name = actorName(n);
   if (!n.actorId) return 'SYS';
   return name
@@ -289,7 +427,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   padding: 0 0.28rem;
   border-radius: 999px;
   background: var(--primary);
-  color: #fff;
+  color: #0b2e2d;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.6rem;
   font-weight: 900;
@@ -298,6 +436,38 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   justify-content: center;
   border: 1.5px solid var(--topbar-bg, var(--card-bg));
   pointer-events: none;
+  box-shadow: 0 0 8px var(--primary);
+  animation: badgePulse 2s infinite;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes badgePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(21, 214, 194, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgba(21, 214, 194, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(21, 214, 194, 0);
+  }
+}
+
+.nb-badge-pop-enter-active {
+  animation: badgePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.nb-badge-pop-leave-active {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.nb-badge-pop-leave-to {
+  transform: scale(0);
+  opacity: 0;
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 /* ── Dropdown panel ──────────────────────────────────────────────────────── */
@@ -306,10 +476,12 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   top: calc(100% + 0.6rem);
   right: 0;
   width: min(440px, calc(100vw - 2rem));
-  background: var(--card-bg);
-  border: 1.5px solid var(--border);
+  background: color-mix(in srgb, var(--card-bg) 85%, transparent);
+  backdrop-filter: blur(18px) saturate(185%);
+  -webkit-backdrop-filter: blur(18px) saturate(185%);
+  border: 1.5px solid color-mix(in srgb, var(--border) 40%, rgba(226, 232, 240, 0.4));
   border-radius: 20px;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.22);
   z-index: 100;
   overflow: hidden;
 }
@@ -333,7 +505,31 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
 .nb-panel-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
+}
+
+.nb-sound-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 6px;
+  transition: all 120ms ease;
+}
+
+.nb-sound-toggle:hover {
+  background: var(--soft-bg);
+  color: var(--primary);
+}
+
+.nb-sound-muted {
+  color: var(--text-muted);
+  opacity: 0.6;
 }
 
 .nb-action-btn {
@@ -374,13 +570,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   color: var(--text-muted);
 }
 
-.nb-empty-text {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin: 0;
-}
-
 .nb-loading-row {
   height: 0.75rem;
   border-radius: 6px;
@@ -393,6 +582,63 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
 @keyframes nb-shimmer {
   0%, 100% { opacity: 0.4; }
   50%       { opacity: 0.9; }
+}
+
+.nb-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.nb-empty-icon-container {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.nb-empty-glow {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--primary) 22%, transparent) 0%, transparent 70%);
+  filter: blur(6px);
+  animation: glowPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes glowPulse {
+  0% { transform: scale(0.9); opacity: 0.5; }
+  100% { transform: scale(1.1); opacity: 0.9; }
+}
+
+.nb-empty-bell-svg {
+  color: var(--primary);
+  opacity: 0.7;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--primary) 30%, transparent));
+}
+
+.nb-empty-title {
+  font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 0.2rem 0;
+}
+
+.nb-empty-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 200px;
+  line-height: 1.4;
 }
 
 /* ── Day group header ────────────────────────────────────────────────────── */
@@ -408,6 +654,11 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+.nb-group-items-wrap {
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── Notification item ───────────────────────────────────────────────────── */
@@ -436,9 +687,18 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   background: color-mix(in srgb, var(--primary) 3%, transparent);
   border-left: 3px solid var(--primary);
   padding-left: calc(1.15rem - 3px);
+  box-shadow: inset 2px 0 8px -2px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 .nb-item--unread:hover {
   background: color-mix(in srgb, var(--primary) 6%, var(--soft-bg));
+}
+
+.nb-item--critical {
+  border-left: 3px solid #ef4444 !important;
+  background: rgba(239, 68, 68, 0.02);
+}
+.nb-item--critical:hover {
+  background: rgba(239, 68, 68, 0.05);
 }
 
 /* ── Actor avatar + source icon ──────────────────────────────────────────── */
@@ -485,11 +745,14 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
 .nb-icon--success { background: rgba(34, 197, 94, 0.12); color: #16a34a; }
 .nb-icon--warning { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
 .nb-icon--purple  { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+.nb-icon--cyan    { background: rgba(6, 182, 212, 0.12); color: #0891b2; }
+.nb-icon--red     { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
 .nb-icon--neutral { background: var(--soft-bg); color: var(--text-muted); }
 
 :root[data-theme='dark-gray'] .nb-icon--success { background: rgba(34, 197, 94, 0.14); color: #4ade80; }
 :root[data-theme='dark-gray'] .nb-icon--warning { background: rgba(239, 68, 68, 0.14); color: #f87171; }
 :root[data-theme='dark-gray'] .nb-icon--purple  { background: rgba(124, 58, 237, 0.14); color: #a78bfa; }
+:root[data-theme='dark-gray'] .nb-icon--cyan    { background: rgba(6, 182, 212, 0.14); color: #22d3ee; }
 
 /* ── Item text ───────────────────────────────────────────────────────────── */
 .nb-item-content {
@@ -506,13 +769,19 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   gap: 0.5rem;
 }
 
+.nb-item-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .nb-unread-dot {
   flex-shrink: 0;
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 999px;
   background: var(--primary);
-  box-shadow: 0 0 0 2.5px var(--card-bg);
+  box-shadow: 0 0 6px var(--primary);
 }
 
 .nb-item-body {
@@ -569,28 +838,192 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   margin-top: 0.65rem;
 }
 
-.nb-item-action {
+/* Accordion Group Card */
+.nb-group-card {
+  border-bottom: 1px solid var(--border);
+}
+.nb-group-card:last-child {
+  border-bottom: none;
+}
+.nb-group-header-row {
+  border-bottom: none !important;
+}
+
+.nb-chevron-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  color: var(--text-muted);
+}
+.nb-chevron-icon--rotated {
+  transform: rotate(180deg);
+}
+
+/* Accordion transitions */
+.nb-group-expand-enter-active,
+.nb-group-expand-leave-active {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 500px;
+  overflow: hidden;
+}
+.nb-group-expand-enter-from,
+.nb-group-expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+
+.nb-group-children {
+  background: color-mix(in srgb, var(--soft-bg) 35%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+}
+
+.nb-sub-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.65rem 1.15rem 0.65rem 2.2rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.nb-sub-item:last-child {
+  border-bottom: none;
+}
+.nb-sub-item:hover {
+  background: var(--soft-bg);
+}
+
+.nb-sub-item--unread {
+  background: color-mix(in srgb, var(--primary) 2%, transparent);
+}
+
+.nb-sub-item--critical {
+  border-left: 3px solid #ef4444;
+  padding-left: calc(1.15rem - 3px);
+}
+
+.nb-sub-item-indicator {
+  width: 0.75rem;
+  display: flex;
+  align-items: center;
+  margin-top: 0.3rem;
+}
+
+.nb-unread-dot-small {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 5px var(--primary);
+}
+
+.nb-sub-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.nb-sub-item-title {
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.76rem;
+  font-weight: 750;
+  color: var(--text-main);
+  margin-bottom: 0.1rem;
+}
+
+.nb-sub-item-message {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-bottom: 0.35rem;
+}
+
+.nb-sub-item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nb-sub-item-time {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.nb-sub-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ── Action Buttons (Hover states on desktop, always visible on mobile) ──── */
+.nb-hover-btn,
+.nb-sub-action-btn {
+  font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
+  font-size: 0.68rem;
   font-weight: 800;
-  color: #fff;
+  color: #0b2e2d;
   background: var(--primary);
   border: none;
-  padding: 0.3rem 0.7rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 25%, transparent);
 }
 
-.nb-item-action:hover {
+.nb-hover-btn--secondary,
+.nb-sub-action-btn--secondary {
+  color: var(--text-main);
+  background: var(--soft-bg);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.55rem;
+}
+
+.nb-hover-btn:hover,
+.nb-sub-action-btn:hover {
   transform: translateY(-1px);
-  filter: brightness(1.1);
-  box-shadow: 0 6px 15px color-mix(in srgb, var(--primary) 35%, transparent);
+  filter: brightness(1.05);
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
-.nb-item-action:active {
+.nb-hover-btn--secondary:hover,
+.nb-sub-action-btn--secondary:hover {
+  background: var(--border);
+}
+
+.nb-hover-btn:active,
+.nb-sub-action-btn:active {
   transform: translateY(0);
+}
+
+.nb-item-hover-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+@media (min-width: 769px) {
+  .nb-item-hover-actions,
+  .nb-sub-item-actions {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(2px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  .nb-item:hover .nb-item-hover-actions,
+  .nb-sub-item:hover .nb-sub-item-actions {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .nb-item-hover-actions,
+  .nb-sub-item-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* ── Drop animation ──────────────────────────────────────────────────────── */
@@ -604,3 +1037,4 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   .nb-drop-leave-active { transition: none; }
 }
 </style>
+

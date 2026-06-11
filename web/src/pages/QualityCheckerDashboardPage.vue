@@ -433,7 +433,7 @@ const needsFixIssues = computed(() =>
 
 const recentlyApprovedIssues = computed(() =>
   issues.value
-    .filter((issue) => issue.status === 'approved')
+    .filter((issue) => issue.status === 'approved' || issue.status === 'closed')
     .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
     .slice(0, 6)
 );
@@ -448,8 +448,8 @@ const reviewWebsites = computed(() => {
   return websites.value;
 });
 
-const openStatuses = new Set<QualityIssueStatus>(['new_issue', 'in_progress', 'needs_review']);
-const needsFixStatuses = new Set<QualityIssueStatus>(['new_issue', 'in_progress']);
+const openStatuses = new Set<QualityIssueStatus>(['new_issue', 'reopened', 'rejected', 'in_progress', 'needs_review']);
+const needsFixStatuses = new Set<QualityIssueStatus>(['new_issue', 'reopened', 'rejected', 'in_progress']);
 const todayKey = () => new Date().toISOString().slice(0, 10);
 const monthKey = () => new Date().toISOString().slice(0, 7);
 
@@ -459,7 +459,7 @@ const summaryCards = computed(() => [
   { label: 'Needs Fix', value: issues.value.filter((issue) => needsFixStatuses.has(issue.status)).length },
   { label: 'Fixed', value: issues.value.filter((issue) => issue.status === 'fixed').length },
   { label: 'Waiting Review', value: issues.value.filter((issue) => issue.status === 'needs_review').length },
-  { label: 'Approved', value: issues.value.filter((issue) => issue.status === 'approved').length },
+  { label: 'Approved', value: issues.value.filter((issue) => issue.status === 'approved' || issue.status === 'closed').length },
   {
     label: 'Reported Today',
     value: issues.value.filter((issue) => issue.createdBy === auth.user?.id && issue.createdAt.slice(0, 10) === todayKey()).length,
@@ -486,10 +486,14 @@ const openIssueCount = (websiteId: string) =>
 
 const statusLabel = (status: QualityIssueStatus) => ({
   new_issue: 'New Issue',
+  acknowledged: 'Acknowledged',
   in_progress: 'In Progress',
   fixed: 'Fixed',
   needs_review: 'Needs Review',
   approved: 'Approved',
+  rejected: 'Rejected',
+  closed: 'Closed',
+  reopened: 'Reopened',
 }[status]);
 
 const normalizeUrl = (url: string) =>
@@ -683,7 +687,8 @@ onMounted(loadDashboard);
 }
 
 .qcd-status--new_issue,
-.qcd-status--in_progress {
+.qcd-status--in_progress,
+.qcd-status--reopened {
   color: var(--primary);
   background: color-mix(in srgb, var(--primary) 12%, transparent);
 }
@@ -694,9 +699,15 @@ onMounted(loadDashboard);
   background: rgba(34, 197, 94, 0.12);
 }
 
-.qcd-status--approved {
+.qcd-status--approved,
+.qcd-status--closed {
   color: #15803d;
   background: rgba(22, 163, 74, 0.14);
+}
+
+.qcd-status--rejected {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.12);
 }
 
 .qcd-website-card {

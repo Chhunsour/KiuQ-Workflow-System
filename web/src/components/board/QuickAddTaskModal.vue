@@ -28,6 +28,18 @@
               placeholder="Explain what needs to be done..."
             />
           </div>
+
+          <div class="form-group flex items-center gap-2 mt-2 select-none">
+            <input
+              id="push-banner"
+              v-model="pushBanner"
+              type="checkbox"
+              class="w-4 h-4 rounded text-primary focus:ring-primary/20 accent-primary cursor-pointer"
+            />
+            <label for="push-banner" class="text-xs font-semibold text-text-main cursor-pointer">
+              Send Alert To Assignee?
+            </label>
+          </div>
         </div>
 
         <!-- Right Column -->
@@ -143,6 +155,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
 import { pushToast } from '@/services/realtimeService';
 import { useNotificationsStore } from '@/stores/notifications';
+import { useTaskAlertsStore } from '@/stores/taskAlerts';
 import { optimizeImage, formatFileSize } from '@/utils/imageOptimizer';
 
 const props = defineProps<{
@@ -157,6 +170,9 @@ const emit = defineEmits(['close', 'success']);
 const auth = useAuthStore();
 const data = useDataStore();
 const notifs = useNotificationsStore();
+const taskAlerts = useTaskAlertsStore();
+
+const pushBanner = ref(true);
 
 const creatingTask = ref(false);
 const addTaskError = ref('');
@@ -421,14 +437,46 @@ const createTaskCard = async () => {
       pushToast('Task assigned', msg, 'success');
 
       // Fire notifications for each assigned member — never blocks task creation
-      void notifs.createNotificationForMany(newTask.memberIds, {
-        actorId:     auth.user?.id,
-        type:        'task_assigned',
-        title:       'New task assigned',
-        message:     `${auth.profile?.fullName || 'Admin'} assigned you a task: "${newTask.title.trim()}"`,
-        relatedType: 'task',
-        taskId:      undefined, // assignment IDs not returned from bulk; task opens via work-board
-      });
+      if (result.data && result.data.length > 0) {
+        result.data.forEach((assignment: any) => {
+          void notifs.createNotification({
+            recipientId: assignment.assignedMemberId,
+            actorId: auth.user?.id,
+            type: 'task_assigned',
+            title: 'New task assigned',
+            message: `${auth.profile?.fullName || 'Admin'} assigned you a task: "${newTask.title.trim()}"`,
+            relatedType: 'task',
+            taskId: assignment.id,
+            relatedId: assignment.id,
+          });
+        });
+      } else {
+        void notifs.createNotificationForMany(newTask.memberIds, {
+          actorId:     auth.user?.id,
+          type:        'task_assigned',
+          title:       'New task assigned',
+          message:     `${auth.profile?.fullName || 'Admin'} assigned you a task: "${newTask.title.trim()}"`,
+          relatedType: 'task',
+          taskId:      undefined,
+        });
+      }
+
+      // Targeted task alert banner integration
+      if (pushBanner.value && result.data && result.data.length > 0) {
+        for (const assignment of result.data) {
+          const alertPayload = {
+            alertId: `task-alert-${assignment.id}`,
+            alertType: 'New Task' as const,
+            title: 'NEW TASK ASSIGNED',
+            message: `You have been assigned a new task: "${newTask.title.trim()}"\n\nPriority: Normal\nAssigned By: ${auth.profile?.fullName || 'Admin'}`,
+            priority: 'Medium' as const,
+            relatedType: 'workboard_task' as const,
+            relatedId: assignment.id,
+            status: 'published' as const,
+          };
+          void taskAlerts.createOrUpdateAlert(alertPayload, [assignment.assignedMemberId]);
+        }
+      }
 
       emit('success');
       emit('close');

@@ -1,7 +1,7 @@
 <template>
   <Modal :open="open" title="Blog Schedule" subtitle="Set how often this website publishes blogs." size="md" @close="close">
     <div class="bs-body">
-      <!-- Two clean modes only -->
+      <!-- Kind tabs including Temporary Website option -->
       <div class="bs-kind-tabs" role="tablist" aria-label="Schedule kind">
         <button
           v-for="k in KINDS"
@@ -41,7 +41,7 @@
       </section>
 
       <!-- Monthly: pick day-numbers (1..31) -->
-      <section v-else class="bs-section">
+      <section v-else-if="kind === 'monthly'" class="bs-section">
         <p class="bs-section-label">Days of every month</p>
         <p class="bs-hint">Tap the dates you publish on every month. Example: <strong>8, 16, 27</strong>.</p>
         <div class="bs-day-grid">
@@ -61,6 +61,21 @@
           Days above 28 will land on the last day of shorter months
           (e.g. day 31 → Feb 28).
         </p>
+      </section>
+
+      <!-- Temporary Website (Custom dates list remains empty) -->
+      <section v-else class="bs-section">
+        <div class="bs-temp-box">
+          <div class="bs-temp-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <div>
+            <p class="bs-temp-title">Temporary Website</p>
+            <p class="bs-temp-desc">This website is marked as temporary or not live yet. No recurring blog upload schedules will be required or generated for it.</p>
+          </div>
+        </div>
       </section>
 
       <!-- Preview: next required dates with current settings -->
@@ -103,13 +118,12 @@ const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>();
 
 const followup = useFollowupStore();
 
-/** Only the two modes the UI exposes. The DB still supports 'custom'
- *  for any legacy rows, but users never see that option here. */
-type UiKind = Extract<BlogScheduleKind, 'weekly' | 'monthly'>;
+type UiKind = BlogScheduleKind;
 
 const KINDS: { value: UiKind; label: string }[] = [
   { value: 'weekly',  label: 'Weekly by days' },
   { value: 'monthly', label: 'Monthly by date' },
+  { value: 'custom',  label: 'Temporary Website' },
 ];
 
 // Mon-first for readability
@@ -132,8 +146,7 @@ const monthlyDays = ref<Set<number>>(new Set());
 const saving = ref(false);
 const err = ref('');
 
-/** Hydrate the form whenever the modal opens. Legacy 'custom' schedules
- *  fall back to 'monthly by date' on open (the user can pick fresh days). */
+/** Hydrate the form whenever the modal opens. */
 watch(() => props.open, (o) => {
   if (!o) return;
   err.value = '';
@@ -148,11 +161,14 @@ watch(() => props.open, (o) => {
     kind.value = 'weekly';
     weekdays.value = new Set(sched.weekdays.length > 0 ? sched.weekdays : DEFAULT_BLOG_WEEKDAYS);
     monthlyDays.value = new Set();
-  } else {
-    // 'monthly' (or legacy 'custom') → land in monthly-by-date mode.
+  } else if (sched.kind === 'monthly') {
     kind.value = 'monthly';
     weekdays.value = new Set(DEFAULT_BLOG_WEEKDAYS);
     monthlyDays.value = new Set(sched.monthlyDays.length > 0 ? sched.monthlyDays : []);
+  } else {
+    kind.value = 'custom';
+    weekdays.value = new Set();
+    monthlyDays.value = new Set();
   }
 });
 
@@ -174,7 +190,8 @@ const hasShortMonthWarning = computed(() =>
 
 const canSave = computed(() => {
   if (kind.value === 'weekly')  return weekdays.value.size > 0;
-  return monthlyDays.value.size > 0;
+  if (kind.value === 'monthly') return monthlyDays.value.size > 0;
+  return true; // For custom (Temporary), we can always save
 });
 
 // ── Preview: next 6 required dates with current form
@@ -184,6 +201,10 @@ const previewDates = computed<string[]>(() => {
   const limit = new Date(today);
   limit.setDate(today.getDate() + 90);
   const results: string[] = [];
+
+  if (kind.value === 'custom') {
+    return [];
+  }
 
   if (kind.value === 'monthly') {
     const days = Array.from(monthlyDays.value).sort((a, b) => a - b);
@@ -237,6 +258,7 @@ const save = async () => {
       kind: kind.value,
       weekdays:     kind.value === 'weekly'  ? Array.from(weekdays.value).sort() : undefined,
       monthlyDays:  kind.value === 'monthly' ? Array.from(monthlyDays.value).sort((a, b) => a - b) : undefined,
+      customDates:  kind.value === 'custom'  ? [] : undefined,
       // Clear the legacy auto-placement target so it doesn't fight the new monthlyDays.
       monthlyTarget: null,
     });
@@ -393,5 +415,41 @@ const save = async () => {
   justify-content: flex-end;
   gap: 0.6rem;
   width: 100%;
+}
+
+/* Temporary website card styling */
+.bs-temp-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1.15rem;
+  background: color-mix(in srgb, var(--primary) 7%, var(--soft-bg));
+  border: 1px dashed color-mix(in srgb, var(--primary) 30%, var(--border));
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+}
+.bs-temp-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.2rem;
+  height: 2.2rem;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.bs-temp-title {
+  margin: 0;
+  font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+.bs-temp-desc {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
 }
 </style>

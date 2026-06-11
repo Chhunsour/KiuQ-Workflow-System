@@ -76,7 +76,7 @@
           <!-- Assignment -->
           <div class="id-section">
             <span class="id-section-label">Assigned to</span>
-            <div v-if="isAdmin" class="id-assign-row">
+            <div v-if="isManager" class="id-assign-row">
               <select v-model="assignedLocal" class="id-select" @change="onAssignChange">
                 <option value="">Unassigned</option>
                 <option v-for="m in members" :key="m.id" :value="m.id">
@@ -171,8 +171,8 @@
 
     <template #footer>
       <div v-if="issue" class="id-footer">
-        <!-- Admin destructive actions -->
-        <button v-if="isAdmin" class="btn-danger" type="button" :disabled="busy" @click="onDelete">
+        <!-- Admin/Manager destructive actions -->
+        <button v-if="isManager" class="btn-danger" type="button" :disabled="busy" @click="onDelete">
           Delete
         </button>
 
@@ -187,60 +187,44 @@
             Edit Issue
           </button>
 
+          <!-- Member Actions -->
           <button
-            v-if="canMemberAct && (issue.status === 'new_issue' || issue.status === 'in_progress')"
+            v-if="canMemberAct && (issue.status === 'new_issue' || issue.status === 'reopened' || issue.status === 'rejected')"
             class="btn-primary"
             type="button"
             :disabled="busy"
-            @click="move('fixed')"
+            @click="move('in_progress')"
           >
-            Mark Fixed
+            Start Fix
           </button>
           <button
-            v-if="canMemberAct && issue.status === 'fixed'"
+            v-if="canMemberAct && issue.status === 'in_progress'"
             class="btn-primary"
             type="button"
             :disabled="busy"
             @click="move('needs_review')"
           >
-            Send for Review
-          </button>
-          <button
-            v-if="canMemberAct && (issue.status === 'fixed' || issue.status === 'needs_review')"
-            class="btn-secondary"
-            type="button"
-            :disabled="busy"
-            @click="move('new_issue')"
-          >
-            Reopen
+            Request Review
           </button>
 
+          <!-- Admin / Head Actions -->
           <button
-            v-if="canApprove && (issue.status === 'fixed' || issue.status === 'needs_review')"
-            class="btn-secondary"
+            v-if="canApprove && (issue.status === 'needs_review' || issue.status === 'fixed')"
+            class="btn-danger"
             type="button"
             :disabled="busy"
-            @click="move('new_issue')"
+            @click="move('rejected')"
           >
-            Send back
+            Reject
           </button>
           <button
-            v-if="canApprove && (issue.status === 'fixed' || issue.status === 'needs_review')"
+            v-if="canApprove && (issue.status === 'needs_review' || issue.status === 'fixed')"
             class="btn-primary"
             type="button"
             :disabled="busy"
             @click="move('approved')"
           >
             Approve
-          </button>
-          <button
-            v-if="canApprove && issue.status === 'approved'"
-            class="btn-secondary"
-            type="button"
-            :disabled="busy"
-            @click="move('new_issue')"
-          >
-            Reopen
           </button>
 
           <button class="btn-ghost" type="button" @click="$emit('close')">Close</button>
@@ -262,6 +246,7 @@ import {
   type QualityIssueStatus,
   type QualityIssueType
 } from '@/stores/qualityCheck';
+import { useTaskAlertsStore } from '@/stores/taskAlerts';
 
 const props = defineProps<{
   open: boolean;
@@ -273,32 +258,32 @@ const emit = defineEmits<{ (e: 'close'): void; (e: 'edit', id: string): void }>(
 const auth = useAuthStore();
 const data = useDataStore();
 const qc   = useQualityCheckStore();
+const taskAlertsStore = useTaskAlertsStore();
 
 const issue = computed(() =>
   props.issueId ? qc.issues.find((i) => i.id === props.issueId) ?? null : null
 );
-const isAdmin = computed(() => auth.isAdmin);
-const isAssistantHead = computed(() => auth.isAssistantHead);
-const canApprove = computed(() => isAdmin.value || isAssistantHead.value);
+const isManager = computed(() =>
+  ['admin', 'owner', 'head', 'supervisor'].includes(auth.currentRole || '')
+);
+const canApprove = computed(() => isManager.value);
 const isAssignee = computed(
   () => !!issue.value && issue.value.assignedTo === auth.user?.id
 );
 const isReporter = computed(
   () => !!issue.value && issue.value.createdBy === auth.user?.id
 );
-// Any authenticated team member (not just the assignee) can act on cards —
-// matches the DB policy in migration 0065.
-const isTeamMember = computed(() => !auth.isQualityChecker);
-const canMemberAct = computed(() => isTeamMember.value && !isAdmin.value && !isAssistantHead.value);
-// Any team member can comment; quality checkers can only comment on their own issues.
-const canComment = computed(() =>
-  isAdmin.value ||
-  isAssistantHead.value ||
-  (isTeamMember.value) ||
-  isAssignee.value ||
-  isReporter.value
-);
-const canEditIssue = computed(() => isAdmin.value || isTeamMember.value);
+const canMemberAct = computed(() => !isManager.value && isAssignee.value);
+const canComment = computed(() => isManager.value || isAssignee.value);
+const canEditIssue = computed(() => isManager.value);
+
+const hasProof = computed(() => {
+  if (!issue.value) return false;
+  if (issue.value.screenshotUrl) return true;
+  if (issue.value.pageUrl && issue.value.pageUrl.trim() !== '') return true;
+  if (issueComments.value.length > 0) return true;
+  return false;
+});
 
 const assignedLocal = ref('');
 watch(issue, (i) => { assignedLocal.value = i?.assignedTo ?? ''; }, { immediate: true });
@@ -343,14 +328,41 @@ onBeforeUnmount(() => {
 
 const move = async (status: QualityIssueStatus) => {
   if (!issue.value) return;
-  if (!canApprove.value && status === 'approved') {
-    err.value = 'Only Head, Assistant Head, or Admins can approve fixes.';
+  if (status === 'needs_review' && !hasProof.value) {
+    err.value = 'Proof of completion is required (at least a screenshot, comment, or URL) before requesting review.';
     return;
   }
+  if (!canApprove.value && (status === 'closed' || status === 'approved' || status === 'rejected' || status === 'reopened')) {
+    err.value = 'Only managers can approve, reject, close, or reopen Quality Checks.';
+    return;
+  }
+  
+  let rejectionReason = '';
+  if (status === 'reopened' || status === 'rejected') {
+    const reason = window.prompt('Please enter a reason for rejection:');
+    if (reason === null) return; // user cancelled
+    if (!reason.trim()) {
+      err.value = 'A rejection reason is required to reject a fix.';
+      return;
+    }
+    rejectionReason = reason.trim();
+  }
+
   busy.value = true;
   err.value = '';
   try {
-    const ok = await qc.moveStatus(issue.value.id, status);
+    let ok = false;
+    if (status === 'reopened' || status === 'rejected') {
+      ok = await qc.updateIssue(issue.value.id, { 
+        status,
+        rejectionReason
+      } as any);
+      if (ok) {
+        await qc.addComment(issue.value.id, `Rejection Reason: ${rejectionReason}`);
+      }
+    } else {
+      ok = await qc.moveStatus(issue.value.id, status);
+    }
     if (!ok) err.value = qc.error || 'Could not move issue.';
   } finally {
     busy.value = false;
@@ -359,13 +371,34 @@ const move = async (status: QualityIssueStatus) => {
 
 const onAssignChange = async () => {
   if (!issue.value) return;
+  const previousAssignee = issue.value.assignedTo;
   busy.value = true;
   err.value = '';
   try {
     const ok = await qc.updateIssue(issue.value.id, {
       assignedTo: assignedLocal.value || null
     });
-    if (!ok) err.value = qc.error || 'Could not change assignee.';
+    if (ok) {
+      if (isManager.value && assignedLocal.value && assignedLocal.value !== previousAssignee) {
+        const sendAlert = window.confirm('Send Alert To Assignee?');
+        if (sendAlert) {
+          const alertPayload = {
+            alertId: `qc-reassign-${issue.value.id}-${Date.now()}`,
+            alertType: 'Urgent Fix' as const,
+            title: 'QUALITY ISSUE REASSIGNED',
+            message: `A quality issue has been reassigned to you: "${issue.value.title.trim()}"\n\nPage: ${issue.value.pageUrl || 'No page URL'}\nAssigned By: ${auth.profile?.fullName || 'Admin'}\nPriority: High`,
+            priority: 'High' as const,
+            relatedType: 'quality_check_item' as const,
+            relatedId: issue.value.id,
+            status: 'published' as const,
+            requireAck: true
+          };
+          void taskAlertsStore.createOrUpdateAlert(alertPayload, [assignedLocal.value]);
+        }
+      }
+    } else {
+      err.value = qc.error || 'Could not change assignee.';
+    }
   } finally {
     busy.value = false;
   }
@@ -437,7 +470,17 @@ const removeCommentScreenshot = () => {
 const typeLabel = (t?: QualityIssueType) =>
   t ? (QUALITY_ISSUE_TYPES.find((x) => x.value === t)?.label ?? t) : '';
 const statusLabel = (s: QualityIssueStatus) =>
-  ({ new_issue: 'New', in_progress: 'In Progress', fixed: 'Fixed', needs_review: 'Needs Review', approved: 'Approved' }[s]);
+  ({
+    new_issue: 'Open',
+    acknowledged: 'Acknowledged',
+    in_progress: 'In Progress',
+    fixed: 'Ready For Review',
+    needs_review: 'Ready For Review',
+    approved: 'Closed',
+    rejected: 'Open',
+    closed: 'Closed',
+    reopened: 'Open'
+  }[s] || s);
 const memberName = (id: string | null) =>
   id ? (data.members.find((m) => m.id === id)?.fullName || 'Unassigned') : 'Unassigned';
 const formatDate = (d: string) =>
@@ -494,10 +537,14 @@ const shortUrl = (url: string): string => {
   padding: 0.22rem 0.7rem;
 }
 .id-status--new_issue    { background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--primary); }
+.id-status--acknowledged { background: rgba(14,116,144,0.16); color: #0e7490; }
 .id-status--in_progress  { background: rgba(245,158,11,0.16); color: #f59e0b; }
-.id-status--fixed        { background: rgba(22,163,74,0.14); color: #16a34a; }
+.id-status--fixed        { background: rgba(168,85,247,0.16); color: #a855f7; }
 .id-status--needs_review { background: rgba(168,85,247,0.16); color: #a855f7; }
 .id-status--approved     { background: rgba(22,163,74,0.16); color: #16a34a; }
+.id-status--rejected     { background: rgba(220,38,38,0.16); color: #dc2626; }
+.id-status--closed       { background: rgba(22,163,74,0.16); color: #16a34a; }
+.id-status--reopened     { background: rgba(21,214,194,0.12); color: #15D6C2; }
 .id-prio--urgent { background: rgba(220,38,38,0.14); color: #dc2626; }
 .id-prio--high   { background: rgba(245,158,11,0.16); color: #f59e0b; }
 .id-prio--low    { background: var(--soft-bg); color: var(--text-muted); }

@@ -41,6 +41,13 @@
     <!-- Reusable System Update Banner popup -->
     <SystemUpdateBanner v-if="auth.user?.id" />
 
+    <!-- Targeted Task Alerts Banner popup -->
+    <TaskAlertBanner v-if="auth.user?.id" />
+
+    <!-- Global alert & receipts tracking modals -->
+    <QuickAlertModal />
+    <ReceiptsTrackingModal />
+
     <!-- Floating Executive Action -->
     <template v-if="auth.isHeadOrSupervisor">
       <button
@@ -99,6 +106,9 @@ import PushSetupBanner from '@/components/ui/PushSetupBanner.vue';
 import QuickAddTaskModal from '@/components/board/QuickAddTaskModal.vue';
 import FeatureAnnouncementModal from '@/components/ui/FeatureAnnouncementModal.vue';
 import SystemUpdateBanner from '@/components/ui/SystemUpdateBanner.vue';
+import TaskAlertBanner from '@/components/ui/TaskAlertBanner.vue';
+import QuickAlertModal from '@/components/ui/QuickAlertModal.vue';
+import ReceiptsTrackingModal from '@/components/ui/ReceiptsTrackingModal.vue';
 import CommandPalette from '@/components/ui/CommandPalette.vue';
 import MonthlyWinnersBanner from '@/components/ui/MonthlyWinnersBanner.vue';
 import MonthlyRecap from '@/components/ui/MonthlyRecap.vue';
@@ -127,25 +137,25 @@ watch(() => route.fullPath, () => {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  background: #3f8dfe;
+  background: #15D6C2;
   color: white;
   padding: 0.75rem 1.25rem 0.75rem 1.1rem;
   border-radius: 999px 0 0 999px;
   border: none;
   cursor: pointer;
-  box-shadow: -2px 4px 12px rgba(63, 141, 254, 0.35);
+  box-shadow: -2px 4px 12px rgba(21, 214, 194, 0.35);
   transform: translateX(calc(100% - 44px));
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, box-shadow 0.2s;
 }
 
 .admin-floating-assign-task:hover {
   transform: translateX(0);
-  box-shadow: -4px 6px 16px rgba(63, 141, 254, 0.45);
-  background: #367de6;
+  box-shadow: -4px 6px 16px rgba(21, 214, 194, 0.45);
+  background: #13c7b5;
 }
 
 .admin-floating-assign-task:active {
-  background: #2b6ecf;
+  background: #10b0a0;
 }
 
 .btn-icon {
@@ -218,7 +228,7 @@ watch(() => route.fullPath, () => {
     bottom: 16px;
     border-radius: 999px;
     transform: none;
-    box-shadow: 0 4px 12px rgba(63, 141, 254, 0.35);
+    box-shadow: 0 4px 12px rgba(21, 214, 194, 0.35);
   }
   .admin-floating-assign-task:hover {
     transform: translateY(-2px) scale(1.02);

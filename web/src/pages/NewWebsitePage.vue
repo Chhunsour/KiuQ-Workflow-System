@@ -10,6 +10,11 @@
       </template>
     </PageHeader>
 
+    <!-- Read-only Alert Banner -->
+    <div v-if="auth.isViewer" class="rounded-card border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
+      <strong>View-only Mode:</strong> You do not have permissions to edit or create website profiles.
+    </div>
+
     <!-- Mode switcher (only on create, not edit) -->
     <div v-if="!isEdit" class="nw-mode-tabs">
       <button
@@ -36,7 +41,7 @@
 
     <!-- ── EXISTING WEBSITE simple form ── -->
     <template v-else-if="mode === 'existing' && !isEdit">
-      <div class="nw-ex-wrap">
+      <fieldset :disabled="auth.isViewer" class="nw-ex-wrap" style="border: none; padding: 0; margin: 0; display: contents;">
 
         <!-- Identity card -->
         <div class="nw-ex-card">
@@ -96,7 +101,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
           <span>Default design values will be applied automatically. You can edit them anytime from the Website Profile page.</span>
         </div>
-      </div>
+      </fieldset>
 
       <!-- Actions -->
       <div class="nw-footer">
@@ -104,7 +109,7 @@
           <RouterLink :to="auth.isAdmin ? '/websites/my' : '/my-dashboard'" class="btn-secondary">Cancel</RouterLink>
         </div>
         <div class="nw-footer-right">
-          <button class="btn-primary nw-submit-btn" type="button" :disabled="!!exSaving" @click="submitExisting">
+          <button class="btn-primary nw-submit-btn" type="button" :disabled="!!exSaving || auth.isViewer" @click="submitExisting">
             <svg v-if="!exSaving" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             {{ exSaving ? 'Saving…' : 'Save Website' }}
           </button>
@@ -148,7 +153,7 @@
       </div>
 
       <!-- Step content -->
-      <div class="nw-body">
+      <fieldset :disabled="auth.isViewer" class="nw-body" style="border: none; padding: 0; margin: 0; display: contents;">
 
         <!-- ─ STEP 0: Basic Info ─ -->
         <div v-show="currentStep === 0" class="nw-section">
@@ -245,7 +250,7 @@
               <label class="nw-label">Primary Color <span class="nw-req">*</span></label>
               <div class="nw-color-row">
                 <input v-model="model.primaryColor" class="nw-color-picker" type="color" @input="clearError('primaryColor')" />
-                <input v-model="model.primaryColor" class="input nw-color-text" type="text" placeholder="#3f8dfe" @input="clearError('primaryColor')" />
+                <input v-model="model.primaryColor" class="input nw-color-text" type="text" placeholder="#15D6C2" @input="clearError('primaryColor')" />
               </div>
               <span v-if="errors.primaryColor" class="nw-error-msg">{{ errors.primaryColor }}</span>
             </div>
@@ -517,7 +522,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </fieldset>
 
       <!-- Bottom nav -->
       <div class="nw-footer">
@@ -528,14 +533,14 @@
           </button>
         </div>
         <div class="nw-footer-right">
-          <button class="btn-secondary" type="button" :disabled="!!saving" @click="saveDraft">
+          <button class="btn-secondary" type="button" :disabled="!!saving || auth.isViewer" @click="saveDraft">
             {{ saving === 'draft' ? 'Saving…' : 'Save Draft' }}
           </button>
           <button v-if="currentStep < steps.length - 1" class="btn-primary" type="button" @click="nextStep">
             Next
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
-          <button v-else class="btn-primary nw-submit-btn" type="button" :disabled="!!saving" @click="submit">
+          <button v-else class="btn-primary nw-submit-btn" type="button" :disabled="!!saving || auth.isViewer" @click="submit">
             <svg v-if="!saving" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             {{ saving === 'submit' ? 'Creating…' : (isEdit ? 'Save Changes' : 'Create Website') }}
           </button>
@@ -603,6 +608,7 @@ const onExDomainInput = () => { delete exErrors.domain; };
 const onNwDomainInput = () => { clearError('domain'); };
 
 const submitExisting = async () => {
+  if (auth.isViewer) return;
   if (!validateExisting()) return;
   exSaving.value = true;
 
@@ -614,9 +620,9 @@ const submitExisting = async () => {
     websiteType: 'existing',
     industry: 'Machinery',
     websiteGoal: '',
-    primaryColor: '#3f8dfe',
+    primaryColor: '#15D6C2',
     secondaryColor: '#0f172a',
-    accentColor: '#3f8dfe',
+    accentColor: '#15D6C2',
     textColor: '#0f172a',
     backgroundColor: '#ffffff',
     fontFamily: 'Raleway',
@@ -685,9 +691,9 @@ const blank = (): Website => ({
   websiteType: '',
   industry: 'Machinery',
   websiteGoal: '',
-  primaryColor: '#3f8dfe',
+  primaryColor: '#15D6C2',
   secondaryColor: '#0f172a',
-  accentColor: '#3f8dfe',
+  accentColor: '#15D6C2',
   textColor: '#0f172a',
   backgroundColor: '#ffffff',
   fontFamily: 'Inter',
@@ -838,6 +844,7 @@ onMounted(async () => {
 
 // ── Save ──────────────────────────────────────────────────────────────────────
 const saveDraft = async () => {
+  if (auth.isViewer) return;
   if (saving.value) return;
   saving.value = 'draft';
   const savedId = await data.upsertWebsite({ ...model });
@@ -849,6 +856,7 @@ const saveDraft = async () => {
 };
 
 const submit = async () => {
+  if (auth.isViewer) return;
   if (!validate()) {
     currentStep.value = 4;
     return;

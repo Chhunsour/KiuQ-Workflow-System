@@ -9,13 +9,13 @@
       "
     >
       <template #actions>
-        <button class="btn-secondary" type="button" @click="openCreateFolder">
+        <button v-if="!auth.isViewer" class="btn-secondary" type="button" @click="openCreateFolder">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
           Add Folder
         </button>
-        <button class="btn-secondary" type="button" @click="openCreateFile()">
+        <button v-if="!auth.isViewer" class="btn-secondary" type="button" @click="openCreateFile()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <path d="M14 2v6h6" />
@@ -23,7 +23,7 @@
           </svg>
           Add File / Link
         </button>
-        <button v-if="auth.isAdmin" class="btn-primary" type="button" @click="openAssignPicker">
+        <button v-if="auth.isAdmin && !auth.isViewer" class="btn-primary" type="button" @click="openAssignPicker">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m22 2-7 20-4-9-9-4z" />
             <path d="M22 2 11 13" />
@@ -641,8 +641,8 @@
                 <button class="btn-primary h-8 whitespace-nowrap px-3 text-xs" @click.stop="openDocsFolder(folder.id)">
                   Open
                 </button>
-                <button v-if="isOwnDocsFolder(folder)" class="btn-secondary h-8 whitespace-nowrap px-3 text-xs" @click.stop="openEditFolder(folder)">Edit</button>
-                <button v-if="isOwnDocsFolder(folder)" class="btn-danger h-8 whitespace-nowrap px-3 text-xs" @click.stop="confirmDeleteFolder(folder)">Delete</button>
+                <button v-if="!auth.isViewer && isOwnDocsFolder(folder)" class="btn-secondary h-8 whitespace-nowrap px-3 text-xs" @click.stop="openEditFolder(folder)">Edit</button>
+                <button v-if="!auth.isViewer && isOwnDocsFolder(folder)" class="btn-danger h-8 whitespace-nowrap px-3 text-xs" @click.stop="confirmDeleteFolder(folder)">Delete</button>
               </div>
             </div>
           </article>
@@ -652,7 +652,7 @@
           title="No folders yet"
           description="Create your own folders here, or wait for your admin to share project folders with you."
         >
-          <template #action>
+          <template v-if="!auth.isViewer" #action>
             <button class="btn-primary" type="button" @click="openCreateFolder">Add Folder</button>
           </template>
         </EmptyState>
@@ -700,13 +700,13 @@
                       class="btn-secondary h-8 px-3 text-xs"
                     >Open</a>
                     <button
-                      v-if="isOwnDocsFile(file)"
+                      v-if="!auth.isViewer && isOwnDocsFile(file)"
                       class="btn-secondary h-8 px-3 text-xs"
                       type="button"
                       @click="openEditFile(file)"
                     >Edit</button>
                     <button
-                      v-if="isOwnDocsFile(file)"
+                      v-if="!auth.isViewer && isOwnDocsFile(file)"
                       class="btn-danger h-8 px-3 text-xs"
                       type="button"
                       @click="confirmDeleteFile(file)"
@@ -722,7 +722,7 @@
           title="No files yet"
           description="Add your own file or link, or wait for your admin to send you project docs."
         >
-          <template #action>
+          <template v-slot:action v-if="!auth.isViewer">
             <button class="btn-primary" type="button" @click="openCreateFile()">Add File / Link</button>
           </template>
         </EmptyState>
@@ -1644,7 +1644,7 @@ const blankFolderForm = () => ({
   description: '',
   relatedProjectIdValue: '',
   relatedWebsiteIdValue: '',
-  folderColor: '#3f8dfe'
+  folderColor: '#15D6C2'
 });
 const folderForm = reactive(blankFolderForm());
 
@@ -1659,7 +1659,7 @@ const openEditFolder = (folder: DocsFolder) => {
     description: folder.description,
     relatedProjectIdValue: folder.relatedProjectId ?? '',
     relatedWebsiteIdValue: folder.relatedWebsiteId ?? '',
-    folderColor: folder.folderColor || '#3f8dfe'
+    folderColor: folder.folderColor || '#15D6C2'
   });
   folderModalOpen.value = true;
 };
@@ -1672,7 +1672,7 @@ const saveFolder = async () => {
     description: folderForm.description,
     relatedProjectId: folderForm.relatedProjectIdValue || null,
     relatedWebsiteId: folderForm.relatedWebsiteIdValue || null,
-    folderColor: folderForm.folderColor || '#3f8dfe',
+    folderColor: folderForm.folderColor || '#15D6C2',
     createdBy: null,
     createdAt: '',
     updatedAt: ''

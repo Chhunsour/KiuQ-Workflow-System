@@ -196,7 +196,7 @@ const creatorName = computed(() => {
 const isOwner = computed(
   () => !!props.resource?.createdBy && props.resource.createdBy === auth.user?.id
 );
-const canEdit = computed(() => !!props.resource && (auth.isAdmin || isOwner.value));
+const canEdit = computed(() => !auth.isViewer && !!props.resource && (auth.isAdmin || isOwner.value));
 
 const normalizedLinkHref = computed(() =>
   props.resource ? normalizeExternalUrl(props.resource.externalUrl) : null

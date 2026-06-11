@@ -128,6 +128,8 @@
         rows="2"
       />
 
+
+
       <div v-if="err" class="ci-error">{{ err }}</div>
     </div>
 
@@ -148,6 +150,7 @@ import Modal from '@/components/ui/Modal.vue';
 import { useQualityCheckStore } from '@/stores/qualityCheck';
 import { useDataStore, type Member } from '@/stores/data';
 import { useAuthStore } from '@/stores/auth';
+import { useTaskAlertsStore } from '@/stores/taskAlerts';
 
 const props = defineProps<{
   open: boolean;
@@ -205,6 +208,7 @@ const saving    = ref(false);
 const uploading = ref(false);
 const dragOver  = ref(false);
 const err       = ref('');
+const showBanner = ref(true);
 
 const titleEl = ref<HTMLInputElement | null>(null);
 const fileEl  = ref<HTMLInputElement | null>(null);
@@ -221,6 +225,7 @@ watch(() => props.open, async (o) => {
     err.value = '';
     uploading.value = false;
     dragOver.value = false;
+    showBanner.value = true;
     await nextTick();
     titleEl.value?.focus();
   }
@@ -350,6 +355,22 @@ const save = async () => {
       err.value = qc.error || 'Could not create issue.';
       return;
     }
+
+    if (showBanner.value && issue && issue.assignedTo) {
+      const taskAlertsStore = useTaskAlertsStore();
+      const alertPayload = {
+        alertId: `qc-alert-${issue.id}`,
+        alertType: 'Quality Check' as const,
+        title: 'QUALITY ISSUE FOUND',
+        message: `A quality issue was reported: "${issue.title.trim()}"\n\nPage: ${issue.pageUrl || 'No page URL'}\nAssigned By: ${auth.profile?.fullName || 'Admin'}\nPriority: High`,
+        priority: 'High' as const,
+        relatedType: 'quality_check_item' as const,
+        relatedId: issue.id,
+        status: 'published' as const,
+      };
+      void taskAlertsStore.createOrUpdateAlert(alertPayload, [issue.assignedTo]);
+    }
+
     emit('created');
     emit('close');
   } finally {

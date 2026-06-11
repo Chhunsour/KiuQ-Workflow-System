@@ -5,7 +5,7 @@
       subtitle="View all websites created, assigned, and managed by the team."
     >
       <template #actions>
-        <RouterLink to="/websites/new" class="btn-primary">
+        <RouterLink v-if="!auth.isViewer" to="/websites/new" class="btn-primary">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
@@ -161,7 +161,7 @@
         :description="hasActiveFilters ? 'Try clearing some filters.' : 'No team websites yet.'"
       >
         <template #action>
-          <RouterLink to="/websites/new" class="btn-primary">New Website</RouterLink>
+          <RouterLink v-if="!auth.isViewer" to="/websites/new" class="btn-primary">New Website</RouterLink>
         </template>
       </EmptyState>
     </LoadingBlock>

@@ -339,7 +339,14 @@ onMounted(load);
   text-overflow: ellipsis;
 }
 
-.fp-card-domain { font-size: 0.75rem; color: var(--text-muted); }
+.fp-card-domain {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* This-week status */
 .fp-card-week {

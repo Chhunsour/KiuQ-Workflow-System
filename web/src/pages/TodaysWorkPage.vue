@@ -64,6 +64,12 @@
           </span>
           <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.inProgress }}</span><span class="wb-metric-label">In Progress</span></span>
         </div>
+        <div class="wb-metric wb-metric--postpone">
+          <span class="wb-metric-ico">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </span>
+          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.postpone }}</span><span class="wb-metric-label">Postpone</span></span>
+        </div>
         <div class="wb-metric wb-metric--review">
           <span class="wb-metric-ico">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -396,8 +402,38 @@
                   <span>{{ attachmentUploading ? 'Optimizing…' : 'Upload result screenshot (optional)' }}</span>
                 </label>
               </div>
+
+              <!-- Work Evidence Section -->
+              <div class="mt-4 border-t border-border pt-4">
+                <h4 class="text-xs font-bold text-text-main uppercase tracking-wider mb-2">Work Evidence Archive</h4>
+                <div v-if="reports.evidenceList.length" class="flex flex-col gap-2 mb-3">
+                  <div v-for="ev in reports.evidenceList" :key="ev.id" class="flex items-center justify-between p-2 rounded-btn bg-soft text-xs">
+                    <div class="flex items-center gap-2">
+                      <span>{{ ev.evidenceType === 'link' ? '🔗' : ev.evidenceType === 'note' ? '📝' : '📁' }}</span>
+                      <a v-if="ev.url" :href="ev.url" target="_blank" class="text-primary hover:underline font-semibold">{{ ev.evidenceType.toUpperCase() }} File/Link</a>
+                      <span v-else class="font-semibold">Text Note</span>
+                      <span v-if="ev.notes" class="text-text-muted">({{ ev.notes }})</span>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="text-xs text-text-muted mb-3">No custom work evidence uploaded.</div>
+                
+                <div class="flex flex-wrap gap-2">
+                  <label class="btn-secondary py-1 px-3 text-xs cursor-pointer h-auto">
+                    <input type="file" class="hidden" @change="uploadCustomEvidence" />
+                    📤 Upload File/Doc
+                  </label>
+                  <button type="button" class="btn-secondary py-1 px-3 text-xs h-auto" @click="promptEvidenceLink">
+                    🔗 Add Link
+                  </button>
+                  <button type="button" class="btn-secondary py-1 px-3 text-xs h-auto" @click="promptEvidenceNote">
+                    📝 Add Note
+                  </button>
+                </div>
+              </div>
+
               <button
-                class="btn-primary td-submit-btn"
+                class="btn-primary td-submit-btn mt-4"
                 type="button"
                 :disabled="props.readOnly || submittingWork || !submitWorkText.trim()"
                 @click="submitWork"
@@ -415,6 +451,14 @@
                 <h3 class="td-section-title">Details</h3>
               </div>
               <div class="td-meta-list">
+                <div class="td-meta-row">
+                  <span class="td-meta-label">Assignee</span>
+                  <select v-if="canEditDetails(activeCard)" v-model="detailDraft.assignedMemberId" class="td-meta-date" style="font-size: 0.8rem; padding: 2px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); color: var(--text-main);">
+                    <option value="">Unassigned</option>
+                    <option v-for="m in data.members" :key="m.id" :value="m.id">{{ m.fullName || m.email }}</option>
+                  </select>
+                  <span v-else class="td-meta-value">{{ memberName(activeCard.assignedMemberId) || 'Unassigned' }}</span>
+                </div>
                 <div class="td-meta-row">
                   <span class="td-meta-label">Deadline</span>
                   <input v-if="canEditDetails(activeCard)" v-model="detailDraft.dueDate" class="td-meta-date" type="date" />
@@ -567,6 +611,7 @@ import { linkifyText, renderComment, extractMentions } from '@/utils/linkify';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type Member, type Priority, type PromptAssignment, type BoardColumnKey } from '@/stores/data';
+import { useReportsStore } from '@/stores/reports';
 import {
   type BoardColumn,
   type BoardLink,
@@ -585,6 +630,7 @@ import {
 } from '@/types/board';
 import { playCardDropSound } from '@/composables/useCardDropSound';
 import { useNotificationsStore, type CreateAdminNotificationInput } from '@/stores/notifications';
+import { useTaskAlertsStore } from '@/stores/taskAlerts';
 import { optimizeImage, formatFileSize } from '@/utils/imageOptimizer';
 import { usePageRealtime } from '@/services/realtimeService';
 
@@ -658,7 +704,9 @@ const systemKeys = {
 
 const auth = useAuthStore();
 const data = useDataStore();
+const reports = useReportsStore();
 const notifs = useNotificationsStore();
+const taskAlerts = useTaskAlertsStore();
 const route = useRoute();
 
 // ── @mentions: teammate directory (safe view — works for every role) ──────────
@@ -829,7 +877,8 @@ const showMonthChanger = ref(false);
 const detailDraft = reactive({
   title: '',
   dueDate: '',
-  description: ''
+  description: '',
+  assignedMemberId: ''
 });
 
 const linkForm = reactive({
@@ -866,15 +915,17 @@ const sourceAssignments = computed(() => {
   if (props.adminMemberId) {
     const base = source ?? data.assignments;
     pool = base.filter((assignment) => {
+      if (assignment.isArchived === true) return false;
       const extra = boardExtraFromAssignment(assignment);
       return assignment.assignedMemberId === props.adminMemberId || extra.collaborators.includes(props.adminMemberId);
     });
   } else if (source) {
-    pool = source;
+    pool = source.filter((a) => a.isArchived !== true);
   } else if (props.showAll) {
-    pool = data.assignments;
+    pool = data.assignments.filter((a) => a.isArchived !== true);
   } else {
-    pool = auth.isAdmin ? data.assignments : data.myAssignments;
+    const rawPool = auth.isAdmin ? data.assignments : data.myAssignments;
+    pool = rawPool.filter((a) => a.isArchived !== true);
   }
   if (effectiveBoardMonth.value) {
     pool = pool.filter((a) => assignmentMonth(a) === effectiveBoardMonth.value);
@@ -899,6 +950,7 @@ const memberOptions = computed(() =>
 const activeTaskCountForMember = (id: string) =>
   data.assignments.filter(
     (assignment) =>
+      assignment.isArchived !== true &&
       assignment.assignedMemberId === id &&
       !['approved', 'submitted'].includes(assignment.status)
   ).length;
@@ -972,12 +1024,13 @@ const boardMetrics = computed(() => {
   const by = cardsByColumn.value;
   const toDo = by.to_do?.length ?? 0;
   const inProgress = by.in_progress?.length ?? 0;
+  const postpone = by.postpone?.length ?? 0;
   const review = by.waiting_review?.length ?? 0;
   const needsFix = by.needs_fix?.length ?? 0;
   const completed = by.completed?.length ?? 0;
-  const total = toDo + inProgress + review + needsFix + completed;
+  const total = toDo + inProgress + postpone + review + needsFix + completed;
   const rate = total ? Math.round((completed / total) * 100) : 0;
-  return { toDo, inProgress, review, needsFix, completed, total, rate };
+  return { toDo, inProgress, postpone, review, needsFix, completed, total, rate };
 });
 
 const isInitialLoading = computed(() => localLoading.value && allCards.value.length === 0);
@@ -1078,7 +1131,7 @@ const cardFromAssignment = (assignment: PromptAssignment): BoardCard => {
     adminNote: assignment.adminNote,
     updatedAt: assignment.updatedAt,
     columnKey,
-    isOverdue: !!dueDate && dueDate < today.value && !['completed', 'approved', 'submitted'].includes(assignment.status),
+    isOverdue: !!dueDate && dueDate < today.value && !['completed', 'approved', 'submitted', 'postponed'].includes(assignment.status),
     isDueToday: dueDate === today.value,
     checklistDone
   };
@@ -1108,6 +1161,7 @@ const columnFromStatus = (status: PromptAssignment['status']): BoardColumnKey =>
   if (status === 'in_progress') return 'in_progress';
   if (status === 'submitted') return 'waiting_review';
   if (status === 'approved') return 'completed';
+  if (status === 'postponed') return 'postpone';
   return 'to_do';
 };
 
@@ -1116,12 +1170,14 @@ const statusForColumn = (column: BoardColumnKey): PromptAssignment['status'] => 
   if (column === 'waiting_review') return 'submitted';
   if (column === 'needs_fix') return 'needs_fix';
   if (column === 'completed') return 'approved';
+  if (column === 'postpone') return 'postponed';
   return 'pending';
 };
 
 const statusForCard = (card: BoardCard): Status => {
   if (card.columnKey === 'to_do') return 'assigned';
   if (card.columnKey === 'in_progress') return 'in_progress';
+  if (card.columnKey === 'postpone') return 'postponed';
   if (card.columnKey === 'waiting_review') return 'submitted';
   if (card.columnKey === 'needs_fix') return 'needs_fix';
   if (card.columnKey === 'completed') return 'approved';
@@ -1284,7 +1340,8 @@ const detailDraftDirty = computed(() => {
   return (
     detailDraft.title !== card.title ||
     detailDraft.dueDate !== card.dueDate ||
-    detailDraft.description !== card.description
+    detailDraft.description !== card.description ||
+    detailDraft.assignedMemberId !== (card.assignedMemberId || '')
   );
 });
 
@@ -1343,6 +1400,7 @@ const fillDetailDraft = (card: BoardCard) => {
   detailDraft.title = card.title;
   detailDraft.dueDate = card.dueDate;
   detailDraft.description = card.description;
+  detailDraft.assignedMemberId = card.assignedMemberId || '';
   linkForm.title = '';
   linkForm.url = '';
   linkForm.type = 'website_url';
@@ -1359,6 +1417,7 @@ const openCard = (card: BoardCard) => {
   fillDetailDraft(card);
   void loadAttachmentPreviews(card);
   void data.addActivityLog('opened_task', 'assignment', card.id, `Opened task: ${card.title}.`);
+  void reports.fetchEvidence(card.assignment.id);
 };
 
 const closeCard = () => {
@@ -1369,6 +1428,7 @@ watch(activeCard, (card) => {
   if (card) {
     fillDetailDraft(card);
     void loadAttachmentPreviews(card);
+    void reports.fetchEvidence(card.assignment.id);
   }
 });
 
@@ -1474,6 +1534,24 @@ const moveCard = async (card: BoardCard, column: BoardColumnKey) => {
       `Moved task to ${columnLabel}.`
     );
 
+    if (auth.isAdmin && column === 'to_do' && card.assignedMemberId && card.assignedMemberId !== auth.user?.id) {
+      const sendAlert = window.confirm('Send Alert To Assignee?');
+      if (sendAlert) {
+        const alertPayload = {
+          alertId: `task-moved-${card.id}-${Date.now()}`,
+          alertType: 'Reminder' as const,
+          title: 'TASK MOVED BACK TO TO DO',
+          message: `Your task "${card.title}" has been moved back to To Do.\n\nAssigned By: ${auth.profile?.fullName || 'Admin'}`,
+          priority: 'High' as const,
+          relatedType: 'workboard_task' as const,
+          relatedId: card.id,
+          status: 'published' as const,
+          requireAck: true
+        };
+        void taskAlerts.createOrUpdateAlert(alertPayload, [card.assignedMemberId]);
+      }
+    }
+
     if (!auth.isAdmin && (column === 'in_progress' || column === 'waiting_review')) {
       const memberName = auth.profile?.fullName || 'A member';
       const waitingReview = column === 'waiting_review';
@@ -1525,6 +1603,7 @@ const saveActiveCardDetails = async () => {
   const card = activeCard.value;
   if (!card || !canEditDetails(card)) return;
   const dueDateChanged = detailDraft.dueDate !== card.dueDate;
+  const assigneeChanged = detailDraft.assignedMemberId !== (card.assignedMemberId || '');
   const filledValues = {
     ...card.assignment.filledValues,
     ...serializeBoardPatch(card, {
@@ -1536,21 +1615,55 @@ const saveActiveCardDetails = async () => {
   const ok = await data.upsertAssignment({
     ...card.assignment,
     dueDate: detailDraft.dueDate,
+    assignedMemberId: detailDraft.assignedMemberId,
     filledValues,
     updatedAt: today.value
   });
 
-  // Notify member if admin changed the deadline
-  if (ok && auth.isAdmin && dueDateChanged && card.assignedMemberId && card.assignedMemberId !== auth.user?.id) {
-    void notifs.createNotification({
-      recipientId: card.assignedMemberId,
-      actorId:     auth.user?.id,
-      type:        'task_deadline_changed',
-      title:       'Task deadline changed',
-      message:     `${auth.profile?.fullName || 'Admin'} updated the deadline for "${card.title}" to ${detailDraft.dueDate || 'no deadline'}`,
-      relatedType: 'task',
-      taskId:      card.id,
-    });
+  if (ok) {
+    // Notify member if admin changed the deadline
+    if (auth.isAdmin && dueDateChanged && card.assignedMemberId && card.assignedMemberId !== auth.user?.id) {
+      void notifs.createNotification({
+        recipientId: card.assignedMemberId,
+        actorId:     auth.user?.id,
+        type:        'task_deadline_changed',
+        title:       'Task deadline changed',
+        message:     `${auth.profile?.fullName || 'Admin'} updated the deadline for "${card.title}" to ${detailDraft.dueDate || 'no deadline'}`,
+        relatedType: 'task',
+        taskId:      card.id,
+      });
+    }
+
+    // Task alert integration on assignment reassignment
+    if (auth.isAdmin && assigneeChanged && detailDraft.assignedMemberId && detailDraft.assignedMemberId !== auth.user?.id) {
+      void notifs.createNotification({
+        recipientId: detailDraft.assignedMemberId,
+        actorId:     auth.user?.id,
+        type:        'task_assigned',
+        title:       'New task assigned',
+        message:     `${auth.profile?.fullName || 'Admin'} assigned you a task: "${detailDraft.title.trim() || card.title}"`,
+        relatedType: 'task',
+        taskId:      card.id,
+        relatedId:    card.id,
+        relatedWebsiteId: card.assignment.websiteId || undefined,
+      });
+
+      const sendAlert = window.confirm('Send Alert To Assignee?');
+      if (sendAlert) {
+        const alertPayload = {
+          alertId: `task-assign-${card.id}-${Date.now()}`,
+          alertType: 'New Task' as const,
+          title: 'TASK ASSIGNED TO YOU',
+          message: `You have been assigned the task: "${detailDraft.title.trim()}"\n\nPriority: Normal\nAssigned By: ${auth.profile?.fullName || 'Admin'}`,
+          priority: 'Medium' as const,
+          relatedType: 'workboard_task' as const,
+          relatedId: card.id,
+          status: 'published' as const,
+          requireAck: true
+        };
+        void taskAlerts.createOrUpdateAlert(alertPayload, [detailDraft.assignedMemberId]);
+      }
+    }
   }
 };
 
@@ -1841,6 +1954,68 @@ const submitWork = async () => {
     }
   } finally {
     submittingWork.value = false;
+  }
+};
+
+const uploadCustomEvidence = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file || !activeCard.value) return;
+
+  const notes = prompt('Enter a short note for this evidence (optional):') || '';
+  let type: 'screenshot' | 'document' | 'pdf' | 'image' | 'video' = 'document';
+  const fileType = file.type.toLowerCase();
+  
+  if (fileType.includes('image')) {
+    type = 'image';
+  } else if (fileType.includes('pdf')) {
+    type = 'pdf';
+  } else if (fileType.includes('video')) {
+    type = 'video';
+  }
+
+  const success = await reports.uploadEvidenceFile(
+    activeCard.value.assignment.id,
+    null,
+    file,
+    notes,
+    type
+  );
+  if (!success) {
+    alert('Failed to upload evidence: ' + reports.error);
+  }
+};
+
+const promptEvidenceLink = async () => {
+  if (!activeCard.value) return;
+  const url = prompt('Enter the full link URL (e.g. https://github.com/...):');
+  if (!url) return;
+  const notes = prompt('Enter a short description/title for this link (optional):') || '';
+  const success = await reports.addEvidenceLinkOrNote(
+    activeCard.value.assignment.id,
+    null,
+    'link',
+    url,
+    notes
+  );
+  if (!success) {
+    alert('Failed to save link evidence: ' + reports.error);
+  }
+};
+
+const promptEvidenceNote = async () => {
+  if (!activeCard.value) return;
+  const notes = prompt('Enter your work evidence notes:');
+  if (!notes) return;
+  const success = await reports.addEvidenceLinkOrNote(
+    activeCard.value.assignment.id,
+    null,
+    'note',
+    '',
+    notes
+  );
+  if (!success) {
+    alert('Failed to save note evidence: ' + reports.error);
   }
 };
 
@@ -2332,7 +2507,7 @@ defineExpose({ openAddTask });
 /* ── Live metrics bar (connected segmented strip) ───────────────────── */
 .wb-metrics {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 1px;
   background: var(--border);
   border: 1px solid var(--border);
@@ -2362,9 +2537,11 @@ defineExpose({ openAddTask });
 }
 .wb-metric--todo   .wb-metric-ico { background: color-mix(in srgb, #64748b 14%, transparent); color: #64748b; }
 .wb-metric--prog   .wb-metric-ico { background: var(--primary-soft); color: var(--primary); }
+.wb-metric--postpone .wb-metric-ico { background: rgba(139,92,246,0.14); color: #8b5cf6; }
 .wb-metric--review .wb-metric-ico { background: rgba(249,115,22,0.14); color: #f97316; }
 .wb-metric--fix    .wb-metric-ico { background: rgba(220,38,38,0.14); color: #dc2626; }
 .wb-metric--done   .wb-metric-ico { background: rgba(22,163,74,0.14); color: #16a34a; }
+:root[data-theme='dark-gray'] .wb-metric--postpone .wb-metric-ico { color: #a78bfa; }
 :root[data-theme='dark-gray'] .wb-metric--review .wb-metric-ico { color: #fb923c; }
 :root[data-theme='dark-gray'] .wb-metric--fix .wb-metric-ico { color: #f87171; }
 :root[data-theme='dark-gray'] .wb-metric--done .wb-metric-ico { color: #4ade80; }
@@ -4593,7 +4770,7 @@ defineExpose({ openAddTask });
 
 .td-desc-view :deep(.linkified),
 .cs-message :deep(.linkified) {
-  color: #3f8dfe;
+  color: #15D6C2;
   text-decoration: none;
   word-break: break-all;
 }

@@ -852,7 +852,7 @@ const allImages = computed<LibImage[]>(() => {
   for (const w of visibleWebsites.value) {
     for (const p of w.products) {
       if (!p.imageUrl) continue;
-      out.push({ product: p, websiteId: w.id, websiteName: w.name, brand: w.primaryColor || '#3f8dfe' });
+      out.push({ product: p, websiteId: w.id, websiteName: w.name, brand: w.primaryColor || '#15D6C2' });
     }
   }
   return out;

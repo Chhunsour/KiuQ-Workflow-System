@@ -65,6 +65,11 @@
         <span class="qc-pill-num">{{ qcMetrics.fixedToday }}</span>
         <span class="qc-pill-label">Fixed Today</span>
       </div>
+      <div class="qc-pill">
+        <span class="qc-pill-ico">⏱️</span>
+        <span class="qc-pill-num">{{ averageResolutionTime }}</span>
+        <span class="qc-pill-label">Avg Resolution</span>
+      </div>
     </section>
 
     <!-- ── Class folder tabs ──────────────────────────────────────────── -->
@@ -300,13 +305,12 @@
             <header class="column-head">
               <div>
                 <h2>{{ col.label }}</h2>
-                <p>{{ columnHelper(col.value) }}</p>
               </div>
               <span>{{ columnIssues(col.value).length }}</span>
             </header>
 
             <button
-              v-if="col.value === 'new_issue'"
+              v-if="col.value === 'in_progress'"
               class="add-card-mini"
               type="button"
               @click="createOpen = true"
@@ -331,6 +335,28 @@
                 @mousemove="onHoverMove($event)"
                 @mouseleave="onHoverLeave"
               >
+                <!-- Manager Options Dropdown Menu -->
+                <div v-if="isManager" class="tc-menu-container" @click.stop>
+                  <button
+                    class="tc-menu-trigger"
+                    type="button"
+                    title="Issue actions"
+                    @click.stop="toggleCardMenu(issue.id)"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+                    </svg>
+                  </button>
+                  <div v-if="activeMenuCardId === issue.id" class="tc-menu-dropdown">
+                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">Edit</button>
+                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">Assign</button>
+                    <button class="tc-menu-item" type="button" @click.stop="handleAlertCard(issue)">Send Alert</button>
+                    <button class="tc-menu-item" type="button" @click.stop="handleReceiptsCard(issue)">View Receipts</button>
+                    <div class="tc-menu-divider" />
+                    <button class="tc-menu-item tc-menu-item--danger" type="button" @click.stop="handleArchiveCard(issue.id)">Archive</button>
+                  </div>
+                </div>
+
                 <div
                   v-if="issue.screenshotUrl"
                   class="tc-image-container"
@@ -357,6 +383,28 @@
                     {{ priorityLabel(issue.priority) }}
                   </span>
                   <span v-if="issue.dueDate" class="tc-due-pill">Due {{ formatDate(issue.dueDate) }}</span>
+                </div>
+
+                <!-- Alert Tracking Panel -->
+                <div v-if="isManager && receiptSummaries[issue.id] && receiptSummaries[issue.id].delivered > 0" class="tc-tracking-panel" @click.stop>
+                  <div class="tc-tracking-header">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Alert Status
+                  </div>
+                  <div class="tc-tracking-stats">
+                    <span>Delivered: <strong>Yes</strong></span>
+                    <span>Opened: <strong>{{ receiptSummaries[issue.id].opened > 0 ? 'Yes' : 'No' }}</strong></span>
+                    <span>Acked: <strong>{{ receiptSummaries[issue.id].acknowledged === receiptSummaries[issue.id].delivered ? 'Yes' : 'No' }}</strong></span>
+                  </div>
+                  <div v-if="receiptSummaries[issue.id].lastAlertAt" class="tc-tracking-time">
+                    Last Alert: <strong>{{ formattedAlertDate(receiptSummaries[issue.id].lastAlertAt) }}</strong>
+                  </div>
+                  <div class="tc-tracking-actions">
+                    <button class="tc-track-btn" type="button" @click.stop="handleReceiptsCard(issue)">View Receipts</button>
+                    <button class="tc-track-btn" type="button" :disabled="repushingAlerts[issue.id] || receiptSummaries[issue.id].pending === 0" @click.stop="handleRepushCard(issue.id)">
+                      {{ repushingAlerts[issue.id] ? 'Nudging...' : 'Repush' }}
+                    </button>
+                  </div>
                 </div>
 
                 <div class="tc-footer">
@@ -533,7 +581,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import CreateIssueModal from '@/components/quality/CreateIssueModal.vue';
 import IssueDetailModal from '@/components/quality/IssueDetailModal.vue';
 import EditIssueModal from '@/components/quality/EditIssueModal.vue';
@@ -565,12 +614,88 @@ import {
   type QualityIssuePriority
 } from '@/stores/qualityCheck';
 import { usePageRealtime } from '@/services/realtimeService';
+import { useTaskAlertsStore } from '@/stores/taskAlerts';
 
 usePageRealtime(['quality_classes', 'quality_issues', 'quality_issue_comments', 'websites']);
 
 const auth = useAuthStore();
 const data = useDataStore();
 const qc   = useQualityCheckStore();
+const alertsStore = useTaskAlertsStore();
+
+const isManager = computed(() => ['admin', 'owner', 'head', 'supervisor'].includes(auth.currentRole || ''));
+
+const activeMenuCardId = ref<string | null>(null);
+const receiptSummaries = ref<Record<string, any>>({});
+const repushingAlerts = ref<Record<string, boolean>>({});
+
+const toggleCardMenu = (id: string) => {
+  if (activeMenuCardId.value === id) {
+    closeCardMenu();
+  } else {
+    activeMenuCardId.value = id;
+    document.addEventListener('click', closeCardMenu);
+  }
+};
+
+const closeCardMenu = () => {
+  activeMenuCardId.value = null;
+  document.removeEventListener('click', closeCardMenu);
+};
+
+const loadReceiptSummaryForCard = async (issueId: string) => {
+  if (!isManager.value) return;
+  const res = await alertsStore.fetchLinkedReceiptSummary('quality_check_item', issueId);
+  receiptSummaries.value[issueId] = res;
+};
+
+const handleRepushCard = async (issueId: string) => {
+  repushingAlerts.value[issueId] = true;
+  const ok = await alertsStore.repushAlertsForLinkedItem('quality_check_item', issueId);
+  if (ok) {
+    await loadReceiptSummaryForCard(issueId);
+  }
+  repushingAlerts.value[issueId] = false;
+};
+
+const handleAlertCard = (issue: any) => {
+  closeCardMenu();
+  alertsStore.openSendAlertModal({
+    type: 'quality_check_item',
+    id: issue.id,
+    title: issue.title,
+    assigneeId: issue.assignedTo
+  });
+};
+
+const handleReceiptsCard = (issue: any) => {
+  closeCardMenu();
+  alertsStore.openReceiptsModal({
+    type: 'quality_check_item',
+    id: issue.id,
+    title: issue.title
+  });
+};
+
+const handleArchiveCard = async (id: string) => {
+  closeCardMenu();
+  if (window.confirm('Are you sure you want to archive this Quality Check card?')) {
+    const ok = await qc.archiveIssue(id);
+    if (!ok) {
+      alert('Could not archive Quality Check: ' + (qc.error || ''));
+    }
+  }
+};
+
+const formattedAlertDate = (dStr?: string | null) => {
+  if (!dStr) return '—';
+  try {
+    const d = new Date(dStr);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '—';
+  }
+};
 
 // ── Selection ───────────────────────────────────────────────────────────
 // `undefined` = no class chosen yet (show only the folder grid).
@@ -639,7 +764,7 @@ const selectedClassName = computed(() => {
 });
 const selectedClassColor = computed(() => {
   if (selectedClassId.value === undefined || selectedClassId.value === null) return '#94a3b8';
-  return qc.classes.find((c) => c.id === selectedClassId.value)?.color ?? '#3f8dfe';
+  return qc.classes.find((c) => c.id === selectedClassId.value)?.color ?? '#15D6C2';
 });
 
 // ── Per-class summaries (for the folder cards) ──────────────────────────
@@ -658,44 +783,64 @@ const classCards = computed<ClassCard[]>(() =>
   qc.classes.map((c) => {
     const siteIds = new Set<string>();
     data.websites.forEach((w) => { if (w.qualityClassId === c.id) siteIds.add(w.id); });
-    const classIssues = qc.issues.filter((i) => siteIds.has(i.websiteId));
+    const classIssues = qc.issues.filter((i) => siteIds.has(i.websiteId) && i.isArchived !== true);
     return {
       id: c.id,
       name: c.name,
       color: c.color,
       websites: siteIds.size,
       total: classIssues.length,
-      open: classIssues.filter((i) => i.status === 'new_issue').length,
-      assigned: classIssues.filter((i) => i.status === 'in_progress').length,
-      fixed: classIssues.filter((i) => i.status === 'fixed' || i.status === 'approved').length
+      open: classIssues.filter((i) => i.status === 'new_issue' || i.status === 'reopened' || i.status === 'rejected').length,
+      assigned: classIssues.filter((i) => i.status === 'in_progress' || i.status === 'acknowledged').length,
+      fixed: classIssues.filter((i) => i.status === 'fixed' || i.status === 'needs_review' || i.status === 'approved' || i.status === 'closed').length
     };
   })
 );
 
-// ── Global hero metrics (compact Linear-style pills) ────────────────────
 const qcMetrics = computed(() => {
-  const issues = qc.issues;
+  const issues = qc.issues.filter((i) => i.isArchived !== true);
   const today = new Date().toISOString().slice(0, 10);
   return {
     websites: data.websites.length,
-    open: issues.filter((i) => i.status === 'new_issue').length,
-    inProgress: issues.filter((i) => i.status === 'in_progress').length,
-    review: issues.filter((i) => i.status === 'needs_review').length,
-    approved: issues.filter((i) => i.status === 'approved').length,
+    open: issues.filter((i) => i.status === 'new_issue' || i.status === 'reopened' || i.status === 'rejected').length,
+    inProgress: issues.filter((i) => i.status === 'in_progress' || i.status === 'acknowledged').length,
+    review: issues.filter((i) => i.status === 'needs_review' || i.status === 'fixed').length,
+    approved: issues.filter((i) => i.status === 'closed' || i.status === 'approved').length,
     fixedToday: issues.filter(
-      (i) => (i.status === 'fixed' || i.status === 'approved') && (i.updatedAt || '').slice(0, 10) === today
+      (i) => (i.status === 'fixed' || i.status === 'approved' || i.status === 'closed') && (i.updatedAt || '').slice(0, 10) === today
     ).length
   };
+});
+
+const averageResolutionTime = computed(() => {
+  const closedIssues = qc.issues.filter(
+    (i) => (i.status === 'closed' || i.status === 'approved') && i.approvedAt && i.isArchived !== true
+  );
+  if (closedIssues.length === 0) return '—';
+  
+  let totalMs = 0;
+  closedIssues.forEach((i) => {
+    const start = new Date(i.createdAt).getTime();
+    const end = new Date(i.approvedAt!).getTime();
+    totalMs += Math.max(0, end - start);
+  });
+  
+  const avgHours = totalMs / (1000 * 60 * 60) / closedIssues.length;
+  if (avgHours < 24) {
+    return `${avgHours.toFixed(1)}h`;
+  } else {
+    return `${(avgHours / 24).toFixed(1)}d`;
+  }
 });
 
 const unclassifiedCard = computed<{ websites: number; total: number; open: number }>(() => {
   const siteIds = new Set<string>();
   data.websites.forEach((w) => { if (!w.qualityClassId) siteIds.add(w.id); });
-  const classIssues = qc.issues.filter((i) => siteIds.has(i.websiteId));
+  const classIssues = qc.issues.filter((i) => siteIds.has(i.websiteId) && i.isArchived !== true);
   return {
     websites: siteIds.size,
     total: classIssues.length,
-    open: classIssues.filter((i) => i.status === 'new_issue').length
+    open: classIssues.filter((i) => i.status === 'new_issue' || i.status === 'reopened' || i.status === 'rejected').length
   };
 });
 
@@ -705,7 +850,7 @@ const typeFilter = ref<'all' | QualityIssueType>('all');
 const memberFilter = ref<'all' | 'me' | string>('all');
 
 const websiteIssues = computed<QualityIssue[]>(() =>
-  selectedWebsiteId.value ? qc.issuesForWebsite(selectedWebsiteId.value) : []
+  selectedWebsiteId.value ? qc.issuesForWebsite(selectedWebsiteId.value).filter((i) => i.isArchived !== true) : []
 );
 
 const filteredIssues = computed(() => {
@@ -724,8 +869,15 @@ const filteredIssues = computed(() => {
 
 const columnIssues = (status: QualityIssueStatus) =>
   filteredIssues.value.filter((i) => {
-    if (status === 'new_issue') return i.status === 'new_issue' || i.status === 'in_progress';
-    if (status === 'fixed') return i.status === 'fixed' || i.status === 'needs_review';
+    if (status === 'in_progress') {
+      return i.status === 'in_progress' || i.status === 'new_issue' || i.status === 'reopened' || i.status === 'rejected' || i.status === 'acknowledged';
+    }
+    if (status === 'needs_review') {
+      return i.status === 'needs_review' || i.status === 'fixed';
+    }
+    if (status === 'approved') {
+      return i.status === 'approved' || i.status === 'closed';
+    }
     return i.status === status;
   });
 
@@ -753,9 +905,76 @@ const onDrop = async (status: QualityIssueStatus) => {
   if (!id) return;
   const issue = qc.issues.find((i) => i.id === id);
   if (!issue || issue.status === status) return;
-  if (!auth.isAdmin && status === 'approved') return;
+
+  const isManager = ['admin', 'owner', 'head', 'supervisor'].includes(auth.currentRole || '');
+  
+  if (!isManager) {
+    // Regular employees must be the assignee
+    if (issue.assignedTo !== auth.user?.id) {
+      showToast('Only the assigned employee can update this Quality Check.', 'error');
+      return;
+    }
+    // Employees cannot transition to Completed
+    if (status === 'approved') {
+      showToast('Employees cannot approve Quality Checks.', 'error');
+      return;
+    }
+    // Employees can only transition to Review
+    if (status !== 'needs_review') {
+      showToast('Employees can only transition tasks to Review.', 'error');
+      return;
+    }
+    // Employees can only transition issues currently in Progress
+    const inProgressStatuses = ['in_progress', 'new_issue', 'reopened', 'rejected', 'acknowledged'];
+    if (!inProgressStatuses.includes(issue.status)) {
+      showToast('You can only transition tasks that are in Progress.', 'error');
+      return;
+    }
+  } else {
+    // Managers: dragging Review -> Progress requires a reason
+    if (status === 'in_progress' && (issue.status === 'needs_review' || issue.status === 'fixed')) {
+      const reason = window.prompt('Please enter a reason for rejecting the fix (required):');
+      if (reason === null) return; // user cancelled
+      if (!reason.trim()) {
+        showToast('You must enter a reason to reject the fix.', 'error');
+        return;
+      }
+      const ok = await qc.updateIssue(id, {
+        status: 'rejected',
+        rejectionReason: reason.trim()
+      } as any);
+      if (ok) {
+        playCardDropSound();
+        await qc.addComment(id, `Rejection Reason: ${reason.trim()}`);
+      } else {
+        showToast(qc.error || 'Could not reject issue.', 'error');
+      }
+      return;
+    }
+  }
+
+  // If transitioning to Ready For Review, check proof of completion
+  if (status === 'needs_review' || status === 'fixed') {
+    let hasLocalProof = !!issue.screenshotUrl || (!!issue.pageUrl && issue.pageUrl.trim() !== '');
+    if (!hasLocalProof) {
+      await qc.fetchComments(id);
+      const comments = qc.commentsForIssue(id);
+      if (comments.length === 0) {
+        showToast(
+          'You must provide at least one proof of completion (screenshot, comment, or URL) before submitting for review.',
+          'error'
+        );
+        return;
+      }
+    }
+  }
+
   const ok = await qc.moveStatus(id, status);
-  if (ok) playCardDropSound();
+  if (ok) {
+    playCardDropSound();
+  } else {
+    showToast(qc.error || 'Could not move issue.', 'error');
+  }
 };
 
 // ── Hover preview (image lightbox + full-card preview) ────────────────
@@ -845,22 +1064,18 @@ onUnmounted(() => {
 });
 
 // ── Visual helpers ─────────────────────────────────────────────────────
-const COLUMN_ACCENT: Record<QualityIssueStatus, string> = {
-  new_issue:    '#3f8dfe',
+const COLUMN_ACCENT: Record<string, string> = {
   in_progress:  '#f59e0b',
-  fixed:        '#22c55e',
   needs_review: '#a855f7',
   approved:     '#16a34a'
 };
-const COLUMN_HELPER: Record<QualityIssueStatus, string> = {
-  new_issue:    'Just reported',
-  in_progress:  'Being worked on',
-  fixed:        'Member marked fixed',
-  needs_review: 'Awaiting admin review',
-  approved:     'Approved by Head & Assistant Head'
+const COLUMN_HELPER: Record<string, string> = {
+  in_progress:  'Fix in progress',
+  needs_review: 'Ready for review',
+  approved:     'Completed issues'
 };
-const columnAccent = (s: QualityIssueStatus) => COLUMN_ACCENT[s];
-const columnHelper = (s: QualityIssueStatus) => COLUMN_HELPER[s];
+const columnAccent = (s: QualityIssueStatus) => COLUMN_ACCENT[s] || '#9ca3af';
+const columnHelper = (s: QualityIssueStatus) => COLUMN_HELPER[s] || '';
 
 const assignableMembers = computed<Member[]>(() => {
   if (auth.isQualityChecker) return auth.profile ? [auth.profile] : [];
@@ -879,7 +1094,7 @@ const websiteName = (id: string) =>
 const typeLabel = (t: QualityIssueType) =>
   QUALITY_ISSUE_TYPES.find((x) => x.value === t)?.label ?? t;
 const statusLabel = (s: QualityIssueStatus) =>
-  ({ new_issue: 'New', in_progress: 'In Progress', fixed: 'Fixed', needs_review: 'Needs Review', approved: 'Approved' }[s]);
+  ({ new_issue: 'New', acknowledged: 'Acknowledged', in_progress: 'In Progress', fixed: 'Fixed', needs_review: 'Needs Review', approved: 'Approved', rejected: 'Rejected', closed: 'Closed', reopened: 'Reopened' }[s] || s);
 const priorityLabel = (p: QualityIssuePriority) =>
   p.charAt(0).toUpperCase() + p.slice(1);
 const formatDate = (d: string) =>
@@ -901,6 +1116,25 @@ const openEdit = (id: string) => {
   hoverPreview.value = null;
   editIssueId.value = id;
 };
+
+const route = useRoute();
+watch(
+  () => route.query.issue,
+  (newVal) => {
+    if (newVal) {
+      detailIssueId.value = String(newVal);
+    }
+  },
+  { immediate: true }
+);
+
+watch(() => websiteIssues.value, (newIssues) => {
+  if (isManager.value && newIssues) {
+    newIssues.forEach((issue) => {
+      loadReceiptSummaryForCard(issue.id);
+    });
+  }
+}, { immediate: true, deep: true });
 
 const toast = ref<{ message: string; type: 'success' | 'error' } | null>(null);
 let toastTimer: number | null = null;
@@ -1094,7 +1328,7 @@ onMounted(async () => {
   border-radius: 50%;
   flex-shrink: 0;
 }
-.qc-pill-dot--open     { background: #3f8dfe; }
+.qc-pill-dot--open     { background: #15D6C2; }
 .qc-pill-dot--prog     { background: #f59e0b; }
 .qc-pill-dot--review   { background: #a855f7; }
 .qc-pill-dot--approved { background: #16a34a; }
@@ -2178,7 +2412,7 @@ onMounted(async () => {
   margin: 0;
   font-size: 0.74rem;
   font-weight: 700;
-  color: var(--primary, #3f8dfe);
+  color: var(--primary, #15D6C2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2212,7 +2446,7 @@ onMounted(async () => {
   color: var(--text-muted, #6b7280);
 }
 .hp-pill--type        { /* default */ }
-.hp-pill--new_issue   { color: #3f8dfe; background: rgba(63,141,254,0.12); border-color: rgba(63,141,254,0.28); }
+.hp-pill--new_issue   { color: #15D6C2; background: rgba(21,214,194,0.12); border-color: rgba(21,214,194,0.28); }
 .hp-pill--in_progress { color: #f59e0b; background: rgba(245,158,11,0.14); border-color: rgba(245,158,11,0.3); }
 .hp-pill--fixed       { color: #22c55e; background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.3); }
 .hp-pill--needs_review{ color: #a855f7; background: rgba(168,85,247,0.14); border-color: rgba(168,85,247,0.3); }
@@ -2220,7 +2454,7 @@ onMounted(async () => {
 .hp-pill--prio-urgent { color: #dc2626; background: rgba(220,38,38,0.14); border-color: rgba(220,38,38,0.3); }
 .hp-pill--prio-high   { color: #f59e0b; background: rgba(245,158,11,0.16); border-color: rgba(245,158,11,0.32); }
 .hp-pill--prio-low    { color: #6b7280; }
-.hp-pill--due         { color: #3f8dfe; background: rgba(63,141,254,0.1); border-color: rgba(63,141,254,0.24); }
+.hp-pill--due         { color: #15D6C2; background: rgba(21,214,194,0.1); border-color: rgba(21,214,194,0.24); }
 
 .hp-card-foot {
   display: flex;
@@ -2242,8 +2476,8 @@ onMounted(async () => {
   justify-content: center;
   overflow: hidden;
   border-radius: 999px;
-  background: rgba(63,141,254,0.12);
-  color: #3f8dfe;
+  background: rgba(21,214,194,0.12);
+  color: #15D6C2;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.66rem;
   font-weight: 900;
@@ -2265,5 +2499,162 @@ onMounted(async () => {
 /* Hide hover preview on touch devices — it's mouse-only by design */
 @media (hover: none) {
   .hp-floater { display: none !important; }
+}
+
+/* ── Manager Dropdown menu options ── */
+.tc-menu-container {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+}
+
+.tc-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tc-menu-trigger:hover {
+  background: rgba(15, 23, 42, 0.75);
+  color: #fff;
+}
+
+.tc-menu-dropdown {
+  position: absolute;
+  top: 1.95rem;
+  right: 0;
+  width: 130px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  z-index: 20;
+}
+
+.tc-menu-item {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tc-menu-item:hover {
+  background: var(--soft-bg);
+  color: var(--primary);
+}
+
+.tc-menu-item--danger {
+  color: #ef4444;
+}
+
+.tc-menu-item--danger:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+.tc-menu-dropdown-divider, .tc-menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0.15rem 0;
+}
+
+/* ── Tracking Panel ── */
+.tc-tracking-panel {
+  margin: 0.6rem 0.9rem 0;
+  padding: 0.6rem 0.7rem;
+  background: var(--soft-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.7rem;
+}
+
+.tc-tracking-header {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  color: var(--text-main);
+  text-transform: uppercase;
+  font-size: 0.64rem;
+  margin-bottom: 0.35rem;
+}
+
+.tc-tracking-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.2rem;
+  color: var(--text-muted);
+}
+
+.tc-tracking-stats span {
+  display: block;
+}
+
+.tc-tracking-stats strong {
+  color: var(--text-main);
+}
+
+.tc-tracking-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.tc-track-btn {
+  flex: 1;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 750;
+  padding: 0.2rem 0;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tc-track-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.tc-track-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tc-tracking-time {
+  display: block;
+  font-size: 0.64rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 0.3rem;
+  margin-top: 0.3rem;
 }
 </style>

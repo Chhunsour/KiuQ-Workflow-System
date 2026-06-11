@@ -300,6 +300,7 @@
               <option value="assistant_head">Assistant Head</option>
               <option value="team_member">Team Member</option>
               <option value="quality_checker">Quality Checker</option>
+              <option value="viewer">Viewer</option>
             </select>
           </div>
           <div>

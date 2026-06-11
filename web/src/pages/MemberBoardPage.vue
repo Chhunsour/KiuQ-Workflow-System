@@ -10,7 +10,7 @@
           <div>
             <div class="header-kicker">Member Work Board</div>
             <h1 class="page-title">{{ selectedMember.fullName || selectedMember.email }}</h1>
-            <p class="page-subtitle">Manage this member’s assigned cards, deadlines, files, links, blockers, and review progress.</p>
+            <p class="page-subtitle">Manage this member’s assigned cards, deadlines, files, links, and review progress.</p>
             <div class="member-chip-row">
               <span class="role-chip">{{ roleLabel(selectedMember.role) }}</span>
               <span class="presence-chip" :class="selectedMember.currentStatus">{{ presenceLabel(selectedMember) }}</span>
@@ -167,6 +167,10 @@
               <strong>{{ memberStats(member).inProgress }}</strong>
             </div>
             <div>
+              <span>Postpone</span>
+              <strong>{{ memberStats(member).postpone }}</strong>
+            </div>
+            <div>
               <span>Review</span>
               <strong>{{ memberStats(member).waitingReview }}</strong>
             </div>
@@ -221,7 +225,7 @@ const openPhotoPreview = (member: any) => {
   }
 };
 
-usePageRealtime(['prompt_assignments', 'section_tasks', 'submissions', 'profiles', 'websites', 'blockers']);
+usePageRealtime(['prompt_assignments', 'section_tasks', 'submissions', 'profiles', 'websites']);
 
 const auth = useAuthStore();
 
@@ -270,17 +274,19 @@ const allAssignmentsSource = computed(() =>
 
 const cardsForMember = (id: string) =>
   allAssignmentsSource.value.filter((assignment) => {
+    if (assignment.isArchived === true) return false;
     const extra = boardExtras(assignment);
     return assignment.assignedMemberId === id || extra.collaborators.includes(id);
   });
 
 const memberStats = (member: Member) => {
   const cards = cardsForMember(member.id);
-  const blockedTaskIds = new Set(data.blockers.filter((b) => b.status === 'open').map((b) => b.taskId));
+  const blockedTaskIds = new Set<string>();
   return {
     total: cards.length,
     todo: cards.filter((card) => card.status === 'pending').length,
     inProgress: cards.filter((card) => card.status === 'in_progress').length,
+    postpone: cards.filter((card) => card.status === 'postponed').length,
     waitingReview: cards.filter((card) => card.status === 'submitted').length,
     needsFix: cards.filter((card) => ['needs_fix', 'needs_resubmission', 'rejected'].includes(card.status)).length,
     completed: cards.filter((card) => card.status === 'approved').length,
@@ -295,6 +301,7 @@ const selectedMemberSummary = computed(() => {
     { label: 'Total tasks', value: stats.total },
     { label: 'To Do', value: stats.todo },
     { label: 'In Progress', value: stats.inProgress },
+    { label: 'Postpone', value: stats.postpone },
     { label: 'Waiting Review', value: stats.waitingReview },
     { label: 'Needs Fix', value: stats.needsFix },
     { label: 'Completed', value: stats.completed }
@@ -371,7 +378,6 @@ const loadPageData = async () => {
       data.fetchPrompts(),
       data.fetchProjects(),
       data.fetchWebsites(),
-      data.fetchBlockers(),
       data.fetchSubmissions(),
       data.fetchActivityLogs()
     ]);

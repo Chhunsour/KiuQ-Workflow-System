@@ -49,8 +49,8 @@
   /* Subtle radial highlight so the dark gray doesn't feel flat */
   background-image: radial-gradient(
     circle at 50% 38%,
-    rgba(63, 141, 254, 0.10),
-    rgba(63, 141, 254, 0) 55%
+    rgba(21, 214, 194, 0.10),
+    rgba(21, 214, 194, 0) 55%
   );
   color: #f1f5f9;
   /* Entire screen fades in on first paint */
@@ -82,9 +82,9 @@
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgba(63, 141, 254, 0.32) 0%,
-    rgba(63, 141, 254, 0.12) 32%,
-    rgba(63, 141, 254, 0) 70%
+    rgba(21, 214, 194, 0.32) 0%,
+    rgba(21, 214, 194, 0.12) 32%,
+    rgba(21, 214, 194, 0) 70%
   );
   filter: blur(6px);
   animation: kls-glow 3.2s ease-in-out infinite;
@@ -130,7 +130,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #3f8dfe;
+  background: #15D6C2;
   opacity: 0.35;
   animation: kls-dot 1.2s ease-in-out infinite;
 }

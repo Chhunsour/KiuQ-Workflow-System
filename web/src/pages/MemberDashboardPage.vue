@@ -26,6 +26,55 @@
       </div>
     </div>
 
+    <!-- My Attention Required Card -->
+    <div v-if="hasAttentionRequired" class="md-attention-card">
+      <div class="md-attention-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-status-needs-fix-fg animate-pulse">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <h2 class="md-attention-title">My Attention Required</h2>
+      </div>
+      <div class="md-attention-grid">
+        <!-- Overdue Tasks -->
+        <RouterLink v-if="overdueTasksCount > 0" to="/work-board/my" class="md-attention-item border-l-4 border-status-needs-fix-fg">
+          <div class="md-attention-item-info">
+            <span class="md-attention-count text-status-needs-fix-fg">{{ overdueTasksCount }}</span>
+            <span class="md-attention-label">Overdue Tasks</span>
+          </div>
+          <svg class="md-attention-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </RouterLink>
+
+        <!-- New Tasks -->
+        <RouterLink v-if="newTasksCount > 0" to="/work-board/my" class="md-attention-item border-l-4 border-status-pending-fg">
+          <div class="md-attention-item-info">
+            <span class="md-attention-count text-status-pending-fg">{{ newTasksCount }}</span>
+            <span class="md-attention-label">New Tasks</span>
+          </div>
+          <svg class="md-attention-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </RouterLink>
+
+        <!-- Pending Follow-ups -->
+        <RouterLink v-if="followupDueCount > 0" to="/followup" class="md-attention-item border-l-4 border-primary">
+          <div class="md-attention-item-info">
+            <span class="md-attention-count text-primary">{{ followupDueCount }}</span>
+            <span class="md-attention-label">Pending Follow-Ups</span>
+          </div>
+          <svg class="md-attention-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </RouterLink>
+
+        <!-- Quality Check Issues -->
+        <RouterLink v-if="myQualityIssuesCount > 0" to="/work-board/quality-check" class="md-attention-item border-l-4 border-purple-500">
+          <div class="md-attention-item-info">
+            <span class="md-attention-count text-purple-600 dark:text-purple-400">{{ myQualityIssuesCount }}</span>
+            <span class="md-attention-label">Quality Check Issues</span>
+          </div>
+          <svg class="md-attention-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </RouterLink>
+      </div>
+    </div>
+
     <!-- Summary stat cards -->
     <div class="md-stats">
       <div class="md-stat md-stat--tasks" :class="{ 'md-stat--alert': myNeedsFixCount > 0 && activeStatKey === null }">
@@ -382,12 +431,41 @@ const openPhotoPreview = () => {
 };
 import { useDataStore } from '@/stores/data';
 import { useFollowupStore } from '@/stores/followup';
+import { useNotificationsStore } from '@/stores/notifications';
+import { useQualityCheckStore } from '@/stores/qualityCheck';
 import { roleLabel } from '@/lib/roles';
 import { supabase } from '@/lib/supabase';
 
 const auth     = useAuthStore();
 const data     = useDataStore();
 const followup = useFollowupStore();
+const notifsStore = useNotificationsStore();
+const qcStore = useQualityCheckStore();
+
+const overdueTasksCount = computed(() => {
+  return myAssignments.value.filter((a) => {
+    const dueDate = a.dueDate || data.projectById(a.projectId)?.deadline || '';
+    const activeStatus = ['pending', 'in_progress', 'needs_fix', 'needs_resubmission'].includes(a.status);
+    return activeStatus && !!dueDate && dueDate < todayStr;
+  }).length;
+});
+
+const newTasksCount = computed(() => {
+  return notifsStore.notifications.filter(
+    (n) => (n.type === 'task_assigned' || n.type === 'task_needs_fix') && !n.acknowledgedAt && !n.isRead
+  ).length;
+});
+
+const myQualityIssuesCount = computed(() => {
+  const uid = auth.user?.id;
+  return qcStore.issues.filter(
+    (i) => i.assignedTo === uid && i.status !== 'approved'
+  ).length;
+});
+
+const hasAttentionRequired = computed(() => {
+  return overdueTasksCount.value > 0 || newTasksCount.value > 0 || followupDueCount.value > 0 || myQualityIssuesCount.value > 0;
+});
 
 const loading = ref(false);
 const activeStatKey = ref<string | null>(null);
@@ -812,6 +890,9 @@ onMounted(async () => {
     await followup.fetchPluginSlots();
     await followup.fetchEbayEntries();
     await followup.fetchSpeedSlots();
+    // Fetch quality issues and notifications
+    await qcStore.fetchIssues();
+    await notifsStore.fetchNotifications(100);
   } catch {
     // silent — dashboard should not block on error
   } finally {
@@ -826,6 +907,74 @@ onMounted(async () => {
   flex-direction: column;
   gap: 1.35rem;
   padding-bottom: 3rem;
+}
+
+/* ── My Attention Required Card ───────────────────────────────────────── */
+.md-attention-card {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.05);
+}
+.md-attention-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.md-attention-title {
+  font-family: 'Raleway', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 850;
+  color: var(--text-main);
+  margin: 0;
+}
+.md-attention-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+.md-attention-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.1rem;
+  background: var(--soft-bg, #f8fafc);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.md-attention-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06), inset 0 0 0 1px var(--border);
+}
+.md-attention-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.md-attention-count {
+  font-family: 'Jost Numbers', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.md-attention-label {
+  font-size: 0.76rem;
+  font-weight: 750;
+  color: var(--text-muted);
+}
+.md-attention-arrow {
+  color: var(--text-muted);
+  opacity: 0.6;
+  transition: transform 140ms ease, opacity 140ms ease;
+}
+.md-attention-item:hover .md-attention-arrow {
+  transform: translateX(3px);
+  opacity: 1;
+  color: var(--primary);
 }
 
 /* ── Header ── */

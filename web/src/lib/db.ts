@@ -50,6 +50,7 @@ export interface ProfileRow {
   current_page?: string | null;
   notes: string;
   last_seen_update_id?: string | null;
+  department?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -76,7 +77,8 @@ export const profileToMember = (r: ProfileRow): Member => ({
   createdAt: r.created_at ?? '',
   updatedAt: r.updated_at ?? '',
   notes: r.notes ?? '',
-  lastSeenUpdateId: r.last_seen_update_id ?? ''
+  lastSeenUpdateId: r.last_seen_update_id ?? '',
+  department: r.department ?? 'website_team'
 });
 
 export const memberToProfile = (m: Member): Partial<ProfileRow> => ({
@@ -90,16 +92,17 @@ export const memberToProfile = (m: Member): Partial<ProfileRow> => ({
   position: m.position,
   phone: m.phone,
   bio: m.bio,
-  preferred_theme: m.preferredTheme,
+  preferred_theme: m.preferredTheme === 'dark-gray' ? 'dark-gray' : 'light',
   is_online: m.isOnline,
   current_status: m.currentStatus,
   last_active_at: m.lastActiveAt || null,
   last_login_at: m.lastLoginAt || null,
   last_logout_at: m.lastLogoutAt || null,
   today_activity_count: m.todayActivityCount,
-  current_page: m.currentPage,
+  current_page: m.currentPage || null,
   notes: m.notes,
-  last_seen_update_id: m.lastSeenUpdateId
+  last_seen_update_id: m.lastSeenUpdateId || null,
+  department: m.department || 'website_team'
 });
 
 // =====================
@@ -537,6 +540,7 @@ export interface AssignmentRow {
   completed_at?: string | null;
   assigned_at: string;
   updated_at: string;
+  is_archived?: boolean;
 }
 
 export const assignmentRowToAssignment = (r: AssignmentRow): PromptAssignment => ({
@@ -555,7 +559,8 @@ export const assignmentRowToAssignment = (r: AssignmentRow): PromptAssignment =>
   completedAt: r.completed_at ? r.completed_at.slice(0, 10) : '',
   assignedAt: (r.assigned_at ?? '').slice(0, 10),
   assignedBy: r.assigned_by,
-  updatedAt: (r.updated_at ?? '').slice(0, 10)
+  updatedAt: (r.updated_at ?? '').slice(0, 10),
+  isArchived: r.is_archived || false
 });
 
 export const assignmentToRow = (
@@ -574,7 +579,8 @@ export const assignmentToRow = (
     priority: a.priority,
     admin_note: a.adminNote,
     started_at: a.startedAt || null,
-    completed_at: a.completedAt || null
+    completed_at: a.completedAt || null,
+    is_archived: a.isArchived || false
   };
   if (a.id) row.id = a.id;
   if (assignedBy !== undefined) row.assigned_by = assignedBy;
@@ -851,7 +857,7 @@ export const docsFolderRowToFolder = (r: DocsFolderRow): DocsFolder => ({
   description: r.description ?? '',
   relatedProjectId: r.related_project_id,
   relatedWebsiteId: r.related_website_id,
-  folderColor: r.folder_color || '#3f8dfe',
+  folderColor: r.folder_color || '#15D6C2',
   createdBy: r.created_by,
   createdAt: (r.created_at ?? '').slice(0, 10),
   updatedAt: (r.updated_at ?? '').slice(0, 10)
@@ -866,7 +872,7 @@ export const docsFolderToRow = (
   description: f.description,
   related_project_id: f.relatedProjectId,
   related_website_id: f.relatedWebsiteId,
-  folder_color: f.folderColor || '#3f8dfe',
+  folder_color: f.folderColor || '#15D6C2',
   ...(createdBy !== undefined ? { created_by: createdBy } : {})
 });
 

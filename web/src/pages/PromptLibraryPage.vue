@@ -285,7 +285,7 @@
                   <p class="mt-1 text-sm text-text-muted">{{ website.domain || 'No domain saved' }}</p>
                 </div>
               </div>
-              <span class="h-8 w-8 rounded-full border border-border" :style="{ backgroundColor: website.primaryColor || '#3f8dfe' }" />
+              <span class="h-8 w-8 rounded-full border border-border" :style="{ backgroundColor: website.primaryColor || '#15D6C2' }" />
             </div>
             <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
               <DetailRow label="Website type" :value="websiteTypeLabel(website.websiteType)" compact />
@@ -703,7 +703,10 @@ const saveAssignment = async () => {
         type:        'task_assigned',
         title:       'New task assigned',
         message:     `${auth.profile?.fullName || 'Admin'} assigned you a task: "${assignPrompt.value.title}"`,
-        relatedType: 'assignment',
+        relatedType: 'task',
+        taskId:      assignForm.id,
+        relatedId:    assignForm.id,
+        relatedWebsiteId: assignForm.websiteId || undefined,
       });
     }
   }
@@ -772,7 +775,7 @@ const WebsiteSummary = defineComponent({
           ]),
           h('span', {
             class: 'h-10 w-10 rounded-full border border-border',
-            style: { backgroundColor: props.website.primaryColor || '#3f8dfe' }
+            style: { backgroundColor: props.website.primaryColor || '#15D6C2' }
           })
         ]),
         h('div', { class: 'mt-5 grid grid-cols-2 gap-3 text-sm md:grid-cols-4' }, [

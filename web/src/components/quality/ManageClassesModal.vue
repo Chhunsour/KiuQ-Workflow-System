@@ -80,7 +80,7 @@ defineEmits<{ (e: 'close'): void }>();
 const qc = useQualityCheckStore();
 
 const newName  = ref('');
-const newColor = ref('#3f8dfe');
+const newColor = ref('#15D6C2');
 const creating = ref(false);
 const busyId   = ref<string | null>(null);
 const err      = ref('');
@@ -91,7 +91,7 @@ const create = async () => {
   err.value = '';
   try {
     const cls = await qc.createClass({ name: newName.value, color: newColor.value });
-    if (cls) { newName.value = ''; newColor.value = '#3f8dfe'; }
+    if (cls) { newName.value = ''; newColor.value = '#15D6C2'; }
     else err.value = qc.error || 'Could not create class.';
   } finally {
     creating.value = false;

@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, supabaseConfigured } from '@/lib/supabase';
 import { profileToMember, type ProfileRow } from '@/lib/db';
-import { isAdminRole, isApprovedStatus, isAssistantHeadRole, isHeadOrSupervisorRole, isMemberRole, isQualityCheckerRole, normalizeRole } from '@/lib/roles';
+import { isAdminRole, isApprovedStatus, isAssistantHeadRole, isHeadOrSupervisorRole, isMemberRole, isQualityCheckerRole, isViewerRole, normalizeRole } from '@/lib/roles';
 import type { ActivityAction, ActivityLog, Member } from '@/stores/data';
 
 type PresenceStatus = 'online' | 'away' | 'offline';
@@ -81,6 +81,7 @@ export const useAuthStore = defineStore('auth', () => {
   // explicit role check — a QC is *not* a member. AH IS a member-class
   // for routing/sidebar purposes (shares the Team Member dashboard).
   const isMember = computed(() => isMemberRole(profile.value?.role));
+  const isViewer = computed(() => isViewerRole(profile.value?.role));
   // Approval gate: pending/deactivated accounts get redirected to the
   // pending screen before any other guard fires.
   const accountStatus = computed(() => profile.value?.status ?? null);
@@ -754,6 +755,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAdmin,
     isHeadOrSupervisor,
     isMember,
+    isViewer,
     isAssistantHead,
     isQualityChecker,
     accountStatus,

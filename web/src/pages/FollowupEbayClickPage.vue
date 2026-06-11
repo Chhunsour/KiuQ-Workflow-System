@@ -411,19 +411,19 @@ const memberDoneSet = (memberId: string) => {
 // ── Progress calculations ────────────────────────────────────────────────────
 
 const memberWeekRequired = computed(() => {
-  // Count required (Mon–Sat) days in this week up to and including today
-  return thisWeekDays.value.filter((d) => isRequiredDay(d.date) && d.date <= today).length;
+  // Count required (Mon–Sat) days in this week
+  return thisWeekDays.value.filter((d) => isRequiredDay(d.date)).length;
 });
 
 const memberMonthRequired = computed(() => {
   const now = new Date();
   const days = buildDays(monthStart(now), monthEnd(now));
-  return days.filter((d) => isRequiredDay(d.date) && d.date <= today).length;
+  return days.filter((d) => isRequiredDay(d.date)).length;
 });
 
 const memberWeekDone  = (memberId: string) => {
   const done = memberDoneSet(memberId);
-  return thisWeekDays.value.filter((d) => isRequiredDay(d.date) && d.date <= today && done.has(d.date)).length;
+  return thisWeekDays.value.filter((d) => isRequiredDay(d.date) && done.has(d.date)).length;
 };
 
 const memberMissedWeek = (memberId: string) => {
@@ -434,12 +434,12 @@ const memberMissedWeek = (memberId: string) => {
 // ── Self stats (member view) ─────────────────────────────────────────────────
 
 const selfWeekDone   = computed(() => {
-  return thisWeekDays.value.filter((d) => isRequiredDay(d.date) && d.date <= today && doneSet.value.has(d.date)).length;
+  return thisWeekDays.value.filter((d) => isRequiredDay(d.date) && doneSet.value.has(d.date)).length;
 });
 const selfMonthDone  = computed(() => {
   const now  = new Date();
   const days = buildDays(monthStart(now), monthEnd(now));
-  return days.filter((d) => isRequiredDay(d.date) && d.date <= today && doneSet.value.has(d.date)).length;
+  return days.filter((d) => isRequiredDay(d.date) && doneSet.value.has(d.date)).length;
 });
 const selfMissedWeek = computed(() =>
   thisWeekDays.value.filter((d) => isPastRequired(d.date) && !doneSet.value.has(d.date)).length
@@ -448,7 +448,14 @@ const selfMissedWeek = computed(() =>
 // ── Admin summary cards ──────────────────────────────────────────────────────
 
 const activeMembers = computed(() =>
-  data.members.filter((m) => m.status === 'active' && normalizeRole(m.role) !== 'supervisor')
+  data.members.filter((m) => {
+    const role = normalizeRole(m.role);
+    return m.status === 'active' && 
+           role !== 'supervisor' &&
+           role !== 'viewer' &&
+           role !== 'tester' &&
+           role !== 'employee';
+  })
 );
 
 const completedToday = computed(() => {

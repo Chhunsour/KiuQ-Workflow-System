@@ -31,7 +31,7 @@
         </div>
       </div>
 
-      <div v-if="isAdmin" class="ei-col">
+      <div v-if="isManager" class="ei-col">
         <label class="ei-label">Assigned member</label>
         <select v-model="form.assignedTo" class="ei-input">
           <option value="">Unassigned</option>
@@ -116,6 +116,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useQualityCheckStore, type QualityIssueStatus } from '@/stores/qualityCheck';
 import type { Member } from '@/stores/data';
 import { optimizeImage } from '@/utils/imageOptimizer';
+import { useTaskAlertsStore } from '@/stores/taskAlerts';
 
 const props = defineProps<{
   open: boolean;
@@ -126,6 +127,7 @@ const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>();
 
 const auth = useAuthStore();
 const qc = useQualityCheckStore();
+const taskAlertsStore = useTaskAlertsStore();
 
 const ACCEPT_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -133,23 +135,20 @@ const MAX_BYTES = 5 * 1024 * 1024;
 const issue = computed(() =>
   props.issueId ? qc.issues.find((i) => i.id === props.issueId) ?? null : null
 );
-const isAdmin = computed(() => auth.isAdmin);
-const isAssistantHead = computed(() => auth.isAssistantHead);
-const canApprove = computed(() => isAdmin.value || isAssistantHead.value);
-// Any non-QC team member may edit the non-structural fields
-// (title, page_url, description, screenshot, status) — matches DB migration 0065.
-const canEdit = computed(() => !auth.isQualityChecker);
+const isManager = computed(() =>
+  ['admin', 'owner', 'head', 'supervisor'].includes(auth.currentRole || '')
+);
+const canApprove = computed(() => isManager.value);
+const canEdit = computed(() => isManager.value);
 const canEditStatus = computed(() => canEdit.value);
 
 const statusOptions = computed<{ value: QualityIssueStatus; label: string }[]>(() => {
   const base: { value: QualityIssueStatus; label: string }[] = [
-    { value: 'new_issue',    label: 'New Issue' },
-    { value: 'in_progress',  label: 'In Progress' },
-    { value: 'fixed',        label: 'Fixed' },
-    { value: 'needs_review', label: 'Waiting Review' }
+    { value: 'in_progress',  label: 'Progress' },
+    { value: 'needs_review', label: 'Review' }
   ];
   if (canApprove.value) {
-    base.push({ value: 'approved', label: 'Approved' });
+    base.push({ value: 'approved', label: 'Completed' });
   }
   return base;
 });
@@ -304,6 +303,7 @@ const save = async () => {
 
   // Only admins + assistant heads may approve; others cannot save with status 'approved'.
   const nextStatus = form.status === 'approved' && !canApprove.value ? current.status : form.status;
+  const previousAssignee = current.assignedTo;
   saving.value = true;
   try {
     const ok = await qc.updateIssue(current.id, {
@@ -311,7 +311,7 @@ const save = async () => {
       pageUrl: form.pageUrl.trim(),
       description: form.description,
       screenshotUrl: form.screenshotUrl || null,
-      ...(isAdmin.value ? { assignedTo: form.assignedTo || null } : {}),
+      ...(isManager.value ? { assignedTo: form.assignedTo || null } : {}),
       ...(canEditStatus.value ? { status: nextStatus } : {})
     });
     if (!ok) {
@@ -319,6 +319,26 @@ const save = async () => {
       err.value = 'Could not update issue. Please try again.';
       return;
     }
+
+    // Auto alert trigger on reassignment
+    if (isManager.value && form.assignedTo && form.assignedTo !== previousAssignee) {
+      const sendAlert = window.confirm('Send Alert To Assignee?');
+      if (sendAlert) {
+        const alertPayload = {
+          alertId: `qc-reassign-${current.id}-${Date.now()}`,
+          alertType: 'Urgent Fix' as const,
+          title: 'QUALITY ISSUE REASSIGNED',
+          message: `A quality issue has been reassigned to you: "${form.title.trim()}"\n\nPage: ${form.pageUrl || 'No page URL'}\nAssigned By: ${auth.profile?.fullName || 'Admin'}\nPriority: High`,
+          priority: 'High' as const,
+          relatedType: 'quality_check_item' as const,
+          relatedId: current.id,
+          status: 'published' as const,
+          requireAck: true
+        };
+        void taskAlertsStore.createOrUpdateAlert(alertPayload, [form.assignedTo]);
+      }
+    }
+
     emit('saved');
     close();
   } finally {

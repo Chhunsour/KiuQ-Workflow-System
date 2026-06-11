@@ -45,25 +45,24 @@
   --card-bg: #ffffff;
   --input-bg: #ffffff;
   --soft-bg: #f4f7fb;
-  --primary: #3f8dfe;
-  --primary-hover: #2f7bea;
+  --primary: #15D6C2;
+  --primary-hover: #13c7b5;
   --text-main: #111827;
   --text-muted: #6b7280;
   --text-soft: #9aa1ad;
   --border: #e7e9ee;
   --border-strong: #d4d8e0;
 
-  /* Selected / active surfaces — a real, visible blue tint (was missing,
-     which is why active nav + selected cards read as "off-white"). */
-  --primary-soft: #eaf2ff;
-  --primary-soft-strong: #d9e8ff;
-  --primary-ring: rgba(63, 141, 254, 0.18);
+  /* Selected / active surfaces — active nav + selected cards */
+  --primary-soft: rgba(21, 214, 194, 0.08);
+  --primary-soft-strong: rgba(21, 214, 194, 0.16);
+  --primary-ring: rgba(21, 214, 194, 0.18);
 
   /* Elevation scale — resting → hover → floating → modal. */
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 2px rgba(16, 24, 40, 0.04);
   --shadow-md: 0 4px 12px -2px rgba(16, 24, 40, 0.08), 0 2px 4px -2px rgba(16, 24, 40, 0.05);
   --shadow-lg: 0 16px 32px -10px rgba(16, 24, 40, 0.16), 0 4px 8px -4px rgba(16, 24, 40, 0.06);
-  --shadow-primary: 0 6px 16px -4px rgba(63, 141, 254, 0.40);
+  --shadow-primary: 0 6px 16px -4px rgba(21, 214, 194, 0.40);
 
   --color-bg: 255 255 255;
   --color-sidebar-bg: 255 255 255;
@@ -71,8 +70,8 @@
   --color-card-bg: 255 255 255;
   --color-input-bg: 255 255 255;
   --color-soft-bg: 244 247 251;
-  --color-primary: 63 141 254;
-  --color-primary-hover: 47 123 234;
+  --color-primary: 21 214 194;
+  --color-primary-hover: 19 199 181;
   --color-text-main: 17 24 39;
   --color-text-muted: 107 114 128;
   --color-border: 231 233 238;
@@ -86,22 +85,22 @@
   --card-bg: #2c2c2f;
   --input-bg: #232325;
   --soft-bg: #38383b;
-  --primary: #4f97ff;
-  --primary-hover: #6aa9ff;
+  --primary: #15D6C2;
+  --primary-hover: #13c7b5;
   --text-main: #f4f4f5;
   --text-muted: #b6b8bd;
   --text-soft: #85878d;
   --border: #3c3c40;
   --border-strong: #4d4d52;
 
-  --primary-soft: rgba(79, 151, 255, 0.16);
-  --primary-soft-strong: rgba(79, 151, 255, 0.26);
-  --primary-ring: rgba(79, 151, 255, 0.32);
+  --primary-soft: rgba(21, 214, 194, 0.16);
+  --primary-soft-strong: rgba(21, 214, 194, 0.26);
+  --primary-ring: rgba(21, 214, 194, 0.32);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30);
   --shadow-md: 0 6px 16px -4px rgba(0, 0, 0, 0.45), 0 2px 6px -2px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 20px 40px -12px rgba(0, 0, 0, 0.62), 0 6px 14px -6px rgba(0, 0, 0, 0.45);
-  --shadow-primary: 0 6px 18px -4px rgba(79, 151, 255, 0.45);
+  --shadow-primary: 0 6px 18px -4px rgba(21, 214, 194, 0.45);
 
   --color-bg: 31 31 33;
   --color-sidebar-bg: 38 38 40;
@@ -109,8 +108,8 @@
   --color-card-bg: 44 44 47;
   --color-input-bg: 35 35 37;
   --color-soft-bg: 56 56 59;
-  --color-primary: 79 151 255;
-  --color-primary-hover: 106 169 255;
+  --color-primary: 21 214 194;
+  --color-primary-hover: 19 199 181;
   --color-text-main: 244 244 245;
   --color-text-muted: 182 184 189;
   --color-border: 60 60 64;
@@ -396,6 +395,21 @@
     width: 3px;
     border-radius: 0 3px 3px 0;
     background: var(--primary);
+  }
+
+  .nav-group-active-parent,
+  .nav-group-active-parent:hover {
+    color: var(--text-main);
+    font-weight: 700;
+  }
+  .nav-group-active-parent {
+    background: transparent;
+  }
+  .nav-group-active-parent:hover {
+    background: var(--soft-bg);
+  }
+  .nav-group-active-parent svg {
+    color: var(--primary);
   }
 
   /* Small uppercase section label for grouping nav / dense layouts. */

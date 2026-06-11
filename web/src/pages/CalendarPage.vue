@@ -64,6 +64,7 @@ import MonthSelector from '@/components/board/MonthSelector.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
 import { useFollowupStore } from '@/stores/followup';
+import { normalizeRole } from '@/lib/roles';
 
 const auth = useAuthStore();
 const data = useDataStore();
@@ -127,21 +128,109 @@ const eventsByDate = computed(() => {
     });
   });
 
-  // Followups
-  followup.blogSlots.forEach((s) => push(s.scheduledDate?.slice(0, 10), {
-    key: `blog:${s.id}`, title: 'Blog followup', kind: 'blog', to: '/followup/blog', done: s.status === 'done' || s.status === 'late',
-  }));
-  followup.pluginSlots.forEach((s) => push(s.weekStart?.slice(0, 10), {
-    key: `plugin:${s.id}`, title: 'Plugin update', kind: 'plugin', to: '/followup/plugins', done: s.status === 'done',
-  }));
-  followup.speedSlots.forEach((s) => push(s.weekStart?.slice(0, 10), {
-    key: `speed:${s.id}`, title: 'Speed check', kind: 'speed', to: '/followup/speed-optimization', done: s.status === 'done',
-  }));
+  // Group and roll up followups
+  const ownWebsites = isAdmin ? data.websites : data.websites.filter((w) => w.createdBy === me);
+  const ownWebsiteIds = new Set(ownWebsites.map((w) => w.id));
+
+  const blogRollup = new Map<string, { total: number; done: number }>();
+  const pluginRollup = new Map<string, { total: number; done: number }>();
+  const speedRollup = new Map<string, { total: number; done: number }>();
+  const ebayRollup = new Map<string, { total: number; done: number }>();
+
+  // Rollup Blog Slots
+  followup.blogSlots.forEach((s) => {
+    if (!s.scheduledDate) return;
+    const dateStr = s.scheduledDate.slice(0, 10);
+    if (!isAdmin && !ownWebsiteIds.has(s.websiteId)) return;
+    const stats = blogRollup.get(dateStr) || { total: 0, done: 0 };
+    stats.total++;
+    if (s.status === 'done' || s.status === 'late') stats.done++;
+    blogRollup.set(dateStr, stats);
+  });
+
+  // Rollup Plugin Slots
+  followup.pluginSlots.forEach((s) => {
+    if (!s.weekStart) return;
+    const dateStr = s.weekStart.slice(0, 10);
+    if (!isAdmin && !ownWebsiteIds.has(s.websiteId)) return;
+    const stats = pluginRollup.get(dateStr) || { total: 0, done: 0 };
+    stats.total++;
+    if (s.status === 'done') stats.done++;
+    pluginRollup.set(dateStr, stats);
+  });
+
+  // Rollup Speed Slots
+  followup.speedSlots.forEach((s) => {
+    if (!s.weekStart) return;
+    const dateStr = s.weekStart.slice(0, 10);
+    if (!isAdmin && !ownWebsiteIds.has(s.websiteId)) return;
+    const stats = speedRollup.get(dateStr) || { total: 0, done: 0 };
+    stats.total++;
+    if (s.status === 'done') stats.done++;
+    speedRollup.set(dateStr, stats);
+  });
+
+  // Rollup eBay Clicks
+  const activeMembersCount = data.members.filter((m) => {
+    const role = normalizeRole(m.role);
+    return m.status === 'active' && 
+           role !== 'supervisor' &&
+           role !== 'viewer' &&
+           role !== 'tester' &&
+           role !== 'employee';
+  }).length;
+  const totalEbayRequired = isAdmin ? activeMembersCount : 1;
+
   followup.ebayEntries
     .filter((e) => isAdmin || e.userId === me)
-    .forEach((e) => push(e.date?.slice(0, 10), {
-      key: `ebay:${e.id}`, title: 'eBay click', kind: 'ebay', to: '/followup/ebay-click', done: e.status === 'done',
-    }));
+    .forEach((e) => {
+      if (!e.date) return;
+      const dateStr = e.date.slice(0, 10);
+      const stats = ebayRollup.get(dateStr) || { total: totalEbayRequired, done: 0 };
+      if (e.status === 'done') stats.done++;
+      ebayRollup.set(dateStr, stats);
+    });
+
+  // Push rollups into map
+  blogRollup.forEach((stats, dateStr) => {
+    push(dateStr, {
+      key: `blog:${dateStr}`,
+      title: `Blogs: ${stats.done}/${stats.total}`,
+      kind: 'blog',
+      to: '/followup/blog',
+      done: stats.done === stats.total,
+    });
+  });
+
+  pluginRollup.forEach((stats, dateStr) => {
+    push(dateStr, {
+      key: `plugin:${dateStr}`,
+      title: `Plugins: ${stats.done}/${stats.total}`,
+      kind: 'plugin',
+      to: '/followup/plugins',
+      done: stats.done === stats.total,
+    });
+  });
+
+  speedRollup.forEach((stats, dateStr) => {
+    push(dateStr, {
+      key: `speed:${dateStr}`,
+      title: `Speed: ${stats.done}/${stats.total}`,
+      kind: 'speed',
+      to: '/followup/speed-optimization',
+      done: stats.done === stats.total,
+    });
+  });
+
+  ebayRollup.forEach((stats, dateStr) => {
+    push(dateStr, {
+      key: `ebay:${dateStr}`,
+      title: `eBay: ${stats.done}/${stats.total}`,
+      kind: 'ebay',
+      to: '/followup/ebay-click',
+      done: stats.done === stats.total,
+    });
+  });
 
   return map;
 });
@@ -175,6 +264,8 @@ const loadAll = async () => {
     data.fetchSectionTasks(),
     data.fetchProjects(),
     data.fetchPrompts(),
+    data.fetchMembers(),
+    data.fetchWebsites(),
     followup.fetchBlogSlots(),
     followup.fetchPluginSlots(),
     followup.fetchSpeedSlots(),

@@ -186,9 +186,23 @@ const headerRef = ref<HTMLElement | null>(null);
 const modKey = computed(() => (typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+'));
 const openCommandPalette = () => window.dispatchEvent(new Event('open-command-palette'));
 const visibleNavItems = computed(() => {
-  if (auth.isAdmin) return adminNavItems;
-  if (auth.isQualityChecker) return qualityCheckerNavItems;
-  return memberNavItems;
+  let items = auth.isAdmin
+    ? adminNavItems
+    : auth.isQualityChecker
+      ? qualityCheckerNavItems
+      : memberNavItems;
+
+  if (!auth.isHeadOrSupervisor) {
+    items = items.filter((item) => !item.isExecutiveOnly);
+  }
+
+  const userRole = auth.profile?.role ? auth.profile.role.trim().toLowerCase() : '';
+  const isTaskAlertManager = userRole === 'admin' || userRole === 'owner' || userRole === 'head';
+  if (!isTaskAlertManager) {
+    items = items.filter((item) => !item.isTaskAlertManagerOnly);
+  }
+
+  return items;
 });
 
 const pageTitle = computed(() => {
@@ -263,6 +277,7 @@ const startNotificationPolling = () => {
   console.log('[notification] current user id', auth.user.id);
   void notifs.fetchUnreadCount();
   void notifs.fetchNotifications(20);
+  void notifs.fetchPreferences();
   pollTimer = setInterval(() => {
     if (auth.user?.id) void notifs.fetchUnreadCount();
   }, 30_000);

@@ -124,6 +124,7 @@ export interface BoardCard extends BoardExtra {
 export const BOARD_COLUMNS: BoardColumn[] = [
   { key: 'to_do', title: 'To Do', helper: 'Assigned but not started.', color: '#9ca3af' },
   { key: 'in_progress', title: 'In Progress', helper: 'Work currently active.', color: '#2563eb' },
+  { key: 'postpone', title: 'Postpone', helper: 'Tasks paused for urgent work.', color: '#8b5cf6' },
   { key: 'waiting_review', title: 'Waiting Review', helper: 'Submitted to admin.', color: '#f97316' },
   { key: 'needs_fix', title: 'Needs Fix', helper: 'Admin requested changes.', color: '#ef4444' },
   { key: 'completed', title: 'Completed', helper: 'Approved or done.', color: '#16a34a' }

@@ -19,6 +19,28 @@
     <!-- Priority accent strip — immediately readable on the left edge -->
     <span class="tc-priority-strip" aria-hidden="true" />
 
+    <!-- Manager Options Dropdown Menu -->
+    <div v-if="isManager" class="tc-menu-container" @click.stop>
+      <button
+        class="tc-menu-trigger"
+        type="button"
+        title="Task actions"
+        @click.stop="toggleMenu"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+        </svg>
+      </button>
+      <div v-if="menuOpen" class="tc-menu-dropdown">
+        <button class="tc-menu-item" type="button" @click.stop="handleEdit">Edit</button>
+        <button class="tc-menu-item" type="button" @click.stop="handleAssign">Assign</button>
+        <button class="tc-menu-item" type="button" @click.stop="handleAlert">Send Alert</button>
+        <button class="tc-menu-item" type="button" @click.stop="handleReceipts">View Receipts</button>
+        <div class="tc-menu-divider" />
+        <button class="tc-menu-item tc-menu-item--danger" type="button" @click.stop="handleArchive">Archive</button>
+      </div>
+    </div>
+
     <!-- Optional cover image -->
     <div v-if="imageUrl" class="tc-image-container">
       <img class="tc-cover" :src="imageUrl" :alt="card.title" loading="lazy" />
@@ -57,6 +79,28 @@
         :column-key="card.columnKey"
         compact
       />
+    </div>
+
+    <!-- Alert Tracking Panel -->
+    <div v-if="isManager && receiptSummary && receiptSummary.delivered > 0" class="tc-tracking-panel" @click.stop>
+      <div class="tc-tracking-header">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Alert Status
+      </div>
+      <div class="tc-tracking-stats">
+        <span>Delivered: <strong>Yes</strong></span>
+        <span>Opened: <strong>{{ receiptSummary.opened > 0 ? 'Yes' : 'No' }}</strong></span>
+        <span>Acked: <strong>{{ receiptSummary.acknowledged === receiptSummary.delivered ? 'Yes' : 'No' }}</strong></span>
+      </div>
+      <div v-if="receiptSummary.lastAlertAt" class="tc-tracking-time">
+        Last Alert: <strong>{{ formattedAlertDate(receiptSummary.lastAlertAt) }}</strong>
+      </div>
+      <div class="tc-tracking-actions">
+        <button class="tc-track-btn" type="button" @click.stop="handleReceipts">View Receipts</button>
+        <button class="tc-track-btn" type="button" :disabled="repushingAlerts || receiptSummary.pending === 0" @click.stop="handleRepush">
+          {{ repushingAlerts ? 'Nudging...' : 'Repush' }}
+        </button>
+      </div>
     </div>
 
     <!-- Footer: member + open button -->
@@ -109,22 +153,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import TaskDeadlineBadge from '@/components/ui/TaskDeadlineBadge.vue';
 import TaskImagePreviewModal from '@/components/board/TaskImagePreviewModal.vue';
 import { useImagePreviewStore } from '@/stores/imagePreview';
-
-const previewStore = useImagePreviewStore();
-const openPhotoPreview = () => {
-  if (primaryMember.value?.avatarUrl) {
-    previewStore.triggerPreview({
-      avatarUrl: primaryMember.value.avatarUrl,
-      fullName: primaryMember.value.fullName || primaryMember.value.email || 'Member',
-      email: primaryMember.value.email,
-      role: primaryMember.value.role
-    });
-  }
-};
+import { useAuthStore } from '@/stores/auth';
+import { useTaskAlertsStore } from '@/stores/taskAlerts';
 import { useDataStore, type Member } from '@/stores/data';
 
 interface CardData {
@@ -139,6 +173,7 @@ interface CardData {
   columnKey: string;
   priority?: 'low' | 'normal' | 'high' | 'urgent';
   websiteName?: string;
+  assignedMemberId?: string | null;
   assignment: {
     assignedBy?: string | null;
     createdBy?: string | null;
@@ -154,13 +189,119 @@ const props = defineProps<{
   canDrag: boolean;
 }>();
 
-const data = useDataStore();
-
-defineEmits<{
+const emit = defineEmits<{
   open: [];
   dragstart: [];
   dragend: [];
 }>();
+
+const previewStore = useImagePreviewStore();
+const auth = useAuthStore();
+const alertsStore = useTaskAlertsStore();
+const data = useDataStore();
+
+const isManager = computed(() =>
+  ['admin', 'owner', 'head', 'supervisor'].includes(auth.currentRole || '')
+);
+
+const menuOpen = ref(false);
+const repushingAlerts = ref(false);
+const receiptSummary = ref<any>(null);
+
+const toggleMenu = () => {
+  menuOpen.value = !menuOpen.value;
+  if (menuOpen.value) {
+    document.addEventListener('click', closeMenu);
+  }
+};
+
+const closeMenu = () => {
+  menuOpen.value = false;
+  document.removeEventListener('click', closeMenu);
+};
+
+const loadReceiptSummary = async () => {
+  if (!isManager.value) return;
+  const res = await alertsStore.fetchLinkedReceiptSummary('workboard_task', props.card.id);
+  receiptSummary.value = res;
+};
+
+const handleRepush = async () => {
+  repushingAlerts.value = true;
+  const ok = await alertsStore.repushAlertsForLinkedItem('workboard_task', props.card.id);
+  if (ok) {
+    await loadReceiptSummary();
+  }
+  repushingAlerts.value = false;
+};
+
+const handleEdit = () => {
+  closeMenu();
+  emit('open');
+};
+
+const handleAssign = () => {
+  closeMenu();
+  emit('open');
+};
+
+const handleAlert = () => {
+  closeMenu();
+  alertsStore.openSendAlertModal({
+    type: 'workboard_task',
+    id: props.card.id,
+    title: props.card.title,
+    assigneeId: props.card.assignedMemberId
+  });
+};
+
+const handleReceipts = () => {
+  closeMenu();
+  alertsStore.openReceiptsModal({
+    type: 'workboard_task',
+    id: props.card.id,
+    title: props.card.title
+  });
+};
+
+const handleArchive = async () => {
+  closeMenu();
+  if (window.confirm('Are you sure you want to archive this task card?')) {
+    const ok = await data.archiveAssignment(props.card.id);
+    if (!ok) {
+      alert('Could not archive task: ' + (data.errors.assignments || ''));
+    }
+  }
+};
+
+const formattedAlertDate = (dStr?: string | null) => {
+  if (!dStr) return '—';
+  try {
+    const d = new Date(dStr);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '—';
+  }
+};
+
+onMounted(() => {
+  loadReceiptSummary();
+});
+
+watch(() => props.card.status, () => {
+  loadReceiptSummary();
+});
+
+const openPhotoPreview = () => {
+  if (primaryMember.value?.avatarUrl) {
+    previewStore.triggerPreview({
+      avatarUrl: primaryMember.value.avatarUrl,
+      fullName: primaryMember.value.fullName || primaryMember.value.email || 'Member',
+      email: primaryMember.value.email,
+      role: primaryMember.value.role
+    });
+  }
+};
 
 const primaryMember = computed(() => props.members[0] ?? null);
 
@@ -594,5 +735,162 @@ const createdBy = computed(() => {
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* ── Manager Dropdown menu options ── */
+.tc-menu-container {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+}
+
+.tc-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tc-menu-trigger:hover {
+  background: rgba(15, 23, 42, 0.75);
+  color: #fff;
+}
+
+.tc-menu-dropdown {
+  position: absolute;
+  top: 1.95rem;
+  right: 0;
+  width: 130px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  z-index: 20;
+}
+
+.tc-menu-item {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tc-menu-item:hover {
+  background: var(--soft-bg);
+  color: var(--primary);
+}
+
+.tc-menu-item--danger {
+  color: #ef4444;
+}
+
+.tc-menu-item--danger:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+.tc-menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0.15rem 0;
+}
+
+/* ── Tracking Panel ── */
+.tc-tracking-panel {
+  margin: 0.6rem 0.9rem 0;
+  padding: 0.6rem 0.7rem;
+  background: var(--soft-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.7rem;
+}
+
+.tc-tracking-header {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  color: var(--text-main);
+  text-transform: uppercase;
+  font-size: 0.64rem;
+  margin-bottom: 0.35rem;
+}
+
+.tc-tracking-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.2rem;
+  color: var(--text-muted);
+}
+
+.tc-tracking-stats span {
+  display: block;
+}
+
+.tc-tracking-stats strong {
+  color: var(--text-main);
+}
+
+.tc-tracking-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.tc-track-btn {
+  flex: 1;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 750;
+  padding: 0.2rem 0;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tc-track-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.tc-track-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tc-tracking-time {
+  display: block;
+  font-size: 0.64rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 0.3rem;
+  margin-top: 0.3rem;
 }
 </style>

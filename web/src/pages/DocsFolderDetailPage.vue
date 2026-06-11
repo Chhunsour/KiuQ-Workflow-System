@@ -133,6 +133,7 @@
                 type="text"
                 placeholder="Untitled"
                 maxlength="200"
+                :disabled="auth.isViewer"
                 @input="onTitleInput"
                 @blur="flushTitle"
               />
@@ -162,7 +163,7 @@
                 <span class="dfd-action-label">{{ copyLabel }}</span>
               </button>
               <!-- Duplicate -->
-              <button class="dfd-action-btn" type="button" title="Duplicate" @click="duplicateDoc">
+              <button v-if="!auth.isViewer" class="dfd-action-btn" type="button" title="Duplicate" @click="duplicateDoc">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/><rect x="11" y="11" width="11" height="11" rx="2"/></svg>
                 <span class="dfd-action-label">Duplicate</span>
               </button>
@@ -172,7 +173,7 @@
                 <span class="dfd-action-label">Delete</span>
               </button>
               <!-- Manual save -->
-              <button class="dfd-action-btn dfd-action-btn--save" type="button" :disabled="saveStatus === 'saving'" @click="saveNow">
+              <button v-if="!auth.isViewer" class="dfd-action-btn dfd-action-btn--save" type="button" :disabled="saveStatus === 'saving'" @click="saveNow">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 <span class="dfd-action-label">Save</span>
               </button>
@@ -187,6 +188,7 @@
               class="dfd-editor"
               placeholder="Start writing…"
               spellcheck="true"
+              :readonly="auth.isViewer"
               @input="onContentInput"
               @paste="onPaste"
             />
@@ -412,6 +414,7 @@ const setRenameInputRef = (el: unknown, id: string) => {
 };
 
 const startRename = (doc: DocsFile) => {
+  if (auth.isViewer) return;
   renamingDocId.value = doc.id;
   renameDraft.value   = doc.title || '';
   nextTick(() => {
@@ -505,6 +508,7 @@ const selectDoc = (doc: DocsFile, focusTitle = false) => {
 
 // ── Permissions ───────────────────────────────────────────────────────────────
 const canWrite = computed(() => {
+  if (auth.isViewer) return false;
   if (!folder.value) return false;
   if (auth.isAdmin) return true;
   if (folder.value.createdBy === auth.user?.id) return true;
@@ -514,6 +518,7 @@ const canWrite = computed(() => {
 });
 
 const canDeleteDoc = computed(() => {
+  if (auth.isViewer) return false;
   if (!activeDoc.value) return false;
   return auth.isAdmin || activeDoc.value.createdBy === auth.user?.id;
 });
