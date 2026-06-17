@@ -67,8 +67,15 @@ export const isHeadOrSupervisorRole = (input: RoleInput) => {
   return normalized === 'head' || normalized === 'supervisor';
 };
 
-/** Head only (excludes Supervisor, Assistant Head, and legacy admin/owner). */
-export const isHeadRole = (input: RoleInput) => normalizeRole(input) === 'head';
+/**
+ * Owner / Admin / Head — the roles allowed to run the Winner Center.
+ * Deliberately EXCLUDES Supervisor (and everyone below). Note this is
+ * narrower than isAdminRole(), which also includes Supervisor.
+ */
+export const isOwnerAdminOrHeadRole = (input: RoleInput) => {
+  const normalized = normalizeRole(input);
+  return normalized === 'admin' || normalized === 'owner' || normalized === 'head';
+};
 
 /** Assistant Head — uses the team-member dashboard but with extra
  *  Quality Check approval power. Wired up in the next QC pass. */

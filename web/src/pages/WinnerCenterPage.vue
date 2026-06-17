@@ -1,5 +1,5 @@
 <template>
-  <div v-if="auth.isHead" class="wc-page">
+  <div v-if="auth.canAccessWinnerCenter" class="wc-page">
     <!-- ══ 1. Header ══ -->
     <header class="wc-header">
       <div class="wc-header-left">
@@ -404,7 +404,7 @@
       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
     </svg>
     <h2>Access Restricted</h2>
-    <p>The Winner Center is available only to the Head role.</p>
+    <p>The Winner Center is available only to Owner, Admin, and Head roles.</p>
   </div>
 </template>
 
@@ -861,7 +861,7 @@ const scrollToReview = () => {
 watch(selectedMonth, loadLeaderboard);
 
 onMounted(async () => {
-  if (!auth.isHead) return;
+  if (!auth.canAccessWinnerCenter) return;
   await fetchProfiles();
   await Promise.all([store.fetchAll(), loadLeaderboard()]);
 });

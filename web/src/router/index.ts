@@ -192,8 +192,25 @@ const routes: RouteRecordRaw[] = [
       // ── Command Center (Executive OS) ───────────────────────────────────────
       { path: 'command-center', name: 'command-center', meta: { requiresAuth: true, roles: ['head', 'supervisor'] as Role[] }, component: () => import('@/pages/CommandCenterPage.vue') },
 
-      // ── Winner Center (Head-only monthly reward system) ──────────────────────
-      { path: 'winner-center', name: 'winner-center', meta: { requiresAuth: true, roles: ['head'] as Role[] }, component: () => import('@/pages/WinnerCenterPage.vue') }
+      // ── Winner Center (Owner/Admin/Head monthly reward system) ───────────────
+      // Owner/Admin/Head only — Supervisor and below are excluded. A custom
+      // guard is used because the `roles: ['admin']` meta token expands to
+      // include Supervisor (via isAdminRole), which we must keep out here.
+      {
+        path: 'winner-center',
+        name: 'winner-center',
+        meta: { requiresAuth: true },
+        component: () => import('@/pages/WinnerCenterPage.vue'),
+        beforeEnter: (to, from, next) => {
+          const auth = useAuthStore();
+          const role = normalizeRole(auth.profile?.role);
+          if (role === 'admin' || role === 'owner' || role === 'head') {
+            next();
+          } else {
+            next(homePathForRole(auth.profile?.role || null));
+          }
+        }
+      }
     ]
   },
   {

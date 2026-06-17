@@ -219,9 +219,9 @@ const visibleNavItems = computed(() => {
     items = items.filter((item) => !item.isExecutiveOnly);
   }
 
-  // Head-only surfaces (e.g. Winner Center) are hidden from Supervisor too.
-  if (!auth.isHead) {
-    items = items.filter((item) => !item.isHeadOnly);
+  // Winner Center — Owner/Admin/Head only (Supervisor & below excluded).
+  if (!auth.canAccessWinnerCenter) {
+    items = items.filter((item) => !item.isWinnerCenterOnly);
   }
 
   const userRole = auth.profile?.role ? auth.profile.role.trim().toLowerCase() : '';
@@ -241,6 +241,20 @@ const visibleNavItems = computed(() => {
       return item;
     });
   }
+
+  // Drop a section label when the previous visible item already opened the
+  // same section — so filtered-out items (e.g. Command Center hidden from
+  // owner/admin) never leave a duplicate or orphaned "Executive" header.
+  let lastSection = '';
+  items = items.map((item) => {
+    if (item.section && item.section === lastSection) {
+      const { section: _drop, ...rest } = item;
+      return rest;
+    }
+    if (item.section) lastSection = item.section;
+    return item;
+  });
+
   return items;
 });
 const initials = computed(() => {

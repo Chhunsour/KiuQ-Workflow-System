@@ -7,8 +7,8 @@ export interface NavItem {
   /** When set, a small uppercase section label renders above this item. */
   section?: string;
   isExecutiveOnly?: boolean;
-  /** Head-only surface (excludes Supervisor). Stricter than isExecutiveOnly. */
-  isHeadOnly?: boolean;
+  /** Winner Center surface — Owner/Admin/Head only (excludes Supervisor & below). */
+  isWinnerCenterOnly?: boolean;
   isLocked?: boolean;
   isTaskAlertManagerOnly?: boolean;
 }
@@ -111,7 +111,7 @@ export const adminNavItems: NavItem[] = [
 
   // ── EXECUTIVE ──
   { section: 'Executive', label: 'Command Center', to: '/command-center', icon: ICON.commandCenter, isExecutiveOnly: true },
-  { label: 'Winner Center', to: '/winner-center', icon: ICON.winnerCenter, isHeadOnly: true },
+  { section: 'Executive', label: 'Winner Center', to: '/winner-center', icon: ICON.winnerCenter, isWinnerCenterOnly: true },
 
   // ── OPERATIONS ──
   { section: 'Operations', label: 'Work Board', to: '/work-board', icon: ICON.board, children: workBoardChildren },
