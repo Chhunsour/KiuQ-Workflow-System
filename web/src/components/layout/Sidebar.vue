@@ -219,6 +219,11 @@ const visibleNavItems = computed(() => {
     items = items.filter((item) => !item.isExecutiveOnly);
   }
 
+  // Head-only surfaces (e.g. Winner Center) are hidden from Supervisor too.
+  if (!auth.isHead) {
+    items = items.filter((item) => !item.isHeadOnly);
+  }
+
   const userRole = auth.profile?.role ? auth.profile.role.trim().toLowerCase() : '';
   const isTaskAlertManager = userRole === 'admin' || userRole === 'owner' || userRole === 'head';
   if (!isTaskAlertManager) {

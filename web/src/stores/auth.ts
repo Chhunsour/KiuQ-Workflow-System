@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, supabaseConfigured } from '@/lib/supabase';
 import { profileToMember, type ProfileRow } from '@/lib/db';
-import { isAdminRole, isApprovedStatus, isAssistantHeadRole, isHeadOrSupervisorRole, isMemberRole, isQualityCheckerRole, isViewerRole, normalizeRole } from '@/lib/roles';
+import { isAdminRole, isApprovedStatus, isAssistantHeadRole, isHeadOrSupervisorRole, isHeadRole, isMemberRole, isQualityCheckerRole, isViewerRole, normalizeRole } from '@/lib/roles';
 import type { ActivityAction, ActivityLog, Member } from '@/stores/data';
 
 type PresenceStatus = 'online' | 'away' | 'offline';
@@ -76,6 +76,8 @@ export const useAuthStore = defineStore('auth', () => {
    *  Quality Check approval power (wired up in the QC approval pass). */
   const isAssistantHead = computed(() => isAssistantHeadRole(profile.value?.role));
   const isHeadOrSupervisor = computed(() => isHeadOrSupervisorRole(profile.value?.role));
+  /** Head only — excludes Supervisor/Assistant Head/admin/owner. Used by Head-exclusive surfaces (e.g. Winner Center). */
+  const isHead = computed(() => isHeadRole(profile.value?.role));
   // `isMember` used to be `!isAdmin`, which incorrectly treated a Quality
   // Checker as a member and granted them every member surface. Now an
   // explicit role check — a QC is *not* a member. AH IS a member-class
@@ -754,6 +756,7 @@ export const useAuthStore = defineStore('auth', () => {
     currentRole,
     isAdmin,
     isHeadOrSupervisor,
+    isHead,
     isMember,
     isViewer,
     isAssistantHead,

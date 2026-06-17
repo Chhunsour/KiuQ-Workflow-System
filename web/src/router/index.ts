@@ -190,7 +190,10 @@ const routes: RouteRecordRaw[] = [
       },
 
       // ── Command Center (Executive OS) ───────────────────────────────────────
-      { path: 'command-center', name: 'command-center', meta: { requiresAuth: true, roles: ['head', 'supervisor'] as Role[] }, component: () => import('@/pages/CommandCenterPage.vue') }
+      { path: 'command-center', name: 'command-center', meta: { requiresAuth: true, roles: ['head', 'supervisor'] as Role[] }, component: () => import('@/pages/CommandCenterPage.vue') },
+
+      // ── Winner Center (Head-only monthly reward system) ──────────────────────
+      { path: 'winner-center', name: 'winner-center', meta: { requiresAuth: true, roles: ['head'] as Role[] }, component: () => import('@/pages/WinnerCenterPage.vue') }
     ]
   },
   {

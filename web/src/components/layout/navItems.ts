@@ -7,6 +7,8 @@ export interface NavItem {
   /** When set, a small uppercase section label renders above this item. */
   section?: string;
   isExecutiveOnly?: boolean;
+  /** Head-only surface (excludes Supervisor). Stricter than isExecutiveOnly. */
+  isHeadOnly?: boolean;
   isLocked?: boolean;
   isTaskAlertManagerOnly?: boolean;
 }
@@ -47,7 +49,8 @@ const ICON = {
   activity: svg('<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>'),
   settings: svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
   profile: svg('<path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/>'),
-  commandCenter: svg('<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>')
+  commandCenter: svg('<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>'),
+  winnerCenter: svg('<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8S13 3 16.5 3a2.5 2.5 0 0 1 0 5"/>')
 };
 
 const workBoardChildren: NavItem[] = [
@@ -108,6 +111,7 @@ export const adminNavItems: NavItem[] = [
 
   // ── EXECUTIVE ──
   { section: 'Executive', label: 'Command Center', to: '/command-center', icon: ICON.commandCenter, isExecutiveOnly: true },
+  { label: 'Winner Center', to: '/winner-center', icon: ICON.winnerCenter, isHeadOnly: true },
 
   // ── OPERATIONS ──
   { section: 'Operations', label: 'Work Board', to: '/work-board', icon: ICON.board, children: workBoardChildren },

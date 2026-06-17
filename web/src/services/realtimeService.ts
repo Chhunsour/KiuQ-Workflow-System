@@ -10,11 +10,13 @@ import { useCmsProductsStore } from '@/stores/cmsProducts';
 import { useCmsBlogPostsStore } from '@/stores/cmsBlogPosts';
 import { useBlogImageCenterStore } from '@/stores/blogImageCenter';
 import { useCommandCenterStore } from '@/stores/commandCenter';
+import { useWinnerCenterStore } from '@/stores/winnerCenter';
 
 const FOLLOWUP_TABLES = new Set(['blog_upload_slots', 'blog_followup_schedules', 'plugin_update_slots', 'speed_optimization_slots', 'ebay_click_followup']);
 const QUALITY_TABLES  = new Set(['quality_issues', 'quality_issue_comments', 'quality_classes']);
 const CMS_TABLES      = new Set(['cms_products', 'cms_blog_posts']);
 const BLOG_IMAGE_TABLES = new Set(['blog_images', 'blog_image_prompts', 'blog_image_workflows']);
+const WINNER_CENTER_TABLES = new Set(['winner_center_prizes', 'winner_center_monthly_winners', 'winner_center_wheel_spins']);
 
 export type RealtimeStatus = 'idle' | 'live' | 'reconnecting' | 'offline';
 
@@ -179,6 +181,9 @@ const handlePayload = (payload: RealtimePayload) => {
   } else if (payload.table === 'command_center_entries' || payload.table === 'command_center_metrics') {
     const cc = useCommandCenterStore();
     cc.handleRealtimePayload(payload);
+  } else if (WINNER_CENTER_TABLES.has(payload.table)) {
+    const wc = useWinnerCenterStore();
+    wc.handleRealtimePayload(payload);
   } else {
     const data = useDataStore();
     if (typeof data.handleRealtimePayload === 'function') {

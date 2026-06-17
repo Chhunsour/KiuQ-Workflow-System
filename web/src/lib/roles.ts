@@ -67,6 +67,9 @@ export const isHeadOrSupervisorRole = (input: RoleInput) => {
   return normalized === 'head' || normalized === 'supervisor';
 };
 
+/** Head only (excludes Supervisor, Assistant Head, and legacy admin/owner). */
+export const isHeadRole = (input: RoleInput) => normalizeRole(input) === 'head';
+
 /** Assistant Head — uses the team-member dashboard but with extra
  *  Quality Check approval power. Wired up in the next QC pass. */
 export const isAssistantHeadRole = (input: RoleInput) => {
