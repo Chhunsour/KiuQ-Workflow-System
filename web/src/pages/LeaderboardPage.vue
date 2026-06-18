@@ -123,7 +123,7 @@
                   <p class="lb-showcase-msg">Congratulations! You won this month's reward spin.</p>
                 </div>
               </div>
-              <div v-else class="lb-wheel-stage-lb">
+              <div v-else class="lb-wheel-stage-lb" :class="{ 'lb-winding-up': buildingUp, 'lb-spinning-live': spinning }">
                 <!-- Top Pointer -->
                 <div class="lb-wheel-pointer-container-lb">
                   <svg 
@@ -737,6 +737,7 @@ const spinningTest = ref(false);
 const spinningOfficial = ref(false);
 const wheelRotation = ref(0);
 const winningIndex = ref<number | null>(null);
+const buildingUp = ref(false);
 const flashActive = ref(false);
 const showWinnerHighlight = ref(false);
 
@@ -1017,13 +1018,19 @@ onUnmounted(() => {
 });
 
 // Physics & Animation
-const runSpinAnimation = async (winningPrizeId: string): Promise<number> => {
+const runSpinAnimation = async (winningPrizeId: string, durationMs = 8500): Promise<number> => {
   spinning.value = true;
   winningIndex.value = null;
   flashActive.value = false;
   showWinnerHighlight.value = false;
 
   stopIdleRotation();
+
+  // ── Build-up: glow on + energy pulse + start sound, then launch ──
+  soundSystem.playStart();
+  buildingUp.value = true;
+  await new Promise((r) => setTimeout(r, 520));
+  buildingUp.value = false;
 
   const list = activePrizes.value;
   const n = list.length;
@@ -1044,11 +1051,9 @@ const runSpinAnimation = async (winningPrizeId: string): Promise<number> => {
   const additionalRotation = (landing - currentAngleModulo + 360) % 360;
   const targetRot = startRot + 360 * fullSpins + additionalRotation;
 
-  soundSystem.playStart();
-
   return new Promise<number>((resolve) => {
     let startTime: number | null = null;
-    const duration = 8500; // 8.5 seconds
+    const duration = durationMs;
     let lastRot = startRot;
     let lastPegCrossing = Math.floor((startRot + seg / 2) / seg);
     let lastTickTime = 0;
@@ -1122,10 +1127,10 @@ const spinTest = async () => {
   spinningTest.value = true;
   testResultPrize.value = null;
 
-  // Pick a random prize
+  // Pick a random prize — practice spin is fun & quick (~5s)
   const randomPrize = list[Math.floor(Math.random() * list.length)];
-  
-  const finalIdx = await runSpinAnimation(randomPrize.id);
+
+  const finalIdx = await runSpinAnimation(randomPrize.id, 5200);
   
   soundSystem.playWin();
   showWinnerHighlight.value = true;
@@ -1172,7 +1177,8 @@ const spinOfficial = async () => {
     if (exact) chosenPrize = exact;
   }
 
-  const finalIdx = await runSpinAnimation(chosenPrize.id);
+  // Official spin is longer & more dramatic (~10s) with a slow-motion ending
+  const finalIdx = await runSpinAnimation(chosenPrize.id, 10000);
 
   const saved = await winnerStore.recordSpin({
     monthKey: selectedMonth.value,
@@ -1824,6 +1830,25 @@ const initials = (name: string) =>
     0 10px 30px rgba(15, 23, 42, 0.25),
     inset 0 0 15px rgba(255, 255, 255, 0.08);
 }
+/* Build-up wind-up: energy scale pulse + glow before launch (centered, so the
+   pointer never rotates — only the disk does). */
+.lb-winding-up .lb-wheel-svg-lb {
+  animation: lb-windup 0.52s ease-in-out;
+}
+@keyframes lb-windup {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.045); }
+  100% { transform: scale(1); }
+}
+.lb-winding-up .lb-wheel-svg-lb,
+.lb-spinning-live .lb-wheel-svg-lb {
+  box-shadow:
+    0 0 36px color-mix(in srgb, var(--primary) 70%, transparent),
+    0 0 70px color-mix(in srgb, var(--primary) 38%, transparent),
+    0 10px 30px rgba(15, 23, 42, 0.3),
+    inset 0 0 15px rgba(255, 255, 255, 0.1);
+  transition: box-shadow 0.4s ease;
+}
 .lb-wheel-svg--idle {
   animation: lb-wheel-rotate-idle 40s linear infinite;
 }
@@ -2194,6 +2219,12 @@ const initials = (name: string) =>
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: lb-prize-zoom 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes lb-prize-zoom {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 .lb-showcase-fallback {
   font-size: 2.5rem;
@@ -2331,6 +2362,7 @@ const initials = (name: string) =>
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: lb-prize-zoom 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 .wc-result-box-fallback {
   font-size: 4.5rem;

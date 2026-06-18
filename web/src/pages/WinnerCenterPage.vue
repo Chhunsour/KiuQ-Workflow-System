@@ -476,7 +476,7 @@
 
         <!-- Right Column: Large Wheel Stage -->
         <div class="wc-wheel-hero-stage">
-          <div class="wc-wheel-stage">
+          <div class="wc-wheel-stage" :class="{ 'wc-winding-up': buildingUp, 'wc-spinning-live': spinning }">
             <!-- Premium Pointer SVG with spring wiggler simulation -->
             <div class="wc-wheel-pointer-container">
               <svg 
@@ -1443,6 +1443,7 @@ const wheelRotation = ref(0);
 const spinResult = ref<WinnerPrize | null>(null);
 const wheelMode = ref<'live' | 'preview'>('live');
 const winningIndex = ref<number | null>(null);
+const buildingUp = ref(false);
 const flashActive = ref(false);
 
 // Physics states for the premium pointer
@@ -1625,10 +1626,15 @@ const spin = async () => {
   const targetRot = base + 360 * fullSpins + landing;
   winningIndex.value = idx;
 
+  // ── Build-up: glow + energy pulse + start sound, then launch ──
   soundSystem.playStart();
+  buildingUp.value = true;
+  await new Promise((r) => setTimeout(r, 520));
+  buildingUp.value = false;
 
   let startTime: number | null = null;
-  const duration = 8500; // 8.5 seconds
+  // Preview is quick & fun (~5.5s); a live/official reveal is longer & dramatic (~10s).
+  const duration = wheelMode.value === 'preview' ? 5500 : 10000;
   let lastRot = startRot;
   let lastPegCrossing = Math.floor((startRot + seg / 2) / seg);
   let lastTickTime = 0;
@@ -2206,6 +2212,23 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
 }
+/* Build-up wind-up: centered scale pulse + glow (pointer never rotates) */
+.wc-winding-up .wc-wheel-svg {
+  animation: wc-windup 0.52s ease-in-out;
+}
+@keyframes wc-windup {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+.wc-winding-up .wc-wheel-svg,
+.wc-spinning-live .wc-wheel-svg {
+  box-shadow:
+    0 0 55px color-mix(in srgb, var(--primary) 65%, transparent),
+    0 0 95px color-mix(in srgb, var(--primary) 32%, transparent),
+    0 20px 50px rgba(15, 23, 42, 0.4),
+    inset 0 0 25px rgba(255, 255, 255, 0.14);
+}
 .wc-wheel-pointer-container {
   position: absolute;
   top: -20px;
@@ -2635,6 +2658,12 @@ onMounted(async () => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: wc-prize-zoom 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes wc-prize-zoom {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 .wc-result-box-fallback {
   font-size: 4.5rem;
