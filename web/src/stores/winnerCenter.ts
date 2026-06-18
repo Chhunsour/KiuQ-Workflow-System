@@ -361,7 +361,10 @@ export const useWinnerCenterStore = defineStore('winnerCenter', () => {
     if (!supabaseConfigured) return null;
     try {
       const auth = useAuthStore();
-      const existing = winners.value.find((w) => w.monthKey === input.monthKey);
+      // Selecting (or changing) a winner always starts a fresh reward: clear any
+      // prize / spin / lock state so the new winner can spin from scratch. This
+      // matches the "Any prize won this month will be reset" confirmation and
+      // prevents a new winner from inheriting a previous (test) winner's lock.
       const row = {
         month_key: input.monthKey,
         winner_user_id: input.winnerUserId,
@@ -369,12 +372,12 @@ export const useWinnerCenterStore = defineStore('winnerCenter', () => {
         score_snapshot: input.scoreSnapshot,
         achievement_summary: input.achievementSummary,
         selected_at: nowIso(),
-        prize_id: existing?.prizeId ?? null,
-        prize_spun_at: existing?.prizeSpunAt ?? null,
-        prize_given_at: existing?.prizeGivenAt ?? null,
+        prize_id: null,
+        prize_spun_at: null,
+        prize_given_at: null,
         status: 'selected' as WinnerStatus,
-        is_retroactive: existing?.isRetroactive ?? false,
-        retroactive_reason: existing?.retroactiveReason ?? null
+        is_retroactive: false,
+        retroactive_reason: null
       };
       const { data, error: err } = await supabase
         .from('winner_center_monthly_winners')
