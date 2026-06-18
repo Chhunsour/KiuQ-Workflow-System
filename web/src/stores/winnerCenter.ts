@@ -106,7 +106,7 @@ const rowToWinner = (r: any): MonthlyWinner => ({
   status: (r.status ?? 'selected') as WinnerStatus,
   isRetroactive: r.is_retroactive === true,
   retroactiveReason: r.retroactive_reason ?? null,
-  officialPrizeMode: r.official_prize_mode ?? 'random',
+  officialPrizeMode: r.official_prize_mode ?? 'exact',
   exactPrizeId: r.exact_prize_id ?? null,
   createdAt: r.created_at,
   updatedAt: r.updated_at

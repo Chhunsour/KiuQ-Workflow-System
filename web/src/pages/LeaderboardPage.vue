@@ -344,22 +344,28 @@
               <div class="lb-spin-locked-container">
                 <!-- State Details / Info Banner -->
                 <div class="lb-spin-header-info">
-                  <!-- Case 1: User is selected winner and has NOT spun yet -->
-                  <div v-if="isCurrentUserSelectedWinner && !isPrizeSpun" class="lb-winner-badge-wrap">
+                  <!-- Case 1a: Selected winner, not spun, reward assigned & ready -->
+                  <div v-if="isCurrentUserSelectedWinner && !isPrizeSpun && officialRewardReady" class="lb-winner-badge-wrap">
                     <span class="wc-winner-badge">👑 Selected Winner</span>
-                    <span class="lb-winner-note-text">You are this month’s selected winner. Your first official spin will be locked.</span>
+                    <span class="lb-winner-note-text">You have been selected as this month’s winner. Spin to reveal your official reward.</span>
                   </div>
-                  
+
+                  <!-- Case 1b: Selected winner, not spun, Head hasn't assigned the reward yet -->
+                  <div v-else-if="isCurrentUserSelectedWinner && !isPrizeSpun && !officialRewardReady" class="lb-winner-badge-wrap">
+                    <span class="wc-winner-badge">👑 Selected Winner</span>
+                    <span class="lb-winner-note-text">You have been selected as this month’s winner. Your official reward is being prepared — check back soon.</span>
+                  </div>
+
                   <!-- Case 2: User is selected winner and HAS already spun -->
                   <div v-else-if="isCurrentUserSelectedWinner && isPrizeSpun" class="lb-winner-badge-wrap">
-                    <span class="wc-winner-badge wc-winner-badge--won">🔒 Official Locked</span>
-                    <span class="lb-winner-note-text">Official prize locked: <strong>{{ wonPrizeName(currentWinner) }}</strong></span>
+                    <span class="wc-winner-badge wc-winner-badge--won">🔒 Official Prize Locked</span>
+                    <span class="lb-winner-note-text">Your official reward has been locked: <strong>{{ wonPrizeName(currentWinner) }}</strong></span>
                   </div>
-                  
+
                   <!-- Case 3: User is NOT selected winner -->
                   <div v-else class="lb-winner-badge-wrap">
                     <span class="wc-winner-badge wc-winner-badge--locked">👁️ Reward Preview</span>
-                    <span class="lb-winner-note-text">Only the selected monthly winner can spin the official prize.</span>
+                    <span class="lb-winner-note-text">Only the selected monthly winner can spin the official reward.</span>
                   </div>
                 </div>
 
@@ -378,18 +384,19 @@
                     Practice Spin
                   </button>
 
-                  <!-- Official Spin Button (active if winner and not spun) -->
+                  <!-- Official Spin Button (active if winner, not spun, and reward assigned) -->
                   <button
                     v-if="isCurrentUserSelectedWinner && !isPrizeSpun"
                     type="button"
                     class="lb-official-spin-btn-new"
-                    :disabled="spinning || activePrizes.length < 2"
+                    :disabled="spinning || activePrizes.length < 2 || !officialRewardReady"
+                    :title="!officialRewardReady ? 'Waiting for the Head to assign your reward' : ''"
                     @click="spinOfficial"
                   >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                       <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                     </svg>
-                    Spin Official Prize
+                    Spin Official Reward
                   </button>
 
                   <!-- Locked Button for non-winners / already spun users -->
@@ -410,6 +417,9 @@
                 <!-- Practice Disclaimer -->
                 <div class="lb-practice-disclaimer-text">
                   🎯 This is a practice spin only. No official prize will be awarded.
+                  <span v-if="activePrizes.length >= 2" class="lb-practice-chance">
+                    Practice chance: {{ practiceChanceLabel }} each (equal demo odds).
+                  </span>
                 </div>
               </div>
 
@@ -952,6 +962,24 @@ const wonPrizeImageUrl = computed(() => {
 });
 
 const canSpinOfficial = computed(() => canSpinOfficialWheel(auth.user, currentWinner.value));
+
+// Official reward is "ready" once the Head has assigned it (exact mode needs a
+// chosen prize; random mode is ready immediately). The winner can only spin
+// to reveal once it's ready — matching "Head assigns first, then winner spins".
+const officialRewardReady = computed(() => {
+  const w = currentWinner.value;
+  if (!w || !w.winnerUserId) return false;
+  if (w.officialPrizeMode === 'exact') return !!w.exactPrizeId;
+  return true; // random equal mode
+});
+
+// Practice-only equal odds, shown clearly as a demo chance (never official odds).
+const practiceChanceLabel = computed(() => {
+  const n = activePrizes.value.length;
+  if (n < 1) return '—';
+  const pct = 100 / n;
+  return Number.isInteger(pct) ? `${pct}%` : `${pct.toFixed(2)}%`;
+});
 
 // Continuous JS-based smooth idle rotation loop
 const isIdle = computed(() => !spinning.value && (!isCurrentUserSelectedWinner.value || !isPrizeSpun.value));
@@ -2498,6 +2526,12 @@ const initials = (name: string) =>
   text-align: center;
   width: 100%;
   margin-top: 0.4rem;
+}
+.lb-practice-chance {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--primary);
+  font-weight: 800;
 }
 .lb-pool-preview-chance-badge {
   position: absolute;

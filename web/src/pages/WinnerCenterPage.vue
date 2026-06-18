@@ -110,32 +110,34 @@
           <!-- Official Reward Setup panel -->
           <div v-if="currentWinner.status === 'selected' || currentWinner.status === 'approved_retroactively'" class="wc-official-setup-panel">
             <h3 class="wc-setup-heading">Official Reward Setup</h3>
-            
+            <p class="wc-setup-hint">Assign the reward first — the winner then spins to reveal it.</p>
+
             <div class="wc-setup-options-row">
+              <label class="wc-setup-radio-label">
+                <input type="radio" value="exact" v-model="officialPrizeMode" />
+                <span>Owner Assigned Prize <em class="wc-setup-rec">Recommended</em></span>
+              </label>
+
               <label class="wc-setup-radio-label">
                 <input type="radio" value="random" v-model="officialPrizeMode" />
                 <span>Random Equal Mode</span>
               </label>
-              
-              <label class="wc-setup-radio-label">
-                <input type="radio" value="exact" v-model="officialPrizeMode" />
-                <span>Exact Prize Mode</span>
-              </label>
             </div>
-            
+
             <div v-if="officialPrizeMode === 'exact'" class="wc-setup-select-container">
-              <label class="wc-setup-select-label">Select final prize:</label>
+              <label class="wc-setup-select-label">Reward to assign:</label>
               <select v-model="exactPrizeId" class="wc-setup-select">
+                <option :value="null" disabled>Choose a reward…</option>
                 <option v-for="prize in activePrizes" :key="prize.id" :value="prize.id">
                   {{ prize.name }}
                 </option>
               </select>
             </div>
-            
+
             <button
               type="button"
               class="wc-btn-ghost wc-setup-save-btn"
-              :disabled="savingSetup"
+              :disabled="savingSetup || (officialPrizeMode === 'exact' && !exactPrizeId)"
               @click="saveOfficialSetup"
             >
               {{ savingSetup ? 'Saving...' : 'Save Reward Setup' }}
@@ -143,7 +145,7 @@
           </div>
           <div v-else class="wc-official-setup-locked">
             <span class="wc-setup-locked-text">
-              Official setup locked: <strong>{{ currentWinner.officialPrizeMode === 'exact' ? 'Exact Prize Mode' : 'Random Equal Mode' }}</strong>
+              Official setup locked: <strong>{{ currentWinner.officialPrizeMode === 'exact' ? 'Owner Assigned Prize' : 'Random Equal Mode' }}</strong>
             </span>
           </div>
         </div>
@@ -1109,14 +1111,14 @@ const penalties = (row: LbRow) => row.needsFixCount + row.rejectedCount;
 const currentWinner = computed(() => store.winnerForMonth(selectedMonth.value));
 const activePrizes = computed(() => store.activePrizes);
 
-// Official Reward Setup reactive state
-const officialPrizeMode = ref<'random' | 'exact'>('random');
+// Official Reward Setup reactive state — Owner Assigned (exact) is the default.
+const officialPrizeMode = ref<'random' | 'exact'>('exact');
 const exactPrizeId = ref<string>('');
 const savingSetup = ref(false);
 
 watch(currentWinner, (newWinner) => {
   if (newWinner) {
-    officialPrizeMode.value = newWinner.officialPrizeMode || 'random';
+    officialPrizeMode.value = newWinner.officialPrizeMode || 'exact';
     exactPrizeId.value = newWinner.exactPrizeId || activePrizes.value[0]?.id || '';
   }
 }, { immediate: true });
@@ -2827,6 +2829,23 @@ onMounted(async () => {
   letter-spacing: 0.05em;
   color: var(--primary);
   margin: 0;
+}
+.wc-setup-hint {
+  margin: 0.15rem 0 0.1rem;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+.wc-setup-rec {
+  font-style: normal;
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: 999px;
+  padding: 0.05rem 0.4rem;
+  margin-left: 0.35rem;
 }
 .wc-setup-options-row {
   display: flex;
