@@ -66,6 +66,22 @@
           </div>
         </div>
 
+        <!-- Filter tabs -->
+        <div class="nb-filters" role="tablist">
+          <button
+            v-for="tab in filterTabs"
+            :key="tab.key"
+            type="button"
+            role="tab"
+            class="nb-filter-tab"
+            :class="{ 'nb-filter-tab--active': filter === tab.key }"
+            :aria-selected="filter === tab.key"
+            @click="filter = tab.key"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
+
         <!-- List -->
         <div class="nb-list" role="list">
           <div v-if="notifs.loading" class="nb-empty">
@@ -273,7 +289,30 @@ watch(() => notifs.unreadCount, (next, prev) => {
   }
 });
 
-const recent = computed(() => notifs.notifications.slice(0, 8));
+// ── Filters ───────────────────────────────────────────────────────────────
+type NotifFilter = 'all' | 'unread' | 'tasks' | 'quality' | 'followups' | 'system';
+const filter = ref<NotifFilter>('all');
+const filterTabs: { key: NotifFilter; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'unread', label: 'Unread' },
+  { key: 'tasks', label: 'Tasks' },
+  { key: 'quality', label: 'Quality' },
+  { key: 'followups', label: 'Followups' },
+  { key: 'system', label: 'System' },
+];
+const FILTER_TYPES: Record<Exclude<NotifFilter, 'all' | 'unread'>, NotificationType[]> = {
+  tasks:      ['task_assigned', 'task_updated', 'task_comment', 'task_deadline_changed', 'task_needs_fix', 'task_approved', 'task_completed', 'work_reviewed', 'submission_received', 'prompt_replaced', 'blocker_reported', 'blocker_resolved'],
+  quality:    ['quality_issue_reported', 'quality_issue_fixed'],
+  followups:  ['blog_followup', 'plugin_update', 'ebay_click_followup', 'speed_optimization_followup', 'monthly_report'],
+  system:     ['announcement', 'daily_summary', 'mention'],
+};
+const matchesFilter = (n: AppNotification): boolean => {
+  if (filter.value === 'all') return true;
+  if (filter.value === 'unread') return !n.isRead;
+  return FILTER_TYPES[filter.value].includes(n.type);
+};
+
+const recent = computed(() => notifs.notifications.filter(matchesFilter).slice(0, 12));
 const intelligentRecent = computed(() => groupNotificationsIntelligently(recent.value));
 const groupedRecent = computed(() => groupNotificationsByDay(intelligentRecent.value));
 
@@ -553,6 +592,37 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   text-decoration: none;
 }
 .nb-action-btn:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); }
+
+/* ── Filter tabs ─────────────────────────────────────────────────────────── */
+.nb-filters {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nb-filters::-webkit-scrollbar { display: none; }
+.nb-filter-tab {
+  flex-shrink: 0;
+  font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--soft-bg);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 130ms ease, color 130ms ease, border-color 130ms ease;
+}
+.nb-filter-tab:hover { color: var(--text-main); }
+.nb-filter-tab--active {
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-color: color-mix(in srgb, var(--primary) 28%, transparent);
+}
 
 /* ── Notification list ───────────────────────────────────────────────────── */
 .nb-list {
