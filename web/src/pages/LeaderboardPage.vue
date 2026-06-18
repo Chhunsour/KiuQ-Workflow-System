@@ -414,8 +414,8 @@
                   </button>
                 </div>
 
-                <!-- Practice Disclaimer -->
-                <div class="lb-practice-disclaimer-text">
+                <!-- Practice Disclaimer (managers only — hidden from team members) -->
+                <div v-if="auth.isAdmin" class="lb-practice-disclaimer-text">
                   🎯 This is a practice spin only. No official prize will be awarded.
                   <span v-if="activePrizes.length >= 2" class="lb-practice-chance">
                     Practice chance: {{ practiceChanceLabel }} each (equal demo odds).
