@@ -39,20 +39,27 @@ revoke all on function public.can_manage_winner_center() from public;
 grant execute on function public.can_manage_winner_center() to authenticated;
 
 -- ── 1. Prize library ──────────────────────────────────────────────────────────
+-- Intentionally minimal: a prize is just an IMAGE + TITLE, plus an optional
+-- chance percentage (for weighting the wheel). No description / type /
+-- quantity / active flag — the image is the focus.
 create table if not exists public.winner_center_prizes (
-  id          uuid primary key default gen_random_uuid(),
-  name        text not null,
-  description text not null default '',
-  -- Free-text type so Heads aren't boxed in. UI offers presets
-  -- (bonus / voucher / leave / mystery / reward / team / custom).
-  prize_type  text not null default 'custom',
-  quantity    integer not null default 1 check (quantity >= 0),
-  image_url   text,
-  is_active   boolean not null default true,
-  created_by  uuid references public.profiles(id) on delete set null default auth.uid(),
-  created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now()
+  id                uuid primary key default gen_random_uuid(),
+  name              text not null,                         -- the prize title
+  image_url         text,                                  -- the prize image (the focus)
+  chance_percentage numeric check (chance_percentage >= 0 and chance_percentage <= 100),
+  created_by        uuid references public.profiles(id) on delete set null default auth.uid(),
+  created_at        timestamptz not null default now(),
+  updated_at        timestamptz not null default now()
 );
+
+-- Self-healing: if an earlier build created the richer schema, converge to the
+-- simplified one (safe no-ops on a fresh install).
+alter table public.winner_center_prizes drop column if exists description;
+alter table public.winner_center_prizes drop column if exists prize_type;
+alter table public.winner_center_prizes drop column if exists quantity;
+alter table public.winner_center_prizes drop column if exists is_active;
+alter table public.winner_center_prizes add column if not exists image_url text;
+alter table public.winner_center_prizes add column if not exists chance_percentage numeric;
 
 -- ── 2. Monthly winners (one winner per month — change = update in place) ───────
 create table if not exists public.winner_center_monthly_winners (
@@ -153,18 +160,16 @@ begin
   end loop;
 end $$;
 
--- ── 7. Seed example prizes (only when the library is empty) ─────────────────────
-insert into public.winner_center_prizes (name, description, prize_type, quantity, is_active)
+-- ── 7. Seed example prizes (title-only; Head adds images later) ─────────────────
+insert into public.winner_center_prizes (name)
 select * from (values
-  ('$10 Bonus',       'A $10 performance bonus.',            'bonus',   10, true),
-  ('$20 Bonus',       'A $20 performance bonus.',            'bonus',    5, true),
-  ('Coffee Voucher',  'A voucher for a coffee on the team.', 'voucher', 20, true),
-  ('Lunch Voucher',   'A free team lunch voucher.',          'voucher', 10, true),
-  ('1 Day Leave',     'One extra paid day off.',             'leave',    3, true),
-  ('Mystery Prize',   'A surprise reward chosen by the Head.', 'mystery', 5, true),
-  ('Team Reward',     'A reward shared with the whole team.',  'team',    2, true),
-  ('Custom Reward',   'A custom reward defined by the Head.',  'custom', 99, true)
-) as seed(name, description, prize_type, quantity, is_active)
+  ('$10 Bonus'),
+  ('$20 Bonus'),
+  ('Coffee Voucher'),
+  ('Lunch Voucher'),
+  ('1 Day Leave'),
+  ('Mystery Reward')
+) as seed(name)
 where not exists (select 1 from public.winner_center_prizes);
 
 commit;

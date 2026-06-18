@@ -16,7 +16,13 @@ const FOLLOWUP_TABLES = new Set(['blog_upload_slots', 'blog_followup_schedules',
 const QUALITY_TABLES  = new Set(['quality_issues', 'quality_issue_comments', 'quality_classes']);
 const CMS_TABLES      = new Set(['cms_products', 'cms_blog_posts']);
 const BLOG_IMAGE_TABLES = new Set(['blog_images', 'blog_image_prompts', 'blog_image_workflows']);
-const WINNER_CENTER_TABLES = new Set(['winner_center_prizes', 'winner_center_monthly_winners', 'winner_center_wheel_spins']);
+const WINNER_CENTER_TABLES = new Set([
+  'winner_center_prizes',
+  'winner_center_monthly_winners',
+  'winner_center_wheel_spins',
+  'winner_center_settings',
+  'winner_center_audit_log'
+]);
 
 export type RealtimeStatus = 'idle' | 'live' | 'reconnecting' | 'offline';
 
