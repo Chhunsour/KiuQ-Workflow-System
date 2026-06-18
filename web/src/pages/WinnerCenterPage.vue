@@ -62,7 +62,7 @@
           />
           <span>
             <strong>Enable Testing Mode</strong>
-            <span class="wc-setting-note">{{ canControlTesting ? 'Head/Supervisor control' : 'Only Head/Supervisor can change this' }}</span>
+            <span class="wc-setting-note">{{ canControlTesting ? 'Owner/Admin/Head/Supervisor control' : 'You do not have permission to change this' }}</span>
           </span>
         </label>
 
@@ -982,7 +982,7 @@ class SoundSystem {
 const auth = useAuthStore();
 const store = useWinnerCenterStore();
 const notifications = useNotificationsStore();
-const canControlTesting = computed(() => auth.isHeadOrSupervisor);
+const canControlTesting = computed(() => auth.canAccessWinnerCenter);
 
 const soundSystem = new SoundSystem();
 const soundEnabled = ref(soundSystem.isEnabled());

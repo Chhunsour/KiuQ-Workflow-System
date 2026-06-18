@@ -236,8 +236,8 @@ export const useWinnerCenterStore = defineStore('winnerCenter', () => {
   const updateTestingMode = async (enabled: boolean): Promise<boolean> => {
     if (!supabaseConfigured) return false;
     const auth = useAuthStore();
-    if (!auth.isHeadOrSupervisor) {
-      error.value = 'Only Head or Supervisor can change Winner Center testing mode.';
+    if (!auth.canAccessWinnerCenter) {
+      error.value = 'You do not have permission to change Winner Center testing mode.';
       return false;
     }
 
@@ -587,8 +587,8 @@ export const useWinnerCenterStore = defineStore('winnerCenter', () => {
 
   const ensureTestingResetAllowed = () => {
     const auth = useAuthStore();
-    if (!auth.isHeadOrSupervisor) {
-      error.value = 'Only Head or Supervisor can reset Winner Center test data.';
+    if (!auth.canAccessWinnerCenter) {
+      error.value = 'You do not have permission to reset Winner Center test data.';
       return false;
     }
     if (!testingModeEnabled.value) {
@@ -615,9 +615,9 @@ export const useWinnerCenterStore = defineStore('winnerCenter', () => {
         details
       });
 
+    // Best-effort: a failed/absent audit log must never block the actual reset.
     if (err) {
-      error.value = err.message;
-      return false;
+      console.warn('[winner-center] audit log write failed (non-blocking):', err.message);
     }
     return true;
   };
