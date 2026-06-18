@@ -146,20 +146,12 @@ const handlePayload = (payload: RealtimePayload) => {
     const notifs = useNotificationsStore();
     notifs.handleRealtimePayload('INSERT', payload.new);
 
-    // Show a toast for new incoming notifications (only for current user)
-    const uid = currentUserId();
-    if (uid && payload.new['recipient_id'] === uid) {
-      const type  = asString(payload.new['type']);
-      const title = asString(payload.new['title']);
-      const msg   = asString(payload.new['message']);
-      const tone  = notifToastTone[type] ?? 'info';
-      if (import.meta.env.DEV) {
-        console.log('[notification] toast shown', { id: payload.new['id'], type, title });
-      }
-      pushToast(title, msg, tone, `notif:${payload.new['id']}`, {
-        type,
-        link: asString(payload.new['link']) || undefined,
-      });
+    // The rich foreground toast (avatar + source icon + action) is shown by
+    // the notifications store via showForegroundToast (called from
+    // handleRealtimePayload above). Don't push a second toast here — that
+    // caused two stacked toasts for the same notification.
+    if (import.meta.env.DEV && payload.new['recipient_id'] === currentUserId()) {
+      console.log('[notification] foreground toast handled by store', { id: payload.new['id'] });
     }
     return;
   }

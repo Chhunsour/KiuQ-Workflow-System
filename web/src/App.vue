@@ -460,19 +460,14 @@ watch(
   position: relative;
   display: flex;
   align-items: stretch;
-  min-width: 320px;
-  max-width: 420px;
-  background: rgba(255, 255, 255, 0.75);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 18px;
-  box-shadow: 
-    0 10px 40px -10px rgba(15, 23, 42, 0.15),
-    0 1px 3px rgba(15, 23, 42, 0.05),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  min-width: 300px;
+  max-width: 400px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease;
   animation: toast-slide-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -525,11 +520,11 @@ watch(
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: linear-gradient(135deg, #15D6C2 0%, #10a898 100%);
-  color: #fff;
+  background: var(--primary);
+  color: #04201d;
   font-family: 'Jost Numbers', 'Google Sans', sans-serif;
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.5px;
 }
 
@@ -544,8 +539,8 @@ watch(
   width: 1.25rem;
   height: 1.25rem;
   border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.1);
+  border: 2px solid var(--card-bg);
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.18);
   color: #fff;
 }
 
@@ -599,9 +594,9 @@ watch(
   border-radius: 9999px;
   font-size: 0.68rem;
   font-weight: 600;
-  background: rgba(21, 214, 194, 0.1);
-  color: #10a898;
-  border: 1px solid rgba(21, 214, 194, 0.15);
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
 .push-toast-title-text {
@@ -635,12 +630,12 @@ watch(
   margin-top: 0.4rem;
   margin-right: 0.4rem;
   border-radius: 8px;
-  color: #94a3b8;
-  transition: all 0.2s ease;
+  color: var(--text-soft);
+  transition: background 0.2s ease, color 0.2s ease;
 }
 .push-toast-close:hover {
-  background: rgba(15, 23, 42, 0.05);
-  color: #475569;
+  background: var(--soft-bg);
+  color: var(--text-main);
 }
 
 .push-toast-action-btn {
