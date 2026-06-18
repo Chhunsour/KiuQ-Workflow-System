@@ -31,6 +31,15 @@ export interface RealtimeToast {
   title: string;
   message: string;
   tone: 'info' | 'success' | 'warning';
+  /** Optional notification type → drives the source icon on the toast. */
+  type?: string;
+  /** Optional deep link → shows an "Open" button on the toast. */
+  link?: string;
+}
+
+export interface ToastMeta {
+  type?: string;
+  link?: string;
 }
 
 export type RealtimePayload = {
@@ -66,14 +75,20 @@ const removeToast = (id: string) => {
   state.toasts = state.toasts.filter((toast) => toast.id !== id);
 };
 
-export const pushToast = (title: string, message: string, tone: RealtimeToast['tone'] = 'info', key = `${title}:${message}`) => {
+export const pushToast = (
+  title: string,
+  message: string,
+  tone: RealtimeToast['tone'] = 'info',
+  key = `${title}:${message}`,
+  meta: ToastMeta = {}
+) => {
   const now = Date.now();
   const previous = recentToasts.get(key) ?? 0;
   if (now - previous < toastWindowMs) return;
   recentToasts.set(key, now);
 
   const id = `${now}-${Math.random().toString(36).slice(2, 8)}`;
-  state.toasts = [...state.toasts.slice(-3), { id, title, message, tone }];
+  state.toasts = [...state.toasts.slice(-3), { id, title, message, tone, type: meta.type, link: meta.link }];
   setTimeout(() => removeToast(id), 5200);
 };
 
@@ -141,7 +156,10 @@ const handlePayload = (payload: RealtimePayload) => {
       if (import.meta.env.DEV) {
         console.log('[notification] toast shown', { id: payload.new['id'], type, title });
       }
-      pushToast(title, msg, tone, `notif:${payload.new['id']}`);
+      pushToast(title, msg, tone, `notif:${payload.new['id']}`, {
+        type,
+        link: asString(payload.new['link']) || undefined,
+      });
     }
     return;
   }

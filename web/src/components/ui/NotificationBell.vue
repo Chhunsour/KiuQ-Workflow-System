@@ -13,7 +13,7 @@
         <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
       </svg>
       <Transition name="nb-badge-pop">
-        <span v-if="notifs.hasUnread" class="nb-badge" aria-live="polite">
+        <span v-if="notifs.hasUnread" class="nb-badge" :class="{ 'nb-badge--pulse': pulse }" aria-live="polite">
           {{ notifs.unreadCount > 99 ? '99+' : notifs.unreadCount }}
         </span>
       </Transition>
@@ -80,8 +80,8 @@
                 <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
               </svg>
             </div>
-            <p class="nb-empty-title">All caught up!</p>
-            <p class="nb-empty-desc">You don't have any notifications right now.</p>
+            <p class="nb-empty-title">You're all caught up.</p>
+            <p class="nb-empty-desc">No new notifications right now.</p>
           </div>
 
           <template v-else v-for="group in groupedRecent" :key="group.key">
@@ -238,7 +238,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import { useNotificationsStore, type AppNotification, type NotificationType } from '@/stores/notifications';
 import { useAuthStore } from '@/stores/auth';
@@ -260,6 +260,18 @@ const wrapRef = ref<HTMLElement | null>(null);
 const showAdminTestButton = computed(() => import.meta.env.DEV && auth.isAdmin);
 
 const expandedGroups = ref<Record<string, boolean>>({});
+
+// Subtle one-shot badge pulse whenever the unread count grows (new notification).
+const pulse = ref(false);
+let pulseTimer: ReturnType<typeof setTimeout> | null = null;
+watch(() => notifs.unreadCount, (next, prev) => {
+  if (next > (prev ?? 0)) {
+    pulse.value = false;
+    requestAnimationFrame(() => { pulse.value = true; });
+    if (pulseTimer) clearTimeout(pulseTimer);
+    pulseTimer = setTimeout(() => { pulse.value = false; }, 1000);
+  }
+});
 
 const recent = computed(() => notifs.notifications.slice(0, 8));
 const intelligentRecent = computed(() => groupNotificationsIntelligently(recent.value));
@@ -436,21 +448,18 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   justify-content: center;
   border: 1.5px solid var(--topbar-bg, var(--card-bg));
   pointer-events: none;
-  box-shadow: 0 0 8px var(--primary);
-  animation: badgePulse 2s infinite;
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* One-shot pulse only when a new notification arrives (not a looping animation). */
+.nb-badge--pulse {
+  animation: badgePulse 0.9s ease-out;
+}
+
 @keyframes badgePulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(21, 214, 194, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 5px rgba(21, 214, 194, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(21, 214, 194, 0);
-  }
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 60%, transparent); }
+  70%  { box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 0%, transparent); }
 }
 
 .nb-badge-pop-enter-active {
@@ -475,13 +484,11 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
   position: absolute;
   top: calc(100% + 0.6rem);
   right: 0;
-  width: min(440px, calc(100vw - 2rem));
-  background: color-mix(in srgb, var(--card-bg) 85%, transparent);
-  backdrop-filter: blur(18px) saturate(185%);
-  -webkit-backdrop-filter: blur(18px) saturate(185%);
-  border: 1.5px solid color-mix(in srgb, var(--border) 40%, rgba(226, 232, 240, 0.4));
-  border-radius: 20px;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.22);
+  width: min(420px, calc(100vw - 1.5rem));
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
   z-index: 100;
   overflow: hidden;
 }
@@ -606,23 +613,18 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
 
 .nb-empty-glow {
   position: absolute;
-  width: 50px;
-  height: 50px;
+  inset: 0;
+  margin: auto;
+  width: 58px;
+  height: 58px;
   border-radius: 999px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--primary) 22%, transparent) 0%, transparent 70%);
-  filter: blur(6px);
-  animation: glowPulse 3s ease-in-out infinite alternate;
-}
-
-@keyframes glowPulse {
-  0% { transform: scale(0.9); opacity: 0.5; }
-  100% { transform: scale(1.1); opacity: 0.9; }
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .nb-empty-bell-svg {
+  position: relative;
   color: var(--primary);
-  opacity: 0.7;
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--primary) 30%, transparent));
+  opacity: 0.85;
 }
 
 .nb-empty-title {
@@ -684,13 +686,12 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
 }
 
 .nb-item--unread {
-  background: color-mix(in srgb, var(--primary) 3%, transparent);
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
   border-left: 3px solid var(--primary);
   padding-left: calc(1.15rem - 3px);
-  box-shadow: inset 2px 0 8px -2px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 .nb-item--unread:hover {
-  background: color-mix(in srgb, var(--primary) 6%, var(--soft-bg));
+  background: color-mix(in srgb, var(--primary) 9%, var(--soft-bg));
 }
 
 .nb-item--critical {
