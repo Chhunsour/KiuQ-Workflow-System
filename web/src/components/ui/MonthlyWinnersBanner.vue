@@ -240,10 +240,7 @@ onBeforeUnmount(() => {
   max-height: 92vh;
   overflow-y: auto;
   border-radius: 26px;
-  background:
-    radial-gradient(130% 70% at 50% -8%, color-mix(in srgb, #f59e0b 30%, transparent), transparent 60%),
-    radial-gradient(120% 90% at 50% 118%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 58%),
-    var(--card-bg);
+  background: var(--card-bg);
   border: 1px solid color-mix(in srgb, #f59e0b 42%, var(--border));
   box-shadow: 0 0 0 1px color-mix(in srgb, #f59e0b 16%, transparent), 0 40px 90px rgba(0,0,0,0.45);
   padding: 1.9rem 1.5rem 1.45rem;
@@ -357,7 +354,7 @@ onBeforeUnmount(() => {
   display: flex; align-items: flex-start; justify-content: center;
   padding-top: 0.55rem;
   border-radius: 14px 14px 0 0;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--soft-bg) 88%, var(--card-bg)), color-mix(in srgb, var(--soft-bg) 55%, transparent));
+  background: var(--soft-bg);
   border: 1px solid var(--border); border-bottom: none;
   box-shadow: inset 0 2px 0 rgba(255,255,255,0.05);
 }
@@ -365,7 +362,7 @@ onBeforeUnmount(() => {
 .mw-stand--2 { height: 4rem; }
 .mw-stand--3 { height: 3rem; }
 .mw-stand--1 {
-  background: linear-gradient(180deg, color-mix(in srgb, #f59e0b 30%, transparent), color-mix(in srgb, #f59e0b 10%, var(--soft-bg)));
+  background: color-mix(in srgb, #f59e0b 18%, var(--soft-bg));
   border-color: color-mix(in srgb, #f59e0b 48%, var(--border));
   box-shadow: inset 0 2px 0 rgba(255,255,255,0.12), 0 -8px 26px -10px color-mix(in srgb, #f59e0b 60%, transparent);
 }
@@ -381,7 +378,7 @@ onBeforeUnmount(() => {
   display: flex; align-items: center; gap: 0.75rem;
   margin-top: 1.1rem; padding: 0.8rem 0.95rem;
   border-radius: 16px;
-  background: linear-gradient(135deg, color-mix(in srgb, #f59e0b 16%, var(--card-bg)), color-mix(in srgb, #f59e0b 6%, var(--card-bg)));
+  background: color-mix(in srgb, #f59e0b 12%, var(--card-bg));
   border: 1.5px dashed color-mix(in srgb, #f59e0b 58%, var(--border));
   text-align: left;
 }
@@ -420,7 +417,7 @@ onBeforeUnmount(() => {
   position: relative; overflow: hidden; z-index: 2;
   margin-top: 1.25rem; width: 100%;
   padding: 0.78rem 1rem; border: none; border-radius: 14px; cursor: pointer;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b 55%, #d97706);
+  background: #f59e0b;
   color: #fff; font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.92rem; font-weight: 800;
   box-shadow: 0 10px 26px -6px color-mix(in srgb, #f59e0b 65%, transparent);
@@ -428,8 +425,8 @@ onBeforeUnmount(() => {
 }
 .mw-cta::after {
   content: ''; position: absolute; top: 0; left: -60%; width: 45%; height: 100%;
-  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.6), transparent);
-  transform: skewX(-20deg); animation: mw-shimmer 3s ease-in-out infinite;
+  background: transparent;
+  transform: skewX(-20deg);
 }
 .mw-cta:hover { transform: translateY(-1px); box-shadow: 0 14px 32px -6px color-mix(in srgb, #f59e0b 75%, transparent); }
 @keyframes mw-shimmer { 0% { left: -60%; } 55%,100% { left: 130%; } }

@@ -800,10 +800,8 @@ const actionLabel = (n: AppNotification): string => {
   gap: 0.85rem;
   width: 100%;
   padding: 1.1rem 1.25rem;
-  background: color-mix(in srgb, var(--card-bg) 85%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid color-mix(in srgb, var(--border) 60%, rgba(226, 232, 240, 0.4));
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 18px;
   text-align: left;
   cursor: pointer;
@@ -834,10 +832,8 @@ const actionLabel = (n: AppNotification): string => {
 
 /* Accordion Group Card */
 .np-group-card {
-  background: color-mix(in srgb, var(--card-bg) 60%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid color-mix(in srgb, var(--border) 60%, rgba(226, 232, 240, 0.4));
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 20px;
   overflow: hidden;
   transition: all 0.2s ease;
@@ -1161,10 +1157,8 @@ const actionLabel = (n: AppNotification): string => {
   padding: 4.5rem 2rem;
   text-align: center;
   color: var(--text-muted);
-  background: color-mix(in srgb, var(--card-bg) 60%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid color-mix(in srgb, var(--border) 60%, rgba(226, 232, 240, 0.4));
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 20px;
 }
 
@@ -1183,7 +1177,7 @@ const actionLabel = (n: AppNotification): string => {
   width: 70px;
   height: 70px;
   border-radius: 999px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--primary) 22%, transparent) 0%, transparent 70%);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
   filter: blur(8px);
   animation: glowPulsePage 3s ease-in-out infinite alternate;
 }

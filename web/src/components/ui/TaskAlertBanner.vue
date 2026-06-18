@@ -203,15 +203,10 @@ onMounted(() => {
   position: relative;
   pointer-events: auto; /* Re-enable pointer events for individual alert cards */
   width: 100%;
-  background: rgba(30, 41, 59, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 
-    0 10px 25px -5px rgba(0, 0, 0, 0.3),
-    0 8px 10px -6px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-lg);
   padding: 1rem;
   overflow: hidden;
   display: flex;
@@ -240,12 +235,12 @@ onMounted(() => {
   border: none;
   font-size: 1.25rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-soft);
   cursor: pointer;
   line-height: 1;
 }
 .alert-close-btn:hover {
-  color: #ffffff;
+  color: var(--text-main);
 }
 
 .alert-header {
@@ -273,7 +268,7 @@ onMounted(() => {
 
 .alert-type {
   font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-soft);
 }
 
 .alert-content {
@@ -286,7 +281,7 @@ onMounted(() => {
   font-family: 'Raleway', sans-serif;
   font-size: 0.88rem;
   font-weight: 850;
-  color: #ffffff;
+  color: var(--text-main);
   margin: 0;
   line-height: 1.3;
 }
@@ -294,7 +289,7 @@ onMounted(() => {
 .alert-message {
   font-size: 0.78rem;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -303,13 +298,13 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.45);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-soft);
+  border-top: 1px solid var(--border);
   padding-top: 0.45rem;
 }
 
 .alert-author strong {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-main);
 }
 
 .alert-actions {
@@ -333,24 +328,21 @@ onMounted(() => {
 
 .btn-got-it,
 .btn-dismiss {
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border);
+  background: var(--soft-bg);
+  color: var(--text-main);
 }
 .btn-got-it:hover,
 .btn-dismiss:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: color-mix(in srgb, var(--border) 55%, var(--soft-bg));
+  color: var(--text-main);
 }
 
 .btn-open-task {
   border: none;
-  color: #ffffff;
+  background: var(--primary);
+  color: #04201d;
 }
-.btn-open-task--critical { background: #ef4444; }
-.btn-open-task--high { background: #f97316; }
-.btn-open-task--medium { background: #3b82f6; }
-.btn-open-task--low { background: #10b981; }
 
 .btn-open-task:hover {
   filter: brightness(1.1);

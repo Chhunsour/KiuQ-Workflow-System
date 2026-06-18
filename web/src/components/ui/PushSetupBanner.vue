@@ -140,9 +140,7 @@ onBeforeUnmount(() => {
   padding: 0.9rem 1rem;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 42%),
-    var(--card-bg);
+  background: var(--card-bg);
   box-shadow: var(--shadow-card);
 }
 
