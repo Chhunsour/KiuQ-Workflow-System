@@ -39,7 +39,6 @@
         class="img-drop"
         :class="{ 'img-drop--active': isDragging, 'img-drop--busy': converting }"
         tabindex="0"
-        @paste="onPaste"
         @dragover.prevent="onDragOver"
         @dragleave="onDragLeave"
         @drop.prevent="onDrop"
@@ -352,6 +351,11 @@ import { supabase, supabaseConfigured } from '@/lib/supabase';
 import { optimizeImage, formatFileSize, type OptimizeResult } from '@/utils/imageOptimizer';
 
 const auth = useAuthStore();
+
+// Roles allowed to upload (Head/Supervisor/Assistant Head/Team Member). The
+// route already excludes Quality Checker; this also excludes read-only Viewers.
+// Backend RLS (auth.uid() = uploaded_by) is the real enforcement.
+const canUpload = computed(() => !auth.isViewer && !auth.isQualityChecker);
 
 // ─── Type Interfaces ────────────────────────────────────────────────────────
 interface CustomFolder {
@@ -757,20 +761,44 @@ const onPick = async (e: Event) => {
   await convertFiles(files);
 };
 
-const onPaste = async (e: ClipboardEvent) => {
-  const items = e.clipboardData?.items;
-  if (!items) return;
+// True when the user is typing somewhere — paste must NOT hijack those.
+const isTypingTarget = (el: EventTarget | null): boolean => {
+  const node = el as HTMLElement | null;
+  const active = (document.activeElement as HTMLElement | null);
+  const check = (n: HTMLElement | null) =>
+    !!n && (
+      n.tagName === 'INPUT' ||
+      n.tagName === 'TEXTAREA' ||
+      n.tagName === 'SELECT' ||
+      n.isContentEditable === true
+    );
+  return check(node) || check(active);
+};
+
+const imagesFromClipboard = (data: DataTransfer | null): File[] => {
+  if (!data) return [];
   const files: File[] = [];
-  for (const item of items) {
+  for (const item of data.items) {
     if (item.kind === 'file' && item.type.startsWith('image/')) {
       const f = item.getAsFile();
       if (f) files.push(f);
     }
   }
-  if (files.length) {
-    e.preventDefault();
-    await convertFiles(files);
-  }
+  return files;
+};
+
+// Global paste handler — Ctrl/Cmd+V anywhere in the Image Dashboard uploads
+// into the current folder. Registered on mount, removed on unmount.
+const onGlobalPaste = async (e: ClipboardEvent) => {
+  if (!canUpload.value) return;            // read-only roles can't paste-upload
+  if (isTypingTarget(e.target)) return;    // don't interrupt typing/search/rename
+  if (converting.value) return;            // one paste at a time
+
+  const files = imagesFromClipboard(e.clipboardData);
+  if (!files.length) return;               // no image in clipboard → do nothing
+
+  e.preventDefault();
+  await convertFiles(files, { pasted: true });
 };
 
 const onDragOver = () => {
@@ -787,8 +815,18 @@ const onDrop = async (e: DragEvent) => {
   await convertFiles(files);
 };
 
-const convertFiles = async (files: File[]) => {
+const pastedStamp = (): string => {
+  const p = (n: number) => String(n).padStart(2, '0');
+  const d = new Date();
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+};
+
+const convertFiles = async (files: File[], opts: { pasted?: boolean } = {}) => {
   if (!files.length || converting.value || !supabaseConfigured) return;
+  if (!canUpload.value) {
+    showToast("You don't have permission to upload images");
+    return;
+  }
   converting.value = true;
 
   const uid = auth.user?.id;
@@ -798,8 +836,16 @@ const convertFiles = async (files: File[]) => {
     return;
   }
 
+  if (opts.pasted) {
+    showToast(files.length > 1 ? `Uploading ${files.length} images…` : 'Uploading pasted image…');
+  }
+
+  const stamp = pastedStamp();
+  let successCount = 0;
+
   try {
-    for (const file of files) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       let fileToUpload = file;
       let finalName = file.name;
 
@@ -825,10 +871,18 @@ const convertFiles = async (files: File[]) => {
         }
       }
 
+      // Pasted clipboard images get a clean generated name.
+      if (opts.pasted) {
+        const ext = fileToUpload.type === 'image/webp'
+          ? 'webp'
+          : (fileToUpload.type.split('/')[1] || 'png');
+        finalName = `pasted-image-${stamp}${files.length > 1 ? `-${i + 1}` : ''}.${ext}`;
+      }
+
       const safeName = getSafeName(finalName);
       const storagePath = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safeName}`;
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
+
+      const { error: uploadError } = await supabase.storage
         .from('team-images')
         .upload(storagePath, fileToUpload, {
           cacheControl: '31536000',
@@ -837,7 +891,7 @@ const convertFiles = async (files: File[]) => {
 
       if (uploadError) {
         console.error('[images] storage upload failed', uploadError);
-        showToast(`Failed to upload ${file.name}`);
+        if (!opts.pasted) showToast(`Failed to upload ${file.name}`);
         continue;
       }
 
@@ -847,7 +901,7 @@ const convertFiles = async (files: File[]) => {
       const publicUrl = publicUrlData?.publicUrl;
 
       if (!publicUrl) {
-        showToast(`Failed to get URL for ${file.name}`);
+        if (!opts.pasted) showToast(`Failed to get URL for ${file.name}`);
         continue;
       }
 
@@ -861,17 +915,29 @@ const convertFiles = async (files: File[]) => {
           url: publicUrl,
           name: finalName.replace(/\.[^/.]+$/, ''),
           folder_id: destFolderId,
-          uploaded_by: uid
+          uploaded_by: uid,
+          source: opts.pasted ? 'pasted_clipboard' : 'upload',
+          file_type: fileToUpload.type || null,
+          file_size: fileToUpload.size || null
         });
 
       if (dbError) {
         console.error('[images] database insert failed', dbError);
-        showToast(`Failed to save ${file.name}`);
+        if (!opts.pasted) showToast(`Failed to save ${file.name}`);
       } else {
-        showToast(`${finalName} uploaded successfully`);
+        successCount++;
+        if (!opts.pasted) showToast(`${finalName} uploaded successfully`);
       }
     }
-    
+
+    if (opts.pasted) {
+      if (successCount > 0) {
+        showToast(successCount > 1 ? `${successCount} images added to this folder.` : 'Image added to this folder.');
+      } else {
+        showToast('Image upload failed. Please try again.');
+      }
+    }
+
     loadLibraryFromDB();
   } finally {
     converting.value = false;
@@ -905,11 +971,14 @@ const fmt = (bytes: number) => formatFileSize(bytes);
 onMounted(() => {
   loadLibraryFromDB();
   subscribeRealtime();
+  // Global Ctrl/Cmd+V → upload into the current folder (guarded inside handler).
+  window.addEventListener('paste', onGlobalPaste);
 });
 
 onUnmounted(() => {
   if (foldersSubscription) foldersSubscription.unsubscribe();
   if (imagesSubscription) imagesSubscription.unsubscribe();
+  window.removeEventListener('paste', onGlobalPaste);
 });
 </script>
 
