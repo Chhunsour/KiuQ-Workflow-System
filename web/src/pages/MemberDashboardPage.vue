@@ -229,7 +229,7 @@
             <div class="md-tf-icon md-tf-icon--ebay">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             </div>
-            <span class="md-fu-badge" :class="fuBadgeClass(ebayTodayStatus)">{{ fuBadgeLabel(ebayTodayStatus) }}</span>
+            <span class="md-fu-badge" :class="fuBadgeClass(ebayTodayStatus)">{{ ebayBadgeLabel }}</span>
           </div>
           <div class="md-tf-info">
             <span class="md-tf-name">eBay Click</span>
@@ -243,7 +243,7 @@
               @click="markEbayDone"
             >
               <svg v-if="ebayTodayStatus === 'done'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-              {{ ebayTodayStatus === 'done' ? 'Done' : (savingFu === 'ebay' ? 'Saving…' : 'Mark Done') }}
+              {{ ebayTodayStatus === 'done' ? ebayBadgeLabel : (savingFu === 'ebay' ? 'Saving…' : 'Mark Done') }}
             </button>
             <RouterLink to="/followup/ebay-click" class="md-tf-link">Open</RouterLink>
           </div>
@@ -691,13 +691,22 @@ const showPluginCard = computed(() => !pluginThisWeekDone.value || pluginWeekSta
 
 // eBay: required Mon–Sat; Sunday = no work day
 const showEbayCard = computed(() => todayDow !== 0);
-const ebayTodayStatus = computed<FuStatus>(() => {
+const ebayTodayEntry = computed(() => {
   const uid = auth.user?.id;
-  if (!uid) return 'pending';
-  const done = followup.ebayEntries.some(
+  if (!uid) return null;
+  return followup.ebayEntries.find(
     (e) => e.userId === uid && e.date === todayStr && e.status === 'done'
-  );
-  return done ? 'done' : 'pending';
+  ) ?? null;
+});
+const ebayTodayStatus = computed<FuStatus>(() => {
+  return ebayTodayEntry.value ? 'done' : 'pending';
+});
+const ebayBadgeLabel = computed(() => {
+  const source = ebayTodayEntry.value?.completionSource;
+  if (source === 'admin_auto_fill') return 'Admin Auto Completed';
+  if (source === 'not_required_today') return 'Not Required Today';
+  if (source === 'admin_manual') return 'Admin Completed';
+  return fuBadgeLabel(ebayTodayStatus.value);
 });
 
 const speedWeekStatus = computed<FuStatus>(() => {

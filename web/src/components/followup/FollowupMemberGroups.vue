@@ -135,7 +135,7 @@
             <div class="fmg-ebay-detail">
               <div class="fmg-ebay-stat">
                 <span class="fmg-ebay-pill" :class="ebayPillClass(ebayTodayStatus(g.member.id))">
-                  {{ ebayStatusLabel(ebayTodayStatus(g.member.id)) }}
+                  {{ ebayStatusLabel(ebayTodayStatus(g.member.id), g.member.id) }}
                 </span>
                 <span class="fmg-ebay-stat-label">Today</span>
               </div>
@@ -248,7 +248,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type Member, type Website } from '@/stores/data';
 import { useFollowupStore } from '@/stores/followup';
 import { presenceStatusFor } from '@/lib/presence';
-import { normalizeRole } from '@/lib/roles';
+import { isFollowupParticipant } from '@/lib/roles';
 
 type Kind = 'blog' | 'plugin' | 'ebay';
 type StatusKind = 'done' | 'pending' | 'missed' | 'no_work_day';
@@ -333,14 +333,7 @@ const monthBounds = () => {
 // visibleGroups). eBay: admins now appear too since they also do the
 // daily click. Admins remain excluded from the leaderboard separately.
 const activeMembers = computed(() =>
-  data.members.filter((m) => {
-    const role = normalizeRole(m.role);
-    return m.status === 'active' && 
-           role !== 'supervisor' &&
-           role !== 'viewer' &&
-           role !== 'tester' &&
-           role !== 'employee';
-  })
+  data.members.filter(isFollowupParticipant)
 );
 
 // Per-day blog status for THIS week, scoped to the website's saved
@@ -489,6 +482,9 @@ const monthFor = (websiteId: string) =>
 // ── eBay per-member status ────────────────────────────────────────────────────
 const ebayDoneDates = (memberId: string) =>
   new Set(followup.ebayEntries.filter((e) => e.userId === memberId && e.status === 'done').map((e) => e.date));
+
+const ebayTodayEntry = (memberId: string) =>
+  followup.ebayEntries.find((e) => e.userId === memberId && e.date === today);
 
 const ebayTodayStatus = (memberId: string): StatusKind => {
   const dow = new Date().getDay();
@@ -674,8 +670,16 @@ const ebaySummaryText = (g: Group) =>
   `eBay Click: ${g.ebayWeekDone}/${g.ebayWeekRequired} ${periodWord.value}`;
 
 // ── eBay status pills ─────────────────────────────────────────────────────────
-const ebayStatusLabel = (s: StatusKind) =>
-  s === 'done' ? 'Done' : s === 'missed' ? 'Missed' : s === 'no_work_day' ? 'No Work Day' : 'Pending';
+const ebayStatusLabel = (s: StatusKind, memberId?: string) => {
+  if (s === 'done') {
+    const source = memberId ? ebayTodayEntry(memberId)?.completionSource : 'member';
+    if (source === 'admin_auto_fill') return 'Admin Auto Completed';
+    if (source === 'not_required_today') return 'Not Required Today';
+    if (source === 'admin_manual') return 'Admin Completed';
+    return 'Completed by Member';
+  }
+  return s === 'missed' ? 'Missed' : s === 'no_work_day' ? 'No Work Day' : 'Pending';
+};
 
 const ebayPillClass = (s: StatusKind) => ({
   'fmg-pill--done': s === 'done',

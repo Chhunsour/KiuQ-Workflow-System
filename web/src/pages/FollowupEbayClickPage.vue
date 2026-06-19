@@ -5,6 +5,14 @@
       subtitle="Daily checkbox tracker — complete your eBay click followup Monday through Saturday."
     >
       <template #actions>
+        <button
+          v-if="canAdminAutoFill && !viewingMemberId"
+          type="button"
+          class="btn-secondary ecf-auto-fill-btn"
+          @click="openAutoFillModal"
+        >
+          Auto Fill All
+        </button>
         <a
           href="https://www.ebay.com/sch/i.html?_nkw=mini+excavator&_sacat=0&_from=R40&_trksid=p4624852.m570.l1312"
           target="_blank"
@@ -161,7 +169,7 @@
               <div class="ecf-day-status">
                 <span class="ecf-status-pill" :class="statusPillClass(calendarDayStatus(day.date))">
                   <span class="ecf-status-dot" />
-                  {{ statusLabel(calendarDayStatus(day.date)) }}
+                  {{ statusLabel(calendarDayStatus(day.date), day.date) }}
                 </span>
               </div>
 
@@ -182,7 +190,7 @@
                     @change="toggleDay(day)"
                   />
                   <span class="ecf-checkbox-text">
-                    {{ calendarDayStatus(day.date) === 'done' ? 'Done' : 'Mark Done' }}
+                    {{ calendarDayStatus(day.date) === 'done' ? statusLabel('done', day.date) : 'Mark Done' }}
                   </span>
                 </label>
               </div>
@@ -196,7 +204,7 @@
               >
                 <svg v-if="calendarDayStatus(day.date) === 'done'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                 <svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                {{ calendarDayStatus(day.date) === 'done' ? 'Completed' : 'Missed — locked' }}
+                {{ calendarDayStatus(day.date) === 'done' ? statusLabel('done', day.date) : 'Missed — locked' }}
               </div>
             </template>
           </div>
@@ -204,15 +212,93 @@
       </template>
 
     </LoadingBlock>
+
+    <Modal
+      :open="autoFillOpen"
+      title="Auto fill eBay Click for all members?"
+      subtitle="This will mark today’s eBay Click followup for all active team members as handled by Head/Admin. Use this only when eBay Click is not required today."
+      size="md"
+      @close="closeAutoFillModal"
+    >
+      <div class="ecf-auto-modal">
+        <label class="ecf-field">
+          <span>Date</span>
+          <input v-model="autoFillForm.date" type="date" class="ecf-input" required :disabled="autoFillSaving" />
+        </label>
+
+        <label class="ecf-field">
+          <span>Action type</span>
+          <select v-model="autoFillForm.actionType" class="ecf-input" :disabled="autoFillSaving">
+            <option value="admin_auto_fill">Admin Auto Completed</option>
+            <option value="not_required_today">Not Required Today</option>
+          </select>
+        </label>
+
+        <label class="ecf-field">
+          <span>Reason <em>optional</em></span>
+          <textarea
+            v-model="autoFillForm.reason"
+            rows="3"
+            class="ecf-input ecf-textarea"
+            placeholder="e.g. eBay Click not required today"
+            :disabled="autoFillSaving"
+          ></textarea>
+        </label>
+
+        <div v-if="autoFillIsSunday" class="ecf-warning">
+          <p>Sunday is normally a non-working day. Are you sure you want to auto fill this date?</p>
+          <label>
+            <input v-model="autoFillSundayConfirmed" type="checkbox" :disabled="autoFillSaving" />
+            <span>Yes, auto fill this Sunday date</span>
+          </label>
+        </div>
+
+        <div class="ecf-member-picker">
+          <div class="ecf-member-picker-head">
+            <strong>Members</strong>
+            <span>{{ selectedAutoFillMembers.length }}/{{ activeMembers.length }} selected</span>
+          </div>
+          <div v-if="activeMembers.length === 0" class="ecf-member-picker-empty">
+            No active members found for eBay Click followup.
+          </div>
+          <div v-else class="ecf-member-checks">
+            <label v-for="member in activeMembers" :key="member.id" class="ecf-member-check">
+              <input
+                type="checkbox"
+                :checked="!autoFillExcludedIds.has(member.id)"
+                :disabled="autoFillSaving"
+                @change="toggleAutoFillMember(member.id, $event)"
+              />
+              <span>{{ member.fullName || member.email }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <button type="button" class="btn-secondary" :disabled="autoFillSaving" @click="closeAutoFillModal">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn-primary"
+          :disabled="!canConfirmAutoFill"
+          @click="confirmAutoFill"
+        >
+          {{ autoFillSaving ? 'Saving…' : 'Confirm Auto Fill' }}
+        </button>
+      </template>
+    </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import Modal from '@/components/ui/Modal.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
-import { useFollowupStore } from '@/stores/followup';
+import { useFollowupStore, type EbayAutoFillActionType, type EbayClickEntry } from '@/stores/followup';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import { useImagePreviewStore } from '@/stores/imagePreview';
 
@@ -229,8 +315,8 @@ const openPhotoPreview = () => {
 };
 import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import FollowupMemberGroups from '@/components/followup/FollowupMemberGroups.vue';
-import { usePageRealtime } from '@/services/realtimeService';
-import { normalizeRole } from '@/lib/roles';
+import { pushToast, usePageRealtime } from '@/services/realtimeService';
+import { isFollowupParticipant } from '@/lib/roles';
 
 usePageRealtime(['ebay_click_followup']);
 
@@ -298,6 +384,19 @@ const buildDays = (from: Date, to: Date): CalendarDay[] => {
 const calendarView    = ref<'week' | 'month'>('week');
 const viewingMemberId = ref<string | null>(null);   // admin: which member to show
 const saving          = ref<string | null>(null);   // date string being toggled
+const autoFillOpen = ref(false);
+const autoFillSaving = ref(false);
+const autoFillSundayConfirmed = ref(false);
+const autoFillExcludedIds = ref<Set<string>>(new Set());
+const autoFillForm = ref<{
+  date: string;
+  reason: string;
+  actionType: EbayAutoFillActionType;
+}>({
+  date: today,
+  reason: '',
+  actionType: 'admin_auto_fill'
+});
 
 // Pre-fill memberId from route param if admin navigated directly
 onMounted(() => {
@@ -320,6 +419,10 @@ onMounted(load);
 
 watch(viewingMemberId, async (id) => {
   if (id) await followup.fetchEbayEntries(id);
+});
+
+watch(() => autoFillForm.value.date, () => {
+  autoFillSundayConfirmed.value = false;
 });
 
 // ── Computed: which user we're showing in the calendar ──────────────────────
@@ -390,6 +493,9 @@ const doneSet = computed(() => {
 
 type DayStatus = 'done' | 'pending' | 'missed' | 'no_work_day';
 
+const ebayEntryFor = (memberId: string, date: string): EbayClickEntry | undefined =>
+  followup.ebayEntries.find((e) => e.userId === memberId && e.date === date);
+
 const calendarDayStatus = (iso: string): DayStatus => {
   const dow = new Date(iso + 'T12:00:00').getDay();
   if (dow === 0) return 'no_work_day';
@@ -448,14 +554,22 @@ const selfMissedWeek = computed(() =>
 // ── Admin summary cards ──────────────────────────────────────────────────────
 
 const activeMembers = computed(() =>
-  data.members.filter((m) => {
-    const role = normalizeRole(m.role);
-    return m.status === 'active' && 
-           role !== 'supervisor' &&
-           role !== 'viewer' &&
-           role !== 'tester' &&
-           role !== 'employee';
-  })
+  data.members.filter(isFollowupParticipant)
+);
+
+const canAdminAutoFill = computed(() => auth.isAdmin);
+const selectedAutoFillMembers = computed(() =>
+  activeMembers.value.filter((m) => !autoFillExcludedIds.value.has(m.id))
+);
+const autoFillIsSunday = computed(() =>
+  !!autoFillForm.value.date && new Date(`${autoFillForm.value.date}T12:00:00`).getDay() === 0
+);
+const canConfirmAutoFill = computed(() =>
+  canAdminAutoFill.value
+    && !autoFillSaving.value
+    && !!autoFillForm.value.date
+    && selectedAutoFillMembers.value.length > 0
+    && (!autoFillIsSunday.value || autoFillSundayConfirmed.value)
 );
 
 const completedToday = computed(() => {
@@ -487,6 +601,72 @@ const teamWeekRequired = computed(() =>
   activeMembers.value.length * memberWeekRequired.value
 );
 
+// ── Admin auto fill ─────────────────────────────────────────────────────────
+
+const openAutoFillModal = () => {
+  if (!canAdminAutoFill.value) {
+    pushToast('Permission denied', 'You do not have permission to auto fill eBay Click followups.', 'warning');
+    return;
+  }
+  autoFillForm.value = { date: today, reason: '', actionType: 'admin_auto_fill' };
+  autoFillExcludedIds.value = new Set();
+  autoFillSundayConfirmed.value = false;
+  autoFillOpen.value = true;
+};
+
+const closeAutoFillModal = () => {
+  if (autoFillSaving.value) return;
+  autoFillOpen.value = false;
+};
+
+const toggleAutoFillMember = (memberId: string, event: Event) => {
+  const checked = (event.target as HTMLInputElement).checked;
+  const next = new Set(autoFillExcludedIds.value);
+  if (checked) next.delete(memberId);
+  else next.add(memberId);
+  autoFillExcludedIds.value = next;
+};
+
+const confirmAutoFill = async () => {
+  if (!canAdminAutoFill.value) {
+    pushToast('Permission denied', 'You do not have permission to auto fill eBay Click followups.', 'warning');
+    return;
+  }
+  if (selectedAutoFillMembers.value.length === 0) {
+    pushToast('No active members found', 'No active members found for eBay Click followup.', 'warning');
+    return;
+  }
+  if (autoFillIsSunday.value && !autoFillSundayConfirmed.value) return;
+
+  autoFillSaving.value = true;
+  try {
+    const result = await followup.autoFillEbayClick({
+      date: autoFillForm.value.date,
+      actionType: autoFillForm.value.actionType,
+      reason: autoFillForm.value.reason,
+      excludedUserIds: [...autoFillExcludedIds.value]
+    });
+
+    if (!result) {
+      pushToast('Auto fill failed', followup.errorEbay || 'Auto fill failed. Please try again.', 'warning');
+      return;
+    }
+    if (result.affectedMemberCount === 0 && result.alreadyCompletedCount === 0) {
+      pushToast('No active members found', 'No active members found for eBay Click followup.', 'warning');
+      return;
+    }
+
+    const actionLabel = result.actionType === 'not_required_today' ? 'marked not required' : 'auto-filled';
+    const detail = result.alreadyCompletedCount > 0
+      ? `${result.autoFilledCount} ${actionLabel}, ${result.alreadyCompletedCount} already completed.`
+      : `eBay Click followup ${actionLabel} for ${result.autoFilledCount} member${result.autoFilledCount === 1 ? '' : 's'}.`;
+    pushToast('eBay Click updated', detail, 'success');
+    autoFillOpen.value = false;
+  } finally {
+    autoFillSaving.value = false;
+  }
+};
+
 // ── Toggle checkbox ──────────────────────────────────────────────────────────
 
 const toggleDay = async (day: CalendarDay) => {
@@ -509,8 +689,16 @@ const toggleDay = async (day: CalendarDay) => {
 
 // ── UI helpers ───────────────────────────────────────────────────────────────
 
-const statusLabel = (s: DayStatus) => {
-  if (s === 'done')       return 'Done';
+const completionLabel = (entry: EbayClickEntry | undefined) => {
+  if (!entry) return 'Completed by Member';
+  if (entry.completionSource === 'admin_auto_fill') return 'Admin Auto Completed';
+  if (entry.completionSource === 'not_required_today') return 'Not Required Today';
+  if (entry.completionSource === 'admin_manual') return 'Admin Completed';
+  return 'Completed by Member';
+};
+
+const statusLabel = (s: DayStatus, date?: string) => {
+  if (s === 'done')       return completionLabel(date ? ebayEntryFor(calendarUserId.value, date) : undefined);
   if (s === 'missed')     return 'Missed';
   if (s === 'no_work_day') return 'No Work Day';
   return 'Pending';
@@ -528,6 +716,130 @@ const initials = (name: string) =>
 </script>
 
 <style scoped>
+/* ── Admin auto-fill modal ───────────────────────────────────── */
+.ecf-auto-fill-btn {
+  white-space: nowrap;
+}
+
+.ecf-auto-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.ecf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ecf-field > span {
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: var(--text-main);
+}
+
+.ecf-field em {
+  color: var(--text-muted);
+  font-style: normal;
+  font-weight: 500;
+}
+
+.ecf-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  padding: 0.58rem 0.7rem;
+  font-size: 0.86rem;
+  outline: none;
+}
+
+.ecf-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-ring);
+}
+
+.ecf-textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.ecf-warning {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  border: 1px solid color-mix(in srgb, #f59e0b 35%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, #f59e0b 10%, var(--card-bg));
+  padding: 0.75rem;
+  color: var(--text-main);
+}
+
+.ecf-warning p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.ecf-warning label,
+.ecf-member-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+.ecf-warning input,
+.ecf-member-check input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--primary);
+}
+
+.ecf-member-picker {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--soft-bg) 45%, var(--card-bg));
+  overflow: hidden;
+}
+
+.ecf-member-picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.65rem 0.75rem;
+}
+
+.ecf-member-picker-head strong {
+  font-size: 0.84rem;
+  color: var(--text-main);
+}
+
+.ecf-member-picker-head span {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.ecf-member-picker-empty {
+  padding: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.ecf-member-checks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 0.4rem 0.75rem;
+  max-height: 13rem;
+  overflow: auto;
+  padding: 0.75rem;
+}
+
 /* ── Summary row ─────────────────────────────────────────────── */
 .ecf-summary-row {
   display: grid;

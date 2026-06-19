@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from './auth';
 import { useDataStore } from './data';
 import { useFollowupStore } from './followup';
+import { isFollowupParticipant } from '@/lib/roles';
 
 export interface WorkEvidence {
   id: string;
@@ -515,7 +516,7 @@ export const useReportsStore = defineStore('reports', () => {
         const memberWebsiteIds = new Set(
           dataStore.websites.filter(w => w.createdBy === m.id).map(w => w.id)
         );
-        const isAccountableRole = !['admin', 'owner', 'head', 'supervisor', 'quality_checker', 'reviewer'].includes(m.role || '');
+        const isAccountableRole = isFollowupParticipant(m);
 
         // Follow-up Completion Calculations
         const mBlog = blogSlots.filter(s => 

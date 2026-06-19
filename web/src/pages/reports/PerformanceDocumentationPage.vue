@@ -1365,7 +1365,7 @@ import { useDataStore } from '@/stores/data';
 import { useReportsStore, type MemberAccountabilitySummary } from '@/stores/reports';
 import { useQualityCheckStore } from '@/stores/qualityCheck';
 import { useFollowupStore } from '@/stores/followup';
-import { roleLabel } from '@/lib/roles';
+import { isFollowupParticipant, roleLabel } from '@/lib/roles';
 import {
   buildMemberReportObject,
   buildTeamReportObject,
@@ -1490,13 +1490,7 @@ const applyPreset = (preset: 'daily' | 'weekly' | 'monthly' | 'custom') => {
 
 // Selection options
 const activeMembers = computed(() => {
-  return dataStore.members.filter(m => {
-    const role = (m.role || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
-    return m.status === 'active' && 
-           role !== 'viewer' && 
-           role !== 'tester' && 
-           role !== 'employee';
-  });
+  return dataStore.members.filter(isFollowupParticipant);
 });
 
 const uniqueTeams = computed(() => {
@@ -1670,6 +1664,13 @@ const getMemberFollowupFraction = (memberId: string) => {
   return `${completed}/${rows.length}`;
 };
 
+const ebayCompletionLabel = (entry: any) => {
+  if (entry?.completionSource === 'admin_auto_fill' || entry?.completion_source === 'admin_auto_fill') return 'Admin Auto Completed';
+  if (entry?.completionSource === 'not_required_today' || entry?.completion_source === 'not_required_today') return 'Not Required Today';
+  if (entry?.completionSource === 'admin_manual' || entry?.completion_source === 'admin_manual') return 'Admin Completed';
+  return 'Completed by Member';
+};
+
 const combinedFollowupRows = computed(() => {
   const rows: any[] = [];
   const start = localFilters.startDate;
@@ -1732,6 +1733,7 @@ const combinedFollowupRows = computed(() => {
     // eBay
     followupStore.ebayEntries.forEach(s => {
       if (s.userId === memberId && s.date >= start && s.date <= end) {
+        const sourceLabel = ebayCompletionLabel(s);
         rows.push({
           id: s.id,
           type: 'eBay Follow-Up',
@@ -1739,7 +1741,7 @@ const combinedFollowupRows = computed(() => {
           assignedTo: s.userId,
           scheduledDate: s.date,
           status: s.status,
-          notes: `Feedback click routine completed on ${s.dayName}`
+          notes: `${sourceLabel} on ${s.dayName}${s.reason ? ` — ${s.reason}` : ''}`
         });
       }
     });

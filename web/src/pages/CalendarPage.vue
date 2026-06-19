@@ -64,7 +64,7 @@ import MonthSelector from '@/components/board/MonthSelector.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
 import { useFollowupStore } from '@/stores/followup';
-import { normalizeRole } from '@/lib/roles';
+import { isFollowupParticipant } from '@/lib/roles';
 
 const auth = useAuthStore();
 const data = useDataStore();
@@ -171,14 +171,7 @@ const eventsByDate = computed(() => {
   });
 
   // Rollup eBay Clicks
-  const activeMembersCount = data.members.filter((m) => {
-    const role = normalizeRole(m.role);
-    return m.status === 'active' && 
-           role !== 'supervisor' &&
-           role !== 'viewer' &&
-           role !== 'tester' &&
-           role !== 'employee';
-  }).length;
+  const activeMembersCount = data.members.filter(isFollowupParticipant).length;
   const totalEbayRequired = isAdmin ? activeMembersCount : 1;
 
   followup.ebayEntries

@@ -679,6 +679,9 @@ export const useFollowupStore = defineStore('followup', () => {
     if (input.status === 'done' || input.status === 'late') {
       if (!row['completed_by']) row['completed_by'] = auth.user?.id ?? null;
       if (!row['completed_at']) row['completed_at'] = new Date().toISOString();
+      row['completed_by_user_id'] = auth.user?.id ?? null;
+      row['completed_by_role'] = auth.profile?.role ?? null;
+      row['completion_source'] = 'member_completed';
     }
 
     if (input.id) row['id'] = input.id;
@@ -804,6 +807,11 @@ export const useFollowupStore = defineStore('followup', () => {
     if (input.status === 'done' || input.status === 'needs_attention') {
       if (!row['completed_by']) row['completed_by'] = auth.user?.id ?? null;
       if (!row['completed_at']) row['completed_at'] = new Date().toISOString();
+      if (input.status === 'done') {
+        row['completed_by_user_id'] = auth.user?.id ?? null;
+        row['completed_by_role'] = auth.profile?.role ?? null;
+        row['completion_source'] = 'member_completed';
+      }
     }
 
     if (input.id) row['id'] = input.id;
@@ -930,6 +938,11 @@ export const useFollowupStore = defineStore('followup', () => {
     if (input.status === 'done' || input.status === 'needs_attention') {
       if (!row['completed_by']) row['completed_by'] = auth.user?.id ?? null;
       if (!row['completed_at']) row['completed_at'] = new Date().toISOString();
+      if (input.status === 'done') {
+        row['completed_by_user_id'] = auth.user?.id ?? null;
+        row['completed_by_role'] = auth.profile?.role ?? null;
+        row['completion_source'] = 'member_completed';
+      }
     }
 
     if (input.id) row['id'] = input.id;

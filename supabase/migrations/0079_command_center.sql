@@ -75,3 +75,4 @@ insert into public.command_center_metrics (label, value, trend) values
   ('Active Projects', '14', 'stable'),
   ('Conversion Rate', '3.1%', '+0.4%')
 on conflict do nothing;
+ 

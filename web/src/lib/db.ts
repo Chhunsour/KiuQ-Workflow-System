@@ -51,6 +51,7 @@ export interface ProfileRow {
   notes: string;
   last_seen_update_id?: string | null;
   department?: string | null;
+  include_in_reports?: boolean | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -78,7 +79,8 @@ export const profileToMember = (r: ProfileRow): Member => ({
   updatedAt: r.updated_at ?? '',
   notes: r.notes ?? '',
   lastSeenUpdateId: r.last_seen_update_id ?? '',
-  department: r.department ?? 'website_team'
+  department: r.department ?? 'website_team',
+  includeInReports: r.include_in_reports ?? true
 });
 
 export const memberToProfile = (m: Member): Partial<ProfileRow> => ({
@@ -102,7 +104,8 @@ export const memberToProfile = (m: Member): Partial<ProfileRow> => ({
   current_page: m.currentPage || null,
   notes: m.notes,
   last_seen_update_id: m.lastSeenUpdateId || null,
-  department: m.department || 'website_team'
+  department: m.department || 'website_team',
+  include_in_reports: m.includeInReports ?? true
 });
 
 // =====================

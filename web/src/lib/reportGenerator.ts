@@ -1,4 +1,5 @@
 import { type ProfileRow } from '@/lib/db';
+import { isFollowupParticipant } from '@/lib/roles';
 
 export interface ReportMemberInfo {
   fullName: string;
@@ -146,6 +147,19 @@ function isDateInRange(dateStr: string, start: string, end: string): boolean {
   return d >= start && d <= end;
 }
 
+function ebayCompletionLabel(entry: any): string {
+  if (entry?.completionSource === 'admin_auto_fill' || entry?.completion_source === 'admin_auto_fill') {
+    return 'Admin Auto Completed';
+  }
+  if (entry?.completionSource === 'not_required_today' || entry?.completion_source === 'not_required_today') {
+    return 'Not Required Today';
+  }
+  if (entry?.completionSource === 'admin_manual' || entry?.completion_source === 'admin_manual') {
+    return 'Admin Completed';
+  }
+  return 'Completed by Member';
+}
+
 // Extraction logic for a specific member's dataset
 function getMemberAssignmentsForPeriod(memberId: string, start: string, end: string, dataStore: any): any[] {
   return dataStore.assignments.filter((a: any) => {
@@ -248,6 +262,7 @@ function getCombinedFollowupRows(start: string, end: string, dataStore: any, fol
     // eBay
     followupStore.ebayEntries.forEach((s: any) => {
       if (s.userId === memberId && s.date >= start && s.date <= end) {
+        const sourceLabel = ebayCompletionLabel(s);
         rows.push({
           id: s.id,
           type: 'eBay Follow-Up',
@@ -255,7 +270,7 @@ function getCombinedFollowupRows(start: string, end: string, dataStore: any, fol
           assignedTo: s.userId,
           scheduledDate: s.date,
           status: s.status,
-          notes: `Feedback click routine completed on ${s.dayName}`
+          notes: `${sourceLabel} on ${s.dayName}${s.reason ? ` — ${s.reason}` : ''}`
         });
       }
     });
@@ -376,7 +391,7 @@ export function buildTeamReportObject(params: {
   const periodStr = `${formatDate(startDate)} — ${formatDate(endDate)}`;
 
   // Filter members
-  let activeMembers = dataStore.members.filter((m: any) => m.status === 'active');
+  let activeMembers = dataStore.members.filter((m: any) => isFollowupParticipant(m));
   if (selectedTeam) {
     activeMembers = activeMembers.filter((m: any) => getMemberPosition(m.id, dataStore) === selectedTeam);
   }
@@ -1286,7 +1301,7 @@ export function buildDailyTeamReportObject(params: {
   const now = new Date();
   const generatedTime = now.toTimeString().split(' ')[0];
 
-  const activeMembers = dataStore.members.filter((m: any) => m.status === 'active');
+  const activeMembers = dataStore.members.filter((m: any) => isFollowupParticipant(m));
   const dailyFollowups = getCombinedFollowupRows(dateStr, dateStr, dataStore, followupStore);
 
   // Completed today
@@ -1971,4 +1986,3 @@ export function printDailyReportAsPdf(dailyReport: DailyTeamReportObject): boole
   printWindow.document.close();
   return true;
 }
-

@@ -20,6 +20,7 @@ as $$
       and role in ('admin', 'owner', 'head', 'supervisor')
       and status = 'active'
   );
+$$;
 
 revoke all on function public.is_quality_manager() from public;
 grant execute on function public.is_quality_manager() to authenticated;

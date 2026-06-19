@@ -57,6 +57,7 @@ import {
 } from '@/lib/db';
 import { useAuthStore } from '@/stores/auth';
 import { useFollowupStore } from '@/stores/followup';
+import { isAdminRole, isDashboardVisibleMember } from '@/lib/roles';
 import type { Status } from '@/components/ui/StatusBadge.vue';
 
 // =====================
@@ -210,6 +211,7 @@ export interface Member {
   notes: string;
   lastSeenUpdateId: string;
   department?: string;
+  includeInReports?: boolean;
 }
 
 export interface SystemUpdate {
@@ -608,6 +610,33 @@ export interface Resource {
   mimeType?: string;
 }
 
+export interface TeamMemberSummary {
+  memberId: string;
+  fullName: string;
+  role: string;
+  email: string;
+  status: string;
+  avatarUrl: string | null;
+  currentStatus: MemberPresenceStatus;
+  lastActiveAt: string | null;
+  createdAt: string;
+  followupsDone: number;
+  followupsTotal: number;
+  followupsPending: number;
+  followupsMissed: number;
+  followupsNotRequired: number;
+  followupsAutoCompleted: number;
+  tasksInProgress: number;
+  tasksWaitingReview: number;
+  tasksCompleted: number;
+  tasksOverdue: number;
+  qiAssigned: number;
+  qiFixed: number;
+  qiWaitingReview: number;
+  qiNeedsFix: number;
+  completedWorkCount: number;
+}
+
 type EntityKey =
   | 'members'
   | 'projects'
@@ -786,7 +815,7 @@ export const useDataStore = defineStore('data', () => {
 
   // ============= Members (profiles) =============
   const profileSelect =
-    'id, full_name, email, role, status, avatar_url, username, position, phone, bio, preferred_theme, is_online, current_status, last_active_at, last_login_at, last_logout_at, today_activity_count, current_page, notes, last_seen_update_id, created_at, updated_at';
+    'id, full_name, email, role, status, avatar_url, username, position, phone, bio, preferred_theme, is_online, current_status, last_active_at, last_login_at, last_logout_at, today_activity_count, current_page, notes, last_seen_update_id, department, include_in_reports, created_at, updated_at';
 
   const fetchMembers = async (force = false) => {
     if (!beginFetch('members', force)) return;
@@ -2628,6 +2657,188 @@ export const useDataStore = defineStore('data', () => {
     ]);
   };
 
+  const teamMemberSummaries = ref<TeamMemberSummary[]>([]);
+  const loadingTeamSummary = ref(false);
+  const teamMemberSummaryError = ref<string | null>(null);
+
+  const normalizePresenceStatus = (status: string | null | undefined): MemberPresenceStatus => {
+    if (status === 'online' || status === 'away' || status === 'offline') return status;
+    return 'offline';
+  };
+
+  const emptyTeamMemberSummary = (member: Member): TeamMemberSummary => ({
+    memberId: member.id,
+    fullName: member.fullName || member.email || 'Team member',
+    role: member.role || 'member',
+    email: member.email || '',
+    status: member.status || 'active',
+    avatarUrl: member.avatarUrl || null,
+    currentStatus: normalizePresenceStatus(member.currentStatus || (member.isOnline ? 'online' : 'offline')),
+    lastActiveAt: member.lastActiveAt || null,
+    createdAt: member.createdAt || '',
+    followupsDone: 0,
+    followupsTotal: 0,
+    followupsPending: 0,
+    followupsMissed: 0,
+    followupsNotRequired: 0,
+    followupsAutoCompleted: 0,
+    tasksInProgress: 0,
+    tasksWaitingReview: 0,
+    tasksCompleted: 0,
+    tasksOverdue: 0,
+    qiAssigned: 0,
+    qiFixed: 0,
+    qiWaitingReview: 0,
+    qiNeedsFix: 0,
+    completedWorkCount: 0
+  });
+
+  const fallbackTeamMemberSummaries = () =>
+    members.value
+      .filter(isDashboardVisibleMember)
+      .map(emptyTeamMemberSummary)
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+
+  const rowToTeamMemberSummary = (row: any): TeamMemberSummary => ({
+    memberId: row.member_id,
+    fullName: row.full_name || row.email || 'Team member',
+    role: row.role || 'member',
+    email: row.email || '',
+    status: row.status || 'active',
+    avatarUrl: row.avatar_url || null,
+    currentStatus: normalizePresenceStatus(row.current_status),
+    lastActiveAt: row.last_active_at || null,
+    createdAt: row.created_at || '',
+    followupsDone: Number(row.followups_done) || 0,
+    followupsTotal: Number(row.followups_total) || 0,
+    followupsPending: Number(row.followups_pending) || 0,
+    followupsMissed: Number(row.followups_missed) || 0,
+    followupsNotRequired: Number(row.followups_not_required) || 0,
+    followupsAutoCompleted: Number(row.followups_auto_completed) || 0,
+    tasksInProgress: Number(row.tasks_in_progress) || 0,
+    tasksWaitingReview: Number(row.tasks_waiting_review) || 0,
+    tasksCompleted: Number(row.tasks_completed) || 0,
+    tasksOverdue: Number(row.tasks_overdue) || 0,
+    qiAssigned: Number(row.qi_assigned) || 0,
+    qiFixed: Number(row.qi_fixed) || 0,
+    qiWaitingReview: Number(row.qi_waiting_review) || 0,
+    qiNeedsFix: Number(row.qi_needs_fix) || 0,
+    completedWorkCount: Number(row.completed_work_count) || 0
+  });
+
+  const fetchTeamMemberSummary = async (startDate: string, endDate: string) => {
+    loadingTeamSummary.value = true;
+    teamMemberSummaryError.value = null;
+    try {
+      const auth = useAuthStore();
+
+      if (!isAdminRole(auth.profile?.role)) {
+        teamMemberSummaries.value = [];
+        teamMemberSummaryError.value = 'You do not have permission to view team member details.';
+        return;
+      }
+
+      if (members.value.length === 0) {
+        await fetchMembers(true);
+      }
+
+      if (!supabaseConfigured) {
+        const fallback = fallbackTeamMemberSummaries();
+        teamMemberSummaries.value = fallback;
+        teamMemberSummaryError.value = fallback.length > 0
+          ? 'Could not load summary counts.'
+          : 'Could not load team member details.';
+        return;
+      }
+
+      const { data, error } = await supabase.rpc('get_team_member_dashboard_summary', {
+        p_start_date: startDate,
+        p_end_date: endDate
+      });
+
+      if (error) {
+        console.error('[data] fetchTeamMemberSummary RPC error:', error);
+        const fallback = fallbackTeamMemberSummaries();
+        teamMemberSummaries.value = fallback;
+        teamMemberSummaryError.value = fallback.length > 0
+          ? 'Could not load summary counts.'
+          : 'Could not load team member details.';
+        return;
+      }
+      const summaries = (data || [])
+        .map(rowToTeamMemberSummary)
+        .filter(isDashboardVisibleMember);
+      teamMemberSummaries.value = summaries.length > 0 ? summaries : fallbackTeamMemberSummaries();
+    } catch (err) {
+      console.error('[data] fetchTeamMemberSummary error:', err);
+      const fallback = fallbackTeamMemberSummaries();
+      teamMemberSummaries.value = fallback;
+      teamMemberSummaryError.value = fallback.length > 0
+        ? 'Could not load summary counts.'
+        : 'Could not load team member details.';
+    } finally {
+      loadingTeamSummary.value = false;
+    }
+  };
+
+  const fetchMemberDetailedData = async (memberId: string, startDate: string, endDate: string) => {
+    try {
+      const [logsRes, tasksRes, qiRes] = await Promise.all([
+        supabase
+          .from('activity_logs')
+          .select('id, user_id, action, related_type, related_id, message, created_at')
+          .eq('user_id', memberId)
+          .order('created_at', { ascending: false })
+          .limit(10),
+        supabase
+          .from('prompt_assignments')
+          .select('id, prompt_id, project_id, website_id, assigned_member_id, assigned_by, status, filled_values, pasted_result, due_date, priority, admin_note, started_at, completed_at, assigned_at, updated_at')
+          .eq('assigned_member_id', memberId)
+          .gte('due_date', startDate)
+          .lte('due_date', endDate)
+          .order('due_date', { ascending: true }),
+        supabase
+          .from('quality_issues')
+          .select('id, website_id, title, description, page_url, issue_type, priority, status, assigned_to, screenshot_url, due_date, created_by, created_at, updated_at, approved_by, approved_at, is_archived')
+          .eq('assigned_to', memberId)
+          .eq('is_archived', false)
+          .or(`due_date.is.null,and(due_date.gte.${startDate},due_date.lte.${endDate})`)
+          .order('created_at', { ascending: false })
+      ]);
+
+      if (logsRes.error) console.error('[data] detailed logs fetch error:', logsRes.error);
+      if (tasksRes.error) console.error('[data] detailed tasks fetch error:', tasksRes.error);
+      if (qiRes.error) console.error('[data] detailed QI fetch error:', qiRes.error);
+
+      return {
+        activities: (logsRes.data || []).map(activityLogRowToActivity),
+        tasks: (tasksRes.data || []).map(assignmentRowToAssignment),
+        qualityIssues: (qiRes.data || []).map((r: any) => ({
+          id: r.id,
+          websiteId: r.website_id,
+          title: r.title,
+          description: r.description ?? '',
+          pageUrl: r.page_url ?? '',
+          issueType: r.issue_type,
+          priority: r.priority,
+          status: r.status,
+          assignedTo: r.assigned_to,
+          screenshotUrl: r.screenshot_url,
+          dueDate: r.due_date,
+          createdBy: r.created_by,
+          createdAt: r.created_at,
+          updatedAt: r.updated_at,
+          approvedBy: r.approved_by,
+          approvedAt: r.approved_at,
+          isArchived: r.is_archived || false
+        }))
+      };
+    } catch (err) {
+      console.error('[data] fetchMemberDetailedData error:', err);
+      return { activities: [], tasks: [], qualityIssues: [] };
+    }
+  };
+
   // ============= Derived =============
   const totalMembers = computed(() => members.value.length);
   const totalProjects = computed(() => projects.value.length);
@@ -2936,6 +3147,11 @@ export const useDataStore = defineStore('data', () => {
     fetchPromptReplacements,
     fetchAll,
     fetchDashboardSummary,
+    teamMemberSummaries,
+    loadingTeamSummary,
+    teamMemberSummaryError,
+    fetchTeamMemberSummary,
+    fetchMemberDetailedData,
     // mutations
     handleRealtimePayload,
     upsertMember,

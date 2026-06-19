@@ -38,6 +38,90 @@ export const isLeaderboardParticipant = (input: RoleInput) => {
   return normalized === 'member' || normalized === 'team_member';
 };
 
+type FollowupUserInput = {
+  role?: string | null;
+  status?: string | null;
+  department?: string | null;
+  includeInReports?: boolean | null;
+  include_in_reports?: boolean | null;
+} | string | null | undefined;
+
+type DashboardVisibleUserInput = {
+  role?: string | null;
+  status?: string | null;
+  includeInReports?: boolean | null;
+  include_in_reports?: boolean | null;
+  excludedFromReports?: boolean | null;
+  excluded_from_reports?: boolean | null;
+  deletedAt?: string | null;
+  deleted_at?: string | null;
+  isDeleted?: boolean | null;
+  is_deleted?: boolean | null;
+} | string | null | undefined;
+
+export const isFollowupRequiredRole = (input: RoleInput) => {
+  const normalized = normalizeRole(input);
+  return normalized === 'admin'
+      || normalized === 'owner'
+      || normalized === 'head'
+      || normalized === 'assistant_head'
+      || normalized === 'team_member'
+      || normalized === 'member';
+};
+
+export const isFollowupParticipant = (input: FollowupUserInput | DashboardVisibleUserInput): boolean => {
+  if (!input) return false;
+  if (typeof input === 'string') {
+    return isFollowupRequiredRole(input);
+  }
+
+  const role = normalizeRole(input.role);
+  const status = (input.status ?? 'active').trim().toLowerCase();
+  const deleted = Boolean(
+    (input as any).deletedAt ||
+    (input as any).deleted_at ||
+    (input as any).isDeleted ||
+    (input as any).is_deleted
+  );
+  
+  const includeInReports = (input as any).includeInReports ?? (input as any).include_in_reports;
+  const excludedFromReports = (input as any).excludedFromReports ?? (input as any).excluded_from_reports;
+  const isExcluded = excludedFromReports === true || includeInReports === false;
+
+  return status === 'active'
+      && !deleted
+      && !isExcluded
+      && isFollowupRequiredRole(role);
+};
+
+export const isFollowupRequiredUser = (input: FollowupUserInput | DashboardVisibleUserInput) => {
+  return isFollowupParticipant(input);
+};
+
+export const isDashboardVisibleRole = (input: RoleInput) => {
+  const normalized = normalizeRole(input);
+  return normalized === 'head'
+      || normalized === 'admin'
+      || normalized === 'owner'
+      || normalized === 'assistant_head'
+      || normalized === 'member'
+      || normalized === 'team_member';
+};
+
+export const isDashboardVisibleMember = (input: DashboardVisibleUserInput) => {
+  if (typeof input === 'string' || input == null) return isDashboardVisibleRole(input);
+  const status = (input.status ?? 'active').trim().toLowerCase();
+  const includeInReports = input.includeInReports ?? input.include_in_reports ?? true;
+  const excludedFromReports = input.excludedFromReports ?? input.excluded_from_reports ?? false;
+  const deleted = Boolean(input.deletedAt || input.deleted_at || input.isDeleted || input.is_deleted);
+
+  return status === 'active'
+      && !deleted
+      && includeInReports !== false
+      && excludedFromReports !== true
+      && isDashboardVisibleRole(input.role);
+};
+
 export const isAdminActivityUser = (input: RoleInput) => {
   const normalized = normalizeRole(input);
   return normalized === 'admin' || normalized === 'owner'

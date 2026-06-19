@@ -43,7 +43,27 @@
           <span class="fu-card-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </span>
-          <span class="fu-card-freq">Tue &amp; Sat</span>
+          <div class="fu-card-top-right">
+            <span class="fu-card-freq">Tue &amp; Sat</span>
+            <div v-if="canManageFollowups" class="fu-card-opt-wrapper">
+              <button
+                type="button"
+                class="fu-card-opt-btn"
+                @click.prevent.stop="toggleDropdown('blog')"
+                aria-label="Quick Actions"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+              </button>
+              
+              <div v-if="activeDropdownCard === 'blog'" class="fu-card-dropdown">
+                <RouterLink to="/followup/blog" class="fu-dropdown-item">Open Blog Followup</RouterLink>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('blog', 'admin_auto_completed')">Mark Due Blog Followups Done</button>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('blog', 'admin_marked_not_required')">Mark Due Blog Followups Not Required</button>
+                <RouterLink to="/followup/blog" class="fu-dropdown-item">View Due Today</RouterLink>
+                <RouterLink to="/followup/blog" class="fu-dropdown-item">View Overdue</RouterLink>
+              </div>
+            </div>
+          </div>
         </div>
         <h2 class="fu-card-title">Blog Followup</h2>
         <p class="fu-card-desc">Track scheduled blog publishing requirements for each website.</p>
@@ -62,7 +82,27 @@
           <span class="fu-card-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
           </span>
-          <span class="fu-card-freq">Weekly</span>
+          <div class="fu-card-top-right">
+            <span class="fu-card-freq">Weekly</span>
+            <div v-if="canManageFollowups" class="fu-card-opt-wrapper">
+              <button
+                type="button"
+                class="fu-card-opt-btn"
+                @click.prevent.stop="toggleDropdown('plugin')"
+                aria-label="Quick Actions"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+              </button>
+              
+              <div v-if="activeDropdownCard === 'plugin'" class="fu-card-dropdown">
+                <RouterLink to="/followup/plugins" class="fu-dropdown-item">Open Plugin Update</RouterLink>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('plugin', 'admin_auto_completed')">Mark This Week’s Plugin Updates Done</button>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('plugin', 'admin_marked_not_required')">Mark This Week Not Required</button>
+                <RouterLink to="/followup/plugins" class="fu-dropdown-item">View Pending This Week</RouterLink>
+                <RouterLink to="/followup/plugins" class="fu-dropdown-item">View Overdue</RouterLink>
+              </div>
+            </div>
+          </div>
         </div>
         <h2 class="fu-card-title">Plugin Update</h2>
         <p class="fu-card-desc">Check &amp; update WordPress plugins once per week per website.</p>
@@ -81,7 +121,27 @@
           <span class="fu-card-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </span>
-          <span class="fu-card-freq">Mon – Sat</span>
+          <div class="fu-card-top-right">
+            <span class="fu-card-freq">Mon – Sat</span>
+            <div v-if="canManageFollowups" class="fu-card-opt-wrapper">
+              <button
+                type="button"
+                class="fu-card-opt-btn"
+                @click.prevent.stop="toggleDropdown('ebay')"
+                aria-label="Quick Actions"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+              </button>
+              
+              <div v-if="activeDropdownCard === 'ebay'" class="fu-card-dropdown">
+                <RouterLink to="/followup/ebay-click" class="fu-dropdown-item">Open eBay Click Followup</RouterLink>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('ebay', 'admin_auto_fill')">Auto Fill Today for All Members</button>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('ebay', 'not_required_today')">Mark Today Not Required</button>
+                <RouterLink to="/followup/ebay-click" class="fu-dropdown-item">View Today’s Pending Members</RouterLink>
+                <RouterLink to="/followup/ebay-click" class="fu-dropdown-item">View Overdue</RouterLink>
+              </div>
+            </div>
+          </div>
         </div>
         <h2 class="fu-card-title">eBay Click Followup</h2>
         <p class="fu-card-desc">Check the eBay listing daily and tick it off when done.</p>
@@ -109,7 +169,27 @@
           <span class="fu-card-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </span>
-          <span class="fu-card-freq">Weekly</span>
+          <div class="fu-card-top-right">
+            <span class="fu-card-freq">Weekly</span>
+            <div v-if="canManageFollowups" class="fu-card-opt-wrapper">
+              <button
+                type="button"
+                class="fu-card-opt-btn"
+                @click.prevent.stop="toggleDropdown('speed')"
+                aria-label="Quick Actions"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+              </button>
+              
+              <div v-if="activeDropdownCard === 'speed'" class="fu-card-dropdown">
+                <RouterLink to="/followup/speed-optimization" class="fu-dropdown-item">Open Website Optimization</RouterLink>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('speed', 'admin_auto_completed')">Mark This Week’s Speed Checks Done</button>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('speed', 'admin_marked_not_required')">Mark This Week Not Required</button>
+                <RouterLink to="/followup/speed-optimization" class="fu-dropdown-item">View Pending Websites</RouterLink>
+                <RouterLink to="/followup/speed-optimization" class="fu-dropdown-item">View Overdue</RouterLink>
+              </div>
+            </div>
+          </div>
         </div>
         <h2 class="fu-card-title">Website Optimization</h2>
         <p class="fu-card-desc">Run a weekly speed check &amp; performance review per website.</p>
@@ -246,15 +326,97 @@
         </div>
       </div>
     </section>
+
+    <!-- ════ Confirmation Modal ════ -->
+    <div v-if="confirmModal" class="fu-modal-overlay" role="dialog" aria-modal="true">
+      <div class="fu-modal card">
+        <div class="fu-modal-head">
+          <h3 class="fu-modal-title">
+            {{ getModalTitle(confirmModal) }}
+          </h3>
+          <p class="fu-modal-sub">
+            {{ getModalSub(confirmModal) }}
+          </p>
+        </div>
+
+        <div class="fu-modal-body">
+          <div class="fu-modal-meta-grid">
+            <div class="fu-modal-meta-item">
+              <span class="fu-meta-label">Period / Date</span>
+              <span class="fu-meta-value">{{ confirmModal.periodLabel }}</span>
+            </div>
+            <div class="fu-modal-meta-item">
+              <span class="fu-meta-label">Pending Updates</span>
+              <span class="fu-meta-value font-bold text-amber-500">{{ confirmModal.affectedCount }}</span>
+            </div>
+            <div class="fu-modal-meta-item">
+              <span class="fu-meta-label">Already Completed</span>
+              <span class="fu-meta-value text-green-500">{{ confirmModal.completedCount }}</span>
+            </div>
+          </div>
+
+          <!-- Sunday warning for eBay Click -->
+          <div v-if="confirmModal.cardType === 'ebay' && isSundayDate(confirmModal.targetKey)" class="fu-warning-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-500 flex-shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>
+              <p class="font-bold text-sm">Sunday Warning</p>
+              <p class="text-xs text-text-muted mt-0.5">Sunday is normally a non-working day for eBay Click. Please confirm if you want to proceed.</p>
+              <label class="fu-checkbox-label mt-2">
+                <input v-model="confirmModal.sundayConfirmed" type="checkbox" />
+                <span class="text-xs">Yes, auto fill this Sunday date</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Affected items list -->
+          <div v-if="confirmModal.affectedNames.length > 0" class="fu-modal-affected">
+            <h4 class="fu-affected-title">
+              {{ confirmModal.cardType === 'ebay' ? 'Members affected:' : 'Websites affected:' }}
+            </h4>
+            <div class="fu-affected-list">
+              <span v-for="name in confirmModal.affectedNames" :key="name" class="fu-affected-tag">
+                {{ name }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Reason Field -->
+          <div class="fu-field mt-4">
+            <span class="fu-field-label">Reason <em class="text-xs text-text-muted">(optional)</em></span>
+            <textarea
+              v-model="confirmModal.reason"
+              rows="3"
+              class="fu-textarea"
+              placeholder="e.g. Completed during weekly review, holiday, etc."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="fu-modal-foot">
+          <button type="button" class="btn-secondary" :disabled="isSubmitting" @click="confirmModal = null">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn-primary"
+            :disabled="isSubmitting || (confirmModal.cardType === 'ebay' && isSundayDate(confirmModal.targetKey) && !confirmModal.sundayConfirmed)"
+            @click="executeBulkAction"
+          >
+            {{ isSubmitting ? 'Processing…' : 'Confirm' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type Member } from '@/stores/data';
 import { useImagePreviewStore } from '@/stores/imagePreview';
+import { pushToast } from '@/services/realtimeService';
 
 const previewStore = useImagePreviewStore();
 const openPhotoPreview = (member: any) => {
@@ -267,8 +429,8 @@ const openPhotoPreview = (member: any) => {
     });
   }
 };
-import { useFollowupStore } from '@/stores/followup';
-import { normalizeRole } from '@/lib/roles';
+import { useFollowupStore, type EbayAutoFillActionType } from '@/stores/followup';
+import { isFollowupParticipant } from '@/lib/roles';
 
 const auth = useAuthStore();
 const data = useDataStore();
@@ -366,14 +528,7 @@ const initials = (name: string) =>
 
 // ── Members shown: active members + admins who own websites ──────────────────
 const summaryMembers = computed(() => {
-  const all = data.members.filter((m) => {
-    const role = normalizeRole(m.role);
-    return m.status === 'active' && 
-           role !== 'supervisor' &&
-           role !== 'viewer' &&
-           role !== 'tester' &&
-           role !== 'employee';
-  });
+  const all = data.members.filter(isFollowupParticipant);
   if (auth.isAdmin) return all;
   const userId = auth.user?.id;
   return all.filter((m) => m.id === userId);
@@ -564,6 +719,16 @@ const pluginCell = (memberId: string): Cell => {
 };
 
 // eBay: required Mon–Sat (skip Sun)
+const ebayEntryFor = (memberId: string, date: string) =>
+  followup.ebayEntries.find((e) => e.userId === memberId && e.date === date && e.status === 'done');
+
+const ebayCompletionLabel = (entry: ReturnType<typeof ebayEntryFor>) => {
+  if (entry?.completionSource === 'admin_auto_fill') return 'Admin Auto Completed';
+  if (entry?.completionSource === 'not_required_today') return 'Not Required Today';
+  if (entry?.completionSource === 'admin_manual') return 'Admin Completed';
+  return 'Completed by Member';
+};
+
 const ebayCell = (memberId: string): Cell => {
   const doneDates = new Set(
     followup.ebayEntries
@@ -575,7 +740,7 @@ const ebayCell = (memberId: string): Cell => {
     const targetDate = dailyBounds.value.dateStr;
     const targetDow = new Date(`${targetDate}T12:00:00`).getDay();
     if (targetDow === 0) return { state: 'none', label: '—' }; // Sunday
-    if (doneDates.has(targetDate)) return { state: 'done', label: 'Done' };
+    if (doneDates.has(targetDate)) return { state: 'done', label: ebayCompletionLabel(ebayEntryFor(memberId, targetDate)) };
     if (targetDate < today) return { state: 'missed', label: 'Missed' };
     if (targetDate > today) return { state: 'none', label: '—' };
     return { state: 'pending', label: 'Pending' };
@@ -898,6 +1063,294 @@ const speedStats = computed(() => {
 
 const speedTotal = computed(() => speedStats.value.total);
 const speedDoneTotal = computed(() => speedStats.value.done);
+
+// ── Quick Actions and Confirmation Modal ──────────────────────────────────────
+const activeDropdownCard = ref<'blog' | 'plugin' | 'ebay' | 'speed' | null>(null);
+
+const canManageFollowups = computed(() => {
+  return auth.isAdmin || auth.isHeadOrSupervisor;
+});
+
+const toggleDropdown = (card: 'blog' | 'plugin' | 'ebay' | 'speed') => {
+  if (activeDropdownCard.value === card) {
+    activeDropdownCard.value = null;
+  } else {
+    activeDropdownCard.value = card;
+  }
+};
+
+const closeDropdown = () => {
+  activeDropdownCard.value = null;
+};
+
+const handleDocumentClick = (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+  if (!target.closest('.fu-card-opt-wrapper')) {
+    activeDropdownCard.value = null;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick);
+});
+
+// Confirmation Modal State
+interface ConfirmModalState {
+  cardType: 'blog' | 'plugin' | 'ebay' | 'speed';
+  actionType: 'admin_auto_completed' | 'admin_marked_not_required' | 'admin_auto_fill' | 'not_required_today';
+  periodLabel: string;
+  targetKey: string;
+  affectedCount: number;
+  completedCount: number;
+  affectedNames: string[];
+  reason: string;
+  sundayConfirmed?: boolean;
+}
+
+const confirmModal = ref<ConfirmModalState | null>(null);
+const isSubmitting = ref(false);
+
+const getCurrentTargetDate = () => {
+  if (viewMode.value === 'daily') {
+    return dailyBounds.value.dateStr;
+  }
+  return today;
+};
+
+const getCurrentTargetWeekStart = () => {
+  if (viewMode.value === 'weekly') {
+    return weeklyBounds.value.monStr;
+  }
+  const refDateStr = viewMode.value === 'daily' ? dailyBounds.value.dateStr : today;
+  const refDate = new Date(`${refDateStr}T12:00:00`);
+  const dow = refDate.getDay();
+  const diffToMon = dow === 0 ? -6 : 1 - dow;
+  const mon = new Date(refDate);
+  mon.setDate(refDate.getDate() + diffToMon);
+  return iso(mon);
+};
+
+const isSundayDate = (dateStr: string) => {
+  if (!dateStr) return false;
+  return new Date(`${dateStr}T12:00:00`).getDay() === 0;
+};
+
+const openConfirmModal = (
+  cardType: 'blog' | 'plugin' | 'ebay' | 'speed',
+  actionType: 'admin_auto_completed' | 'admin_marked_not_required' | 'admin_auto_fill' | 'not_required_today'
+) => {
+  closeDropdown();
+
+  let periodLabel = '';
+  let targetKey = '';
+  let affectedCount = 0;
+  let completedCount = 0;
+  const affectedNames: string[] = [];
+
+  const activeWebsites = data.websites.filter(w => w.status === 'active');
+  const activeMembersList = data.members.filter(isFollowupParticipant);
+
+  if (cardType === 'blog') {
+    const targetDate = getCurrentTargetDate();
+    targetKey = targetDate;
+    periodLabel = new Date(`${targetDate}T12:00:00`).toLocaleDateString('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+    });
+
+    activeWebsites.forEach((w) => {
+      const schedule = followup.scheduleFor(w.id);
+      if (isBlogDateRequired(w.id, targetDate, schedule)) {
+        const slot = followup.blogSlots.find(
+          (s) => s.websiteId === w.id && s.scheduledDate === targetDate
+        );
+        const isDone = slot && (slot.status === 'done' || slot.status === 'late');
+        if (isDone) {
+          completedCount++;
+        } else {
+          affectedCount++;
+          affectedNames.push(w.name);
+        }
+      }
+    });
+  } else if (cardType === 'plugin') {
+    const weekStartStr = getCurrentTargetWeekStart();
+    targetKey = weekStartStr;
+    const weekMon = new Date(`${weekStartStr}T12:00:00`);
+    const weekSun = new Date(weekMon);
+    weekSun.setDate(weekMon.getDate() + 6);
+    const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    periodLabel = `Week of ${fmt(weekMon)} – ${fmt(weekSun)}, ${weekMon.getFullYear()}`;
+
+    activeWebsites.forEach((w) => {
+      const slot = followup.pluginSlots.find(
+        (s) => s.websiteId === w.id && s.weekStart === weekStartStr
+      );
+      const isDone = slot && slot.status === 'done';
+      if (isDone) {
+        completedCount++;
+      } else {
+        affectedCount++;
+        affectedNames.push(w.name);
+      }
+    });
+  } else if (cardType === 'ebay') {
+    const targetDate = getCurrentTargetDate();
+    targetKey = targetDate;
+    const dateObj = new Date(`${targetDate}T12:00:00`);
+    periodLabel = dateObj.toLocaleDateString('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+    });
+
+    activeMembersList.forEach((m) => {
+      const doneDates = new Set(
+        followup.ebayEntries
+          .filter((e) => e.userId === m.id && e.status === 'done')
+          .map((e) => e.date)
+      );
+      if (doneDates.has(targetDate)) {
+        completedCount++;
+      } else {
+        affectedCount++;
+        affectedNames.push(m.fullName);
+      }
+    });
+  } else if (cardType === 'speed') {
+    const weekStartStr = getCurrentTargetWeekStart();
+    targetKey = weekStartStr;
+    const weekMon = new Date(`${weekStartStr}T12:00:00`);
+    const weekSun = new Date(weekMon);
+    weekSun.setDate(weekMon.getDate() + 6);
+    const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    periodLabel = `Week of ${fmt(weekMon)} – ${fmt(weekSun)}, ${weekMon.getFullYear()}`;
+
+    activeWebsites.forEach((w) => {
+      const slot = followup.speedSlots.find(
+        (s) => s.websiteId === w.id && s.weekStart === weekStartStr
+      );
+      const isDone = slot && slot.status === 'done';
+      if (isDone) {
+        completedCount++;
+      } else {
+        affectedCount++;
+        affectedNames.push(w.name);
+      }
+    });
+  }
+
+  confirmModal.value = {
+    cardType,
+    actionType,
+    periodLabel,
+    targetKey,
+    affectedCount,
+    completedCount,
+    affectedNames,
+    reason: '',
+    sundayConfirmed: false
+  };
+};
+
+const getModalTitle = (modal: ConfirmModalState) => {
+  const action = (modal.actionType === 'not_required_today' || modal.actionType === 'admin_marked_not_required')
+    ? 'Mark Not Required'
+    : 'Bulk Complete';
+  const type = modal.cardType === 'blog' ? 'Blog Followups'
+    : modal.cardType === 'plugin' ? 'Plugin Updates'
+    : modal.cardType === 'ebay' ? 'eBay Click'
+    : 'Speed Checks';
+  return `${action} for ${type}?`;
+};
+
+const getModalSub = (modal: ConfirmModalState) => {
+  const action = (modal.actionType === 'not_required_today' || modal.actionType === 'admin_marked_not_required')
+    ? 'as Not Required'
+    : 'as Done/Auto Completed';
+  
+  const entity = modal.cardType === 'ebay' ? 'members' : 'websites';
+  const name = modal.cardType === 'blog' ? 'Blog Followup'
+    : modal.cardType === 'plugin' ? 'Plugin Update'
+    : modal.cardType === 'ebay' ? 'eBay Click'
+    : 'Website Optimization';
+
+  return `This will mark ${name} ${action} for ${modal.affectedCount} active ${entity} on ${modal.periodLabel}. This will not count as manual member completion.`;
+};
+
+const executeBulkAction = async () => {
+  if (!confirmModal.value || isSubmitting.value) return;
+
+  const { cardType, actionType, targetKey, reason, sundayConfirmed } = confirmModal.value;
+
+  if (cardType === 'ebay' && isSundayDate(targetKey) && !sundayConfirmed) {
+    pushToast('Confirmation required', 'Please confirm that you want to run this action on a Sunday.', 'warning');
+    return;
+  }
+
+  isSubmitting.value = true;
+  try {
+    let result: { affectedCount: number; skippedCount: number } | null = null;
+
+    if (cardType === 'blog') {
+      result = await followup.bulkCompleteBlogFollowups(targetKey, actionType, reason);
+    } else if (cardType === 'plugin') {
+      result = await followup.bulkCompletePluginUpdates(targetKey, actionType, reason);
+    } else if (cardType === 'speed') {
+      result = await followup.bulkCompleteSpeedOptimization(targetKey, actionType, reason);
+    } else if (cardType === 'ebay') {
+      const ebayRes = await followup.autoFillEbayClick({
+        date: targetKey,
+        actionType: actionType as EbayAutoFillActionType,
+        reason: reason
+      });
+      if (ebayRes) {
+        result = {
+          affectedCount: ebayRes.autoFilledCount,
+          skippedCount: ebayRes.alreadyCompletedCount
+        };
+      }
+    }
+
+    if (result) {
+      const actionLabel = (actionType === 'not_required_today' || actionType === 'admin_marked_not_required')
+        ? 'marked not required'
+        : 'marked completed';
+      
+      const cardTitle = cardType === 'blog' ? 'Blog Followups'
+        : cardType === 'plugin' ? 'Plugin Updates'
+        : cardType === 'ebay' ? 'eBay Click Followups'
+        : 'Speed Optimization Checks';
+
+      const successMsg = `${cardTitle} ${actionLabel}.`;
+      const detailMsg = result.skippedCount > 0
+        ? `${result.affectedCount} updated, ${result.skippedCount} already completed.`
+        : `${result.affectedCount} updated successfully.`;
+      
+      pushToast('Success', `${successMsg} ${detailMsg}`, 'success');
+      confirmModal.value = null;
+
+      // Refresh page summary/stats without full page reload:
+      if (cardType === 'blog') {
+        await followup.fetchBlogSlots();
+      } else if (cardType === 'plugin') {
+        await followup.fetchPluginSlots();
+      } else if (cardType === 'speed') {
+        await followup.fetchSpeedSlots();
+      } else if (cardType === 'ebay') {
+        await followup.fetchEbayEntries();
+      }
+    } else {
+      pushToast('Error', 'Failed to execute bulk action. Please check permissions.', 'warning');
+    }
+  } catch (err) {
+    console.error('Bulk action failed:', err);
+    pushToast('Error', 'An unexpected error occurred.', 'warning');
+  } finally {
+    isSubmitting.value = false;
+  }
+};
 
 // ── Load ─────────────────────────────────────────────────────────────────────
 onMounted(async () => {
@@ -1383,6 +1836,261 @@ onMounted(async () => {
 }
 .fu-overall--done    { background: rgba(22,163,74,0.14); color: #16a34a; }
 .fu-overall--pending { background: rgba(220,38,38,0.10); color: #dc2626; }
+
+/* Dropdown and Option button */
+.fu-card-top-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fu-card-opt-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.fu-card-opt-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.fu-card-opt-btn:hover {
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  background: color-mix(in srgb, var(--primary) 6%, var(--card-bg));
+}
+
+.fu-card-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.25rem;
+  z-index: 50;
+  width: 220px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.fu-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-main);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 120ms, color 120ms;
+}
+
+.fu-dropdown-item:hover {
+  background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+  color: var(--primary);
+}
+
+/* Modal styling matching KiuQ style */
+.fu-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.fu-modal {
+  width: 100%;
+  max-width: 500px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.fu-modal-head {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.fu-modal-title {
+  font-family: 'Raleway', 'Google Sans', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.fu-modal-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0.35rem 0 0;
+  line-height: 1.4;
+}
+
+.fu-modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.fu-modal-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  background: var(--soft-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.fu-modal-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.fu-meta-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.fu-meta-value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.fu-warning-box {
+  display: flex;
+  gap: 0.65rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 10px;
+  padding: 0.75rem;
+  color: var(--text-main);
+}
+
+.fu-modal-affected {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fu-affected-title {
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.fu-affected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-height: 100px;
+  overflow-y: auto;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--soft-bg);
+}
+
+.fu-affected-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  border-radius: 6px;
+  padding: 0.15rem 0.45rem;
+}
+
+.fu-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fu-field-label {
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: var(--text-main);
+}
+
+.fu-textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  padding: 0.5rem 0.65rem;
+  font-size: 0.82rem;
+  resize: vertical;
+  outline: none;
+}
+
+.fu-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-ring);
+}
+
+.fu-modal-foot {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  background: var(--soft-bg);
+}
+
+.fu-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.fu-checkbox-label input {
+  width: 0.9rem;
+  height: 0.9rem;
+  accent-color: var(--primary);
+}
 
 @media (max-width: 760px) {
   .fu-thead { display: none; }
