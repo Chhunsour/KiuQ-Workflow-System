@@ -7,6 +7,8 @@ import { useNotificationsStore, type NotificationType } from '@/stores/notificat
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type EbayClickStatus = 'pending' | 'done' | 'missed' | 'no_work_day';
+export type EbayCompletionSource = 'member' | 'admin_manual' | 'admin_auto_fill' | 'not_required_today';
+export type EbayAutoFillActionType = 'admin_auto_fill' | 'not_required_today';
 
 export interface EbayClickEntry {
   id: string;
@@ -16,8 +18,23 @@ export interface EbayClickEntry {
   status: 'done' | 'missed';
   completedAt: string;
   completedBy: string | null;
+  completedByUserId: string | null;
+  completedByRole: string | null;
+  completionSource: EbayCompletionSource;
+  reason: string | null;
+  autoFillBatchId: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface EbayAutoFillResult {
+  autoFilledCount: number;
+  alreadyCompletedCount: number;
+  skippedCount: number;
+  affectedMemberCount: number;
+  actionType: EbayAutoFillActionType;
+  followupDate: string;
+  entries: EbayClickEntry[];
 }
 
 export type BlogSlotStatus = 'pending' | 'done' | 'missed' | 'late';
@@ -44,6 +61,10 @@ export interface BlogSlot {
   notes: string | null;
   completedBy: string | null;
   completedAt: string | null;
+  completedByUserId: string | null;
+  completedByRole: string | null;
+  completionSource: string;
+  reason: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -62,6 +83,10 @@ export interface PluginSlot {
   notes: string | null;
   completedBy: string | null;
   completedAt: string | null;
+  completedByUserId: string | null;
+  completedByRole: string | null;
+  completionSource: string;
+  reason: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -80,6 +105,10 @@ export interface SpeedSlot {
   needsAdminHelp: boolean;
   completedBy: string | null;
   completedAt: string | null;
+  completedByUserId: string | null;
+  completedByRole: string | null;
+  completionSource: string;
+  reason: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -139,6 +168,12 @@ const rowToEbayClick = (r: any): EbayClickEntry => ({
   status:      r.status,
   completedAt: r.completed_at,
   completedBy: r.completed_by ?? null,
+  completedByUserId: r.completed_by_user_id ?? r.completed_by ?? null,
+  completedByRole: r.completed_by_role ?? null,
+  completionSource: (r.completion_source
+    ?? (r.completed_by && r.completed_by !== r.user_id ? 'admin_manual' : 'member')) as EbayCompletionSource,
+  reason: r.reason ?? null,
+  autoFillBatchId: r.auto_fill_batch_id ?? null,
   createdAt:   r.created_at,
   updatedAt:   r.updated_at,
 });
@@ -158,6 +193,10 @@ const rowToBlogSlot = (r: any): BlogSlot => ({
   notes:         r.notes         ?? null,
   completedBy:   r.completed_by  ?? null,
   completedAt:   r.completed_at  ?? null,
+  completedByUserId: r.completed_by_user_id ?? r.completed_by ?? null,
+  completedByRole: r.completed_by_role ?? null,
+  completionSource: r.completion_source ?? 'member_completed',
+  reason:        r.reason ?? null,
   createdAt:     r.created_at,
   updatedAt:     r.updated_at,
 });
@@ -177,6 +216,10 @@ const rowToPluginSlot = (r: any): PluginSlot => ({
   notes:               r.notes                 ?? null,
   completedBy:         r.completed_by          ?? null,
   completedAt:         r.completed_at          ?? null,
+  completedByUserId: r.completed_by_user_id ?? r.completed_by ?? null,
+  completedByRole: r.completed_by_role ?? null,
+  completionSource: r.completion_source ?? 'member_completed',
+  reason:        r.reason ?? null,
   createdAt:           r.created_at,
   updatedAt:           r.updated_at,
 });
@@ -196,6 +239,10 @@ const rowToSpeedSlot = (r: any): SpeedSlot => ({
   needsAdminHelp: r.needs_admin_help  ?? false,
   completedBy:    r.completed_by      ?? null,
   completedAt:    r.completed_at      ?? null,
+  completedByUserId: r.completed_by_user_id ?? r.completed_by ?? null,
+  completedByRole: r.completed_by_role ?? null,
+  completionSource: r.completion_source ?? 'member_completed',
+  reason:        r.reason ?? null,
   createdAt:      r.created_at,
   updatedAt:      r.updated_at,
 });
@@ -976,6 +1023,7 @@ export const useFollowupStore = defineStore('followup', () => {
     if (!supabaseConfigured) return false;
     const auth = useAuthStore();
     const uid = targetUserId ?? auth.user?.id ?? '';
+    const source: EbayCompletionSource = auth.isAdmin && uid !== auth.user?.id ? 'admin_manual' : 'member';
     const row = {
       user_id:      uid,
       date,
@@ -983,6 +1031,11 @@ export const useFollowupStore = defineStore('followup', () => {
       status:       'done',
       completed_at: new Date().toISOString(),
       completed_by: auth.user?.id ?? null,
+      completed_by_user_id: auth.user?.id ?? null,
+      completed_by_role: auth.profile?.role ?? null,
+      completion_source: source,
+      reason: null,
+      auto_fill_batch_id: null,
     };
     const { data, error } = await supabase
       .from('ebay_click_followup')
@@ -1005,6 +1058,167 @@ export const useFollowupStore = defineStore('followup', () => {
       );
     }
     return true;
+  };
+
+  const upsertEbayEntries = (entries: EbayClickEntry[]) => {
+    if (!entries.length) return;
+    const next = [...ebayEntries.value];
+    entries.forEach((entry) => {
+      const idx = next.findIndex((e) => e.id === entry.id || (e.userId === entry.userId && e.date === entry.date));
+      if (idx !== -1) next[idx] = entry;
+      else next.unshift(entry);
+    });
+    ebayEntries.value = next.sort((a, b) => b.date.localeCompare(a.date) || b.completedAt.localeCompare(a.completedAt));
+  };
+
+  const autoFillEbayClick = async (input: {
+    date: string;
+    actionType: EbayAutoFillActionType;
+    reason?: string;
+    excludedUserIds?: string[];
+  }): Promise<EbayAutoFillResult | null> => {
+    if (!supabaseConfigured) return null;
+    const auth = useAuthStore();
+    if (!auth.isAdmin) {
+      errorEbay.value = 'You do not have permission to auto fill eBay Click followups.';
+      return null;
+    }
+
+    errorEbay.value = null;
+    const { data, error } = await supabase.rpc('auto_fill_ebay_click_followup', {
+      p_date: input.date,
+      p_action_type: input.actionType,
+      p_reason: input.reason?.trim() || null,
+      p_excluded_user_ids: input.excludedUserIds ?? []
+    });
+
+    if (error) {
+      console.error('[followup] autoFillEbayClick', error.message);
+      errorEbay.value = error.message.includes('permission')
+        ? 'You do not have permission to auto fill eBay Click followups.'
+        : 'Auto fill failed. Please try again.';
+      return null;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const row = (Array.isArray(data) ? data[0] : data) as any;
+    if (!row) {
+      errorEbay.value = 'No active members found for eBay Click followup.';
+      return null;
+    }
+
+    const rows = Array.isArray(row.entries) ? row.entries : [];
+    const entries = rows.map(rowToEbayClick);
+    upsertEbayEntries(entries);
+
+    return {
+      autoFilledCount: Number(row.auto_filled_count ?? 0),
+      alreadyCompletedCount: Number(row.already_completed_count ?? 0),
+      skippedCount: Number(row.skipped_count ?? 0),
+      affectedMemberCount: Number(row.affected_member_count ?? 0),
+      actionType: row.action_type as EbayAutoFillActionType,
+      followupDate: row.followup_date,
+      entries
+    };
+  };
+
+  const bulkCompleteBlogFollowups = async (
+    date: string,
+    actionType: string,
+    reason?: string
+  ): Promise<{ affectedCount: number; skippedCount: number } | null> => {
+    if (!supabaseConfigured) return null;
+    const auth = useAuthStore();
+    if (!auth.isAdmin) {
+      errorBlog.value = 'You do not have permission to perform bulk actions.';
+      return null;
+    }
+
+    errorBlog.value = null;
+    const { data, error } = await supabase.rpc('bulk_complete_blog_followups', {
+      p_date: date,
+      p_action_type: actionType,
+      p_reason: reason?.trim() || null
+    });
+
+    if (error) {
+      console.error('[followup] bulkCompleteBlogFollowups', error.message);
+      errorBlog.value = error.message;
+      return null;
+    }
+
+    const res = Array.isArray(data) ? data[0] : data;
+    await fetchBlogSlots(); // reload slots to reflect new data
+    return {
+      affectedCount: Number(res?.affected_count ?? 0),
+      skippedCount: Number(res?.skipped_count ?? 0)
+    };
+  };
+
+  const bulkCompletePluginUpdates = async (
+    weekStart: string,
+    actionType: string,
+    reason?: string
+  ): Promise<{ affectedCount: number; skippedCount: number } | null> => {
+    if (!supabaseConfigured) return null;
+    const auth = useAuthStore();
+    if (!auth.isAdmin) {
+      errorPlugin.value = 'You do not have permission to perform bulk actions.';
+      return null;
+    }
+
+    errorPlugin.value = null;
+    const { data, error } = await supabase.rpc('bulk_complete_plugin_updates', {
+      p_week_start: weekStart,
+      p_action_type: actionType,
+      p_reason: reason?.trim() || null
+    });
+
+    if (error) {
+      console.error('[followup] bulkCompletePluginUpdates', error.message);
+      errorPlugin.value = error.message;
+      return null;
+    }
+
+    const res = Array.isArray(data) ? data[0] : data;
+    await fetchPluginSlots(); // reload slots to reflect new data
+    return {
+      affectedCount: Number(res?.affected_count ?? 0),
+      skippedCount: Number(res?.skipped_count ?? 0)
+    };
+  };
+
+  const bulkCompleteSpeedOptimization = async (
+    weekStart: string,
+    actionType: string,
+    reason?: string
+  ): Promise<{ affectedCount: number; skippedCount: number } | null> => {
+    if (!supabaseConfigured) return null;
+    const auth = useAuthStore();
+    if (!auth.isAdmin) {
+      errorSpeed.value = 'You do not have permission to perform bulk actions.';
+      return null;
+    }
+
+    errorSpeed.value = null;
+    const { data, error } = await supabase.rpc('bulk_complete_speed_optimization', {
+      p_week_start: weekStart,
+      p_action_type: actionType,
+      p_reason: reason?.trim() || null
+    });
+
+    if (error) {
+      console.error('[followup] bulkCompleteSpeedOptimization', error.message);
+      errorSpeed.value = error.message;
+      return null;
+    }
+
+    const res = Array.isArray(data) ? data[0] : data;
+    await fetchSpeedSlots(); // reload slots to reflect new data
+    return {
+      affectedCount: Number(res?.affected_count ?? 0),
+      skippedCount: Number(res?.skipped_count ?? 0)
+    };
   };
 
   /** Remove a done entry (uncheck). Admin only for other users. */
@@ -1039,10 +1253,49 @@ export const useFollowupStore = defineStore('followup', () => {
     speedSlots.value.filter((s) => s.websiteId === websiteId)
       .sort((a, b) => b.weekStart.localeCompare(a.weekStart));
 
-  // Summary counts
-  const blogPendingCount   = () => blogSlots.value.filter((s) => s.status === 'pending').length;
-  const pluginPendingCount = () => pluginSlots.value.filter((s) => s.status === 'pending').length;
-  const speedPendingCount  = () => speedSlots.value.filter((s) => s.status === 'pending').length;
+  // ── Schedule-aware summary counts ────────────────────────────────────────
+  // The legacy `*PendingCount` helpers used to count `status === 'pending'`
+  // across the entire history — which inflates to "hundreds" because every
+  // never-completed slot stays pending forever. The dashboard cares about
+  // what's actually DUE in the current period. The helpers below count only
+  // due-but-not-completed items for a given date range.
+
+  const inRange = (iso: string, startIso: string, endIso: string) =>
+    iso >= startIso && iso <= endIso;
+
+  /** Blog: schedule-aware. Each slot has a scheduledDate. */
+  const blogRangeSummary = (startIso: string, endIso: string) => {
+    const due = blogSlots.value.filter((s) => inRange(s.scheduledDate, startIso, endIso));
+    const done = due.filter((s) => s.status === 'done').length;
+    const total = due.length;
+    return { done, total, pending: Math.max(0, total - done) };
+  };
+
+  /** Plugin: weekly. A slot's weekStart (Mon) must fall inside the range. */
+  const pluginRangeSummary = (startIso: string, endIso: string) => {
+    const due = pluginSlots.value.filter((s) => inRange(s.weekStart, startIso, endIso));
+    const done = due.filter((s) => s.status === 'done').length;
+    const total = due.length;
+    return { done, total, pending: Math.max(0, total - done) };
+  };
+
+  /** Speed optimization: weekly. */
+  const speedRangeSummary = (startIso: string, endIso: string) => {
+    const due = speedSlots.value.filter((s) => inRange(s.weekStart, startIso, endIso));
+    const done = due.filter((s) => s.status === 'done').length;
+    const total = due.length;
+    return { done, total, pending: Math.max(0, total - done) };
+  };
+
+  // ── Legacy "today" helpers (kept for callers that just want a number) ───
+  // These now correctly mean "due today (or this week for weekly slots) and
+  // still pending" — not "every never-completed slot in history".
+  const todayIsoStr = () => isoDate(new Date());
+  const thisMondayIsoStr = () => isoDate(getWeekStart(new Date()));
+
+  const blogPendingCount   = () => blogRangeSummary(todayIsoStr(), todayIsoStr()).pending;
+  const pluginPendingCount = () => pluginRangeSummary(thisMondayIsoStr(), thisMondayIsoStr()).pending;
+  const speedPendingCount  = () => speedRangeSummary(thisMondayIsoStr(), thisMondayIsoStr()).pending;
 
   /**
    * Ensure blog + plugin slots exist for every website in the given list.
@@ -1100,6 +1353,10 @@ export const useFollowupStore = defineStore('followup', () => {
     upsertSpeedSlot,
     markEbayDone,
     unmarkEbayDone,
+    autoFillEbayClick,
+    bulkCompleteBlogFollowups,
+    bulkCompletePluginUpdates,
+    bulkCompleteSpeedOptimization,
     ebayEntriesForUser,
     blogSlotsForWebsite,
     pluginSlotsForWebsite,
@@ -1107,6 +1364,9 @@ export const useFollowupStore = defineStore('followup', () => {
     blogPendingCount,
     pluginPendingCount,
     speedPendingCount,
+    blogRangeSummary,
+    pluginRangeSummary,
+    speedRangeSummary,
     scheduleFor,
     handleRealtimePayload(payload: { eventType: string; table: string; new: any; old: any }) {
       const { eventType, table, new: newRow, old: oldRow } = payload;

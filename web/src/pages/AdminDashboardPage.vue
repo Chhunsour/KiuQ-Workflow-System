@@ -15,9 +15,27 @@
       <StatCard label="Pending Reviews" :value="data.pendingReviews" :icon="icons.reviews" />
     </div>
 
-    <!-- Today's Followups — team summary -->
+    <!-- Followups — schedule-aware, range-filtered -->
     <div class="mt-5">
-      <h3 class="section-title mb-2.5">Today's Followups</h3>
+      <div class="mb-2.5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 class="section-title">Followups</h3>
+          <p class="mt-0.5 text-xs text-text-muted">
+            Showing <strong class="text-text-main">{{ currentRange.label }}</strong>
+            · {{ currentRange.start === currentRange.end ? currentRange.start : `${currentRange.start} → ${currentRange.end}` }}
+          </p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <label class="text-xs font-semibold text-text-muted" for="dash-range">Range:</label>
+          <select
+            id="dash-range"
+            v-model="timeRange"
+            class="rounded-btn border border-border bg-card px-2.5 py-1.5 text-xs font-semibold text-text-main focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option v-for="opt in rangeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+      </div>
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div
           v-for="fu in followupSummary"
@@ -26,17 +44,23 @@
         >
           <div
             class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-btn"
-            :class="fu.pending > 0 ? 'bg-primary/10 text-primary' : 'bg-status-approved-bg text-status-approved-fg'"
+            :class="fu.summary.pending > 0 ? 'bg-primary/10 text-primary' : 'bg-status-approved-bg text-status-approved-fg'"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="fu.icon" />
           </div>
           <div class="min-w-0 flex-1">
             <div class="ui-font text-sm font-semibold text-text-main">{{ fu.label }}</div>
             <div class="mt-0.5 text-xs text-text-muted">
-              <span :class="fu.pending > 0 ? 'font-bold text-status-needs-fix-fg' : 'font-bold text-status-approved-fg'">
-                {{ fu.pending }}
+              <span v-if="fu.summary.total === 0" class="font-bold text-text-muted">
+                None due
               </span>
-              pending
+              <template v-else>
+                <strong class="ui-font text-text-main">{{ fu.summary.done }}/{{ fu.summary.total }}</strong>
+                completed
+                <span v-if="fu.summary.pending > 0" class="ml-1 font-semibold text-status-needs-fix-fg">
+                  · {{ fu.summary.pending }} pending
+                </span>
+              </template>
             </div>
           </div>
           <RouterLink :to="fu.to" class="btn-secondary h-8 flex-shrink-0 px-3 text-xs">Open</RouterLink>
@@ -221,56 +245,132 @@ const projectName = (assignmentId: string) =>
   data.projectById(assignmentById(assignmentId)?.projectId)?.name ?? 'No project';
 const memberName = (id: string | null) => (id ? data.memberById(id)?.fullName ?? 'Team member' : 'Team member');
 
-// ── Followup team summary ─────────────────────────────────────────────────────
+// ── Time Range filter ─────────────────────────────────────────────────────────
 const localIso = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const todayStr = localIso(new Date());
-const todayDow = new Date().getDay(); // 0=Sun
 
-const blogPending = computed(() => followup.blogPendingCount());
-const pluginPending = computed(() => followup.pluginPendingCount());
-const speedPending = computed(() => followup.speedPendingCount());
+type Range = 'today' | 'yesterday' | 'this_week' | 'last_week' | 'this_month' | 'last_month';
+const timeRange = ref<Range>('today');
+const rangeOptions: { value: Range; label: string }[] = [
+  { value: 'today',      label: 'Today' },
+  { value: 'yesterday',  label: 'Yesterday' },
+  { value: 'this_week',  label: 'This Week' },
+  { value: 'last_week',  label: 'Last Week' },
+  { value: 'this_month', label: 'This Month' },
+  { value: 'last_month', label: 'Last Month' },
+];
 
-// eBay pending = active members who haven't marked done today (Mon–Sat only)
-const ebayPending = computed(() => {
-  if (todayDow === 0) return 0; // Sunday = no work day
-  const members = data.members.filter(
+const mondayOf = (d: Date): Date => {
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const m = new Date(d);
+  m.setDate(d.getDate() + diff);
+  m.setHours(0, 0, 0, 0);
+  return m;
+};
+
+/** Returns the inclusive [startIso, endIso] for the selected range. */
+const dateRangeFor = (range: Range): { start: string; end: string; label: string; mondays: string[] } => {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  if (range === 'today') {
+    const iso = localIso(today);
+    return { start: iso, end: iso, label: 'today', mondays: [localIso(mondayOf(today))] };
+  }
+  if (range === 'yesterday') {
+    const y = new Date(today); y.setDate(today.getDate() - 1);
+    const iso = localIso(y);
+    return { start: iso, end: iso, label: 'yesterday', mondays: [localIso(mondayOf(y))] };
+  }
+  if (range === 'this_week') {
+    const m = mondayOf(today); const s = new Date(m); const e = new Date(m); e.setDate(m.getDate() + 6);
+    return { start: localIso(s), end: localIso(e), label: 'this week', mondays: [localIso(m)] };
+  }
+  if (range === 'last_week') {
+    const m = mondayOf(today); m.setDate(m.getDate() - 7);
+    const e = new Date(m); e.setDate(m.getDate() + 6);
+    return { start: localIso(m), end: localIso(e), label: 'last week', mondays: [localIso(m)] };
+  }
+  if (range === 'this_month') {
+    const s = new Date(today.getFullYear(), today.getMonth(), 1);
+    const e = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    return { start: localIso(s), end: localIso(e), label: 'this month', mondays: mondaysBetween(s, e) };
+  }
+  // last_month
+  const s = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  const e = new Date(today.getFullYear(), today.getMonth(), 0);
+  return { start: localIso(s), end: localIso(e), label: 'last month', mondays: mondaysBetween(s, e) };
+};
+
+const mondaysBetween = (start: Date, end: Date): string[] => {
+  const out: string[] = [];
+  const cur = mondayOf(start);
+  while (cur <= end) { out.push(localIso(cur)); cur.setDate(cur.getDate() + 7); }
+  return out;
+};
+
+const currentRange = computed(() => dateRangeFor(timeRange.value));
+
+// ── Followup team summary — schedule-aware, range-filtered ────────────────────
+const blogSummary   = computed(() => followup.blogRangeSummary(currentRange.value.start, currentRange.value.end));
+const pluginSummary = computed(() => {
+  // Plugin/Speed are weekly — sum each Monday in the range so a multi-month
+  // range counts each due week once. Single-day ranges resolve to that week.
+  const ms = currentRange.value.mondays;
+  if (ms.length === 0) return { done: 0, total: 0, pending: 0 };
+  if (ms.length === 1) return followup.pluginRangeSummary(ms[0], ms[0]);
+  return followup.pluginRangeSummary(ms[0], ms[ms.length - 1]);
+});
+const speedSummary = computed(() => {
+  const ms = currentRange.value.mondays;
+  if (ms.length === 0) return { done: 0, total: 0, pending: 0 };
+  if (ms.length === 1) return followup.speedRangeSummary(ms[0], ms[0]);
+  return followup.speedRangeSummary(ms[0], ms[ms.length - 1]);
+});
+
+// eBay: Mon–Sat required days × active leaderboard members, completed = done entries in range.
+const ebaySummary = computed(() => {
+  const { start, end } = currentRange.value;
+  const startD = new Date(start); const endD = new Date(end);
+  let workDays = 0;
+  for (const cur = new Date(startD); cur <= endD; cur.setDate(cur.getDate() + 1)) {
+    if (cur.getDay() !== 0) workDays++; // exclude Sunday
+  }
+  const memberCount = data.members.filter(
     (m) => m.status === 'active' && isLeaderboardParticipant(m)
-  );
-  const doneToday = new Set(
-    followup.ebayEntries
-      .filter((e) => e.date === todayStr && e.status === 'done')
-      .map((e) => e.userId)
-  );
-  return members.filter((m) => !doneToday.has(m.id)).length;
+  ).length;
+  const total = workDays * memberCount;
+  const done = followup.ebayEntries
+    .filter((e) => e.status === 'done' && e.date >= start && e.date <= end)
+    .length;
+  return { done, total, pending: Math.max(0, total - done) };
 });
 
 const followupSummary = computed(() => [
   {
     key: 'blog',
     label: 'Blog Followup',
-    pending: blogPending.value,
+    summary: blogSummary.value,
     to: '/followup/blog',
     icon: '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>'
   },
   {
     key: 'plugin',
     label: 'Plugin Update',
-    pending: pluginPending.value,
+    summary: pluginSummary.value,
     to: '/followup/plugins',
     icon: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>'
   },
   {
     key: 'ebay',
     label: 'eBay Click Followup',
-    pending: ebayPending.value,
+    summary: ebaySummary.value,
     to: '/followup/ebay-click',
     icon: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
   },
   {
     key: 'speed',
     label: 'Website Optimization',
-    pending: speedPending.value,
+    summary: speedSummary.value,
     to: '/followup/speed-optimization',
     icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'
   }
