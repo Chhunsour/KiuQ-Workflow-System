@@ -26,19 +26,6 @@ export interface GscDaily {
   position: number;
 }
 
-export interface GscHourly {
-  website_id: string;
-  date: string;
-  hour: number;
-  datetime: string;
-  clicks: number;
-  impressions: number;
-  ctr: number;
-  position: number;
-  synced_at: string;
-}
-
-
 export interface GscTermStat {
   website_id: string;
   date: string;
@@ -105,42 +92,27 @@ export const aggregateByDate = (rows: GscDaily[]): { date: string; clicks: numbe
     }));
 };
 
-/** Aggregate hourly rows into one point per hour/datetime (summed across websites). */
-export const aggregateByHour = (rows: GscHourly[]): { datetime: string; date: string; hour: number; clicks: number; impressions: number; ctr: number; position: number }[] => {
-  const map = new Map<string, { date: string; hour: number; clicks: number; impressions: number; weightedPos: number; impr: number }>();
-  for (const r of rows) {
-    const cur = map.get(r.datetime) ?? { date: r.date, hour: r.hour, clicks: 0, impressions: 0, weightedPos: 0, impr: 0 };
-    cur.clicks += r.clicks;
-    cur.impressions += r.impressions;
-    cur.weightedPos += r.position * r.impressions;
-    cur.impr += r.impressions;
-    map.set(r.datetime, cur);
-  }
-  return [...map.entries()]
-    .sort(([a], [b]) => (a < b ? -1 : 1))
-    .map(([datetime, v]) => ({
-      datetime,
-      date: v.date,
-      hour: v.hour,
-      clicks: v.clicks,
-      impressions: v.impressions,
-      ctr: v.impressions ? v.clicks / v.impressions : 0,
-      position: v.impr ? v.weightedPos / v.impr : 0
-    }));
-};
+export type DateRange = 'today' | 'yesterday' | 7 | 28 | 90 | 'this_month' | 'last_month' | 'custom';
 
+export const getRangeDurationDays = (start: string, end: string): number => {
+  const s = new Date(start);
+  const e = new Date(end);
+  const diffTime = Math.abs(e.getTime() - s.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+};
 
 export const usePerformanceStore = defineStore('performance', () => {
   const auth = useAuthStore();
 
   const connections = ref<GscConnection[]>([]);
   const daily = ref<GscDaily[]>([]);
-  const hourly = ref<GscHourly[]>([]);
   const queries = ref<GscTermStat[]>([]);
   const pages = ref<GscTermStat[]>([]);
   const connectionInfo = ref<GscConnectionInfo>({ connected: false, google_email: null, connected_at: null });
 
-  const rangeDays = ref<'24h' | 7 | 28 | 90>(28);
+  const rangeDays = ref<DateRange>(28);
+  const customStartDate = ref<string>('');
+  const customEndDate = ref<string>('');
   const loading = ref(false);
   const error = ref<string | null>(null);
   const syncingIds = ref<Set<string>>(new Set());
@@ -165,8 +137,47 @@ export const usePerformanceStore = defineStore('performance', () => {
 
   const startDateStr = computed(() => {
     const d = new Date();
-    const days = rangeDays.value === '24h' ? 3 : rangeDays.value;
-    d.setUTCDate(d.getUTCDate() - days);
+    if (rangeDays.value === 'today') {
+      return ymd(d);
+    } else if (rangeDays.value === 'yesterday') {
+      d.setUTCDate(d.getUTCDate() - 1);
+      return ymd(d);
+    } else if (rangeDays.value === 7) {
+      d.setUTCDate(d.getUTCDate() - 7);
+      return ymd(d);
+    } else if (rangeDays.value === 28) {
+      d.setUTCDate(d.getUTCDate() - 28);
+      return ymd(d);
+    } else if (rangeDays.value === 90) {
+      d.setUTCDate(d.getUTCDate() - 90);
+      return ymd(d);
+    } else if (rangeDays.value === 'this_month') {
+      const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
+      return ymd(start);
+    } else if (rangeDays.value === 'last_month') {
+      const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - 1, 1));
+      return ymd(start);
+    } else if (rangeDays.value === 'custom') {
+      return customStartDate.value || ymd(d);
+    }
+    return ymd(d);
+  });
+
+  const endDateStr = computed(() => {
+    const d = new Date();
+    if (rangeDays.value === 'today') {
+      return ymd(d);
+    } else if (rangeDays.value === 'yesterday') {
+      d.setUTCDate(d.getUTCDate() - 1);
+      return ymd(d);
+    } else if (rangeDays.value === 7 || rangeDays.value === 28 || rangeDays.value === 90 || rangeDays.value === 'this_month') {
+      return ymd(d);
+    } else if (rangeDays.value === 'last_month') {
+      const end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 0));
+      return ymd(end);
+    } else if (rangeDays.value === 'custom') {
+      return customEndDate.value || ymd(d);
+    }
     return ymd(d);
   });
 
@@ -176,26 +187,6 @@ export const usePerformanceStore = defineStore('performance', () => {
     for (const r of queries.value) if (r.date > max) max = r.date;
     for (const r of pages.value) if (r.date > max) max = r.date;
     return max;
-  });
-
-  const latestHourlyDatetime = computed(() => {
-    if (hourly.value.length === 0) return null;
-    let max = '';
-    for (const r of hourly.value) {
-      if (r.datetime > max) max = r.datetime;
-    }
-    return max;
-  });
-
-  const latest24hHourly = computed(() => {
-    const maxDt = latestHourlyDatetime.value;
-    if (!maxDt) return [];
-    const maxTime = new Date(maxDt).getTime();
-    const minTime = maxTime - 23 * 60 * 60 * 1000;
-    return hourly.value.filter((r) => {
-      const t = new Date(r.datetime).getTime();
-      return t >= minTime && t <= maxTime;
-    });
   });
 
 
@@ -243,32 +234,27 @@ export const usePerformanceStore = defineStore('performance', () => {
   const fetchStats = async () => {
     if (!supabaseConfigured) return;
     const since = startDateStr.value;
-    const queriesPromise = supabase.from('website_gsc_query_stats').select('website_id, date, query, clicks, impressions, ctr, position').gte('date', since).order('date', { ascending: false }).limit(5000);
-    const pagesPromise = supabase.from('website_gsc_page_stats').select('website_id, date, page_url, clicks, impressions, ctr, position').gte('date', since).order('date', { ascending: false }).limit(5000);
+    const until = endDateStr.value;
+    const queriesPromise = supabase.from('website_gsc_query_stats')
+      .select('website_id, date, query, clicks, impressions, ctr, position')
+      .gte('date', since)
+      .lte('date', until)
+      .order('date', { ascending: false })
+      .limit(5000);
+    const pagesPromise = supabase.from('website_gsc_page_stats')
+      .select('website_id, date, page_url, clicks, impressions, ctr, position')
+      .gte('date', since)
+      .lte('date', until)
+      .order('date', { ascending: false })
+      .limit(5000);
     
-    if (rangeDays.value === '24h') {
-      const hDaysAgo = new Date();
-      hDaysAgo.setUTCDate(hDaysAgo.getUTCDate() - 4);
-      const [{ data: h, error: he }, { data: q }, { data: p }] = await Promise.all([
-        supabase.from('website_gsc_hourly_stats').select('website_id, date, hour, datetime, clicks, impressions, ctr, position, synced_at').gte('datetime', hDaysAgo.toISOString()).order('datetime', { ascending: true }),
-        queriesPromise,
-        pagesPromise
-      ]);
-      if (he) { error.value = he.message; }
-      hourly.value = (h as GscHourly[]) ?? [];
-
-      daily.value = await fetchDailyRange(since);
-      queries.value = ((q as GscTermStat[]) ?? []);
-      pages.value = ((p as GscTermStat[]) ?? []);
-    } else {
-      const [{ data: q }, { data: p }] = await Promise.all([queriesPromise, pagesPromise]);
-      daily.value = await fetchDailyRange(since);
-      queries.value = ((q as GscTermStat[]) ?? []);
-      pages.value = ((p as GscTermStat[]) ?? []);
-    }
+    const [{ data: q }, { data: p }] = await Promise.all([queriesPromise, pagesPromise]);
+    daily.value = await fetchDailyRange(since, until);
+    queries.value = ((q as GscTermStat[]) ?? []);
+    pages.value = ((p as GscTermStat[]) ?? []);
   };
 
-  const fetchAll = async (days?: '24h' | 7 | 28 | 90) => {
+  const fetchAll = async (days?: DateRange) => {
     if (days) rangeDays.value = days;
     loading.value = true;
     error.value = null;
@@ -279,31 +265,50 @@ export const usePerformanceStore = defineStore('performance', () => {
     }
   };
 
-  const setRange = async (days: '24h' | 7 | 28 | 90) => {
+  const setRange = async (days: DateRange) => {
     rangeDays.value = days;
     await Promise.all([fetchStats(), fetchCompare()]);
   };
 
-  /** Fetch the comparison window's daily rows (real stored data). No-op in 24h mode. */
+  const getCompareDates = () => {
+    const start = startDateStr.value;
+    const end = endDateStr.value;
+    const sDate = new Date(start);
+    const eDate = new Date(end);
+    const duration = getRangeDurationDays(start, end);
+
+    let compStart: Date;
+    let compEnd: Date;
+
+    if (compareMode.value === 'previous') {
+      compStart = new Date(sDate.getTime() - duration * 24 * 60 * 60 * 1000);
+      compEnd = new Date(eDate.getTime() - duration * 24 * 60 * 60 * 1000);
+    } else if (compareMode.value === 'last_month') {
+      compStart = new Date(sDate.getTime());
+      compStart.setUTCMonth(compStart.getUTCMonth() - 1);
+      compEnd = new Date(eDate.getTime());
+      compEnd.setUTCMonth(compEnd.getUTCMonth() - 1);
+    } else {
+      return null;
+    }
+    return {
+      start: ymd(compStart),
+      end: ymd(compEnd)
+    };
+  };
+
+  /** Fetch the comparison window's daily rows (real stored data). */
   const fetchCompare = async () => {
-    if (!supabaseConfigured || compareMode.value === 'none' || rangeDays.value === '24h') {
+    if (!supabaseConfigured || compareMode.value === 'none') {
       compareDaily.value = [];
       return;
     }
-    const n = rangeDays.value as number; // 7 | 28 | 90
-    const now = new Date();
-    let prevStart: Date;
-    let prevEnd: Date;
-    if (compareMode.value === 'previous') {
-      // The n days immediately before the current window.
-      prevStart = new Date(now); prevStart.setUTCDate(prevStart.getUTCDate() - 2 * n);
-      prevEnd = new Date(now); prevEnd.setUTCDate(prevEnd.getUTCDate() - n - 1);
-    } else {
-      // Same-length window shifted back one calendar month.
-      prevStart = new Date(now); prevStart.setUTCDate(prevStart.getUTCDate() - n); prevStart.setUTCMonth(prevStart.getUTCMonth() - 1);
-      prevEnd = new Date(now); prevEnd.setUTCMonth(prevEnd.getUTCMonth() - 1);
+    const cmp = getCompareDates();
+    if (!cmp) {
+      compareDaily.value = [];
+      return;
     }
-    compareDaily.value = await fetchDailyRange(ymd(prevStart), ymd(prevEnd));
+    compareDaily.value = await fetchDailyRange(cmp.start, cmp.end);
   };
 
   const setCompareMode = async (mode: 'none' | 'previous' | 'last_month') => {
@@ -345,8 +350,7 @@ export const usePerformanceStore = defineStore('performance', () => {
   };
 
   // ── Sync ─────────────────────────────────────────────────────────────────────
-  const runSync = async (body: { website_id?: string; all?: boolean; days: '24h' | 7 | 28 | 90 }): Promise<boolean> => {
-    // Pre-sync validation for unmapped properties
+  const runSync = async (body: { website_id?: string; all?: boolean; days: 7 | 28 | 90 }): Promise<boolean> => {
     if (body.all) {
       if (connections.value.length === 0) {
         lastSyncMessage.value = 'No Search Console property is mapped to this website.';
@@ -383,10 +387,11 @@ export const usePerformanceStore = defineStore('performance', () => {
     return okCount > 0 || results.length === 0;
   };
 
-  const syncWebsite = async (websiteId: string, days: '24h' | 7 | 28 | 90 = rangeDays.value): Promise<boolean> => {
+  const syncWebsite = async (websiteId: string, range: DateRange = rangeDays.value): Promise<boolean> => {
+    const daysParam = typeof range === 'number' ? range : 28;
     syncingIds.value = new Set(syncingIds.value).add(websiteId);
     try {
-      const ok = await runSync({ website_id: websiteId, days });
+      const ok = await runSync({ website_id: websiteId, days: daysParam as 7 | 28 | 90 });
       await Promise.all([fetchConnections(), fetchStats()]);
       return ok;
     } finally {
@@ -396,10 +401,11 @@ export const usePerformanceStore = defineStore('performance', () => {
     }
   };
 
-  const syncAll = async (days: '24h' | 7 | 28 | 90 = rangeDays.value): Promise<boolean> => {
+  const syncAll = async (range: DateRange = rangeDays.value): Promise<boolean> => {
+    const daysParam = typeof range === 'number' ? range : 28;
     syncAllRunning.value = true;
     try {
-      const ok = await runSync({ all: true, days });
+      const ok = await runSync({ all: true, days: daysParam as 7 | 28 | 90 });
       await Promise.all([fetchConnections(), fetchStats()]);
       return ok;
     } finally {
@@ -409,14 +415,14 @@ export const usePerformanceStore = defineStore('performance', () => {
 
 
   return {
-    // state
     connections,
     daily,
-    hourly,
     queries,
     pages,
     connectionInfo,
     rangeDays,
+    customStartDate,
+    customEndDate,
     loading,
     error,
     syncingIds,
@@ -424,11 +430,8 @@ export const usePerformanceStore = defineStore('performance', () => {
     lastSyncMessage,
     compareMode,
     compareDaily,
-    // derived
     connectionByWebsite,
     latestSnapshotDate,
-    latestHourlyDatetime,
-    latest24hHourly,
     comparePeriodLabel,
     // actions
     fetchAll,

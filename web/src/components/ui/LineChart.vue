@@ -33,6 +33,20 @@
       <!-- Area Path under the Line -->
       <path :d="areaPath" :fill="`url(#area-grad-${chartId})`" class="chart-area-path" />
 
+      <!-- Optional Comparison Line -->
+      <path
+        v-if="compareLinePath"
+        :d="compareLinePath"
+        fill="none"
+        stroke="var(--text-muted)"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-dasharray="4,4"
+        opacity="0.6"
+        class="chart-compare-line-path"
+      />
+
       <!-- Glowing Trend Line -->
       <path
         :d="linePath"
@@ -100,6 +114,9 @@
     >
       <div class="tooltip-label">{{ tooltipData.label }}</div>
       <div class="tooltip-value">{{ tooltipData.value }}</div>
+      <div v-if="tooltipCompareData" class="text-[10px] text-text-muted mt-0.5 border-t border-border pt-0.5 w-full text-center">
+        Prev: <span class="font-bold text-text-main">{{ tooltipCompareData.value }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -109,11 +126,13 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 
 const props = withDefaults(defineProps<{
   data: { label: string; value: number }[];
+  compareData?: { label: string; value: number }[];
   color?: string;
   height?: number;
 }>(), {
   color: '#15D6C2',
-  height: 220
+  height: 220,
+  compareData: () => []
 });
 
 const chartId = Math.random().toString(36).substring(2, 9);
@@ -122,7 +141,6 @@ const container = ref<HTMLDivElement | null>(null);
 const hoveredIndex = ref<number | null>(null);
 const tooltipPos = ref({ x: 0, y: 0 });
 
-// Handle responsiveness dynamically
 const resizeObserver = new ResizeObserver((entries) => {
   for (const entry of entries) {
     width.value = entry.contentRect.width || 600;
@@ -147,9 +165,13 @@ const gridTicks = computed(() => {
   return Array.from({ length: 5 }, (_, i) => props.height - paddingY - i * step);
 });
 
-const values = computed(() => props.data.map(d => d.value));
-const minVal = computed(() => Math.min(...values.value, 0));
-const maxVal = computed(() => Math.max(...values.value, 10));
+const values = computed(() => {
+  const main = props.data.map(d => d.value);
+  const comp = props.compareData ? props.compareData.map(d => d.value) : [];
+  return [...main, ...comp];
+});
+const minVal = computed(() => values.value.length ? Math.min(...values.value, 0) : 0);
+const maxVal = computed(() => values.value.length ? Math.max(...values.value, 10) : 10);
 
 // Map coordinates
 const points = computed(() => {
@@ -188,6 +210,29 @@ const areaPath = computed(() => {
   return `${linePath.value} L ${last.x} ${baselineY} L ${first.x} ${baselineY} Z`;
 });
 
+// Comparison line path mapping
+const comparePoints = computed(() => {
+  if (!props.compareData || !props.compareData.length) return [];
+  const chartWidth = width.value - 60;
+  const chartHeight = props.height - paddingY - 20;
+  const paddingX = 45;
+  const len = props.compareData.length;
+
+  return props.compareData.map((d, idx) => {
+    const x = paddingX + (idx / (len - 1)) * chartWidth;
+    const yRange = maxVal.value - minVal.value;
+    const y = props.height - paddingY - ((d.value - minVal.value) / (yRange || 1)) * chartHeight;
+    return { x, y, label: d.label, value: d.value };
+  });
+});
+
+const compareLinePath = computed(() => {
+  if (comparePoints.value.length < 2) return '';
+  return comparePoints.value.reduce((path, pt, idx) => {
+    return idx === 0 ? `M ${pt.x} ${pt.y}` : `${path} L ${pt.x} ${pt.y}`;
+  }, '');
+});
+
 // Y-Axis labels
 const yLabels = computed(() => {
   const range = maxVal.value - minVal.value;
@@ -208,14 +253,22 @@ const tooltipData = computed(() => {
   return props.data[hoveredIndex.value];
 });
 
+const tooltipCompareData = computed(() => {
+  if (hoveredIndex.value === null || !props.compareData || !props.compareData.length) return null;
+  // Try to match by index, since comparison arrays should align (same length range)
+  if (hoveredIndex.value < props.compareData.length) {
+    return props.compareData[hoveredIndex.value];
+  }
+  return null;
+});
+
 const hoverNode = (index: number, event: MouseEvent) => {
   hoveredIndex.value = index;
   if (container.value) {
     const rect = container.value.getBoundingClientRect();
-    // Offset position for floating tooltip
     tooltipPos.value = {
       x: event.clientX - rect.left - 50,
-      y: event.clientY - rect.top - 65
+      y: event.clientY - rect.top - 85
     };
   }
 };
