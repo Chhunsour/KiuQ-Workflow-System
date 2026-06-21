@@ -2,8 +2,8 @@
   <div class="perf-center font-sans text-text-main pb-12">
     <!-- Header -->
     <PageHeader
-      title="Website Performance"
-      subtitle="Track clicks, impressions, CTR, ranking position, and page indexing across all team websites."
+      :title="$t('performance.title')"
+      :subtitle="$t('performance.subtitle')"
     >
       <template #actions>
         <div class="flex items-center gap-2">
@@ -15,7 +15,7 @@
             @click="onSyncAll"
           >
             <span v-if="perf.syncAllRunning" class="inline-block animate-spin mr-1">●</span>
-            {{ perf.syncAllRunning ? 'Syncing…' : 'Sync Data' }}
+            {{ perf.syncAllRunning ? $t('performance.syncing') : $t('performance.syncData') }}
           </button>
           <button
             v-if="isManagement"
@@ -23,7 +23,7 @@
             type="button"
             @click="showLogsModal = true"
           >
-            View Sync Logs
+            {{ $t('performance.viewSyncLogs') }}
           </button>
           <button
             v-if="isManagement"
@@ -31,55 +31,111 @@
             type="button"
             @click="onConnect"
           >
-            {{ perf.connectionInfo.connected ? 'Reconnect' : 'Connect Search Console' }}
+            {{ perf.connectionInfo.connected ? $t('performance.reconnect') : $t('performance.connectGsc') }}
           </button>
         </div>
       </template>
     </PageHeader>
 
     <!-- Header Status Info Bar -->
-    <div class="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-text-muted bg-card border border-border/60 rounded-xl px-4 py-2.5">
+    <div class="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] text-text-muted bg-card border border-border/60 rounded-xl px-4 py-2.5">
       <div class="flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full bg-primary" />
-        <span>Last synced: <span class="font-bold text-text-main font-number">{{ latestSyncTime || 'Never' }}</span></span>
+        <span>{{ $t('performance.lastSynced') }}: <span class="font-bold text-text-main font-number">{{ latestSyncTime || $t('performance.never') }}</span></span>
       </div>
       <div class="flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full bg-status-approved-fg" />
-        <span>Connected: <span class="font-bold text-text-main font-number">{{ connectedCount }} / {{ visibleWebsites.length }} websites</span></span>
+        <span>{{ $t('performance.connected') }}: <span class="font-bold text-text-main font-number">{{ connectedCount }} / {{ visibleWebsites.length }} {{ $t('nav.websites') }}</span></span>
       </div>
       <div class="flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full" :class="syncHealth === 'Healthy' ? 'bg-status-approved-fg' : 'bg-status-needs-fix-fg'" />
-        <span>Sync Health: <span class="font-bold text-text-main font-sans capitalize">{{ syncHealth }}</span></span>
+        <span>{{ $t('performance.syncHealth') }}: <span class="font-bold text-text-main font-sans capitalize">{{ syncHealth }}</span></span>
       </div>
       <div v-if="perf.connectionInfo.connected" class="flex items-center gap-1.5 ml-auto text-text-muted">
-        <span>Google Account: <span class="font-semibold text-text-main">{{ perf.connectionInfo.google_email || 'admin' }}</span></span>
+        <span>{{ $t('performance.googleAccount') }}: <span class="font-semibold text-text-main">{{ perf.connectionInfo.google_email || 'admin' }}</span></span>
       </div>
     </div>
 
     <!-- Connect result notifications -->
     <div v-if="connectMsg" class="mb-4 rounded-xl border px-4 py-3 text-sm flex justify-between items-center" :class="connectOk ? 'border-status-approved-bg bg-status-approved-bg/20 text-status-approved-fg' : 'border-status-needs-fix-bg bg-status-needs-fix-bg/20 text-status-needs-fix-fg'">
       <span>{{ connectMsg }}</span>
-      <button class="text-xs underline cursor-pointer" type="button" @click="connectMsg = ''">Dismiss</button>
+      <button class="text-xs underline cursor-pointer" type="button" @click="connectMsg = ''">{{ $t('common.cancel') }}</button>
     </div>
     <div v-else-if="isManagement && !perf.connectionInfo.connected" class="mb-4 rounded-xl border border-border bg-soft/20 px-4 py-3 text-sm text-text-muted">
-      Search Console is not connected yet. Click <strong class="text-text-main font-bold">Connect Search Console</strong> to map and sync website performance metrics.
+      {{ $t('performance.searchConsoleNotConnected') }}
     </div>
 
-    <!-- Overview Scope and Filter Bar -->
-    <div class="perf-filterbar mb-4">
+    <!-- 2-Column layout wrapper -->
+    <div class="perf-layout-grid">
+      <!-- Desktop Left Sidebar -->
+      <div class="hidden lg:block lg:w-[260px] xl:w-[290px] flex-shrink-0 bg-card border border-border/60 rounded-2xl p-4 self-start">
+        <PerformanceSidebar
+          :websites="visibleConnectionWebsites"
+          :scope-filter="scopeFilter"
+          :website-filter="websiteFilter"
+          :scope-label="scopeLabel"
+          @select-website="onSelectWebsiteFromSidebar"
+        />
+      </div>
+
+      <!-- Right Column: Dashboard Content -->
+      <div class="flex-1 min-w-0">
+        <!-- Overview Scope and Filter Bar -->
+        <div v-if="activePerformanceView === 'overview'" class="perf-filterbar mb-4">
+          <!-- Mobile Sidebar Toggle -->
+          <button
+            type="button"
+            class="lg:hidden btn-secondary h-9 px-3 text-[11px] flex items-center gap-1.5 font-semibold font-sans mr-auto"
+            @click="sidebarOpen = true"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <line x1="9" y1="3" x2="9" y2="21" />
+            </svg>
+            <span>{{ $t('nav.websites') || 'Websites' }}</span>
+          </button>
       <!-- Scope Selection -->
       <div class="perf-wsel font-sans">
-        <button type="button" class="input perf-wsel-btn font-semibold" @click="toggleDropdown('scope')">
-          <span class="truncate flex-1 text-left">Viewing: {{ scopeLabel }}</span>
+        <button type="button" class="input perf-wsel-btn font-semibold flex items-center gap-1.5" @click="toggleDropdown('scope')">
+          <div v-if="scopeFilter === 'my' && auth.profile" class="perf-wsel-avatar">
+            <img v-if="auth.profile.avatarUrl" :src="auth.profile.avatarUrl" class="perf-wsel-avatar-img" />
+            <span v-else class="perf-wsel-avatar-initials">{{ getMemberInitials(auth.profile.fullName) }}</span>
+          </div>
+          <div v-else-if="scopeFilter === 'member' && selectedMemberObj" class="perf-wsel-avatar">
+            <img v-if="selectedMemberObj.avatarUrl" :src="selectedMemberObj.avatarUrl" class="perf-wsel-avatar-img" />
+            <span v-else class="perf-wsel-avatar-initials">{{ getMemberInitials(selectedMemberObj.fullName) }}</span>
+          </div>
+          <div v-else-if="scopeFilter === 'all' || scopeFilter === 'member'" class="perf-wsel-avatar">
+            <img src="/favicon.png" class="perf-wsel-avatar-img" />
+          </div>
+          <span class="truncate flex-1 text-left">{{ $t('performance.viewingScope') }}: {{ scopeLabel }}</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': scopeDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <template v-if="scopeDropdownOpen">
           <div class="perf-wsel-backdrop" @click="scopeDropdownOpen = false" />
           <div class="perf-wsel-list">
-            <button type="button" class="perf-wsel-item" :class="{ active: scopeFilter === 'my' }" @click="selectScope('my')">My Websites</button>
-            <button type="button" class="perf-wsel-item" :class="{ active: scopeFilter === 'all' }" @click="selectScope('all')">All Websites</button>
-            <button type="button" class="perf-wsel-item" :class="{ active: scopeFilter === 'member' }" @click="selectScope('member')">Team Member</button>
-            <button type="button" class="perf-wsel-item" :class="{ active: scopeFilter === 'single' }" @click="selectScope('single')">Single Website</button>
+            <button type="button" class="perf-wsel-item flex items-center gap-2" :class="{ active: scopeFilter === 'my' }" @click="selectScope('my')">
+              <div v-if="auth.profile" class="perf-wsel-avatar h-4.5 w-4.5">
+                <img v-if="auth.profile.avatarUrl" :src="auth.profile.avatarUrl" class="perf-wsel-avatar-img" />
+                <span v-else class="perf-wsel-avatar-initials text-[7px]">{{ getMemberInitials(auth.profile.fullName) }}</span>
+              </div>
+              <div class="flex-1 text-left">
+                <div class="font-semibold">{{ $t('performance.myWebsites') }}</div>
+                <div class="text-[9px] text-text-muted" v-if="auth.profile">{{ auth.profile.fullName }} · {{ getMemberRoleLabel(auth.profile.id) }}</div>
+              </div>
+            </button>
+            <button type="button" class="perf-wsel-item flex items-center gap-2" :class="{ active: scopeFilter === 'all' }" @click="selectScope('all')">
+              <div class="perf-wsel-avatar h-4.5 w-4.5">
+                <img src="/favicon.png" class="perf-wsel-avatar-img" />
+              </div>
+              <span>{{ $t('performance.allWebsites') }}</span>
+            </button>
+            <button type="button" class="perf-wsel-item flex items-center gap-2" :class="{ active: scopeFilter === 'member' }" @click="selectScope('member')">
+              <div class="perf-wsel-avatar h-4.5 w-4.5">
+                <img src="/favicon.png" class="perf-wsel-avatar-img" />
+              </div>
+              <span>{{ $t('performance.teamMember') }}</span>
+            </button>
           </div>
         </template>
       </div>
@@ -89,25 +145,25 @@
         <button type="button" class="input perf-wsel-btn font-semibold" @click="toggleDropdown('member')">
           <div v-if="memberFilter" class="perf-wsel-avatar">
             <img v-if="selectedMemberObj?.avatarUrl" :src="selectedMemberObj?.avatarUrl" class="perf-wsel-avatar-img" />
-            <span v-else class="perf-wsel-avatar-initials">{{ (selectedMemberObj?.fullName || 'M').slice(0, 2).toUpperCase() }}</span>
+            <span v-else class="perf-wsel-avatar-initials">{{ getMemberInitials(selectedMemberObj?.fullName) }}</span>
           </div>
-          <span class="truncate flex-1 text-left">{{ memberFilter ? selectedMemberObj?.fullName : 'Select member...' }}</span>
+          <span class="truncate flex-1 text-left">{{ memberFilter ? selectedMemberObj?.fullName : $t('performance.selectMember') }}</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': memberDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <template v-if="memberDropdownOpen">
           <div class="perf-wsel-backdrop" @click="memberDropdownOpen = false" />
           <div class="perf-wsel-list">
-            <div v-if="memberProfilesLoading" class="p-3 text-center text-xs text-text-muted">Loading team members...</div>
+            <div v-if="memberProfilesLoading" class="p-3 text-center text-xs text-text-muted">{{ $t('performance.loadingMembers') }}</div>
             <div v-else-if="memberProfilesError" class="p-3 text-center text-xs text-status-needs-fix-fg flex flex-col gap-2">
               <span>{{ memberProfilesError }}</span>
-              <button type="button" class="btn-secondary text-[10px] py-1 px-2.5 h-auto font-sans" @click="fetchMemberProfiles">Retry</button>
+              <button type="button" class="btn-secondary text-[10px] py-1 px-2.5 h-auto font-sans" @click="fetchMemberProfiles">{{ $t('common.retry') || 'Retry' }}</button>
             </div>
-            <div v-else-if="allTeamMembers.length === 0" class="p-3 text-center text-xs text-text-muted">No team members found.</div>
+            <div v-else-if="allTeamMembers.length === 0" class="p-3 text-center text-xs text-text-muted">{{ $t('performance.noMembersFound') }}</div>
             <template v-else>
               <button v-for="m in allTeamMembers" :key="m.id" type="button" class="perf-wsel-item flex items-center gap-2" :class="{ active: memberFilter === m.id }" @click="selectMember(m.id)">
                 <div class="perf-wsel-avatar">
                   <img v-if="m.avatarUrl" :src="m.avatarUrl" class="perf-wsel-avatar-img" />
-                  <span v-else class="perf-wsel-avatar-initials">{{ (m.fullName || 'M').slice(0, 2).toUpperCase() }}</span>
+                  <span v-else class="perf-wsel-avatar-initials">{{ getMemberInitials(m.fullName) }}</span>
                 </div>
                 <div class="flex-1 text-left min-w-0">
                   <div class="text-text-main font-semibold truncate">{{ m.fullName }}</div>
@@ -125,7 +181,7 @@
       <div v-if="scopeFilter === 'single'" class="perf-wsel font-sans">
         <button type="button" class="input perf-wsel-btn font-semibold" @click="toggleDropdown('website')">
           <WebsiteFavicon v-if="websiteFilter" :favicon-url="websiteObj(websiteFilter)?.faviconUrl" :domain="websiteObj(websiteFilter)?.domain" :name="websiteObj(websiteFilter)?.name" :size="18" />
-          <span class="truncate flex-1 text-left ml-1">{{ websiteFilter ? (websiteObj(websiteFilter)?.name || websiteObj(websiteFilter)?.domain) : 'Select website...' }}</span>
+          <span class="truncate flex-1 text-left ml-1">{{ websiteFilter ? (websiteObj(websiteFilter)?.name || websiteObj(websiteFilter)?.domain) : $t('performance.selectWebsite') }}</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': websiteDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <template v-if="websiteDropdownOpen">
@@ -135,85 +191,157 @@
               <WebsiteFavicon :favicon-url="w.faviconUrl" :domain="w.domain" :name="w.name" :size="18" />
               <div class="flex-1 text-left min-w-0">
                 <div class="text-text-main font-semibold truncate">{{ w.name || w.domain }}</div>
-                <div class="text-[10px] text-text-muted truncate">{{ w.domain }} · Owner: {{ getWebsiteCreatorName(w) }}</div>
+                <div class="text-[10px] text-text-muted flex items-center gap-1.5 truncate">
+                  <span>{{ w.domain }}</span>
+                  <span>·</span>
+                  <span class="inline-flex items-center gap-1">
+                    <div class="perf-wsel-avatar h-3.5 w-3.5 mr-0.5 inline-flex" v-if="w.createdBy">
+                      <img v-if="getMemberAvatarUrl(w.createdBy)" :src="getMemberAvatarUrl(w.createdBy)" class="perf-wsel-avatar-img" />
+                      <span v-else class="perf-wsel-avatar-initials text-[6px]">{{ getMemberInitials(getWebsiteCreatorName(w)) }}</span>
+                    </div>
+                    <span>Owner: {{ getWebsiteCreatorName(w) }}</span>
+                  </span>
+                </div>
               </div>
-              <span v-if="perf.connectionByWebsite.has(w.id)" class="text-status-approved-fg text-[9px] flex-shrink-0">● Connected</span>
+              <span v-if="perf.connectionByWebsite.has(w.id)" class="text-status-approved-fg text-[9px] flex-shrink-0">● {{ $t('Connected') }}</span>
             </button>
-          </div>
-        </template>
-      </div>
-
-      <!-- Platform Filter -->
-      <div class="perf-wsel font-sans">
-        <button type="button" class="input perf-wsel-btn" @click="toggleDropdown('platform')">
-          <span class="truncate flex-1 text-left">Platform: {{ platformLabel }}</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': platformDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <template v-if="platformDropdownOpen">
-          <div class="perf-wsel-backdrop" @click="platformDropdownOpen = false" />
-          <div class="perf-wsel-list">
-            <button type="button" class="perf-wsel-item" :class="{ active: !platformFilter }" @click="selectPlatform('')">All Platforms</button>
-            <button type="button" class="perf-wsel-item" :class="{ active: platformFilter === 'wordpress' }" @click="selectPlatform('wordpress')">WordPress</button>
-            <button type="button" class="perf-wsel-item" :class="{ active: platformFilter === 'framework' }" @click="selectPlatform('framework')">Framework</button>
-            <button type="button" class="perf-wsel-item" :class="{ active: platformFilter === 'unknown' }" @click="selectPlatform('unknown')">Unknown</button>
-          </div>
-        </template>
-      </div>
-
-      <!-- Connection Status Filter -->
-      <div class="perf-wsel font-sans">
-        <button type="button" class="input perf-wsel-btn" @click="toggleDropdown('conn')">
-          <span class="truncate flex-1 text-left">Connection: {{ connLabel }}</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': connDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
-        </button>
-        <template v-if="connDropdownOpen">
-          <div class="perf-wsel-backdrop" @click="connDropdownOpen = false" />
-          <div class="perf-wsel-list">
-            <button type="button" class="perf-wsel-item" :class="{ active: connFilter === 'all' }" @click="selectConn('all')">All Statuses</button>
-            <button type="button" class="perf-wsel-item" :class="{ active: connFilter === 'connected' }" @click="selectConn('connected')">Connected only</button>
-            <button type="button" class="perf-wsel-item" :class="{ active: connFilter === 'not' }" @click="selectConn('not')">Not connected</button>
           </div>
         </template>
       </div>
 
       <!-- Date Range Select Dropdown -->
-      <div v-if="activePerformanceView === 'overview'" class="perf-wsel font-sans">
+      <div class="perf-wsel font-sans">
         <button type="button" class="input perf-wsel-btn font-semibold" @click="toggleDropdown('range')">
-          <span class="truncate flex-1 text-left">Range: {{ rangeLabel }}</span>
+          <span class="truncate flex-1 text-left">{{ $t('performance.range') }}: {{ rangeLabel }}</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': rangeDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <template v-if="rangeDropdownOpen">
           <div class="perf-wsel-backdrop" @click="rangeDropdownOpen = false" />
-          <div class="perf-wsel-list">
-            <button v-for="opt in rangeOptions" :key="opt.value" type="button" class="perf-wsel-item" :class="{ active: perf.rangeDays === opt.value }" @click="selectRange(opt.value)">
-              {{ opt.label }}
+          <div class="perf-wsel-list perf-range-list">
+            <button
+              v-for="opt in rangeOptions"
+              :key="opt.value"
+              type="button"
+              class="perf-wsel-item perf-range-item"
+              :class="{ active: perf.rangeDays === opt.value }"
+              @click="selectRange(opt.value)"
+            >
+              <span class="perf-range-copy">
+                <span class="perf-range-label">{{ translateRangeOption(opt) }}</span>
+                <span v-if="opt.value === 'last_16_months'" class="perf-range-note">
+                  Maximum Search Console history
+                </span>
+              </span>
             </button>
           </div>
         </template>
       </div>
 
-      <!-- Comparison Select Dropdown -->
-      <div v-if="activePerformanceView === 'overview'" class="perf-wsel font-sans">
-        <button type="button" class="input perf-wsel-btn" @click="toggleDropdown('compare')">
-          <span class="truncate flex-1 text-left">Compare: {{ compareLabel }}</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': compareDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
+      <!-- Compare to Last Month Toggle -->
+      <label
+        class="flex items-center gap-2 cursor-pointer select-none font-sans text-[11px] font-semibold text-text-main h-9 px-3 border border-border/60 rounded-lg bg-card hover:bg-soft transition-colors flex-shrink-0"
+        :class="{ 'opacity-50 cursor-not-allowed': perf.rangeDays === 'last_16_months' }"
+      >
+        <input
+          type="checkbox"
+          :checked="perf.compareMode === 'last_month'"
+          :disabled="perf.rangeDays === 'last_16_months'"
+          @change="onCompareToggleChange"
+          class="rounded border-border text-primary focus:ring-primary h-4 w-4 bg-input cursor-pointer disabled:cursor-not-allowed"
+        />
+        <span>{{ $t('performance.compareToLastMonth') }}</span>
+      </label>
+
+      <!-- Advanced Filters -->
+      <div class="perf-wsel font-sans">
+        <button
+          type="button"
+          class="btn-secondary h-9 px-3 text-[11px] flex items-center gap-1.5 font-semibold"
+          @click="openAdvancedFilters"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+          </svg>
+          <span>{{ $t('performance.advancedFilters') }}</span>
+          <span v-if="activeAdvancedFiltersCount > 0" class="bg-primary text-on-primary text-[10px] px-1.5 py-0.5 rounded-full font-number font-bold ml-1">
+            {{ activeAdvancedFiltersCount }}
+          </span>
         </button>
-        <template v-if="compareDropdownOpen">
-          <div class="perf-wsel-backdrop" @click="compareDropdownOpen = false" />
-          <div class="perf-wsel-list">
-            <button type="button" class="perf-wsel-item" :class="{ active: perf.compareMode === 'none' }" @click="selectCompare('none')">Off</button>
-            <button type="button" class="perf-wsel-item" :class="{ active: perf.compareMode === 'previous' }" @click="selectCompare('previous')">Previous Period</button>
-            <button type="button" class="perf-wsel-item" :class="{ active: perf.compareMode === 'last_month' }" @click="selectCompare('last_month')">Last Month</button>
+        <template v-if="advancedDropdownOpen">
+          <div class="perf-wsel-backdrop" @click="advancedDropdownOpen = false" />
+          <div class="perf-wsel-list w-80 p-4 space-y-4 right-0 left-auto" style="right: 0; left: auto;">
+            <h4 class="text-xs font-bold text-text-main font-sans uppercase tracking-wider mb-2">
+              {{ $t('performance.advancedFilters') }}
+            </h4>
+
+            <!-- Platform filter -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-semibold text-text-muted">{{ $t('performance.websitePlatform') }}</label>
+              <select v-model="tempPlatformFilter" class="input w-full py-1.5 px-2 text-xs bg-input font-sans">
+                <option value="">{{ $t('performance.allPlatforms') }}</option>
+                <option value="wordpress">{{ $t('performance.wordpress') }}</option>
+                <option value="framework">{{ $t('performance.framework') }}</option>
+                <option value="unknown">{{ $t('performance.unknown') }}</option>
+              </select>
+            </div>
+
+            <!-- Connection Status filter -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-semibold text-text-muted">{{ $t('performance.connectionStatus') }}</label>
+              <select v-model="tempConnFilter" class="input w-full py-1.5 px-2 text-xs bg-input font-sans">
+                <option value="all">{{ $t('performance.allStatuses') }}</option>
+                <option value="connected">{{ $t('performance.connectedOnly') }}</option>
+                <option value="not">{{ $t('performance.notConnected') }}</option>
+              </select>
+            </div>
+
+            <!-- Website Type filter -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-semibold text-text-muted">{{ $t('performance.websiteType') }}</label>
+              <select v-model="tempWebsiteTypeFilter" class="input w-full py-1.5 px-2 text-xs bg-input font-sans">
+                <option value="">{{ $t('common.all') || 'All' }}</option>
+                <option v-for="t in websiteTypes" :key="t" :value="t">{{ typeLabel(t) }}</option>
+              </select>
+            </div>
+
+            <!-- Data Presence filter -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-semibold text-text-muted">{{ $t('performance.dataPresence') }}</label>
+              <select v-model="tempHasDataFilter" class="input w-full py-1.5 px-2 text-xs bg-input font-sans">
+                <option value="all">{{ $t('common.all') || 'All' }}</option>
+                <option value="has_data">{{ $t('performance.hasData') }}</option>
+                <option value="no_data">{{ $t('performance.noData') }}</option>
+              </select>
+            </div>
+
+            <!-- Apply & Reset buttons -->
+            <div class="flex gap-2 pt-2 border-t border-border/40">
+              <button type="button" class="btn-primary flex-1 py-1.5 text-xs font-semibold" @click="applyAdvancedFilters">
+                {{ $t('performance.applyFilters') }}
+              </button>
+              <button type="button" class="btn-secondary py-1.5 px-3 text-xs font-semibold" @click="resetAdvancedFilters">
+                {{ $t('performance.resetFilters') }}
+              </button>
+            </div>
           </div>
         </template>
       </div>
 
       <!-- Custom Date Pickers -->
-      <div v-if="perf.rangeDays === 'custom' && activePerformanceView === 'overview'" class="flex items-center gap-2 border border-border rounded-lg px-2 h-9 bg-card flex-shrink-0">
-        <input type="date" v-model="perf.customStartDate" class="bg-transparent border-0 text-xs text-text-main outline-none w-28 font-sans font-medium" @change="onCustomDateChange" />
-        <span class="text-text-muted text-[10px] uppercase font-bold">to</span>
-        <input type="date" v-model="perf.customEndDate" class="bg-transparent border-0 text-xs text-text-main outline-none w-28 font-sans font-medium" @change="onCustomDateChange" />
+      <div v-if="perf.rangeDays === 'custom'" class="flex items-center gap-2 border border-border rounded-lg px-2 h-9 bg-card flex-shrink-0">
+        <input type="date" v-model="perf.customStartDate" class="bg-transparent border-0 text-[11px] text-text-main outline-none w-28 font-sans font-medium" @change="onCustomDateChange" />
+        <span class="text-text-muted text-[10px] uppercase font-bold">{{ $t('to') }}</span>
+        <input type="date" v-model="perf.customEndDate" class="bg-transparent border-0 text-[11px] text-text-main outline-none w-28 font-sans font-medium" @change="onCustomDateChange" />
       </div>
+    </div>
+
+    <!-- Active Advanced Filters Summary -->
+    <div v-if="activePerformanceView === 'overview' && activeAdvancedFiltersCount > 0" class="flex items-center gap-2 text-[11px] text-text-muted mb-4 px-1 font-sans">
+      <span>{{ $t('performance.advancedFiltersActive') }}: <strong class="text-text-main font-number font-bold">{{ activeAdvancedFiltersCount }}</strong></span>
+      <span>•</span>
+      <button type="button" class="text-primary hover:underline cursor-pointer font-sans" @click="resetAdvancedFilters">
+        {{ $t('performance.clearAll') }}
+      </button>
     </div>
 
     <!-- Active View Area -->
@@ -221,19 +349,19 @@
       <LoadingBlock v-if="activePerformanceView === 'overview'" :loading="perf.loading" :error="perf.error" :retry="() => perf.fetchAll()">
         <!-- Empty States -->
         <div v-if="scopeFilter === 'my' && scopedWebsites.length === 0 && !data.loading.websites" class="card card-pad py-16 text-center border border-dashed border-border/80 rounded-2xl bg-card mt-4">
-          <div class="text-base font-bold text-text-main mb-2">No websites assigned to you yet.</div>
-          <p class="text-xs text-text-muted mb-4 max-w-sm mx-auto">You don't have any websites assigned to your account. Switch to viewing all websites to see other team properties.</p>
-          <button class="btn-primary font-sans font-semibold text-xs h-9 px-4" type="button" @click="selectScope('all')">View All Websites</button>
+          <div class="text-base font-bold text-text-main mb-2">{{ $t('performance.noWebsitesAssignedTitle') }}</div>
+          <p class="text-xs text-text-muted mb-4 max-w-sm mx-auto">{{ $t('performance.noWebsitesAssignedSub') }}</p>
+          <button class="btn-primary font-sans font-semibold text-xs h-9 px-4" type="button" @click="selectScope('all')">{{ $t('performance.viewAllWebsites') }}</button>
         </div>
 
         <div v-else-if="scopeFilter === 'member' && scopedWebsites.length === 0 && !data.loading.websites" class="card card-pad py-16 text-center border border-dashed border-border/80 rounded-2xl bg-card mt-4">
-          <div class="text-base font-bold text-text-main mb-2">No websites found for this team member.</div>
-          <p class="text-xs text-text-muted max-w-sm mx-auto">This team member does not have any websites assigned to them.</p>
+          <div class="text-base font-bold text-text-main mb-2">{{ $t('performance.noWebsitesMemberTitle') }}</div>
+          <p class="text-xs text-text-muted max-w-sm mx-auto">{{ $t('performance.noWebsitesMemberSub') }}</p>
         </div>
 
         <div v-else-if="scopeFilter === 'single' && websiteFilter && filteredDaily.length === 0" class="card card-pad py-16 text-center border border-dashed border-border/80 rounded-2xl bg-card mt-4">
-          <div class="text-base font-bold text-text-main mb-2">No Search Console data found for this website.</div>
-          <p class="text-xs text-text-muted max-w-sm mx-auto">This website has no Search Console stats synced for the selected range. Try triggers sync manually.</p>
+          <div class="text-base font-bold text-text-main mb-2">{{ $t('performance.noSearchConsoleDataTitle') }}</div>
+          <p class="text-xs text-text-muted max-w-sm mx-auto">{{ $t('performance.noSearchConsoleDataSub') }}</p>
         </div>
 
         <!-- Normal Layout -->
@@ -251,7 +379,7 @@
             >
               <div class="flex items-center gap-1.5">
                 <span class="perf-metric-dot transition-transform group-hover:scale-125" :style="{ background: m.color }" />
-                <span class="perf-metric-label font-sans">{{ m.label }}</span>
+                <span class="perf-metric-label font-sans">{{ translateMetricLabel(m.key) }}</span>
               </div>
               <span class="perf-metric-value font-number font-extrabold text-2xl mt-1">{{ m.format(totals) }}</span>
               
@@ -270,17 +398,20 @@
           </div>
 
           <!-- Comparison context notice -->
-          <div v-if="compareActive" class="text-xs text-text-muted mt-1 px-1">
-            <span v-if="!hasCompareData">No baseline GSC data exists for the comparison period: <strong class="text-text-main">{{ perf.comparePeriodLabel }}</strong>.</span>
-            <span v-else>Comparing current values to <strong class="text-text-main capitalize">{{ perf.comparePeriodLabel }}</strong>.</span>
+          <div v-if="perf.compareMode !== 'none' && perf.rangeDays === 'last_16_months'" class="text-xs text-status-needs-fix-fg mt-1 px-1 font-sans font-medium">
+            {{ $t('Comparison is not available for Last 16 Months yet.') }}
+          </div>
+          <div v-else-if="compareActive" class="text-xs text-text-muted mt-1 px-1 font-sans">
+            <span v-if="!hasCompareData">{{ $t('performance.noLastMonthData') }}</span>
+            <span v-else>{{ $t('Comparing current values to') }} <strong class="text-text-main capitalize">{{ perf.comparePeriodLabel }}</strong>.</span>
           </div>
 
           <!-- Range shortfall warning -->
           <div v-if="rangeShortfall" class="flex flex-wrap items-center gap-2 rounded-xl border border-status-submitted-bg bg-status-submitted-bg/15 px-4 py-3 text-xs text-text-muted">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>Only <strong class="text-text-main font-semibold">{{ storedDayCount }}</strong> days of statistics exist locally (back to {{ oldestStoredDate }}). Synchronize data to load historical days.</span>
+            <span>{{ $t('Only') }} <strong class="text-text-main font-semibold">{{ storedDayCount }}</strong> {{ $t('days of statistics exist locally (back to') }} {{ oldestStoredDate }}). {{ $t('Synchronize data to load historical days.') }}</span>
             <button v-if="isManagement" class="btn-secondary ml-auto h-7 px-3 py-0 text-xs font-sans font-semibold" type="button" :disabled="perf.syncAllRunning" @click="onSyncAll">
-              {{ perf.syncAllRunning ? 'Syncing…' : 'Sync Range' }}
+              {{ perf.syncAllRunning ? $t('performance.syncing') : $t('Sync Range') }}
             </button>
           </div>
 
@@ -291,27 +422,27 @@
               <div>
                 <div class="flex items-center gap-2">
                   <h3 class="text-sm font-bold text-text-main font-sans tracking-wide uppercase">
-                    {{ activeMetricMeta.label }} Trend
+                    {{ translateMetricLabel(activeMetricMeta.key) }} Trend
                   </h3>
-                  <span class="px-2 py-0.5 rounded-full text-[9px] font-sans font-bold bg-soft text-text-muted">Daily</span>
+                  <span class="px-2 py-0.5 rounded-full text-[9px] font-sans font-bold bg-soft text-text-muted">{{ $t('Daily') }}</span>
                 </div>
-                <p class="text-xs text-text-muted font-sans mt-0.5">Performance tracking across selected parameters</p>
+                <p class="text-xs text-text-muted font-sans mt-0.5">{{ $t('Performance tracking across selected parameters') }}</p>
               </div>
 
               <!-- Inline Legend & Controls -->
               <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
                 <div class="flex items-center gap-1.5 font-sans font-medium text-text-main">
                   <span class="w-3 h-0.5 rounded animate-pulse" :style="{ backgroundColor: activeMetricMeta.color }" />
-                  <span>Current Period</span>
+                  <span>{{ $t('Current Period') }}</span>
                 </div>
                 <div v-if="compareActive && hasCompareData" class="flex items-center gap-1.5 font-sans font-medium text-text-muted">
                   <span class="w-3 border-t-2 border-dashed border-text-muted" />
-                  <span>Comparison Period</span>
+                  <span>{{ $t('Comparison Period') }}</span>
                 </div>
                 <div v-if="hasTrend" class="flex items-center gap-1.5 ml-2">
                   <label class="flex items-center gap-1 cursor-pointer font-sans text-xs text-text-muted hover:text-text-main select-none">
                     <input type="checkbox" v-model="showChartAverage" class="rounded border-border text-primary focus:ring-primary h-3.5 w-3.5 bg-input" />
-                    <span>Average line</span>
+                    <span>{{ $t('Average line') }}</span>
                   </label>
                 </div>
               </div>
@@ -330,7 +461,7 @@
                 :metric-name="activeMetricMeta.label.replace('Total ', '').replace('Average ', '')"
                 :show-average-line="showChartAverage"
               />
-              <p v-else class="py-16 text-center text-sm text-text-muted">Insufficient daily statistics to plot trend line.</p>
+              <p v-else class="py-16 text-center text-sm text-text-muted">{{ $t('Insufficient daily statistics to plot trend line.') }}</p>
             </div>
           </div>
 
@@ -349,7 +480,7 @@
               <input
                 v-model="tableSearch"
                 class="input perf-tabsearch h-8 text-xs font-sans"
-                :placeholder="`Search ${activeTabMeta.noun}…`"
+                :placeholder="$t('Search ' + activeTabMeta.noun + '…')"
               />
             </div>
 
@@ -362,23 +493,23 @@
                       {{ activeTabMeta.header }} <span class="perf-sort ml-1">{{ sortArrow('label') }}</span>
                     </th>
                     <th class="num cursor-pointer select-none font-bold font-sans text-xs tracking-wider" @click="setSort('clicks')">
-                      Clicks <span class="perf-sort ml-1">{{ sortArrow('clicks') }}</span>
+                      {{ $t('performance.clicks') }} <span class="perf-sort ml-1">{{ sortArrow('clicks') }}</span>
                     </th>
-                    <th v-if="showChangeCol" class="num font-bold font-sans text-xs tracking-wider">Clicks Change</th>
+                    <th v-if="showChangeCol" class="num font-bold font-sans text-xs tracking-wider">{{ $t('Clicks Change') }}</th>
                     <th class="num cursor-pointer select-none font-bold font-sans text-xs tracking-wider" @click="setSort('impressions')">
-                      Impressions <span class="perf-sort ml-1">{{ sortArrow('impressions') }}</span>
+                      {{ $t('performance.impressions') }} <span class="perf-sort ml-1">{{ sortArrow('impressions') }}</span>
                     </th>
                     <th class="num cursor-pointer select-none font-bold font-sans text-xs tracking-wider" @click="setSort('ctr')">
-                      CTR <span class="perf-sort ml-1">{{ sortArrow('ctr') }}</span>
+                      {{ $t('performance.ctr') }} <span class="perf-sort ml-1">{{ sortArrow('ctr') }}</span>
                     </th>
                     <th class="num cursor-pointer select-none font-bold font-sans text-xs tracking-wider" @click="setSort('position')">
-                      Position <span class="perf-sort ml-1">{{ sortArrow('position') }}</span>
+                      {{ $t('performance.avgPosition') }} <span class="perf-sort ml-1">{{ sortArrow('position') }}</span>
                     </th>
-                    <th v-if="activeTab === 'websites'" class="font-bold font-sans text-xs tracking-wider">Sync Status</th>
+                    <th v-if="activeTab === 'websites'" class="font-bold font-sans text-xs tracking-wider">{{ $t('Sync Status') }}</th>
                     <th v-if="activeTabMeta.extra && activeTab !== 'websites'" class="num font-bold font-sans text-xs tracking-wider">
                       {{ activeTabMeta.extra }}
                     </th>
-                    <th v-if="activeTab === 'websites' && isManagement" class="text-right font-bold font-sans text-xs tracking-wider">Actions</th>
+                    <th v-if="activeTab === 'websites' && isManagement" class="text-right font-bold font-sans text-xs tracking-wider">{{ $t('Actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -392,6 +523,20 @@
                       <span v-if="activeTab === 'websites'" class="inline-flex items-center gap-2">
                         <WebsiteFavicon :favicon-url="websiteObj(r.id)?.faviconUrl" :domain="websiteObj(r.id)?.domain" :name="r.label" :size="20" />
                         <span class="truncate">{{ r.label }}</span>
+                      </span>
+                      <span v-else-if="activeTab === 'countries'" class="inline-flex items-center gap-2">
+                        <CountryFlag :country-name="r.label" :country-code="r.key" :size="20" />
+                        <span class="truncate">{{ r.label }}</span>
+                      </span>
+                      <span v-else-if="activeTab === 'members'" class="inline-flex items-center gap-2.5 py-0.5">
+                        <div class="perf-wsel-avatar h-7 w-7">
+                          <img v-if="getMemberAvatarUrl(r.key)" :src="getMemberAvatarUrl(r.key)" class="perf-wsel-avatar-img" />
+                          <span v-else class="perf-wsel-avatar-initials text-xs font-bold">{{ getMemberInitials(r.label) }}</span>
+                        </div>
+                        <div class="flex flex-col min-w-0 leading-tight">
+                          <span class="truncate font-semibold text-text-main text-xs">{{ r.label }}</span>
+                          <span class="text-[9px] text-text-muted capitalize mt-0.5">{{ getMemberRoleLabel(r.key) }}</span>
+                        </div>
                       </span>
                       <span v-else>{{ activeTab === 'pages' ? shortUrl(r.label) : r.label }}</span>
                     </td>
@@ -417,7 +562,7 @@
                         :disabled="perf.syncingIds.has(r.key)"
                         @click="perf.syncWebsite(r.key)"
                       >
-                        {{ perf.syncingIds.has(r.key) ? 'Syncing…' : 'Sync' }}
+                        {{ perf.syncingIds.has(r.key) ? $t('performance.syncing') : $t('Sync') }}
                       </button>
                     </td>
                   </tr>
@@ -432,10 +577,10 @@
 
             <!-- Table pagination -->
             <div v-if="sortedRows.length > perPage" class="perf-pager bg-soft/5">
-              <span class="font-sans text-xs">Showing {{ (page - 1) * perPage + 1 }}–{{ Math.min(page * perPage, sortedRows.length) }} of {{ sortedRows.length }}</span>
+              <span class="font-sans text-xs">{{ $t('Showing') }} {{ (page - 1) * perPage + 1 }}–{{ Math.min(page * perPage, sortedRows.length) }} {{ $t('of') }} {{ sortedRows.length }}</span>
               <div class="flex gap-2">
-                <button class="btn-secondary h-8 px-3 text-xs" type="button" :disabled="page <= 1" @click="page--">Prev</button>
-                <button class="btn-secondary h-8 px-3 text-xs" type="button" :disabled="page >= pageCount" @click="page++">Next</button>
+                <button class="btn-secondary h-8 px-3 text-xs" type="button" :disabled="page <= 1" @click="page--">{{ $t('Prev') }}</button>
+                <button class="btn-secondary h-8 px-3 text-xs" type="button" :disabled="page >= pageCount" @click="page++">{{ $t('Next') }}</button>
               </div>
             </div>
           </div>
@@ -443,72 +588,92 @@
           <!-- Bottom insights cards -->
           <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <div class="perf-insight bg-card border border-border/60">
-              <div class="perf-insight-l">Top Website</div>
+              <div class="perf-insight-l">{{ $t('Top Website') }}</div>
               <div class="perf-insight-v flex items-center gap-2 mt-1 truncate">
                 <WebsiteFavicon v-if="topWebsite" :favicon-url="websiteObj(topWebsite.id)?.faviconUrl" :domain="websiteObj(topWebsite.id)?.domain" :name="topWebsite.label" :size="20" />
                 <span class="truncate font-sans font-bold text-sm">{{ topWebsite?.label || '—' }}</span>
               </div>
-              <div class="perf-insight-s mt-1 font-sans">{{ topWebsite ? fmtNum(topWebsite.clicks) + ' clicks' : 'No data' }}</div>
+              <div class="perf-insight-s mt-1 font-sans">{{ topWebsite ? fmtNum(topWebsite.clicks) + ' ' + $t('clicks') : $t('No data') }}</div>
             </div>
 
             <div class="perf-insight bg-card border border-border/60">
-              <div class="perf-insight-l">Biggest Growth</div>
+              <div class="perf-insight-l">{{ $t('Biggest Growth') }}</div>
               <div class="perf-insight-v truncate mt-1 font-sans font-bold text-sm">{{ biggestGrowth[0]?.name || '—' }}</div>
               <div class="perf-insight-s mt-1 font-sans text-status-approved-fg" v-if="biggestGrowth[0]">
-                +{{ fmtNum(biggestGrowth[0].delta) }} clicks
+                +{{ fmtNum(biggestGrowth[0].delta) }} {{ $t('clicks') }}
               </div>
-              <div class="perf-insight-s mt-1 font-sans text-text-muted" v-else>No increase</div>
+              <div class="perf-insight-s mt-1 font-sans text-text-muted" v-else>{{ $t('No increase') }}</div>
             </div>
 
             <div class="perf-insight bg-card border border-border/60">
-              <div class="perf-insight-l">Biggest Drop</div>
+              <div class="perf-insight-l">{{ $t('Biggest Drop') }}</div>
               <div class="perf-insight-v truncate mt-1 font-sans font-bold text-sm">{{ biggestDrop[0]?.name || '—' }}</div>
               <div class="perf-insight-s mt-1 font-sans text-status-needs-fix-fg" v-if="biggestDrop[0]">
-                {{ fmtNum(biggestDrop[0].delta) }} clicks
+                {{ fmtNum(biggestDrop[0].delta) }} {{ $t('clicks') }}
               </div>
-              <div class="perf-insight-s mt-1 font-sans text-text-muted" v-else>No decrease</div>
+              <div class="perf-insight-s mt-1 font-sans text-text-muted" v-else>{{ $t('No decrease') }}</div>
             </div>
 
             <div class="perf-insight bg-card border border-border/60">
-              <div class="perf-insight-l">Alerts / Attention</div>
+              <div class="perf-insight-l">{{ $t('Alerts / Attention') }}</div>
               <div class="perf-insight-v mt-1 font-sans font-bold text-sm text-status-submitted-fg">
-                {{ needsAttention.length }} website(s)
+                {{ needsAttention.length }} {{ needsAttention.length === 1 ? $t('website') : $t('websites') }}
               </div>
               <div class="perf-insight-s mt-1 font-sans text-text-muted">
-                {{ needsAttention.length ? 'require connection mapping' : 'connections healthy' }}
+                {{ needsAttention.length ? $t('require connection mapping') : $t('connections healthy') }}
               </div>
             </div>
           </div>
 
-          <!-- Connections Table (Management Only) -->
-          <div v-if="isManagement" class="card card-pad rounded-2xl bg-card border border-border/60 mt-6">
-            <h3 class="text-sm font-bold text-text-main font-sans tracking-wide uppercase mb-1">
-              Search Console Connections Mapping
-            </h3>
-            <p class="text-xs text-text-muted mb-4 font-sans leading-relaxed">
-              Map each project site to its Search Console property format (e.g. <code>sc-domain:example.com</code> or <code>https://example.com/</code>) to query metrics.
-            </p>
+          <!-- Connections Table -->
+          <div class="card card-pad rounded-2xl bg-card border border-border/60 mt-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-sm font-bold text-text-main font-sans tracking-wide uppercase mb-1">
+                  {{ $t('Search Console Connections') }}
+                </h3>
+                <p class="text-xs text-text-muted font-sans leading-relaxed">
+                  {{ isManagement ? $t('Map each project site to its Search Console property format (e.g. sc-domain:example.com or https://example.com/) to query metrics.') : $t('Select a website to view its search console performance.') }}
+                </p>
+              </div>
+              <div v-if="scopeFilter === 'single' && websiteFilter" class="text-xs font-semibold text-primary font-sans bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg">
+                {{ $t('Viewing') }}: {{ websiteName(websiteFilter) }}
+              </div>
+            </div>
             <div class="overflow-x-auto">
               <table class="perf-table perf-table--lined text-xs">
                 <thead>
                   <tr class="bg-soft/5">
-                    <th class="font-bold">Website</th>
-                    <th class="font-bold">GSC Property URL</th>
-                    <th class="font-bold">Status</th>
-                    <th class="font-bold">Last Sync Timestamp</th>
-                    <th class="text-right font-bold">Actions</th>
+                    <th class="font-bold">{{ $t('Website') }}</th>
+                    <th class="font-bold">{{ $t('GSC Property URL') }}</th>
+                    <th class="font-bold">{{ $t('Status') }}</th>
+                    <th class="font-bold">{{ $t('Last Sync Timestamp') }}</th>
+                    <th class="text-right font-bold">{{ $t('Actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="w in visibleWebsites" :key="w.id">
+                  <tr
+                    v-for="w in visibleConnectionWebsites"
+                    :key="w.id"
+                    @click="onSelectWebsiteFromConnectionRow(w)"
+                    class="perf-gsc-row"
+                    :class="{ 'is-selected': scopeFilter === 'single' && websiteFilter === w.id }"
+                  >
                     <td class="font-semibold text-text-main font-sans">
                       <div class="flex items-center gap-2">
                         <WebsiteFavicon :favicon-url="w.faviconUrl" :domain="w.domain" :name="w.name" :size="18" />
-                        <span class="truncate">{{ w.name || w.domain }}</span>
+                        <span class="truncate hover:underline" :title="$t('View performance for this website')">{{ w.name || w.domain }}</span>
                       </div>
                     </td>
                     <td>
-                      <input v-model="propInputs[w.id]" class="input h-8 text-xs font-sans max-w-sm w-full bg-input" :placeholder="`sc-domain:${bareDomain(w.domain)}`" />
+                      <input
+                        v-if="isManagement"
+                        v-model="propInputs[w.id]"
+                        class="input h-8 text-xs font-sans max-w-sm w-full bg-input"
+                        :placeholder="`sc-domain:${bareDomain(w.domain)}`"
+                        @click.stop
+                      />
+                      <code v-else class="font-mono text-text-muted">{{ perf.connectionByWebsite.get(w.id)?.gsc_property_url || '—' }}</code>
                     </td>
                     <td>
                       <div class="flex items-center gap-1.5">
@@ -520,29 +685,34 @@
                     </td>
                     <td class="text-text-muted font-sans text-xs">{{ fmtDateTime(perf.connectionByWebsite.get(w.id)?.last_synced_at) }}</td>
                     <td class="whitespace-nowrap text-right">
-                      <div class="flex justify-end gap-1.5">
-                        <button class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold" type="button" @click="onSaveConnection(w.id)">Save</button>
-                        <button
-                          class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold"
-                          type="button"
-                          :disabled="perf.syncingIds.has(w.id) || !perf.connectionByWebsite.get(w.id)"
-                          @click="perf.syncWebsite(w.id)"
-                        >
-                          {{ perf.syncingIds.has(w.id) ? 'Syncing…' : 'Sync' }}
-                        </button>
-                        <button
-                          v-if="perf.connectionByWebsite.get(w.id)"
-                          class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold text-status-needs-fix-fg hover:text-status-needs-fix-fg/80"
-                          type="button"
-                          @click="onRemoveConnection(w.id)"
-                        >
-                          Remove
+                      <div class="flex justify-end gap-1.5" @click.stop>
+                        <template v-if="isManagement">
+                          <button class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold" type="button" @click="onSaveConnection(w.id)">{{ $t('Save') }}</button>
+                          <button
+                            class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold"
+                            type="button"
+                            :disabled="perf.syncingIds.has(w.id) || !perf.connectionByWebsite.get(w.id)"
+                            @click="perf.syncWebsite(w.id)"
+                          >
+                            {{ perf.syncingIds.has(w.id) ? $t('Syncing…') : $t('Sync') }}
+                          </button>
+                          <button
+                            v-if="perf.connectionByWebsite.get(w.id)"
+                            class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold text-status-needs-fix-fg hover:text-status-needs-fix-fg/80"
+                            type="button"
+                            @click="onRemoveConnection(w.id)"
+                          >
+                            {{ $t('Remove') }}
+                          </button>
+                        </template>
+                        <button class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold" type="button" @click="openDetail(w.id)">
+                          {{ $t('Details') }}
                         </button>
                       </div>
                     </td>
                   </tr>
-                  <tr v-if="!visibleWebsites.length">
-                    <td colspan="5" class="py-8 text-center text-sm text-text-muted font-sans">No websites match filters.</td>
+                  <tr v-if="!visibleConnectionWebsites.length">
+                    <td colspan="5" class="py-8 text-center text-sm text-text-muted font-sans">{{ $t('No websites match filters.') }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -556,15 +726,22 @@
         v-else-if="activePerformanceView === 'page-indexing'"
         :websites="visibleWebsites"
         :scope-filter="scopeFilter"
+        :member-filter="memberFilter"
+        :website-filter="websiteFilter"
         @switch-scope="selectScope"
+        @update:member-filter="memberFilter = $event"
+        @update:website-filter="websiteFilter = $event"
+        @toggle-sidebar="sidebarOpen = true"
       />
+        </div>
+      </div>
     </div>
 
     <!-- Reusable Sync Logs Modal -->
     <SyncLogsModal :open="showLogsModal" @close="showLogsModal = false" />
 
     <!-- Website Detail Drawer Modal -->
-    <Modal :open="!!detailId" :title="detailWebsite?.name || detailWebsite?.domain || 'Website'" subtitle="Website Search Console Property Details" size="lg" @close="closeDetail">
+    <Modal :open="!!detailId" :title="detailWebsite?.name || detailWebsite?.domain || $t('Website')" :subtitle="$t('Website Search Console Property Details')" size="lg" @close="closeDetail">
       <div v-if="detailId" class="space-y-4">
         <!-- Site Header Meta -->
         <div class="flex items-center gap-3 bg-soft/10 p-3 rounded-xl border border-border/40">
@@ -573,9 +750,21 @@
             <div class="font-bold text-text-main text-base truncate font-sans">{{ detailWebsite?.name || detailWebsite?.domain }}</div>
             <div class="text-xs text-text-muted truncate font-sans font-mono">{{ detailWebsite?.domain }}</div>
           </div>
-          <div class="text-right text-xs text-text-muted font-sans flex flex-col gap-0.5">
-            <span>Owner: <strong class="text-text-main font-semibold">{{ getWebsiteCreatorName(detailWebsite!) }}</strong></span>
-            <span>Status: <strong class="text-text-main font-semibold">{{ perf.connectionByWebsite.has(detailId) ? 'Connected' : 'Not Mapped' }}</strong></span>
+          <div class="text-right text-xs text-text-muted font-sans flex flex-col gap-1 items-end">
+            <span class="inline-flex items-center gap-1.5">
+              {{ $t('Owner:') }}
+              <div class="perf-wsel-avatar h-4.5 w-4.5" v-if="detailWebsite?.createdBy">
+                <img v-if="getMemberAvatarUrl(detailWebsite.createdBy)" :src="getMemberAvatarUrl(detailWebsite.createdBy)" class="perf-wsel-avatar-img" />
+                <span v-else class="perf-wsel-avatar-initials text-[8px]">{{ getMemberInitials(getWebsiteCreatorName(detailWebsite)) }}</span>
+              </div>
+              <strong class="text-text-main font-semibold flex items-center gap-1">
+                {{ getWebsiteCreatorName(detailWebsite!) }}
+                <span v-if="detailWebsite?.createdBy" class="text-[9px] px-1.5 py-0.2 bg-soft/30 rounded text-text-muted capitalize">
+                  {{ getMemberRoleLabel(detailWebsite.createdBy) }}
+                </span>
+              </strong>
+            </span>
+            <span>{{ $t('Status:') }} <strong class="text-text-main font-semibold">{{ perf.connectionByWebsite.has(detailId) ? $t('Connected') : $t('Not Mapped') }}</strong></span>
           </div>
         </div>
 
@@ -589,7 +778,7 @@
             :class="detailTab === t.key ? 'bg-primary text-on-primary font-bold' : 'text-text-muted hover:text-text-main hover:bg-soft/20'"
             @click="detailTab = t.key"
           >
-            {{ t.label }}
+            {{ $t(t.label) }}
           </button>
         </div>
 
@@ -599,28 +788,28 @@
           <div v-if="detailTab === 'overview'" class="space-y-4">
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div class="perf-kv bg-soft/20 border border-border/40 rounded-xl p-3">
-                <div class="perf-kv-l">Total Clicks</div>
+                <div class="perf-kv-l">{{ $t('Total Clicks') }}</div>
                 <div class="perf-kv-v text-lg font-bold font-sans mt-0.5">{{ fmtNum(detailTotals.clicks) }}</div>
                 <div v-if="detailDelta('clicks')" class="perf-kv-cmp flex items-center gap-0.5 text-[10px] font-bold font-sans" :class="detailDelta('clicks')!.good ? 'text-status-approved-fg' : 'text-status-needs-fix-fg'">
                   {{ detailDelta('clicks')!.good ? '▲' : '▼' }} {{ detailDelta('clicks')!.deltaLabel }}
                 </div>
               </div>
               <div class="perf-kv bg-soft/20 border border-border/40 rounded-xl p-3">
-                <div class="perf-kv-l">Total Impressions</div>
+                <div class="perf-kv-l">{{ $t('Total Impressions') }}</div>
                 <div class="perf-kv-v text-lg font-bold font-sans mt-0.5">{{ fmtNum(detailTotals.impressions) }}</div>
                 <div v-if="detailDelta('impressions')" class="perf-kv-cmp flex items-center gap-0.5 text-[10px] font-bold font-sans" :class="detailDelta('impressions')!.good ? 'text-status-approved-fg' : 'text-status-needs-fix-fg'">
                   {{ detailDelta('impressions')!.good ? '▲' : '▼' }} {{ detailDelta('impressions')!.deltaLabel }}
                 </div>
               </div>
               <div class="perf-kv bg-soft/20 border border-border/40 rounded-xl p-3">
-                <div class="perf-kv-l">Average CTR</div>
+                <div class="perf-kv-l">{{ $t('Average CTR') }}</div>
                 <div class="perf-kv-v text-lg font-bold font-sans mt-0.5">{{ fmtPct(detailTotals.ctr) }}</div>
                 <div v-if="detailDelta('ctr')" class="perf-kv-cmp flex items-center gap-0.5 text-[10px] font-bold font-sans" :class="detailDelta('ctr')!.good ? 'text-status-approved-fg' : 'text-status-needs-fix-fg'">
                   {{ detailDelta('ctr')!.good ? '▲' : '▼' }} {{ detailDelta('ctr')!.deltaLabel }}
                 </div>
               </div>
               <div class="perf-kv bg-soft/20 border border-border/40 rounded-xl p-3">
-                <div class="perf-kv-l">Average Position</div>
+                <div class="perf-kv-l">{{ $t('Average Position') }}</div>
                 <div class="perf-kv-v text-lg font-bold font-sans mt-0.5">{{ fmtPos(detailTotals.position) }}</div>
                 <div v-if="detailDelta('position')" class="perf-kv-cmp flex items-center gap-0.5 text-[10px] font-bold font-sans" :class="detailDelta('position')!.good ? 'text-status-approved-fg' : 'text-status-needs-fix-fg'">
                   {{ detailDelta('position')!.good ? '▲' : '▼' }} {{ detailDelta('position')!.deltaLabel }}
@@ -629,16 +818,16 @@
             </div>
             
             <div class="text-xs text-text-muted space-y-1.5 bg-soft/5 border border-border/40 rounded-xl p-3">
-              <div>Google Search Property: <code class="font-mono text-text-main">{{ perf.connectionByWebsite.get(detailId)?.gsc_property_url || 'None' }}</code></div>
-              <div>Last Synced At: <span class="font-semibold text-text-main">{{ fmtDateTime(perf.connectionByWebsite.get(detailId)?.last_synced_at) }}</span></div>
-              <div v-if="compareActive">Comparison baseline: Compared to previous days last month.</div>
+              <div>{{ $t('Google Search Property:') }} <code class="font-mono text-text-main">{{ perf.connectionByWebsite.get(detailId)?.gsc_property_url || 'None' }}</code></div>
+              <div>{{ $t('Last Synced At:') }} <span class="font-semibold text-text-main">{{ fmtDateTime(perf.connectionByWebsite.get(detailId)?.last_synced_at) }}</span></div>
+              <div v-if="compareActive">{{ $t('Comparison baseline: Compared to previous days last month.') }}</div>
             </div>
           </div>
 
           <!-- Performance Tab -->
           <div v-else-if="detailTab === 'performance'" class="space-y-3">
             <div class="mb-1 flex items-center justify-between">
-              <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide">Clicks Trend Over Time</h4>
+              <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide">{{ $t('Clicks Trend Over Time') }}</h4>
             </div>
             <LineChart
               v-if="detailSeries.length > 1"
@@ -648,7 +837,7 @@
               metric-type="clicks"
               metric-name="Clicks"
             />
-            <p v-else class="text-center py-12 text-sm text-text-muted">No historical trends synced.</p>
+            <p v-else class="text-center py-12 text-sm text-text-muted">{{ $t('No historical trends synced.') }}</p>
           </div>
 
           <!-- Page Indexing Tab -->
@@ -658,15 +847,15 @@
             </div>
             <div class="grid grid-cols-3 gap-3">
               <div class="bg-soft/10 p-2.5 border border-border/30 rounded-lg">
-                <div class="text-[10px] text-text-muted uppercase font-semibold">Total URLs</div>
+                <div class="text-[10px] text-text-muted uppercase font-semibold">{{ $t('Total URLs') }}</div>
                 <div class="text-base font-extrabold text-text-main mt-0.5">{{ fmtNum(detailIndexingSummary.known) }}</div>
               </div>
               <div class="bg-soft/10 p-2.5 border border-border/30 rounded-lg">
-                <div class="text-[10px] text-text-muted uppercase font-semibold text-status-approved-fg">Indexed</div>
+                <div class="text-[10px] text-text-muted uppercase font-semibold text-status-approved-fg">{{ $t('Indexed') }}</div>
                 <div class="text-base font-extrabold text-status-approved-fg mt-0.5">{{ fmtNum(detailIndexingSummary.indexed) }}</div>
               </div>
               <div class="bg-soft/10 p-2.5 border border-border/30 rounded-lg">
-                <div class="text-[10px] text-text-muted uppercase font-semibold text-status-needs-fix-fg">Not Indexed</div>
+                <div class="text-[10px] text-text-muted uppercase font-semibold text-status-needs-fix-fg">{{ $t('Not Indexed') }}</div>
                 <div class="text-base font-extrabold text-status-needs-fix-fg mt-0.5">{{ fmtNum(detailIndexingSummary.notIndexed) }}</div>
               </div>
             </div>
@@ -674,11 +863,11 @@
 
           <!-- Queries Tab -->
           <div v-else-if="detailTab === 'queries'" class="space-y-2">
-            <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide mb-1">Top Searches</h4>
+            <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide mb-1">{{ $t('Top Searches') }}</h4>
             <div class="border border-border/40 rounded-xl overflow-hidden">
               <table class="perf-table text-xs">
                 <thead>
-                  <tr class="bg-soft/5"><th>Query</th><th class="num">Clicks</th></tr>
+                  <tr class="bg-soft/5"><th>{{ $t('Query') }}</th><th class="num">{{ $t('Clicks') }}</th></tr>
                 </thead>
                 <tbody>
                   <tr v-for="(r, i) in detailQueries" :key="i">
@@ -686,7 +875,7 @@
                     <td class="num font-sans text-text-muted">{{ fmtNum(r.clicks) }}</td>
                   </tr>
                   <tr v-if="!detailQueries.length">
-                    <td colspan="2" class="py-6 text-center text-text-muted font-sans">No search queries logged.</td>
+                    <td colspan="2" class="py-6 text-center text-text-muted font-sans">{{ $t('No search queries logged.') }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -695,11 +884,11 @@
 
           <!-- Pages Tab -->
           <div v-else-if="detailTab === 'pages'" class="space-y-2">
-            <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide mb-1">Top Visited Pages</h4>
+            <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide mb-1">{{ $t('Top Visited Pages') }}</h4>
             <div class="border border-border/40 rounded-xl overflow-hidden">
               <table class="perf-table text-xs">
                 <thead>
-                  <tr class="bg-soft/5"><th>Page URL</th><th class="num">Clicks</th></tr>
+                  <tr class="bg-soft/5"><th>{{ $t('Page URL') }}</th><th class="num">{{ $t('Clicks') }}</th></tr>
                 </thead>
                 <tbody>
                   <tr v-for="(r, i) in detailPages" :key="i">
@@ -707,7 +896,7 @@
                     <td class="num font-sans text-text-muted">{{ fmtNum(r.clicks) }}</td>
                   </tr>
                   <tr v-if="!detailPages.length">
-                    <td colspan="2" class="py-6 text-center text-text-muted font-sans">No page URLs logged.</td>
+                    <td colspan="2" class="py-6 text-center text-text-muted font-sans">{{ $t('No page URLs logged.') }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -716,11 +905,11 @@
 
           <!-- Devices Tab -->
           <div v-else-if="detailTab === 'devices'" class="space-y-2">
-            <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide mb-1">Device Breakdown</h4>
+            <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide mb-1">{{ $t('Device Breakdown') }}</h4>
             <div class="border border-border/40 rounded-xl overflow-hidden">
               <table class="perf-table text-xs">
                 <thead>
-                  <tr class="bg-soft/5"><th>Device</th><th class="num">Clicks</th><th class="num font-semibold">Share</th></tr>
+                  <tr class="bg-soft/5"><th>{{ $t('Device') }}</th><th class="num">{{ $t('Clicks') }}</th><th class="num font-semibold">{{ $t('Share') }}</th></tr>
                 </thead>
                 <tbody>
                   <tr v-for="d in detailDevices" :key="d.key">
@@ -735,15 +924,20 @@
 
           <!-- Countries Tab -->
           <div v-else-if="detailTab === 'countries'" class="space-y-2">
-            <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide mb-1">Countries Breakdown</h4>
+            <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide mb-1">{{ $t('Countries Breakdown') }}</h4>
             <div class="border border-border/40 rounded-xl overflow-hidden">
               <table class="perf-table text-xs">
                 <thead>
-                  <tr class="bg-soft/5"><th>Country</th><th class="num">Clicks</th><th class="num font-semibold">Share</th></tr>
+                  <tr class="bg-soft/5"><th>{{ $t('Country') }}</th><th class="num">{{ $t('Clicks') }}</th><th class="num font-semibold">{{ $t('Share') }}</th></tr>
                 </thead>
                 <tbody>
                   <tr v-for="c in detailCountries" :key="c.key">
-                    <td class="text-text-main font-medium font-sans">{{ c.label }}</td>
+                    <td class="text-text-main font-medium font-sans">
+                      <div class="flex items-center gap-2">
+                        <CountryFlag :country-name="c.label" :country-code="c.key" :size="20" />
+                        <span>{{ c.label }}</span>
+                      </div>
+                    </td>
                     <td class="num font-sans font-medium">{{ fmtNum(c.clicks) }}</td>
                     <td class="num font-sans text-text-muted">{{ fmtPct(detailTotals.clicks ? c.clicks / detailTotals.clicks : 0) }}</td>
                   </tr>
@@ -755,11 +949,11 @@
           <!-- Sync Logs Tab -->
           <div v-else-if="detailTab === 'logs'" class="space-y-3">
             <div class="flex items-center justify-between mb-1">
-              <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide">Recent GSC Performance Logs</h4>
-              <button class="btn-secondary h-6 text-[10px] font-sans font-semibold py-0 px-2" type="button" @click="fetchDetailSyncLogs">Refresh</button>
+              <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide">{{ $t('Recent GSC Performance Logs') }}</h4>
+              <button class="btn-secondary h-6 text-[10px] font-sans font-semibold py-0 px-2" type="button" @click="fetchDetailSyncLogs">{{ $t('Refresh') }}</button>
             </div>
-            <div v-if="detailLogsLoading" class="text-center py-6 text-xs text-text-muted animate-pulse">Loading sync history...</div>
-            <div v-else-if="!detailSyncLogs.length" class="text-center py-6 text-xs text-text-muted">No sync history logged.</div>
+            <div v-if="detailLogsLoading" class="text-center py-6 text-xs text-text-muted animate-pulse">{{ $t('Loading sync history...') }}</div>
+            <div v-else-if="!detailSyncLogs.length" class="text-center py-6 text-xs text-text-muted">{{ $t('No sync history logged.') }}</div>
             <div v-else class="space-y-2 max-h-60 overflow-y-auto pr-1">
               <div v-for="log in detailSyncLogs" :key="log.id" class="p-2.5 rounded-lg border border-border bg-soft/20 text-xs flex flex-col gap-1">
                 <div class="flex items-center justify-between">
@@ -778,7 +972,7 @@
       </div>
       
       <template #footer>
-        <button class="btn-secondary font-sans font-semibold text-xs px-4" type="button" @click="closeDetail">Close</button>
+        <button class="btn-secondary font-sans font-semibold text-xs px-4" type="button" @click="closeDetail">{{ $t('Close') }}</button>
         <button
           v-if="isManagement && perf.connectionByWebsite.get(detailId || '')"
           class="btn-primary font-sans font-semibold text-xs px-4"
@@ -786,33 +980,65 @@
           :disabled="!!detailId && perf.syncingIds.has(detailId)"
           @click="detailId && perf.syncWebsite(detailId)"
         >
-          {{ detailId && perf.syncingIds.has(detailId) ? 'Syncing…' : 'Sync Website' }}
+          {{ detailId && perf.syncingIds.has(detailId) ? $t('Syncing…') : $t('Sync Website') }}
         </button>
       </template>
     </Modal>
+
+    <!-- Mobile Slide-over Drawer -->
+    <div v-if="sidebarOpen" class="fixed inset-0 z-50 flex lg:hidden">
+      <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="sidebarOpen = false" />
+      <div class="relative w-[280px] max-w-[85vw] h-full bg-card border-r border-border p-4 flex flex-col z-10 shadow-2xl animate-in slide-in-from-left duration-200">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-[11px] font-bold text-text-main font-sans uppercase tracking-wider">{{ $t('Websites') }}</h3>
+          <button type="button" class="text-text-muted hover:text-text-main text-sm font-bold p-1 cursor-pointer" @click="sidebarOpen = false">✕</button>
+        </div>
+        <div class="flex-1 min-h-0">
+          <PerformanceSidebar
+            :websites="visibleConnectionWebsites"
+            :scope-filter="scopeFilter"
+            :website-filter="websiteFilter"
+            :scope-label="scopeLabel"
+            @select-website="onSelectWebsiteFromSidebar"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import LineChart from '@/components/ui/LineChart.vue';
 import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import Modal from '@/components/ui/Modal.vue';
 import WebsiteFavicon from '@/components/ui/WebsiteFavicon.vue';
+import CountryFlag from '@/components/ui/CountryFlag.vue';
 import PageIndexing from '@/components/performance/PageIndexing.vue';
 import SyncLogsModal from '@/components/performance/SyncLogsModal.vue';
-import { usePerformanceStore, aggregateByDate, sumTotals, type GscTotals, type GscTermStat } from '@/stores/performance';
+import PerformanceSidebar from '@/components/performance/PerformanceSidebar.vue';
+import { usePerformanceStore, aggregateByDate, sumTotals, getRangeDurationDays, type GscTotals, type GscTermStat } from '@/stores/performance';
 import { useDataStore, type Website, type Member } from '@/stores/data';
 import { useAuthStore } from '@/stores/auth';
 import { supabase, supabaseConfigured } from '@/lib/supabase';
 
+const { t } = useI18n();
 const perf = usePerformanceStore();
 const data = useDataStore();
 const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
+
+const sidebarOpen = ref(false);
+
+const onSelectWebsiteFromSidebar = (w: Website) => {
+  scopeFilter.value = 'single';
+  websiteFilter.value = w.id;
+  sidebarOpen.value = false;
+};
 
 // ── View View Routing ──────────────────────────────────────────────────
 const activePerformanceView = computed<'overview' | 'page-indexing'>(() => {
@@ -849,11 +1075,20 @@ const platformDropdownOpen = ref(false);
 const connDropdownOpen = ref(false);
 const rangeDropdownOpen = ref(false);
 const compareDropdownOpen = ref(false);
+const advancedDropdownOpen = ref(false);
 
 const websiteFilter = ref('');
 const memberFilter = ref('');
 const platformFilter = ref('');
 const connFilter = ref<'all' | 'connected' | 'not'>('all');
+const websiteTypeFilter = ref('');
+const hasDataFilter = ref<'all' | 'has_data' | 'no_data'>('all');
+
+const tempPlatformFilter = ref('');
+const tempConnFilter = ref<'all' | 'connected' | 'not'>('all');
+const tempWebsiteTypeFilter = ref('');
+const tempHasDataFilter = ref<'all' | 'has_data' | 'no_data'>('all');
+
 const showLogsModal = ref(false);
 const activeTab = ref<'queries' | 'pages' | 'countries' | 'devices' | 'dates' | 'websites' | 'members'>('queries');
 
@@ -865,7 +1100,8 @@ const websiteName = (id: string) => {
 
 const memberProfiles = ref<{
   user_id: string;
-  full_name: string;
+  display_name: string;
+  full_name?: string;
   avatar_url: string;
   role: string;
   status: string;
@@ -879,16 +1115,16 @@ const fetchMemberProfiles = async () => {
   memberProfilesLoading.value = true;
   memberProfilesError.value = '';
   try {
-    const { data: resData, error: resErr } = await supabase.rpc('get_team_member_filter_profiles');
+    const { data: resData, error: resErr } = await supabase.rpc('performance_team_member_profiles');
     if (resErr) {
       memberProfilesError.value = 'Could not load team members.';
-      console.error('[performance] get_team_member_filter_profiles error:', resErr.message);
+      console.error('[performance] performance_team_member_profiles error:', resErr.message);
     } else {
       memberProfiles.value = resData || [];
     }
   } catch (err: any) {
     memberProfilesError.value = 'Could not load team members.';
-    console.error('[performance] get_team_member_filter_profiles exception:', err);
+    console.error('[performance] performance_team_member_profiles exception:', err);
   } finally {
     memberProfilesLoading.value = false;
   }
@@ -898,7 +1134,7 @@ const allTeamMembers = computed(() => {
   if (memberProfiles.value.length > 0) {
     return memberProfiles.value.map(p => ({
       id: p.user_id,
-      fullName: p.full_name,
+      fullName: p.display_name || p.full_name || 'Unknown User',
       avatarUrl: p.avatar_url,
       role: p.role,
       status: p.status,
@@ -917,7 +1153,7 @@ const memberWebsitesCount = (memberId: string) => {
 const getWebsiteCreatorName = (w: Website) => {
   if (!w.createdBy) return 'Unassigned';
   const profile = memberProfiles.value.find(p => p.user_id === w.createdBy);
-  if (profile) return profile.full_name;
+  if (profile) return profile.display_name || profile.full_name || 'Unknown';
   const member = data.memberById(w.createdBy);
   return member ? member.fullName : 'Unknown';
 };
@@ -929,7 +1165,7 @@ const selectedMemberObj = computed(() => {
   if (profile) {
     return {
       id: profile.user_id,
-      fullName: profile.full_name,
+      fullName: profile.display_name || profile.full_name || 'Unknown User',
       avatarUrl: profile.avatar_url,
       role: profile.role,
       status: profile.status,
@@ -938,6 +1174,26 @@ const selectedMemberObj = computed(() => {
   }
   return data.memberById(id);
 });
+
+const getMemberInitials = (name?: string | null) => {
+  if (!name || name === 'Member' || name === 'Unknown User' || name === 'Unknown') return 'U';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+};
+
+const getMemberAvatarUrl = (id: string) => {
+  const profile = memberProfiles.value.find(p => p.user_id === id);
+  if (profile) return profile.avatar_url;
+  const member = data.memberById(id);
+  return member ? member.avatarUrl : '';
+};
+
+const getMemberRoleLabel = (id: string) => {
+  const profile = memberProfiles.value.find(p => p.user_id === id);
+  const role = profile ? profile.role : data.memberById(id)?.role;
+  return role ? role.replace('_', ' ') : 'Member';
+};
 
 // Clean dropdown states
 const toggleDropdown = (type: string) => {
@@ -948,12 +1204,71 @@ const toggleDropdown = (type: string) => {
   connDropdownOpen.value = type === 'conn' ? !connDropdownOpen.value : false;
   rangeDropdownOpen.value = type === 'range' ? !rangeDropdownOpen.value : false;
   compareDropdownOpen.value = type === 'compare' ? !compareDropdownOpen.value : false;
+  advancedDropdownOpen.value = type === 'advanced' ? !advancedDropdownOpen.value : false;
+};
+
+const openAdvancedFilters = () => {
+  tempPlatformFilter.value = platformFilter.value;
+  tempConnFilter.value = connFilter.value;
+  tempWebsiteTypeFilter.value = websiteTypeFilter.value;
+  tempHasDataFilter.value = hasDataFilter.value;
+  toggleDropdown('advanced');
+};
+
+const applyAdvancedFilters = () => {
+  platformFilter.value = tempPlatformFilter.value;
+  connFilter.value = tempConnFilter.value;
+  websiteTypeFilter.value = tempWebsiteTypeFilter.value;
+  hasDataFilter.value = tempHasDataFilter.value;
+  advancedDropdownOpen.value = false;
+};
+
+const resetAdvancedFilters = () => {
+  tempPlatformFilter.value = '';
+  tempConnFilter.value = 'all';
+  tempWebsiteTypeFilter.value = '';
+  tempHasDataFilter.value = 'all';
+
+  platformFilter.value = '';
+  connFilter.value = 'all';
+  websiteTypeFilter.value = '';
+  hasDataFilter.value = 'all';
+
+  advancedDropdownOpen.value = false;
+};
+
+const activeAdvancedFiltersCount = computed(() => {
+  let count = 0;
+  if (platformFilter.value !== '') count++;
+  if (connFilter.value !== 'all') count++;
+  if (websiteTypeFilter.value !== '') count++;
+  if (hasDataFilter.value !== 'all') count++;
+  return count;
+});
+
+const onCompareToggleChange = (e: Event) => {
+  const checked = (e.target as HTMLInputElement).checked;
+  void perf.setCompareMode(checked ? 'last_month' : 'none');
+};
+
+const websiteTypes = computed(() => {
+  const set = new Set<string>();
+  data.websites.forEach((w) => { if (w.websiteType) set.add(w.websiteType); });
+  return [...set];
+});
+
+const typeLabel = (val: string) => {
+  if (!val) return '—';
+  if (val === 'existing') return 'Existing Site';
+  if (val === 'ecommerce') return 'E-commerce';
+  if (val === 'normal_ecommerce') return 'Normal E-commerce';
+  return val.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 };
 
 const selectScope = (val: 'my' | 'all' | 'member' | 'single') => {
   scopeFilter.value = val;
   scopeDropdownOpen.value = false;
-  
+
   if (val === 'my') {
     memberFilter.value = '';
     websiteFilter.value = '';
@@ -979,15 +1294,18 @@ const selectScope = (val: 'my' | 'all' | 'member' | 'single') => {
 };
 
 const scopeLabel = computed(() => {
-  if (scopeFilter.value === 'my') return 'My Websites';
-  if (scopeFilter.value === 'all') return 'All Websites';
+  if (scopeFilter.value === 'my') {
+    const name = auth.profile?.fullName || auth.profile?.email?.split('@')[0] || '';
+    return name ? `${t('performance.myWebsites')} · ${name}` : t('performance.myWebsites');
+  }
+  if (scopeFilter.value === 'all') return t('performance.allWebsites');
   if (scopeFilter.value === 'member') {
     const member = selectedMemberObj.value;
-    return member ? `Websites of ${member.fullName}` : 'Team Member';
+    return member ? `${t('performance.teamMember')}: ${member.fullName}` : t('performance.teamMember');
   }
   if (scopeFilter.value === 'single') {
     const w = websiteObj(websiteFilter.value);
-    return w ? w.name || w.domain : 'Single Website';
+    return w ? w.name || w.domain : t('performance.singleWebsite');
   }
   return '';
 });
@@ -998,33 +1316,53 @@ const selectPlatform = (val: string) => { platformFilter.value = val; platformDr
 const selectConn = (val: 'all' | 'connected' | 'not') => { connFilter.value = val; connDropdownOpen.value = false; };
 
 const platformLabel = computed(() => {
-  if (platformFilter.value === 'wordpress') return 'WordPress';
-  if (platformFilter.value === 'framework') return 'Framework';
-  if (platformFilter.value === 'unknown') return 'Unknown';
-  return 'All';
+  if (platformFilter.value === 'wordpress') return t('performance.wordpress');
+  if (platformFilter.value === 'framework') return t('performance.framework');
+  if (platformFilter.value === 'unknown') return t('performance.unknown');
+  return t('common.all');
 });
 
 const connLabel = computed(() => {
-  if (connFilter.value === 'connected') return 'Connected only';
-  if (connFilter.value === 'not') return 'Not connected';
-  return 'All';
+  if (connFilter.value === 'connected') return t('performance.connectedOnly');
+  if (connFilter.value === 'not') return t('performance.notConnected');
+  return t('common.all');
 });
 
 // Date ranges setup
 const rangeOptions = [
-  { value: 'today', label: 'Today' },
-  { value: 'yesterday', label: 'Yesterday' },
   { value: 7, label: 'Last 7 Days' },
   { value: 28, label: 'Last 28 Days' },
   { value: 90, label: 'Last 90 Days' },
+  { value: 'last_16_months', label: 'Last 16 Months' },
   { value: 'this_month', label: 'This Month' },
   { value: 'last_month', label: 'Last Month' },
   { value: 'custom', label: 'Custom Range' }
 ];
 
+const translateRangeOption = (opt: { value: any, label: string }) => {
+  if (opt.value === 'today') return t('performance.today');
+  if (opt.value === 'yesterday') return t('performance.yesterday');
+  if (opt.value === 7) return t('performance.last7Days');
+  if (opt.value === 28) return t('performance.last28Days');
+  if (opt.value === 90) return t('performance.last90Days');
+  if (opt.value === 'last_16_months') return t('performance.last16Months');
+  if (opt.value === 'this_month') return t('performance.thisMonth');
+  if (opt.value === 'last_month') return t('performance.lastMonth');
+  if (opt.value === 'custom') return t('performance.customRange');
+  return opt.label;
+};
+
 const rangeLabel = computed(() => {
-  const opt = rangeOptions.find(o => o.value === perf.rangeDays);
-  return opt ? opt.label : 'Last 28 Days';
+  if (perf.rangeDays === 'today') return t('performance.today');
+  if (perf.rangeDays === 'yesterday') return t('performance.yesterday');
+  if (perf.rangeDays === 7) return t('performance.last7Days');
+  if (perf.rangeDays === 28) return t('performance.last28Days');
+  if (perf.rangeDays === 90) return t('performance.last90Days');
+  if (perf.rangeDays === 'last_16_months') return t('performance.last16Months');
+  if (perf.rangeDays === 'this_month') return t('performance.thisMonth');
+  if (perf.rangeDays === 'last_month') return t('performance.lastMonth');
+  if (perf.rangeDays === 'custom') return t('performance.customRange');
+  return t('performance.last28Days');
 });
 
 const selectRange = (val: any) => {
@@ -1039,10 +1377,18 @@ const onCustomDateChange = () => {
 };
 
 const compareLabel = computed(() => {
-  if (perf.compareMode === 'previous') return 'Previous Period';
-  if (perf.compareMode === 'last_month') return 'Last Month';
-  return 'Off';
+  if (perf.compareMode === 'previous') return t('common.previous');
+  if (perf.compareMode === 'last_month') return t('performance.lastMonth');
+  return t('common.all');
 });
+
+const translateMetricLabel = (key: string) => {
+  if (key === 'clicks') return 'Total ' + t('performance.clicks');
+  if (key === 'impressions') return 'Total ' + t('performance.impressions');
+  if (key === 'ctr') return 'Average ' + t('performance.ctr');
+  if (key === 'position') return 'Average ' + t('performance.avgPosition');
+  return '';
+};
 
 const selectCompare = (val: 'none' | 'previous' | 'last_month') => {
   void perf.setCompareMode(val);
@@ -1066,15 +1412,70 @@ const scopedWebsites = computed(() => {
   return data.websites;
 });
 
+const websiteHasData = (websiteId: string) => {
+  return perf.daily.some(r => r.website_id === websiteId);
+};
+
 const visibleWebsites = computed(() =>
   scopedWebsites.value.filter((w) => {
     if (platformFilter.value && w.platformType !== platformFilter.value) return false;
     const connected = perf.connectionByWebsite.has(w.id);
     if (connFilter.value === 'connected' && !connected) return false;
     if (connFilter.value === 'not' && connected) return false;
+    if (websiteTypeFilter.value && w.websiteType !== websiteTypeFilter.value) return false;
+    if (hasDataFilter.value === 'has_data' && !websiteHasData(w.id)) return false;
+    if (hasDataFilter.value === 'no_data' && websiteHasData(w.id)) return false;
     return true;
   })
 );
+
+const lastNonSingleScope = ref<'my' | 'all' | 'member'>('my');
+
+watch(scopeFilter, (val) => {
+  if (val !== 'single') {
+    lastNonSingleScope.value = val;
+  }
+});
+
+const connectionsWebsites = computed(() => {
+  const currentUserId = auth.user?.id ?? '';
+  let scope = scopeFilter.value;
+  if (scope === 'single') {
+    if (memberFilter.value) {
+      scope = 'member';
+    } else {
+      scope = lastNonSingleScope.value;
+    }
+  }
+
+  if (scope === 'my') {
+    const assignedIds = new Set(data.getUserAssignedWebsiteIds(currentUserId));
+    return data.websites.filter((w) => assignedIds.has(w.id));
+  }
+  if (scope === 'member') {
+    const assignedIds = new Set(data.getUserAssignedWebsiteIds(memberFilter.value));
+    return data.websites.filter((w) => assignedIds.has(w.id));
+  }
+  return data.websites;
+});
+
+const visibleConnectionWebsites = computed(() =>
+  connectionsWebsites.value.filter((w) => {
+    if (platformFilter.value && w.platformType !== platformFilter.value) return false;
+    const connected = perf.connectionByWebsite.has(w.id);
+    if (connFilter.value === 'connected' && !connected) return false;
+    if (connFilter.value === 'not' && connected) return false;
+    if (websiteTypeFilter.value && w.websiteType !== websiteTypeFilter.value) return false;
+    if (hasDataFilter.value === 'has_data' && !websiteHasData(w.id)) return false;
+    if (hasDataFilter.value === 'no_data' && websiteHasData(w.id)) return false;
+    return true;
+  })
+);
+
+const onSelectWebsiteFromConnectionRow = (w: Website) => {
+  scopeFilter.value = 'single';
+  websiteFilter.value = w.id;
+};
 
 const activeWebsiteIds = computed(() => {
   const ids = new Set(visibleWebsites.value.map((w) => w.id));
@@ -1129,7 +1530,7 @@ const activeMetricMeta = computed(() => metricList.find((m) => m.key === activeM
 const showChartAverage = ref(true);
 
 // Comparison calculation
-const compareActive = computed(() => perf.compareMode !== 'none');
+const compareActive = computed(() => perf.compareMode !== 'none' && perf.rangeDays !== 'last_16_months');
 const compareDailyFiltered = computed(() => perf.compareDaily.filter((r) => activeWebsiteIds.value.has(r.website_id)));
 const compareTotals = computed(() => sumTotals(compareDailyFiltered.value));
 const hasCompareData = computed(() => compareDailyFiltered.value.length > 0);
@@ -1178,7 +1579,12 @@ const colCount = computed(() => 6 + (showChangeCol.value ? 1 : 0));
 // ── Chart Trend Calculation ───────────────────────────────────────────
 const trend = computed(() => aggregateByDate(filteredDaily.value));
 const hasTrend = computed(() => trend.value.length > 1);
-const shortDate = (d: string) => d.slice(5);
+const shortDate = (d: string) => {
+  if (perf.rangeDays === 'last_16_months' || (perf.rangeDays === 'custom' && getRangeDurationDays(perf.startDateStr, perf.endDateStr) > 300)) {
+    return d.slice(2);
+  }
+  return d.slice(5);
+};
 
 const metricValue = (p: { clicks: number; impressions: number; ctr: number; position: number }): number => {
   if (activeMetric.value === 'ctr') return Math.round(p.ctr * 1000) / 10;
@@ -1295,11 +1701,15 @@ const membersRows = computed<Row[]>(() => {
     c.clicks += r.clicks; c.impr += r.impressions; c.wpos += r.position * r.impressions; c.sites.add(r.website_id);
     m.set(mid, c);
   }
-  return [...m.entries()].map(([mid, v]) => ({
-    key: mid, id: mid, label: data.memberById(mid)?.fullName || data.memberById(mid)?.email || 'Member',
-    clicks: v.clicks, impressions: v.impr, ctr: v.impr ? v.clicks / v.impr : 0, position: v.impr ? v.wpos / v.impr : 0,
-    extra: String(v.sites.size)
-  }));
+  return [...m.entries()].map(([mid, v]) => {
+    const profile = memberProfiles.value.find(p => p.user_id === mid);
+    const label = profile?.display_name || profile?.full_name || data.memberById(mid)?.fullName || data.memberById(mid)?.email || 'Unknown User';
+    return {
+      key: mid, id: mid, label,
+      clicks: v.clicks, impressions: v.impr, ctr: v.impr ? v.clicks / v.impr : 0, position: v.impr ? v.wpos / v.impr : 0,
+      extra: String(v.sites.size)
+    };
+  });
 });
 
 // Lazy loaded Country and Device simulated breakdowns
@@ -1701,7 +2111,7 @@ onMounted(() => {
   height: 2.25rem;
   min-width: 11rem;
   max-width: 14rem;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   cursor: pointer;
   transition: all 120ms ease;
   background: var(--input-bg);
@@ -1743,7 +2153,7 @@ onMounted(() => {
   background: transparent;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   color: var(--text-main);
   text-align: left;
   transition: background 100ms ease;
@@ -1758,6 +2168,59 @@ onMounted(() => {
   background: var(--primary-soft) !important;
   color: var(--primary) !important;
   font-weight: 600;
+}
+
+.perf-range-list {
+  width: 15.5rem;
+  max-height: none;
+  padding: 0.35rem;
+}
+
+.perf-range-item {
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.65rem;
+  min-height: 2.1rem;
+  padding: 0.45rem 0.55rem;
+  line-height: 1.15;
+}
+
+.perf-range-item > svg,
+.perf-range-item .perf-range-check {
+  display: none !important;
+}
+
+.perf-range-item:hover {
+  background: color-mix(in srgb, var(--soft-bg) 82%, var(--card-bg));
+}
+
+.perf-range-item.active {
+  background: color-mix(in srgb, var(--primary) 11%, var(--card-bg)) !important;
+}
+
+.perf-range-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.12rem;
+}
+
+.perf-range-label {
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: inherit;
+}
+
+.perf-range-note {
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.perf-range-item.active .perf-range-note {
+  color: color-mix(in srgb, var(--primary) 66%, var(--text-muted));
 }
 
 .perf-wsel-avatar {
@@ -1816,7 +2279,7 @@ onMounted(() => {
 }
 
 .perf-metric-label {
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   color: var(--text-muted);
   font-weight: 650;
   text-transform: uppercase;
@@ -1836,7 +2299,7 @@ onMounted(() => {
   border: 0;
   background: transparent;
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 600;
   padding: 0.4rem 0.8rem;
   border-radius: 0.4rem;
@@ -1858,7 +2321,7 @@ onMounted(() => {
 
 .perf-tabsearch {
   height: 2rem;
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   max-width: 14rem;
   margin-left: auto;
   border-radius: 0.4rem;
@@ -1868,7 +2331,7 @@ onMounted(() => {
 .perf-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
 }
 
 .perf-table td {
@@ -1879,7 +2342,7 @@ onMounted(() => {
 
 .perf-table th {
   text-align: left;
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
@@ -1960,5 +2423,35 @@ onMounted(() => {
     max-width: none;
     width: 100%;
   }
+  .perf-range-list {
+    width: min(100%, 15.5rem);
+  }
+}
+
+/* GSC Connection Table Row Select Styling */
+.perf-gsc-row {
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.perf-gsc-row:hover {
+  background-color: var(--soft-bg);
+}
+.perf-gsc-row.is-selected {
+  border-left-color: var(--primary);
+  background-color: rgba(21, 214, 194, 0.05); /* KiuQ primary-soft background */
+}
+.perf-gsc-row.is-selected:hover {
+  background-color: rgba(21, 214, 194, 0.08);
+}
+
+.perf-layout-grid {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+:deep(.axis-text) {
+  font-size: 0.6rem !important;
 }
 </style>

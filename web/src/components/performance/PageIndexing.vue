@@ -1,27 +1,297 @@
 <template>
   <div class="page-indexing font-sans text-text-main">
+    <!-- Top control bar -->
+    <div class="perf-filterbar mb-4">
+      <!-- Mobile Sidebar Toggle -->
+      <button
+        type="button"
+        class="lg:hidden btn-secondary h-9 px-3 text-[11px] flex items-center gap-1.5 font-semibold font-sans mr-auto"
+        @click="emit('toggle-sidebar')"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <line x1="9" y1="3" x2="9" y2="21" />
+        </svg>
+        <span>{{ $t('nav.websites') || 'Websites' }}</span>
+      </button>
+
+      <!-- Scope Selection -->
+      <div class="perf-wsel font-sans">
+        <button type="button" class="input perf-wsel-btn font-semibold flex items-center gap-1.5" @click="toggleDropdown('scope')">
+          <div v-if="scopeFilter === 'my' && auth.profile" class="perf-wsel-avatar">
+            <img v-if="auth.profile.avatarUrl" :src="auth.profile.avatarUrl" class="perf-wsel-avatar-img" />
+            <span v-else class="perf-wsel-avatar-initials">{{ getMemberInitials(auth.profile.fullName) }}</span>
+          </div>
+          <div v-else-if="scopeFilter === 'member' && selectedMemberObj" class="perf-wsel-avatar">
+            <img v-if="selectedMemberObj.avatarUrl" :src="selectedMemberObj.avatarUrl" class="perf-wsel-avatar-img" />
+            <span v-else class="perf-wsel-avatar-initials">{{ getMemberInitials(selectedMemberObj.fullName) }}</span>
+          </div>
+          <div v-else-if="scopeFilter === 'all' || scopeFilter === 'member'" class="perf-wsel-avatar">
+            <img src="/favicon.png" class="perf-wsel-avatar-img" />
+          </div>
+          <span class="truncate flex-1 text-left">{{ $t('performance.viewingScope') }}: {{ scopeLabel }}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': scopeDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <template v-if="scopeDropdownOpen">
+          <div class="perf-wsel-backdrop" @click="scopeDropdownOpen = false" />
+          <div class="perf-wsel-list">
+            <button type="button" class="perf-wsel-item flex items-center gap-2" :class="{ active: scopeFilter === 'my' }" @click="selectScope('my')">
+              <div v-if="auth.profile" class="perf-wsel-avatar h-4.5 w-4.5">
+                <img v-if="auth.profile.avatarUrl" :src="auth.profile.avatarUrl" class="perf-wsel-avatar-img" />
+                <span v-else class="perf-wsel-avatar-initials text-[7px]">{{ getMemberInitials(auth.profile.fullName) }}</span>
+              </div>
+              <div class="flex-1 text-left">
+                <div class="font-semibold">{{ $t('performance.myWebsites') }}</div>
+                <div class="text-[9px] text-text-muted" v-if="auth.profile">{{ auth.profile.fullName }} · {{ getMemberRoleLabel(auth.profile.id) }}</div>
+              </div>
+            </button>
+            <button type="button" class="perf-wsel-item flex items-center gap-2" :class="{ active: scopeFilter === 'all' }" @click="selectScope('all')">
+              <div class="perf-wsel-avatar h-4.5 w-4.5">
+                <img src="/favicon.png" class="perf-wsel-avatar-img" />
+              </div>
+              <span>{{ $t('performance.allWebsites') }}</span>
+            </button>
+            <button type="button" class="perf-wsel-item flex items-center gap-2" :class="{ active: scopeFilter === 'member' }" @click="selectScope('member')">
+              <div class="perf-wsel-avatar h-4.5 w-4.5">
+                <img src="/favicon.png" class="perf-wsel-avatar-img" />
+              </div>
+              <span>{{ $t('performance.teamMember') }}</span>
+            </button>
+          </div>
+        </template>
+      </div>
+
+      <!-- Team Member Select -->
+      <div v-if="scopeFilter === 'member'" class="perf-wsel font-sans">
+        <button type="button" class="input perf-wsel-btn font-semibold" @click="toggleDropdown('member')">
+          <div v-if="memberFilter" class="perf-wsel-avatar">
+            <img v-if="selectedMemberObj?.avatarUrl" :src="selectedMemberObj?.avatarUrl" class="perf-wsel-avatar-img" />
+            <span v-else class="perf-wsel-avatar-initials">{{ getMemberInitials(selectedMemberObj?.fullName) }}</span>
+          </div>
+          <span class="truncate flex-1 text-left">{{ memberFilter ? selectedMemberObj?.fullName : $t('performance.selectMember') }}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': memberDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <template v-if="memberDropdownOpen">
+          <div class="perf-wsel-backdrop" @click="memberDropdownOpen = false" />
+          <div class="perf-wsel-list">
+            <div v-if="memberProfilesLoading" class="p-3 text-center text-[11px] text-text-muted">{{ $t('performance.loadingMembers') }}</div>
+            <div v-else-if="memberProfilesError" class="p-3 text-center text-[11px] text-status-needs-fix-fg flex flex-col gap-2">
+              <span>{{ memberProfilesError }}</span>
+              <button type="button" class="btn-secondary text-[10px] py-1 px-2.5 h-auto font-sans" @click="fetchMemberProfiles">{{ $t('common.retry') || 'Retry' }}</button>
+            </div>
+            <div v-else-if="allTeamMembers.length === 0" class="p-3 text-center text-[11px] text-text-muted">{{ $t('performance.noMembersFound') }}</div>
+            <template v-else>
+              <button v-for="m in allTeamMembers" :key="m.id" type="button" class="perf-wsel-item flex items-center gap-2" :class="{ active: memberFilter === m.id }" @click="selectMember(m.id)">
+                <div class="perf-wsel-avatar">
+                  <img v-if="m.avatarUrl" :src="m.avatarUrl" class="perf-wsel-avatar-img" />
+                  <span v-else class="perf-wsel-avatar-initials">{{ getMemberInitials(m.fullName) }}</span>
+                </div>
+                <div class="flex-1 text-left min-w-0">
+                  <div class="text-text-main font-semibold truncate">{{ m.fullName }}</div>
+                  <div class="text-[10px] text-text-muted truncate capitalize">
+                    {{ m.role.replace('_', ' ') }} · {{ memberWebsitesCount(m.id) }} website(s)
+                  </div>
+                </div>
+              </button>
+            </template>
+          </div>
+        </template>
+      </div>
+
+      <!-- Single Website Select -->
+      <div v-if="scopeFilter === 'single'" class="perf-wsel font-sans">
+        <button type="button" class="input perf-wsel-btn font-semibold" @click="toggleDropdown('website')">
+          <WebsiteFavicon v-if="websiteFilter" :favicon-url="websiteObj(websiteFilter)?.faviconUrl" :domain="websiteObj(websiteFilter)?.domain" :name="websiteObj(websiteFilter)?.name" :size="18" />
+          <span class="truncate flex-1 text-left ml-1">{{ websiteFilter ? (websiteObj(websiteFilter)?.name || websiteObj(websiteFilter)?.domain) : $t('performance.selectWebsite') }}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': websiteDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <template v-if="websiteDropdownOpen">
+          <div class="perf-wsel-backdrop" @click="websiteDropdownOpen = false" />
+          <div class="perf-wsel-list">
+            <button v-for="w in dataStore.websites" :key="w.id" type="button" class="perf-wsel-item flex items-center gap-2" :class="{ active: websiteFilter === w.id }" @click="selectWebsite(w.id)">
+              <WebsiteFavicon :favicon-url="w.faviconUrl" :domain="w.domain" :name="w.name" :size="18" />
+              <div class="flex-1 text-left min-w-0">
+                <div class="text-text-main font-semibold truncate">{{ w.name || w.domain }}</div>
+                <div class="text-[10px] text-text-muted flex items-center gap-1.5 truncate">
+                  <span>{{ w.domain }}</span>
+                  <span>·</span>
+                  <span class="inline-flex items-center gap-1">
+                    <div class="perf-wsel-avatar h-3.5 w-3.5 mr-0.5 inline-flex" v-if="w.createdBy">
+                      <img v-if="getMemberAvatarUrl(w.createdBy)" :src="getMemberAvatarUrl(w.createdBy)" class="perf-wsel-avatar-img" />
+                      <span v-else class="perf-wsel-avatar-initials text-[6px]">{{ getMemberInitials(getWebsiteCreatorName(w)) }}</span>
+                    </div>
+                    <span>Owner: {{ getWebsiteCreatorName(w) }}</span>
+                  </span>
+                </div>
+              </div>
+              <span v-if="perf.connectionByWebsite.has(w.id)" class="text-status-approved-fg text-[9px] flex-shrink-0">● {{ $t('Connected') }}</span>
+            </button>
+          </div>
+        </template>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="perf-wsel font-sans">
+        <button type="button" class="input perf-wsel-btn" @click="toggleDropdown('status')">
+          <span class="truncate flex-1 text-left">{{ $t('common.status') }}: {{ selectedStatusLabel }}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform" :class="{ 'rotate-180': statusDropdownOpen }"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <template v-if="statusDropdownOpen">
+          <div class="perf-wsel-backdrop" @click="statusDropdownOpen = false" />
+          <div class="perf-wsel-list">
+            <button type="button" class="perf-wsel-item" :class="{ active: statusFilter === 'all' }" @click="selectStatus('all')">{{ $t('pageIndexing.allStatuses') }}</button>
+            <button type="button" class="perf-wsel-item" :class="{ active: statusFilter === 'healthy' }" @click="selectStatus('healthy')">{{ $t('pageIndexing.healthy') }}</button>
+            <button type="button" class="perf-wsel-item" :class="{ active: statusFilter === 'issues' }" @click="selectStatus('issues')">{{ $t('pageIndexing.hasIssues') }}</button>
+            <button type="button" class="perf-wsel-item" :class="{ active: statusFilter === 'unchecked' }" @click="selectStatus('unchecked')">{{ $t('pageIndexing.notChecked') }}</button>
+            <button type="button" class="perf-wsel-item" :class="{ active: statusFilter === 'unconnected' }" @click="selectStatus('unconnected')">{{ $t('pageIndexing.notConnected') }}</button>
+          </div>
+        </template>
+      </div>
+
+      <!-- Search Website input -->
+      <div class="flex items-center border border-border/60 rounded-lg px-2 h-9 bg-card flex-shrink-0 min-w-[12rem] max-w-[14rem]">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-text-muted mr-1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input
+          v-model="tableSearch"
+          class="bg-transparent border-0 text-[11px] text-text-main outline-none w-full font-sans font-medium"
+          :placeholder="$t('pageIndexing.searchWebsites')"
+        />
+      </div>
+
+      <!-- Advanced Filters -->
+      <div class="perf-wsel font-sans">
+        <button
+          type="button"
+          class="btn-secondary h-9 px-3 text-[11px] flex items-center gap-1.5 font-semibold"
+          @click="openAdvancedFilters"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+          </svg>
+          <span>{{ $t('performance.advancedFilters') }}</span>
+          <span v-if="activeAdvancedFiltersCount > 0" class="bg-primary text-on-primary text-[10px] px-1.5 py-0.5 rounded-full font-number font-bold ml-1">
+            {{ activeAdvancedFiltersCount }}
+          </span>
+        </button>
+        <template v-if="advancedDropdownOpen">
+          <div class="perf-wsel-backdrop" @click="advancedDropdownOpen = false" />
+          <div class="perf-wsel-list w-80 p-4 space-y-4 right-0 left-auto" style="right: 0; left: auto;">
+            <h4 class="text-[11px] font-bold text-text-main font-sans uppercase tracking-wider mb-2">
+              {{ $t('performance.advancedFilters') }}
+            </h4>
+            
+            <!-- Platform filter -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-semibold text-text-muted">{{ $t('performance.websitePlatform') }}</label>
+              <select v-model="tempPlatformFilter" class="input w-full py-1.5 px-2 text-[11px] bg-input font-sans">
+                <option value="">{{ $t('performance.allPlatforms') }}</option>
+                <option value="wordpress">{{ $t('performance.wordpress') }}</option>
+                <option value="framework">{{ $t('performance.framework') }}</option>
+                <option value="unknown">{{ $t('performance.unknown') }}</option>
+              </select>
+            </div>
+
+            <!-- Connection Status filter -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-semibold text-text-muted">{{ $t('performance.connectionStatus') }}</label>
+              <select v-model="tempConnFilter" class="input w-full py-1.5 px-2 text-[11px] bg-input font-sans">
+                <option value="all">{{ $t('performance.allStatuses') }}</option>
+                <option value="connected">{{ $t('performance.connectedOnly') }}</option>
+                <option value="not">{{ $t('performance.notConnected') }}</option>
+              </select>
+            </div>
+
+            <!-- Website Type filter -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-semibold text-text-muted">{{ $t('performance.websiteType') }}</label>
+              <select v-model="tempWebsiteTypeFilter" class="input w-full py-1.5 px-2 text-[11px] bg-input font-sans">
+                <option value="">{{ $t('common.all') || 'All' }}</option>
+                <option v-for="t in websiteTypes" :key="t" :value="t">{{ typeLabel(t) }}</option>
+              </select>
+            </div>
+
+            <!-- Sort Dropdown -->
+            <div class="space-y-1">
+              <label class="text-[11px] font-semibold text-text-muted">{{ $t('Sort By') }}</label>
+              <select v-model="sortBy" class="input w-full py-1.5 px-2 text-[11px] bg-input font-sans">
+                <option value="issues_desc">{{ $t('pageIndexing.highestIssues') }}</option>
+                <option value="health_asc">{{ $t('pageIndexing.lowestHealth') }}</option>
+                <option value="pages_desc">{{ $t('pageIndexing.mostKnownPages') }}</option>
+                <option value="checked_desc">{{ $t('pageIndexing.recentlyChecked') }}</option>
+                <option value="name_asc">{{ $t('pageIndexing.websiteNameAZ') }}</option>
+              </select>
+            </div>
+
+            <!-- Rows Per Page -->
+            <div v-if="viewMode === 'table' || viewMode === 'compact-row'" class="space-y-1">
+              <label class="text-[11px] font-semibold text-text-muted">{{ $t('Rows Per Page') }}</label>
+              <select v-model="rowsPerPage" class="input w-full py-1.5 px-2 text-[11px] bg-input font-sans">
+                <option :value="10">{{ $t('pageIndexing.perPage', { num: 10 }) }}</option>
+                <option :value="25">{{ $t('pageIndexing.perPage', { num: 25 }) }}</option>
+                <option :value="50">{{ $t('pageIndexing.perPage', { num: 50 }) }}</option>
+                <option :value="100">{{ $t('pageIndexing.perPage', { num: 100 }) }}</option>
+              </select>
+            </div>
+
+            <!-- Apply & Reset buttons -->
+            <div class="flex gap-2 pt-2 border-t border-border/40">
+              <button type="button" class="btn-primary flex-1 py-1.5 text-[11px] font-semibold" @click="applyAdvancedFilters">
+                {{ $t('performance.applyFilters') }}
+              </button>
+              <button type="button" class="btn-secondary py-1.5 px-3 text-[11px] font-semibold" @click="resetAdvancedFilters">
+                {{ $t('performance.resetFilters') }}
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- View Switcher -->
+      <div class="flex border border-border rounded-lg overflow-hidden p-0.5 bg-soft/30 flex-shrink-0 font-sans ml-auto">
+        <button
+          v-for="mode in ['compact-row', 'table', 'card', 'column'] as const"
+          :key="mode"
+          type="button"
+          class="px-2.5 py-1 text-[11px] font-semibold rounded-md transition-all duration-120 border-0 cursor-pointer"
+          :class="viewMode === mode ? 'bg-primary text-on-primary font-bold' : 'bg-transparent text-text-muted hover:text-text-main'"
+          @click="setViewMode(mode)"
+        >
+          <span class="capitalize">{{ translateViewMode(mode) }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Advanced Filters Summary -->
+    <div v-if="activeAdvancedFiltersCount > 0" class="flex items-center gap-2 text-[11px] text-text-muted mb-4 px-1 font-sans">
+      <span>{{ $t('performance.advancedFiltersActive') }}: <strong class="text-text-main font-number font-bold">{{ activeAdvancedFiltersCount }}</strong></span>
+      <span>•</span>
+      <button type="button" class="text-primary hover:underline cursor-pointer font-sans" @click="resetAdvancedFilters">
+        {{ $t('performance.clearAll') }}
+      </button>
+    </div>
+
     <div v-if="websites.length > 0">
       <!-- Summary metrics cards -->
       <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 mb-4">
         <div class="pi-card py-2 px-3.5 bg-card border border-border/60">
-          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:var(--accent-cyan)" />Known pages</div>
+          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:var(--accent-cyan)" />{{ $t('pageIndexing.knownPages') }}</div>
           <div class="pi-card-v font-number font-extrabold text-2xl mt-1">{{ fmtNum(activeSummary.known) }}</div>
         </div>
         <div class="pi-card py-2 px-3.5 bg-card border border-border/60">
-          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#22c55e" />Indexed</div>
+          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#22c55e" />{{ $t('pageIndexing.indexed') }}</div>
           <div class="pi-card-v text-status-approved-fg font-number font-extrabold text-2xl mt-1">{{ fmtNum(activeSummary.indexed) }}</div>
         </div>
         <div class="pi-card py-2 px-3.5 bg-card border border-border/60">
-          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#ef4444" />Not indexed</div>
+          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#ef4444" />{{ $t('pageIndexing.notIndexed') }}</div>
           <div class="pi-card-v text-status-needs-fix-fg font-number font-extrabold text-2xl mt-1">{{ fmtNum(activeSummary.notIndexed) }}</div>
         </div>
         <div class="pi-card py-2 px-3.5 bg-card border border-border/60">
-          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:var(--primary)" />Indexing health</div>
+          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:var(--primary)" />{{ $t('pageIndexing.indexingHealth') }}</div>
           <div class="pi-card-v font-number font-extrabold text-2xl mt-1">{{ totalHealth }}%</div>
           <div class="pi-bar mt-1.5"><span class="pi-bar-fill" :class="healthBarClass(totalHealth)" :style="{ width: Math.min(totalHealth, 100) + '%' }" /></div>
         </div>
         <div class="pi-card py-2 px-3.5 col-span-2 md:col-span-1 bg-card border border-border/60">
-          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#f59e0b" />Sites with issues</div>
+          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#f59e0b" />{{ $t('pageIndexing.sitesWithIssues') }}</div>
           <div class="pi-card-v text-status-submitted-fg font-number font-extrabold text-2xl mt-1">
             {{ websitesWithIssues }}
           </div>
@@ -30,93 +300,38 @@
 
       <!-- No Indexing Data Banner -->
       <div v-if="activeSummary.known === 0" class="mb-4 card card-pad py-12 text-center border border-dashed border-border bg-soft/10">
-        <div class="text-sm font-bold text-text-main mb-2">No page indexing data discovered yet</div>
-        <p class="text-xs text-text-muted max-w-sm mx-auto mb-4 font-sans">We found no crawled sitemap URLs for these websites. Discover and inspect URLs to start indexing checks.</p>
+        <div class="text-sm font-bold text-text-main mb-2">{{ $t('pageIndexing.noDataTitle') }}</div>
+        <p class="text-xs text-text-muted max-w-sm mx-auto mb-4 font-sans">{{ $t('pageIndexing.noDataSub') }}</p>
         <button v-if="isAdmin" class="btn-primary font-sans font-semibold text-xs h-9 px-4" type="button" :disabled="bulkBusy" @click="runBulkDiscover">
-          Discover URLs
+          {{ $t('pageIndexing.discoverUrls') }}
         </button>
       </div>
 
       <!-- System message banner -->
       <p v-if="store.message" class="mb-4 rounded-xl border border-border bg-soft/40 px-3 py-2.5 text-xs text-text-muted flex items-center justify-between font-sans">
         <span>{{ store.message }}</span>
-        <button class="ml-2 underline hover:text-text-main cursor-pointer" type="button" @click="store.message = null">Dismiss</button>
+        <button class="ml-2 underline hover:text-text-main cursor-pointer" type="button" @click="store.message = null">{{ $t('pageIndexing.dismiss') }}</button>
       </p>
-
-      <!-- Top control bar -->
-      <div class="card p-3 mb-4 flex flex-wrap items-center justify-between gap-3 bg-card border border-border/60">
-        <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0 font-sans">
-          <!-- Search -->
-          <input v-model="tableSearch" class="input py-1.5 px-3 text-xs max-w-[14rem] font-sans" placeholder="Search websites…" />
-          
-          <!-- Status Filter -->
-          <select v-model="statusFilter" class="input py-1.5 px-3 text-xs max-w-[10rem] font-sans bg-input">
-            <option value="all">All statuses</option>
-            <option value="healthy">Healthy</option>
-            <option value="issues">Has issues</option>
-            <option value="unchecked">Not checked</option>
-            <option value="unconnected">Not connected</option>
-          </select>
-
-          <!-- Member Filter -->
-          <select v-model="memberFilter" class="input py-1.5 px-3 text-xs max-w-[10rem] font-sans bg-input">
-            <option value="all">All members</option>
-            <option v-for="m in memberObjects" :key="m.id" :value="m.id">{{ m.fullName }}</option>
-          </select>
-          
-          <!-- Sort Dropdown -->
-          <select v-model="sortBy" class="input py-1.5 px-3 text-xs max-w-[11rem] font-sans bg-input">
-            <option value="issues_desc">Highest issues</option>
-            <option value="health_asc">Lowest health</option>
-            <option value="pages_desc">Most known pages</option>
-            <option value="checked_desc">Recently checked</option>
-            <option value="name_asc">Website name A-Z</option>
-          </select>
-
-          <!-- Rows Per Page -->
-          <select v-if="viewMode === 'table' || viewMode === 'compact-row'" v-model="rowsPerPage" class="input py-1.5 px-3 text-xs max-w-[6.5rem] font-sans bg-input">
-            <option :value="10">10 / page</option>
-            <option :value="25">25 / page</option>
-            <option :value="50">50 / page</option>
-            <option :value="100">100 / page</option>
-          </select>
-        </div>
-
-        <!-- View Switcher -->
-        <div class="flex border border-border rounded-lg overflow-hidden p-0.5 bg-soft/30 flex-shrink-0 font-sans">
-          <button
-            v-for="mode in ['compact-row', 'table', 'card', 'column'] as const"
-            :key="mode"
-            type="button"
-            class="px-2.5 py-1 text-xs font-semibold rounded-md transition-all duration-120 border-0 cursor-pointer"
-            :class="viewMode === mode ? 'bg-primary text-on-primary font-bold' : 'bg-transparent text-text-muted hover:text-text-main'"
-            @click="setViewMode(mode)"
-          >
-            <span class="capitalize">{{ mode.replace('-', ' ') }}</span>
-          </button>
-        </div>
-      </div>
-
       <!-- Bulk Actions bar -->
       <div v-if="selectedSiteIds.size > 0" class="card px-4 py-2.5 mb-4 flex flex-wrap items-center justify-between gap-3 bg-primary/10 border border-primary/20">
         <div class="text-xs font-semibold text-text-main font-sans">
-          <span>{{ selectedSiteIds.size }} website{{ selectedSiteIds.size === 1 ? '' : 's' }} selected</span>
+          <span>{{ $t('pageIndexing.websitesSelected', { count: selectedSiteIds.size }) }}</span>
         </div>
         <div class="flex flex-wrap gap-2">
           <button v-if="isAdmin" class="pi-btn text-xs py-1 px-3" type="button" :disabled="bulkBusy" @click="runBulkDiscover">
-            Discover URLs
+            {{ $t('pageIndexing.discoverUrls') }}
           </button>
           <button v-if="isAdmin" class="pi-btn pi-btn--primary text-xs py-1 px-3" type="button" :disabled="bulkBusy" @click="runBulkCheck">
-            Check Indexing
+            {{ $t('pageIndexing.checkIndexing') }}
           </button>
           <button v-if="isAdmin" class="pi-btn text-xs py-1 px-3" type="button" :disabled="bulkBusy" @click="runBulkRetry">
-            Retry Failed
+            {{ $t('pageIndexing.retryFailed') }}
           </button>
           <button class="pi-btn text-xs bg-card border-border hover:border-text-muted py-1 px-3" type="button" @click="exportSelected">
-            Export CSV
+            {{ $t('pageIndexing.exportCsv') }}
           </button>
           <button class="pi-btn text-xs bg-transparent border-transparent text-status-needs-fix-fg underline px-1.5 cursor-pointer" type="button" @click="selectedSiteIds.clear()">
-            Deselect all
+            {{ $t('pageIndexing.deselectAll') }}
           </button>
         </div>
       </div>
@@ -135,14 +350,14 @@
                     class="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
                   />
                 </th>
-                <th>Website</th>
-                <th class="num">Known</th>
-                <th class="num">Indexed</th>
-                <th class="num">Not Indexed</th>
-                <th class="num">Health</th>
-                <th class="num">Issues</th>
-                <th>Last Checked</th>
-                <th class="pi-act-col text-right">Actions</th>
+                <th>{{ $t('pageIndexing.website') }}</th>
+                <th class="num">{{ $t('pageIndexing.known') }}</th>
+                <th class="num">{{ $t('pageIndexing.indexed') }}</th>
+                <th class="num">{{ $t('pageIndexing.notIndexed') }}</th>
+                <th class="num">{{ $t('pageIndexing.health') }}</th>
+                <th class="num">{{ $t('pageIndexing.issues') }}</th>
+                <th>{{ $t('pageIndexing.lastChecked') }}</th>
+                <th class="pi-act-col text-right">{{ $t('pageIndexing.actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -172,17 +387,17 @@
                   </span>
                   <span v-else class="text-text-muted/40">—</span>
                 </td>
-                <td class="text-xs text-text-muted whitespace-nowrap font-sans">{{ sumOf(w).lastChecked ? fmtDate(sumOf(w).lastChecked) : 'Never' }}</td>
+                <td class="text-xs text-text-muted whitespace-nowrap font-sans">{{ sumOf(w).lastChecked ? fmtDate(sumOf(w).lastChecked) : $t('pageIndexing.never') }}</td>
                 <td @click.stop class="py-1">
                   <div class="flex justify-end gap-1.5">
-                    <button v-if="isAdmin" class="pi-btn py-0.5 px-2 text-[10px]" type="button" :disabled="store.busyIds.has(w.id)" @click="store.discoverUrls(w.id)">Discover</button>
-                    <button v-if="isAdmin" class="pi-btn pi-btn--primary py-0.5 px-2 text-[10px]" type="button" :disabled="store.busyIds.has(w.id) || !sumOf(w).known" @click="store.checkIndexing(w.id, 'new', undefined, 25)">Check</button>
-                    <button class="pi-btn py-0.5 px-2 text-[10px]" type="button" @click="openWebsite(w)">View</button>
+                    <button v-if="isAdmin" class="pi-btn py-0.5 px-2 text-[10px]" type="button" :disabled="store.busyIds.has(w.id)" @click="store.discoverUrls(w.id)">{{ $t('pageIndexing.discover') }}</button>
+                    <button v-if="isAdmin" class="pi-btn pi-btn--primary py-0.5 px-2 text-[10px]" type="button" :disabled="store.busyIds.has(w.id) || !sumOf(w).known" @click="store.checkIndexing(w.id, 'new', undefined, 25)">{{ $t('pageIndexing.check') }}</button>
+                    <button class="pi-btn py-0.5 px-2 text-[10px]" type="button" @click="openWebsite(w)">{{ $t('pageIndexing.view') }}</button>
                   </div>
                 </td>
               </tr>
               <tr v-if="!filteredWebsites.length">
-                <td colspan="9" class="py-12 text-center text-sm text-text-muted font-sans">{{ websites.length ? 'No websites found for this filter.' : 'No connected websites.' }}</td>
+                <td colspan="9" class="py-12 text-center text-sm text-text-muted font-sans">{{ websites.length ? $t('pageIndexing.noWebsitesFilter') : $t('pageIndexing.noConnectedWebsites') }}</td>
               </tr>
             </tbody>
           </table>
@@ -203,15 +418,15 @@
                     class="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
                   />
                 </th>
-                <th>Website</th>
-                <th>Domain</th>
-                <th class="num">Known</th>
-                <th class="num">Indexed</th>
-                <th class="num">Not Indexed</th>
-                <th>Health</th>
-                <th>Last Checked</th>
-                <th>Status</th>
-                <th class="pi-act-col text-right">Actions</th>
+                <th>{{ $t('pageIndexing.website') }}</th>
+                <th>{{ $t('pageIndexing.domain') }}</th>
+                <th class="num">{{ $t('pageIndexing.known') }}</th>
+                <th class="num">{{ $t('pageIndexing.indexed') }}</th>
+                <th class="num">{{ $t('pageIndexing.notIndexed') }}</th>
+                <th>{{ $t('pageIndexing.health') }}</th>
+                <th>{{ $t('pageIndexing.lastChecked') }}</th>
+                <th>{{ $t('pageIndexing.status') }}</th>
+                <th class="pi-act-col text-right">{{ $t('pageIndexing.actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -245,21 +460,21 @@
                 </td>
                 <td class="whitespace-nowrap text-xs text-text-muted font-sans">{{ fmtDateTime(sumOf(w).lastChecked) }}</td>
                 <td>
-                  <span v-if="!perf.connectionByWebsite.has(w.id)" class="pi-badge bg-soft text-text-muted font-sans">Not Connected</span>
-                  <span v-else-if="!sumOf(w).checked" class="pi-badge bg-soft text-text-muted font-sans">Not Checked</span>
-                  <span v-else-if="sumOf(w).notIndexed + sumOf(w).warning > 0" class="pi-badge bg-status-needs-fix-bg/15 text-status-needs-fix-fg font-sans">Issues</span>
-                  <span v-else class="pi-badge bg-status-approved-bg/15 text-status-approved-fg font-sans">Healthy</span>
+                  <span v-if="!perf.connectionByWebsite.has(w.id)" class="pi-badge bg-soft text-text-muted font-sans">{{ $t('pageIndexing.notConnected') }}</span>
+                  <span v-else-if="!sumOf(w).checked" class="pi-badge bg-soft text-text-muted font-sans">{{ $t('pageIndexing.notChecked') }}</span>
+                  <span v-else-if="sumOf(w).notIndexed + sumOf(w).warning > 0" class="pi-badge bg-status-needs-fix-bg/15 text-status-needs-fix-fg font-sans">{{ $t('pageIndexing.issues') }}</span>
+                  <span v-else class="pi-badge bg-status-approved-bg/15 text-status-approved-fg font-sans">{{ $t('pageIndexing.healthy') }}</span>
                 </td>
                 <td @click.stop>
                   <div class="pi-actions">
-                    <button v-if="isAdmin" class="pi-btn py-1 px-2 text-[10px]" type="button" :disabled="store.busyIds.has(w.id)" @click="store.discoverUrls(w.id)">Discover</button>
-                    <button v-if="isAdmin" class="pi-btn pi-btn--primary py-1 px-2 text-[10px]" type="button" :disabled="store.busyIds.has(w.id) || !sumOf(w).known" @click="store.checkIndexing(w.id, 'new', undefined, 25)">Check</button>
-                    <button class="pi-btn py-1 px-2 text-[10px]" type="button" @click="openWebsite(w)">View</button>
+                    <button v-if="isAdmin" class="pi-btn py-1 px-2 text-[10px]" type="button" :disabled="store.busyIds.has(w.id)" @click="store.discoverUrls(w.id)">{{ $t('pageIndexing.discover') }}</button>
+                    <button v-if="isAdmin" class="pi-btn pi-btn--primary py-1 px-2 text-[10px]" type="button" :disabled="store.busyIds.has(w.id) || !sumOf(w).known" @click="store.checkIndexing(w.id, 'new', undefined, 25)">{{ $t('pageIndexing.check') }}</button>
+                    <button class="pi-btn py-1 px-2 text-[10px]" type="button" @click="openWebsite(w)">{{ $t('pageIndexing.view') }}</button>
                   </div>
                 </td>
               </tr>
               <tr v-if="!filteredWebsites.length">
-                <td colspan="10" class="py-12 text-center text-sm text-text-muted font-sans">{{ websites.length ? 'No websites found for this filter.' : 'No connected websites.' }}</td>
+                <td colspan="10" class="py-12 text-center text-sm text-text-muted font-sans">{{ websites.length ? $t('pageIndexing.noWebsitesFilter') : $t('pageIndexing.noConnectedWebsites') }}</td>
               </tr>
             </tbody>
           </table>
@@ -288,21 +503,21 @@
 
             <div class="space-y-2 mt-4 text-xs font-sans">
               <div class="flex justify-between">
-                <span class="text-text-muted">Known pages</span>
+                <span class="text-text-muted">{{ $t('pageIndexing.knownPages') }}</span>
                 <span class="font-bold text-text-main font-number">{{ fmtNum(sumOf(w).known) }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-text-muted">Indexed</span>
+                <span class="text-text-muted">{{ $t('pageIndexing.indexed') }}</span>
                 <span class="font-bold text-status-approved-fg font-number">{{ fmtNum(sumOf(w).indexed) }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-text-muted">Not indexed</span>
+                <span class="text-text-muted">{{ $t('pageIndexing.notIndexed') }}</span>
                 <span class="font-bold text-status-needs-fix-fg font-number">{{ fmtNum(sumOf(w).notIndexed) }}</span>
               </div>
               
               <div class="pt-1">
                 <div class="flex justify-between items-center mb-1">
-                  <span class="text-text-muted text-[10px] uppercase font-bold">Indexing Health</span>
+                  <span class="text-text-muted text-[10px] uppercase font-bold">{{ $t('pageIndexing.indexingHealth') }}</span>
                   <span class="font-bold text-text-main font-number" :class="healthClass(store.health(sumOf(w)))">{{ store.health(sumOf(w)) }}%</span>
                 </div>
                 <div class="pi-bar"><span class="pi-bar-fill" :class="healthBarClass(store.health(sumOf(w)))" :style="{ width: Math.min(store.health(sumOf(w)), 100) + '%' }" /></div>
@@ -312,15 +527,15 @@
 
           <div class="border-t border-border/80 pt-3 mt-4 flex items-center justify-between gap-2">
             <span class="text-[10px] text-text-muted truncate font-sans" :title="fmtDateTime(sumOf(w).lastChecked)">
-              Checked: {{ sumOf(w).lastChecked ? fmtDate(sumOf(w).lastChecked) : 'Never' }}
+              {{ $t('pageIndexing.lastChecked') }}: {{ sumOf(w).lastChecked ? fmtDate(sumOf(w).lastChecked) : $t('pageIndexing.never') }}
             </span>
             <div class="flex gap-1.5">
-              <button class="pi-btn py-1 px-2.5 text-xs font-sans" type="button" @click="openWebsite(w)">View Details</button>
+              <button class="pi-btn py-1 px-2.5 text-xs font-sans" type="button" @click="openWebsite(w)">{{ $t('pageIndexing.viewDetails') }}</button>
             </div>
           </div>
         </div>
         <div v-if="!filteredWebsites.length" class="col-span-full card py-16 text-center text-sm text-text-muted bg-card border border-border/60">
-          {{ websites.length ? 'No websites found for this filter.' : 'No connected websites.' }}
+          {{ websites.length ? $t('pageIndexing.noWebsitesFilter') : $t('pageIndexing.noConnectedWebsites') }}
         </div>
       </div>
 
@@ -357,13 +572,13 @@
               </div>
               
               <div class="mt-2.5 flex justify-between text-[10px] text-text-muted font-sans">
-                <span>Health: <strong class="text-text-main font-bold">{{ store.health(sumOf(w)) }}%</strong></span>
-                <span v-if="sumOf(w).notIndexed + sumOf(w).warning > 0">Issues: <strong class="text-status-needs-fix-fg font-bold">{{ sumOf(w).notIndexed + sumOf(w).warning }}</strong></span>
-                <span v-else>Pages: <strong class="text-text-main font-bold">{{ sumOf(w).known }}</strong></span>
+                <span>{{ $t('pageIndexing.health') }}: <strong class="text-text-main font-bold">{{ store.health(sumOf(w)) }}%</strong></span>
+                <span v-if="sumOf(w).notIndexed + sumOf(w).warning > 0">{{ $t('pageIndexing.issues') }}: <strong class="text-status-needs-fix-fg font-bold">{{ sumOf(w).notIndexed + sumOf(w).warning }}</strong></span>
+                <span v-else>{{ $t('pageIndexing.knownPages') }}: <strong class="text-text-main font-bold">{{ sumOf(w).known }}</strong></span>
               </div>
             </div>
             <div v-if="!col.items.length" class="text-center py-16 text-xs text-text-muted font-sans">
-              No websites.
+              {{ $t('pageIndexing.noWebsitesFound') }}
             </div>
           </div>
         </div>
@@ -371,10 +586,10 @@
 
       <!-- Pagination footer -->
       <div v-if="(viewMode === 'table' || viewMode === 'compact-row' || viewMode === 'card') && filteredWebsites.length > rowsPerPage" class="flex items-center justify-between text-xs text-text-muted mt-4 font-sans">
-        <span>Showing {{ (currentPage - 1) * rowsPerPage + 1 }}–{{ Math.min(currentPage * rowsPerPage, filteredWebsites.length) }} of {{ filteredWebsites.length }}</span>
+        <span>{{ $t('pageIndexing.showing', { start: (currentPage - 1) * rowsPerPage + 1, end: Math.min(currentPage * rowsPerPage, filteredWebsites.length), total: filteredWebsites.length }) }}</span>
         <div class="flex gap-2">
-          <button class="btn-secondary h-8 px-3 text-xs" type="button" :disabled="currentPage <= 1" @click="currentPage--">Prev</button>
-          <button class="btn-secondary h-8 px-3 text-xs" type="button" :disabled="currentPage >= totalPages" @click="currentPage++">Next</button>
+          <button class="btn-secondary h-8 px-3 text-xs" type="button" :disabled="currentPage <= 1" @click="currentPage--">{{ $t('pageIndexing.prev') }}</button>
+          <button class="btn-secondary h-8 px-3 text-xs" type="button" :disabled="currentPage >= totalPages" @click="currentPage++">{{ $t('pageIndexing.next') }}</button>
         </div>
       </div>
     </div>
@@ -382,20 +597,20 @@
     <!-- Empty States if no websites synced -->
     <div v-else class="py-16 text-center card bg-card border border-border/60 rounded-2xl">
       <div v-if="scopeFilter === 'my'" class="space-y-3 font-sans">
-        <div class="text-base font-bold text-text-main">No websites assigned to you yet.</div>
-        <p class="text-xs text-text-muted max-w-sm mx-auto">You don't have any websites assigned to your account. Switch to viewing all websites to see other team properties.</p>
-        <button class="btn-primary font-sans font-semibold text-xs h-9 px-4" type="button" @click="emit('switch-scope', 'all')">Switch to All Websites</button>
+        <div class="text-base font-bold text-text-main">{{ $t('pageIndexing.noWebsitesAssigned') }}</div>
+        <p class="text-xs text-text-muted max-w-sm mx-auto">{{ $t('pageIndexing.noWebsitesAssignedSub') }}</p>
+        <button class="btn-primary font-sans font-semibold text-xs h-9 px-4" type="button" @click="emit('switch-scope', 'all')">{{ $t('pageIndexing.switchToAll') }}</button>
       </div>
       <div v-else-if="scopeFilter === 'member'" class="space-y-1 font-sans">
-        <div class="text-base font-bold text-text-main">No websites found for this team member.</div>
-        <p class="text-xs text-text-muted max-w-sm mx-auto">This team member does not have any websites assigned to them.</p>
+        <div class="text-base font-bold text-text-main">{{ $t('pageIndexing.noWebsitesMember') }}</div>
+        <p class="text-xs text-text-muted max-w-sm mx-auto">{{ $t('pageIndexing.noWebsitesMemberSub') }}</p>
       </div>
       <div v-else-if="scopeFilter === 'single'" class="space-y-1 font-sans">
-        <div class="text-base font-bold text-text-main">No indexing data yet.</div>
-        <p class="text-xs text-text-muted max-w-sm mx-auto">This website has no indexing data stored.</p>
+        <div class="text-base font-bold text-text-main">{{ $t('pageIndexing.noIndexingDataYet') }}</div>
+        <p class="text-xs text-text-muted max-w-sm mx-auto">{{ $t('pageIndexing.noIndexingDataYetSub') }}</p>
       </div>
       <div v-else class="space-y-1 font-sans">
-        <div class="text-base font-bold text-text-main">No websites found.</div>
+        <div class="text-base font-bold text-text-main">{{ $t('pageIndexing.noWebsitesFound') }}</div>
       </div>
     </div>
 
@@ -415,9 +630,9 @@
             
             <div class="flex items-center gap-3 font-sans">
               <span class="text-[11px] text-text-muted font-mono hidden sm:inline bg-soft/20 px-2 py-0.5 rounded">
-                Property: <code>{{ perf.connectionByWebsite.get(openSite.id)?.gsc_property_url || 'Not mapped' }}</code>
+                {{ $t('pageIndexing.property') }}: <code>{{ perf.connectionByWebsite.get(openSite.id)?.gsc_property_url || $t('pageIndexing.notMapped') }}</code>
               </span>
-              <button @click="closeWebsite" type="button" class="btn-ghost p-1 rounded hover:bg-soft text-text-muted hover:text-text-main border-0 cursor-pointer" aria-label="Close details">
+              <button @click="closeWebsite" type="button" class="btn-ghost p-1 rounded hover:bg-soft text-text-muted hover:text-text-main border-0 cursor-pointer" :aria-label="$t('pageIndexing.closeDetails')">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
@@ -428,19 +643,19 @@
             <!-- Stats overview grid -->
             <div class="grid grid-cols-2 gap-2 md:grid-cols-4 font-sans">
               <div class="pi-card py-2 px-3 bg-card border border-border/40">
-                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:var(--accent-cyan)" />Known pages</div>
+                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:var(--accent-cyan)" />{{ $t('pageIndexing.knownPages') }}</div>
                 <div class="text-base font-extrabold text-text-main mt-0.5 font-number">{{ fmtNum(activeSummary.known) }}</div>
               </div>
               <div class="pi-card py-2 px-3 bg-card border border-border/40">
-                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:#22c55e" />Indexed</div>
+                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:#22c55e" />{{ $t('pageIndexing.indexed') }}</div>
                 <div class="text-base font-extrabold text-status-approved-fg mt-0.5 font-number">{{ fmtNum(activeSummary.indexed) }}</div>
               </div>
               <div class="pi-card py-2 px-3 bg-card border border-border/40">
-                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:#ef4444" />Not indexed</div>
+                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:#ef4444" />{{ $t('pageIndexing.notIndexed') }}</div>
                 <div class="text-base font-extrabold text-status-needs-fix-fg mt-0.5 font-number">{{ fmtNum(activeSummary.notIndexed) }}</div>
               </div>
               <div class="pi-card py-2 px-3 bg-card border border-border/40">
-                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:var(--primary)" />Health</div>
+                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:var(--primary)" />{{ $t('pageIndexing.health') }}</div>
                 <div class="text-base font-extrabold text-text-main mt-0.5 font-number">{{ totalHealth }}%</div>
               </div>
             </div>
@@ -448,16 +663,16 @@
             <!-- Site Actions Gated -->
             <div v-if="isAdmin" class="flex flex-wrap gap-2 pt-1 border-b border-border/60 pb-3 font-sans">
               <button class="pi-btn text-xs py-1 px-3" type="button" :disabled="store.busyIds.has(openSite.id)" @click="store.discoverUrls(openSite.id)">
-                {{ store.busyIds.has(openSite.id) ? 'Working…' : 'Discover URLs' }}
+                {{ store.busyIds.has(openSite.id) ? $t('pageIndexing.working') : $t('pageIndexing.discoverUrls') }}
               </button>
               <button class="pi-btn pi-btn--primary text-xs py-1 px-3" type="button" :disabled="store.busyIds.has(openSite.id) || !store.urls.length" @click="store.checkIndexing(openSite.id, 'new', undefined, 25)">
-                {{ store.busyIds.has(openSite.id) ? 'Working…' : 'Check indexing' }}
+                {{ store.busyIds.has(openSite.id) ? $t('pageIndexing.working') : $t('pageIndexing.checkIndexing') }}
               </button>
               <button v-if="someNotIndexed" class="pi-btn text-xs py-1 px-3" type="button" :disabled="store.busyIds.has(openSite.id)" @click="store.checkIndexing(openSite.id, 'not_indexed', undefined, 25)">
-                Re-check not indexed
+                {{ $t('pageIndexing.reCheckNotIndexed') }}
               </button>
               <button class="pi-btn text-xs py-1 px-3 bg-soft/20 border-border" type="button" @click="showManualUrlModal = true">
-                Add manual URLs
+                {{ $t('pageIndexing.addManualUrls') }}
               </button>
             </div>
 
@@ -476,18 +691,18 @@
 
             <!-- Tab content -->
             <div v-if="store.detailLoading" class="py-16 text-center text-xs text-text-muted font-sans">
-              Loading URL indexing data…
+              {{ $t('common.loading') }}
             </div>
             
             <div v-else-if="!isConnected" class="py-12 text-center border border-dashed border-border rounded-xl bg-soft/10 font-sans">
-              <div class="text-xs font-bold text-text-main mb-1">Search Console is not connected</div>
-              <p class="text-[11px] text-text-muted max-w-xs mx-auto">Map a Search Console property URL and sync data in the Performance center first.</p>
+              <div class="text-xs font-bold text-text-main mb-1">{{ $t('pageIndexing.gscNotConnected') }}</div>
+              <p class="text-[11px] text-text-muted max-w-xs mx-auto">{{ $t('pageIndexing.gscNotConnectedSub') }}</p>
             </div>
             
             <div v-else-if="!store.urls.length" class="py-12 text-center border border-dashed border-border rounded-xl bg-soft/10 font-sans">
-              <div class="text-xs font-bold text-text-main mb-2">No URLs found for this website</div>
+              <div class="text-xs font-bold text-text-main mb-2">{{ $t('pageIndexing.noUrlsFound') }}</div>
               <button v-if="isAdmin" class="pi-btn pi-btn--primary text-xs mx-auto" type="button" :disabled="store.busyIds.has(openSite.id)" @click="store.discoverUrls(openSite.id)">
-                Discover URLs to begin
+                {{ $t('pageIndexing.noUrlsFoundSub') }}
               </button>
             </div>
 
@@ -495,20 +710,20 @@
               <!-- Detail filters -->
               <div class="flex flex-wrap items-center gap-2 bg-soft/10 p-2.5 rounded-xl border border-border/40 font-sans">
                 <select v-model="typeFilter" class="input py-1 px-2 text-xs max-w-[8rem] h-8 bg-input">
-                  <option value="">All types</option>
-                  <option value="page">Pages</option>
-                  <option value="blog">Blog</option>
-                  <option value="product">Products</option>
-                  <option value="category">Categories</option>
-                  <option value="other">Other</option>
+                  <option value="">{{ $t('pageIndexing.allTypes') }}</option>
+                  <option value="page">{{ $t('Pages') }}</option>
+                  <option value="blog">{{ $t('Blog') }}</option>
+                  <option value="product">{{ $t('Products') }}</option>
+                  <option value="category">{{ $t('Categories') }}</option>
+                  <option value="other">{{ $t('Other') }}</option>
                 </select>
                 <select v-model="sourceFilter" class="input py-1 px-2 text-xs max-w-[8rem] h-8 bg-input">
-                  <option value="">All sources</option>
-                  <option value="sitemap">Sitemap</option>
-                  <option value="manual">Manual</option>
-                  <option value="cms">CMS</option>
+                  <option value="">{{ $t('pageIndexing.allSources') }}</option>
+                  <option value="sitemap">{{ $t('Sitemap') }}</option>
+                  <option value="manual">{{ $t('Manual') }}</option>
+                  <option value="cms">{{ $t('CMS') }}</option>
                 </select>
-                <input v-model="search" class="input py-1 px-2 text-xs flex-1 h-8 bg-input" placeholder="Search URL…" />
+                <input v-model="search" class="input py-1 px-2 text-xs flex-1 h-8 bg-input" :placeholder="$t('pageIndexing.searchUrl')" />
                 <span class="text-[10px] text-text-muted font-mono whitespace-nowrap">{{ filtered.length }} url(s)</span>
               </div>
 
@@ -517,13 +732,13 @@
                 <table class="pi-table text-xs">
                   <thead>
                     <tr class="bg-soft/5">
-                      <th>URL</th>
-                      <th>Type</th>
-                      <th>Status</th>
-                      <th>Coverage Reason</th>
-                      <th>Last Crawl</th>
-                      <th>Last Inspected</th>
-                      <th class="text-right">Actions</th>
+                      <th>{{ $t('pageIndexing.url') }}</th>
+                      <th>{{ $t('pageIndexing.type') }}</th>
+                      <th>{{ $t('pageIndexing.status') }}</th>
+                      <th>{{ $t('pageIndexing.coverageReason') }}</th>
+                      <th>{{ $t('pageIndexing.lastCrawl') }}</th>
+                      <th>{{ $t('pageIndexing.lastInspected') }}</th>
+                      <th class="text-right">{{ $t('pageIndexing.actions') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -542,45 +757,45 @@
                       <td class="whitespace-nowrap text-[10px] text-text-muted font-sans">{{ fmtDateTime(r.status?.inspected_at) }}</td>
                       <td class="whitespace-nowrap text-right" @click.stop>
                         <div class="flex gap-1 justify-end font-sans">
-                          <button class="pi-btn py-0.5 px-1.5 text-[9px]" type="button" @click="viewing = r">Details</button>
-                          <button v-if="isAdmin" class="pi-btn py-0.5 px-1.5 text-[9px]" type="button" :disabled="store.busyIds.has(openSite!.id)" @click="store.inspectOne(openSite!.id, r.id)">Inspect</button>
-                          <button class="pi-btn py-0.5 px-1.5 text-[9px]" type="button" @click="copy(r.url)">Copy</button>
-                          <a class="pi-btn py-0.5 px-1.5 text-[9px] inline-block" :href="r.url" target="_blank" rel="noopener">Open</a>
+                          <button class="pi-btn py-0.5 px-1.5 text-[9px]" type="button" @click="viewing = r">{{ $t('pageIndexing.details') }}</button>
+                          <button v-if="isAdmin" class="pi-btn py-0.5 px-1.5 text-[9px]" type="button" :disabled="store.busyIds.has(openSite!.id)" @click="store.inspectOne(openSite!.id, r.id)">{{ $t('pageIndexing.inspect') }}</button>
+                          <button class="pi-btn py-0.5 px-1.5 text-[9px]" type="button" @click="copy(r.url)">{{ $t('pageIndexing.copy') }}</button>
+                          <a class="pi-btn py-0.5 px-1.5 text-[9px] inline-block" :href="r.url" target="_blank" rel="noopener">{{ $t('pageIndexing.open') }}</a>
                         </div>
                       </td>
                     </tr>
-                    <tr v-if="!filtered.length"><td colspan="7" class="py-12 text-center text-xs text-text-muted font-sans">No URLs match filters.</td></tr>
+                    <tr v-if="!filtered.length"><td colspan="7" class="py-12 text-center text-xs text-text-muted font-sans">{{ $t('No URLs match filters.') }}</td></tr>
                   </tbody>
                 </table>
               </div>
 
               <!-- Drawer pagination -->
               <div v-if="filtered.length > perPage" class="flex items-center justify-between text-xs text-text-muted pt-2 font-sans">
-                <span>{{ (page - 1) * perPage + 1 }}–{{ Math.min(page * perPage, filtered.length) }} of {{ filtered.length }}</span>
+                <span>{{ $t('pageIndexing.showing', { start: (page - 1) * perPage + 1, end: Math.min(page * perPage, filtered.length), total: filtered.length }) }}</span>
                 <div class="flex gap-1.5">
-                  <button class="pi-btn py-0.5 px-2" type="button" :disabled="page <= 1" @click="page--">Prev</button>
-                  <button class="pi-btn py-0.5 px-2" type="button" :disabled="page >= pageCount" @click="page++">Next</button>
+                  <button class="pi-btn py-0.5 px-2" type="button" :disabled="page <= 1" @click="page--">{{ $t('pageIndexing.prev') }}</button>
+                  <button class="pi-btn py-0.5 px-2" type="button" :disabled="page >= pageCount" @click="page++">{{ $t('pageIndexing.next') }}</button>
                 </div>
               </div>
             </template>
 
             <!-- Logs view inside drawer -->
             <template v-else>
-              <div v-if="logsLoading" class="text-center py-8 text-xs text-text-muted animate-pulse font-sans">Loading logs...</div>
-              <div v-else-if="!syncLogs.length" class="text-center py-8 text-xs text-text-muted font-sans">No indexing logs found.</div>
+              <div v-if="logsLoading" class="text-center py-8 text-xs text-text-muted animate-pulse font-sans">{{ $t('pageIndexing.loadingLogs') }}</div>
+              <div v-else-if="!syncLogs.length" class="text-center py-8 text-xs text-text-muted font-sans">{{ $t('pageIndexing.noLogsFound') }}</div>
               <div v-else class="space-y-2 font-sans">
                 <div v-for="log in syncLogs" :key="log.id" class="p-2.5 rounded-lg border border-border bg-soft/10 text-[11px] flex flex-col gap-1">
                   <div class="flex items-center justify-between">
                     <span class="font-bold text-text-main capitalize">
-                      {{ log.sync_type === 'discover_urls' ? 'URL Discovery' : 'Indexing Inspection' }}
+                      {{ log.sync_type === 'discover_urls' ? $t('pageIndexing.urlDiscovery') : $t('pageIndexing.indexingInspection') }}
                     </span>
                     <span class="perf-status font-bold px-1.5 py-0.5 rounded text-[9px] uppercase" :class="log.status === 'success' ? 'is-good' : log.status === 'running' ? 'is-warn' : 'is-bad'">
                       {{ log.status }}
                     </span>
                   </div>
                   <div class="text-text-muted flex justify-between">
-                    <span>Started: {{ fmtDateTime(log.started_at) }}</span>
-                    <span v-if="log.finished_at">Duration: {{ getDuration(log.started_at, log.finished_at) }}</span>
+                    <span>{{ $t('pageIndexing.started') }}: {{ fmtDateTime(log.started_at) }}</span>
+                    <span v-if="log.finished_at">{{ $t('pageIndexing.duration') }}: {{ getDuration(log.started_at, log.finished_at) }}</span>
                   </div>
                   <div class="font-semibold text-text-main mt-1">
                     <span v-if="log.sync_type === 'discover_urls'">
@@ -598,48 +813,49 @@
       </div>
     </Transition>
 
+
     <!-- Inspection outcome modal -->
-    <Modal :open="!!viewing" title="Inspection Verdict details" size="lg" @close="viewing = null">
+    <Modal :open="!!viewing" :title="$t('pageIndexing.detailsVerdictTitle')" size="lg" @close="viewing = null">
       <div v-if="viewing" class="space-y-3 font-sans">
         <a :href="viewing.url" target="_blank" rel="noopener" class="block break-all text-xs text-primary underline font-mono">{{ viewing.url }}</a>
         <span class="pi-badge text-[9px] py-0.5 px-1.5 font-bold uppercase" :class="`pi-badge--${viewing.status?.inspection_status ?? 'none'}`">{{ statusLabel(viewing.status?.inspection_status) }}</span>
         <p class="rounded-xl border border-border bg-soft/20 px-3 py-2 text-xs text-text-main leading-relaxed font-sans">{{ advice(viewing.status) }}</p>
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">Verdict</div><div class="pi-kv-v text-xs mt-0.5">{{ viewing.status?.verdict || '—' }}</div></div>
-          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">Coverage</div><div class="pi-kv-v text-xs mt-0.5">{{ viewing.status?.coverage_state || '—' }}</div></div>
-          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">Indexing</div><div class="pi-kv-v text-xs mt-0.5">{{ viewing.status?.indexing_state || '—' }}</div></div>
-          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">Robots.txt</div><div class="pi-kv-v text-xs mt-0.5">{{ viewing.status?.robots_txt_state || '—' }}</div></div>
-          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">Page fetch</div><div class="pi-kv-v text-xs mt-0.5">{{ viewing.status?.page_fetch_state || '—' }}</div></div>
-          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">Last crawl</div><div class="pi-kv-v text-xs mt-0.5">{{ fmtDate(viewing.status?.last_crawl_time) }}</div></div>
+          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">{{ $t('pageIndexing.verdict') }}</div><div class="pi-kv-v text-xs mt-0.5">{{ viewing.status?.verdict || '—' }}</div></div>
+          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">{{ $t('pageIndexing.coverage') }}</div><div class="pi-kv-v text-xs mt-0.5">{{ viewing.status?.coverage_state || '—' }}</div></div>
+          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">{{ $t('pageIndexing.indexed') }}</div><div class="pi-kv-v text-xs mt-0.5">{{ viewing.status?.indexing_state || '—' }}</div></div>
+          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">{{ $t('pageIndexing.robotsTxt') }}</div><div class="pi-kv-v text-xs mt-0.5">{{ viewing.status?.robots_txt_state || '—' }}</div></div>
+          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">{{ $t('pageIndexing.pageFetch') }}</div><div class="pi-kv-v text-xs mt-0.5">{{ viewing.status?.page_fetch_state || '—' }}</div></div>
+          <div class="pi-kv bg-soft/10 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">{{ $t('pageIndexing.lastCrawl') }}</div><div class="pi-kv-v text-xs mt-0.5">{{ fmtDate(viewing.status?.last_crawl_time) }}</div></div>
         </div>
-        <div class="pi-kv bg-soft/5 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">Google canonical</div><div class="pi-kv-v break-all font-mono text-[10px] mt-0.5">{{ viewing.status?.google_canonical || '—' }}</div></div>
-        <div class="pi-kv bg-soft/5 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">User canonical</div><div class="pi-kv-v break-all font-mono text-[10px] mt-0.5">{{ viewing.status?.user_canonical || '—' }}</div></div>
+        <div class="pi-kv bg-soft/5 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">{{ $t('Google canonical') }}</div><div class="pi-kv-v break-all font-mono text-[10px] mt-0.5">{{ viewing.status?.google_canonical || '—' }}</div></div>
+        <div class="pi-kv bg-soft/5 border border-border/30 rounded-lg p-2.5"><div class="pi-kv-l">{{ $t('User canonical') }}</div><div class="pi-kv-v break-all font-mono text-[10px] mt-0.5">{{ viewing.status?.user_canonical || '—' }}</div></div>
         <details v-if="isAdmin && viewing.status?.raw_response" class="pt-1">
-          <summary class="cursor-pointer text-[10px] text-text-muted hover:text-text-main font-semibold">Raw GSC response payload (admin)</summary>
+          <summary class="cursor-pointer text-[10px] text-text-muted hover:text-text-main font-semibold">{{ $t('Raw GSC response payload (admin)') }}</summary>
           <pre class="mt-1 max-h-48 overflow-auto rounded-lg border border-border/40 bg-soft/40 p-2 text-[10px] text-text-muted font-mono">{{ JSON.stringify(viewing.status.raw_response, null, 2) }}</pre>
         </details>
       </div>
       <template #footer>
-        <button class="btn-secondary font-sans font-semibold text-xs px-4" type="button" @click="viewing = null">Close</button>
-        <button v-if="isAdmin && viewing && openSite" class="btn-primary font-sans font-semibold text-xs px-4" type="button" :disabled="store.busyIds.has(openSite.id)" @click="openSite && viewing && store.inspectOne(openSite.id, viewing.id)">Inspect again</button>
+        <button class="btn-secondary font-sans font-semibold text-xs px-4" type="button" @click="viewing = null">{{ $t('pageIndexing.cancel') }}</button>
+        <button v-if="isAdmin && viewing && openSite" class="btn-primary font-sans font-semibold text-xs px-4" type="button" :disabled="store.busyIds.has(openSite.id)" @click="openSite && viewing && store.inspectOne(openSite.id, viewing.id)">{{ $t('Inspect again') }}</button>
       </template>
     </Modal>
 
     <!-- Manual URLs Modal -->
-    <Modal :open="showManualUrlModal" title="Add manual URLs" size="lg" @close="showManualUrlModal = false">
+    <Modal :open="showManualUrlModal" :title="$t('pageIndexing.addManualUrls')" size="lg" @close="showManualUrlModal = false">
       <div v-if="openSite" class="space-y-3 font-sans">
-        <p class="helper font-sans leading-relaxed">Enter one full URL path per line. These will be added as known website crawled references.</p>
+        <p class="helper font-sans leading-relaxed">{{ $t('pageIndexing.enterManualUrls') }}</p>
         <textarea
           v-model="manualUrlsInput"
           class="input w-full h-40 font-mono text-xs p-3 leading-relaxed bg-input"
-          placeholder="https://example.com/page-1&#10;https://example.com/page-2"
+          :placeholder="$t('pageIndexing.manualUrlsInputPlaceholder')"
         />
         <p v-if="manualUrlsError" class="text-xs text-status-needs-fix-fg">{{ manualUrlsError }}</p>
       </div>
       <template #footer>
-        <button class="btn-secondary font-sans font-semibold text-xs px-4" type="button" @click="showManualUrlModal = false">Cancel</button>
+        <button class="btn-secondary font-sans font-semibold text-xs px-4" type="button" @click="showManualUrlModal = false">{{ $t('pageIndexing.cancel') }}</button>
         <button class="btn-primary font-sans font-semibold text-xs px-4" type="button" :disabled="store.detailLoading || !manualUrlsInput.trim()" @click="submitManualUrls">
-          {{ store.detailLoading ? 'Adding...' : 'Add URLs' }}
+          {{ store.detailLoading ? 'Adding...' : $t('pageIndexing.addUrls') }}
         </button>
       </template>
     </Modal>
@@ -648,6 +864,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Modal from '@/components/ui/Modal.vue';
 import WebsiteFavicon from '@/components/ui/WebsiteFavicon.vue';
 import { useIndexingStore, type IndexingStatus } from '@/stores/indexing';
@@ -658,17 +875,23 @@ import { supabase, supabaseConfigured } from '@/lib/supabase';
 
 const props = defineProps<{
   websites: Website[];
-  scopeFilter?: 'my' | 'all' | 'member' | 'single';
+  scopeFilter: 'my' | 'all' | 'member' | 'single';
+  memberFilter: string;
+  websiteFilter: string;
 }>();
 
 const emit = defineEmits<{
   (e: 'switch-scope', val: 'my' | 'all' | 'member' | 'single'): void;
+  (e: 'update:member-filter', val: string): void;
+  (e: 'update:website-filter', val: string): void;
+  (e: 'toggle-sidebar'): void;
 }>();
 
 const store = useIndexingStore();
 const auth = useAuthStore();
 const perf = usePerformanceStore();
 const dataStore = useDataStore();
+const { t } = useI18n();
 
 const isAdmin = computed(() => auth.isAdmin);
 
@@ -684,7 +907,6 @@ const perPage = 15;
 
 const tableSearch = ref('');
 const statusFilter = ref<'all' | 'healthy' | 'issues' | 'unchecked' | 'unconnected'>('all');
-const memberFilter = ref<string>('all');
 const sortBy = ref<'issues_desc' | 'health_asc' | 'pages_desc' | 'checked_desc' | 'name_asc'>('issues_desc');
 
 const currentPage = ref(1);
@@ -692,10 +914,28 @@ const rowsPerPage = ref<number>(25);
 
 const viewMode = ref<'compact-row' | 'table' | 'card' | 'column'>('compact-row');
 
+// Advanced Filters local state
+const platformFilter = ref('');
+const connFilter = ref<'all' | 'connected' | 'not'>('all');
+const websiteTypeFilter = ref('');
+
+const tempPlatformFilter = ref('');
+const tempConnFilter = ref<'all' | 'connected' | 'not'>('all');
+const tempWebsiteTypeFilter = ref('');
+const advancedDropdownOpen = ref(false);
+
 const setViewMode = (mode: typeof viewMode.value) => {
   viewMode.value = mode;
   localStorage.setItem('pageIndexingViewMode', mode);
   currentPage.value = 1;
+};
+
+const translateViewMode = (mode: string) => {
+  if (mode === 'compact-row') return t('pageIndexing.viewModes.compactRow');
+  if (mode === 'table') return t('pageIndexing.viewModes.table');
+  if (mode === 'card') return t('pageIndexing.viewModes.card');
+  if (mode === 'column') return t('pageIndexing.viewModes.column');
+  return mode;
 };
 
 const selectedSiteIds = ref<Set<string>>(new Set());
@@ -777,8 +1017,17 @@ const memberObjects = computed(() => {
 const filteredWebsites = computed(() => {
   let list = props.websites;
   
-  if (memberFilter.value !== 'all') {
-    list = list.filter(w => w.createdBy === memberFilter.value);
+  if (platformFilter.value) {
+    list = list.filter(w => w.platformType === platformFilter.value);
+  }
+  if (connFilter.value !== 'all') {
+    list = list.filter(w => {
+      const connected = perf.connectionByWebsite.has(w.id);
+      return connFilter.value === 'connected' ? connected : !connected;
+    });
+  }
+  if (websiteTypeFilter.value) {
+    list = list.filter(w => w.websiteType === websiteTypeFilter.value);
   }
   
   if (statusFilter.value !== 'all') {
@@ -849,10 +1098,10 @@ const columnsList = computed(() => {
   }
   
   return [
-    { key: 'healthy', label: 'Healthy', items: healthy },
-    { key: 'issues', label: 'Has Issues', items: issues },
-    { key: 'unchecked', label: 'Not Checked', items: unchecked },
-    { key: 'unconnected', label: 'Not Connected', items: unconnected }
+    { key: 'healthy', label: t('pageIndexing.healthy'), items: healthy },
+    { key: 'issues', label: t('pageIndexing.hasIssues'), items: issues },
+    { key: 'unchecked', label: t('pageIndexing.notChecked'), items: unchecked },
+    { key: 'unconnected', label: t('pageIndexing.notConnected'), items: unconnected }
   ] as const;
 });
 
@@ -868,14 +1117,14 @@ watch([filteredWebsites, rowsPerPage], () => {
   currentPage.value = 1;
 });
 
-const detailTabsList = [
-  { key: 'all', label: 'All URLs' },
-  { key: 'indexed', label: 'Indexed' },
-  { key: 'not_indexed', label: 'Not Indexed' },
-  { key: 'warnings', label: 'Warnings' },
-  { key: 'not_checked', label: 'Not Checked' },
-  { key: 'logs', label: 'Sync Logs' }
-] as const;
+const detailTabsList = computed(() => [
+  { key: 'all', label: t('common.all') + ' URLs' },
+  { key: 'indexed', label: t('pageIndexing.indexed') },
+  { key: 'not_indexed', label: t('pageIndexing.notIndexed') },
+  { key: 'warnings', label: t('pageIndexing.warnings') },
+  { key: 'not_checked', label: t('pageIndexing.notChecked') },
+  { key: 'logs', label: t('pageIndexing.indexingLogs') }
+] as const);
 
 const detailTab = ref<'all' | 'indexed' | 'not_indexed' | 'warnings' | 'not_checked' | 'logs'>('all');
 const setDetailTab = (tab: typeof detailTab.value) => {
@@ -1066,8 +1315,223 @@ const cleanDomain = (d: string) => (d || '').replace(/^https?:\/\//i, '').replac
 const sumOf = (w: Website) => store.summaryFor(w.id);
 const healthBarClass = (h: number) => (h >= 80 ? 'pi-bar-fill--ok' : h >= 50 ? 'pi-bar-fill--warn' : 'pi-bar-fill--bad');
 
+const memberProfiles = ref<any[]>([]);
+const memberProfilesLoading = ref(false);
+const memberProfilesError = ref('');
+
+const fetchMemberProfiles = async () => {
+  if (!supabaseConfigured) return;
+  memberProfilesLoading.value = true;
+  memberProfilesError.value = '';
+  try {
+    const { data: resData, error: resErr } = await supabase.rpc('performance_team_member_profiles');
+    if (resErr) {
+      memberProfilesError.value = 'Could not load team members.';
+    } else {
+      memberProfiles.value = resData || [];
+    }
+  } catch (err: any) {
+    memberProfilesError.value = 'Could not load team members.';
+  } finally {
+    memberProfilesLoading.value = false;
+  }
+};
+
+const allTeamMembers = computed(() => {
+  if (memberProfiles.value.length > 0) {
+    return memberProfiles.value.map(p => ({
+      id: p.user_id,
+      fullName: p.display_name || p.full_name || 'Unknown User',
+      avatarUrl: p.avatar_url,
+      role: p.role,
+      status: p.status,
+      email: ''
+    }));
+  }
+  return dataStore.members.filter((m) => m.status === 'active');
+});
+
+const memberWebsitesCount = (memberId: string) => {
+  const profile = memberProfiles.value.find(p => p.user_id === memberId);
+  if (profile) return Number(profile.assigned_website_count);
+  return dataStore.websites.filter((w) => w.createdBy === memberId).length;
+};
+
+const selectedMemberObj = computed(() => {
+  const id = props.memberFilter;
+  if (!id) return null;
+  const profile = memberProfiles.value.find(p => p.user_id === id);
+  if (profile) {
+    return {
+      id: profile.user_id,
+      fullName: profile.display_name || profile.full_name || 'Unknown User',
+      avatarUrl: profile.avatar_url,
+      role: profile.role,
+      status: profile.status,
+      email: ''
+    };
+  }
+  return dataStore.memberById(id);
+});
+
+const getMemberInitials = (name?: string | null) => {
+  if (!name || name === 'Member' || name === 'Unknown User' || name === 'Unknown') return 'U';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+};
+
+const getMemberAvatarUrl = (id: string) => {
+  const profile = memberProfiles.value.find(p => p.user_id === id);
+  if (profile) return profile.avatar_url;
+  const member = dataStore.memberById(id);
+  return member ? member.avatarUrl : '';
+};
+
+const getMemberRoleLabel = (id: string) => {
+  const profile = memberProfiles.value.find(p => p.user_id === id);
+  const role = profile ? profile.role : dataStore.memberById(id)?.role;
+  return role ? role.replace('_', ' ') : 'Member';
+};
+
+const websiteObj = (id?: string | null) => (id ? dataStore.websites.find((x) => x.id === id) ?? null : null);
+
+const scopeDropdownOpen = ref(false);
+const memberDropdownOpen = ref(false);
+const websiteDropdownOpen = ref(false);
+const statusDropdownOpen = ref(false);
+
+const toggleDropdown = (type: string) => {
+  scopeDropdownOpen.value = type === 'scope' ? !scopeDropdownOpen.value : false;
+  memberDropdownOpen.value = type === 'member' ? !memberDropdownOpen.value : false;
+  websiteDropdownOpen.value = type === 'website' ? !websiteDropdownOpen.value : false;
+  statusDropdownOpen.value = type === 'status' ? !statusDropdownOpen.value : false;
+  advancedDropdownOpen.value = type === 'advanced' ? !advancedDropdownOpen.value : false;
+};
+
+const selectScope = (val: 'my' | 'all' | 'member' | 'single') => {
+  emit('switch-scope', val);
+  scopeDropdownOpen.value = false;
+  if (val === 'my' || val === 'all') {
+    emit('update:member-filter', '');
+    emit('update:website-filter', '');
+  } else if (val === 'member') {
+    emit('update:website-filter', '');
+    if (!props.memberFilter && allTeamMembers.value.length > 0) {
+      emit('update:member-filter', allTeamMembers.value[0].id);
+    }
+  } else if (val === 'single') {
+    emit('update:member-filter', '');
+    if (!props.websiteFilter && dataStore.websites.length > 0) {
+      const assignedIds = dataStore.getUserAssignedWebsiteIds(auth.user?.id ?? '');
+      if (assignedIds.length > 0) {
+        emit('update:website-filter', assignedIds[0]);
+      } else {
+        emit('update:website-filter', dataStore.websites[0].id);
+      }
+    }
+  }
+};
+
+const selectWebsite = (id: string) => {
+  emit('update:website-filter', id);
+  websiteDropdownOpen.value = false;
+};
+
+const selectMember = (id: string) => {
+  emit('update:member-filter', id);
+  memberDropdownOpen.value = false;
+};
+
+const scopeLabel = computed(() => {
+  if (props.scopeFilter === 'my') {
+    const name = auth.profile?.fullName || auth.profile?.email?.split('@')[0] || '';
+    return name ? `${t('performance.myWebsites')} · ${name}` : t('performance.myWebsites');
+  }
+  if (props.scopeFilter === 'all') return t('performance.allWebsites');
+  if (props.scopeFilter === 'member') {
+    const member = selectedMemberObj.value;
+    return member ? `${t('performance.teamMember')}: ${member.fullName}` : t('performance.teamMember');
+  }
+  if (props.scopeFilter === 'single') {
+    const w = dataStore.websites.find(x => x.id === props.websiteFilter);
+    return w ? w.name || w.domain : t('performance.singleWebsite');
+  }
+  return '';
+});
+
+const getWebsiteCreatorName = (w: Website) => {
+  if (!w.createdBy) return 'Unassigned';
+  const profile = memberProfiles.value.find(p => p.user_id === w.createdBy);
+  if (profile) return profile.display_name || profile.full_name || 'Unknown';
+  const member = dataStore.memberById(w.createdBy);
+  return member ? member.fullName : 'Unknown';
+};
+
+const selectStatus = (val: typeof statusFilter.value) => {
+  statusFilter.value = val;
+  statusDropdownOpen.value = false;
+};
+
+const selectedStatusLabel = computed(() => {
+  if (statusFilter.value === 'healthy') return t('pageIndexing.healthy');
+  if (statusFilter.value === 'issues') return t('pageIndexing.hasIssues');
+  if (statusFilter.value === 'unchecked') return t('pageIndexing.notChecked');
+  if (statusFilter.value === 'unconnected') return t('pageIndexing.notConnected');
+  return t('pageIndexing.allStatuses');
+});
+
+const openAdvancedFilters = () => {
+  tempPlatformFilter.value = platformFilter.value;
+  tempConnFilter.value = connFilter.value;
+  tempWebsiteTypeFilter.value = websiteTypeFilter.value;
+  toggleDropdown('advanced');
+};
+
+const applyAdvancedFilters = () => {
+  platformFilter.value = tempPlatformFilter.value;
+  connFilter.value = tempConnFilter.value;
+  websiteTypeFilter.value = tempWebsiteTypeFilter.value;
+  advancedDropdownOpen.value = false;
+};
+
+const resetAdvancedFilters = () => {
+  tempPlatformFilter.value = '';
+  tempConnFilter.value = 'all';
+  tempWebsiteTypeFilter.value = '';
+  
+  platformFilter.value = '';
+  connFilter.value = 'all';
+  websiteTypeFilter.value = '';
+  
+  advancedDropdownOpen.value = false;
+};
+
+const activeAdvancedFiltersCount = computed(() => {
+  let count = 0;
+  if (platformFilter.value !== '') count++;
+  if (connFilter.value !== 'all') count++;
+  if (websiteTypeFilter.value !== '') count++;
+  return count;
+});
+
+const websiteTypes = computed(() => {
+  const set = new Set<string>();
+  dataStore.websites.forEach((w) => { if (w.websiteType) set.add(w.websiteType); });
+  return [...set];
+});
+
+const typeLabel = (val: string) => {
+  if (!val) return '—';
+  if (val === 'existing') return 'Existing Site';
+  if (val === 'ecommerce') return 'E-commerce';
+  if (val === 'normal_ecommerce') return 'Normal E-commerce';
+  return val.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+};
+
 onMounted(() => {
   void store.fetchSummaries();
+  void fetchMemberProfiles();
   const savedMode = localStorage.getItem('pageIndexingViewMode');
   if (savedMode && ['card', 'compact-row', 'table', 'column'].includes(savedMode)) {
     viewMode.value = savedMode as any;
@@ -1091,7 +1555,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   color: var(--text-muted);
   font-weight: 600;
   text-transform: uppercase;
@@ -1135,12 +1599,12 @@ onMounted(() => {
 .pi-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
 }
 
 .pi-table th {
   text-align: left;
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
@@ -1171,12 +1635,12 @@ onMounted(() => {
 
 .pi-table--compact th {
   padding: 0.45rem 0.6rem;
-  font-size: 0.62rem;
+  font-size: 0.55rem;
 }
 
 .pi-table--compact td {
   padding: 0.4rem 0.6rem;
-  font-size: 0.76rem;
+  font-size: 0.68rem;
 }
 
 .pi-site {
@@ -1201,7 +1665,7 @@ onMounted(() => {
   min-width: 1.8rem;
   text-align: center;
   font-weight: 700;
-  font-size: 0.74rem;
+  font-size: 0.66rem;
   padding: 0.05rem 0.45rem;
   border-radius: 0.4rem;
 }
@@ -1216,7 +1680,7 @@ onMounted(() => {
 }
 
 .pi-health-pct {
-  font-size: 0.72rem;
+  font-size: 0.64rem;
   font-weight: 700;
   min-width: 2.5rem;
   text-align: right;
@@ -1232,7 +1696,7 @@ onMounted(() => {
   border: 1px solid var(--border);
   background: var(--card-bg);
   color: var(--text-main);
-  font-size: 0.74rem;
+  font-size: 0.66rem;
   font-weight: 600;
   padding: 0.25rem 0.55rem;
   border-radius: 0.4rem;
@@ -1260,7 +1724,7 @@ onMounted(() => {
 
 .pi-badge {
   display: inline-block;
-  font-size: 0.64rem;
+  font-size: 0.58rem;
   font-weight: 700;
   padding: 0.05rem 0.4rem;
   border-radius: 9999px;
@@ -1279,7 +1743,7 @@ onMounted(() => {
 }
 
 .pi-kv-l {
-  font-size: 0.6rem;
+  font-size: 0.54rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-muted);
@@ -1287,7 +1751,7 @@ onMounted(() => {
 }
 
 .pi-kv-v {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--text-main);
   margin-top: 0.1rem;
@@ -1295,7 +1759,7 @@ onMounted(() => {
 
 .perf-status {
   display: inline-block;
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   font-weight: 700;
   padding: 0.05rem 0.4rem;
   border-radius: 0.35rem;
@@ -1353,7 +1817,112 @@ onMounted(() => {
 }
 
 .helper {
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   color: var(--text-muted);
+}
+
+.perf-filterbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--card-bg) 88%, var(--bg-page));
+}
+
+.perf-wsel {
+  position: relative;
+}
+
+.perf-wsel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.25rem;
+  min-width: 11rem;
+  max-width: 14rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 120ms ease;
+  background: var(--input-bg);
+  font-family: 'Raleway', sans-serif;
+}
+
+.perf-wsel-btn:focus {
+  border-color: var(--primary) !important;
+}
+
+.perf-wsel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+}
+
+.perf-wsel-list {
+  position: absolute;
+  z-index: 31;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 16rem;
+  max-height: 18rem;
+  overflow-y: auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  padding: 0.3rem;
+}
+
+.perf-wsel-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 0;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.68rem;
+  color: var(--text-main);
+  text-align: left;
+  transition: background 100ms ease;
+  font-family: 'Raleway', sans-serif;
+}
+
+.perf-wsel-item:hover {
+  background: var(--soft-bg);
+}
+
+.perf-wsel-item.active {
+  background: var(--primary-soft) !important;
+  color: var(--primary) !important;
+  font-weight: 600;
+}
+
+.perf-wsel-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.perf-wsel-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.perf-wsel-avatar-initials {
+  font-size: 8px;
+  font-weight: bold;
+  color: var(--text-main);
 }
 </style>
