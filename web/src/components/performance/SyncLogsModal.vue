@@ -6,7 +6,7 @@
         <button
           type="button"
           class="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
-          :class="activeTab === 'performance' ? 'bg-primary text-black' : 'text-text-muted hover:text-text-main hover:bg-soft/20'"
+          :class="activeTab === 'performance' ? 'bg-primary text-on-primary' : 'text-text-muted hover:text-text-main hover:bg-soft/20'"
           @click="activeTab = 'performance'"
         >
           Performance Sync
@@ -14,7 +14,7 @@
         <button
           type="button"
           class="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
-          :class="activeTab === 'indexing' ? 'bg-primary text-black' : 'text-text-muted hover:text-text-main hover:bg-soft/20'"
+          :class="activeTab === 'indexing' ? 'bg-primary text-on-primary' : 'text-text-muted hover:text-text-main hover:bg-soft/20'"
           @click="activeTab = 'indexing'"
         >
           Indexing Checks
@@ -25,7 +25,7 @@
       <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
         <div class="flex items-center gap-2">
           <span class="text-text-muted font-sans">Website:</span>
-          <select v-model="filterWebsiteId" class="input h-8 py-0 px-2 text-xs bg-card-bg border-border text-text-main font-sans">
+          <select v-model="filterWebsiteId" class="input h-8 py-0 px-2 text-xs bg-input border-border text-text-main font-sans">
             <option value="">All Websites</option>
             <option v-for="w in data.websites" :key="w.id" :value="w.id">{{ w.name || w.domain }}</option>
           </select>
@@ -48,7 +48,7 @@
       <div v-else-if="logs.length === 0" class="py-12 text-center text-xs text-text-muted">
         No logs found for this filter.
       </div>
-      <div v-else class="overflow-x-auto border border-border rounded-lg bg-card-bg max-h-96 overflow-y-auto">
+      <div v-else class="overflow-x-auto border border-border rounded-lg bg-card max-h-96 overflow-y-auto">
         <table class="w-full border-collapse text-left text-xs">
           <thead>
             <tr class="border-b border-border bg-soft/10 text-text-muted uppercase tracking-wider text-[10px] font-bold">

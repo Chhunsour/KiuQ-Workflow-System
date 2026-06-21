@@ -956,7 +956,7 @@ onMounted(async () => {
 
 /* ── My Attention Required Card ───────────────────────────────────────── */
 .md-attention-card {
-  background: var(--card-bg, #fff);
+  background: var(--card-bg);
   border: 1px solid var(--border, #e2e8f0);
   border-radius: 16px;
   padding: 1.25rem;
@@ -1556,7 +1556,7 @@ onMounted(async () => {
 }
 .md-shortcut-btn:hover { opacity: 0.88; }
 .md-shortcut-card--board .md-shortcut-btn {
-  background: #fff;
+  background: var(--card-bg);
   color: var(--primary);
 }
 
@@ -1810,8 +1810,8 @@ onMounted(async () => {
   width: 2rem;
   height: 2rem;
   border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: color-mix(in srgb, var(--card-bg) 88%, var(--soft-bg));
+  border: 1px solid var(--border);
   color: var(--primary);
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.8rem;

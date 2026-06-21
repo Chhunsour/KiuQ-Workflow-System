@@ -38,14 +38,14 @@
     </PageHeader>
 
     <!-- Header Status Info Bar -->
-    <div class="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-text-muted bg-card-bg/40 border border-border/60 rounded-xl px-4 py-2.5">
+    <div class="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-text-muted bg-card border border-border/60 rounded-xl px-4 py-2.5">
       <div class="flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full bg-primary" />
-        <span>Last synced: <span class="font-bold text-text-main font-sans">{{ latestSyncTime || 'Never' }}</span></span>
+        <span>Last synced: <span class="font-bold text-text-main font-number">{{ latestSyncTime || 'Never' }}</span></span>
       </div>
       <div class="flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full bg-status-approved-fg" />
-        <span>Connected: <span class="font-bold text-text-main font-sans">{{ connectedCount }} / {{ visibleWebsites.length }} websites</span></span>
+        <span>Connected: <span class="font-bold text-text-main font-number">{{ connectedCount }} / {{ visibleWebsites.length }} websites</span></span>
       </div>
       <div class="flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full" :class="syncHealth === 'Healthy' ? 'bg-status-approved-fg' : 'bg-status-needs-fix-fg'" />
@@ -209,7 +209,7 @@
       </div>
 
       <!-- Custom Date Pickers -->
-      <div v-if="perf.rangeDays === 'custom' && activePerformanceView === 'overview'" class="flex items-center gap-2 border border-border rounded-lg px-2 h-9 bg-card-bg flex-shrink-0">
+      <div v-if="perf.rangeDays === 'custom' && activePerformanceView === 'overview'" class="flex items-center gap-2 border border-border rounded-lg px-2 h-9 bg-card flex-shrink-0">
         <input type="date" v-model="perf.customStartDate" class="bg-transparent border-0 text-xs text-text-main outline-none w-28 font-sans font-medium" @change="onCustomDateChange" />
         <span class="text-text-muted text-[10px] uppercase font-bold">to</span>
         <input type="date" v-model="perf.customEndDate" class="bg-transparent border-0 text-xs text-text-main outline-none w-28 font-sans font-medium" @change="onCustomDateChange" />
@@ -220,18 +220,18 @@
     <div class="mt-4">
       <LoadingBlock v-if="activePerformanceView === 'overview'" :loading="perf.loading" :error="perf.error" :retry="() => perf.fetchAll()">
         <!-- Empty States -->
-        <div v-if="scopeFilter === 'my' && scopedWebsites.length === 0 && !data.loading.websites" class="card card-pad py-16 text-center border border-dashed border-border/80 rounded-2xl bg-card-bg mt-4">
+        <div v-if="scopeFilter === 'my' && scopedWebsites.length === 0 && !data.loading.websites" class="card card-pad py-16 text-center border border-dashed border-border/80 rounded-2xl bg-card mt-4">
           <div class="text-base font-bold text-text-main mb-2">No websites assigned to you yet.</div>
           <p class="text-xs text-text-muted mb-4 max-w-sm mx-auto">You don't have any websites assigned to your account. Switch to viewing all websites to see other team properties.</p>
           <button class="btn-primary font-sans font-semibold text-xs h-9 px-4" type="button" @click="selectScope('all')">View All Websites</button>
         </div>
 
-        <div v-else-if="scopeFilter === 'member' && scopedWebsites.length === 0 && !data.loading.websites" class="card card-pad py-16 text-center border border-dashed border-border/80 rounded-2xl bg-card-bg mt-4">
+        <div v-else-if="scopeFilter === 'member' && scopedWebsites.length === 0 && !data.loading.websites" class="card card-pad py-16 text-center border border-dashed border-border/80 rounded-2xl bg-card mt-4">
           <div class="text-base font-bold text-text-main mb-2">No websites found for this team member.</div>
           <p class="text-xs text-text-muted max-w-sm mx-auto">This team member does not have any websites assigned to them.</p>
         </div>
 
-        <div v-else-if="scopeFilter === 'single' && websiteFilter && filteredDaily.length === 0" class="card card-pad py-16 text-center border border-dashed border-border/80 rounded-2xl bg-card-bg mt-4">
+        <div v-else-if="scopeFilter === 'single' && websiteFilter && filteredDaily.length === 0" class="card card-pad py-16 text-center border border-dashed border-border/80 rounded-2xl bg-card mt-4">
           <div class="text-base font-bold text-text-main mb-2">No Search Console data found for this website.</div>
           <p class="text-xs text-text-muted max-w-sm mx-auto">This website has no Search Console stats synced for the selected range. Try triggers sync manually.</p>
         </div>
@@ -253,12 +253,12 @@
                 <span class="perf-metric-dot transition-transform group-hover:scale-125" :style="{ background: m.color }" />
                 <span class="perf-metric-label font-sans">{{ m.label }}</span>
               </div>
-              <span class="perf-metric-value font-sans font-extrabold text-2xl mt-1">{{ m.format(totals) }}</span>
+              <span class="perf-metric-value font-number font-extrabold text-2xl mt-1">{{ m.format(totals) }}</span>
               
               <!-- Comparison indicator -->
               <template v-if="cardDelta(m.key)">
                 <div class="flex flex-col items-start mt-2">
-                  <span class="perf-metric-cmp flex items-center gap-0.5 text-xs font-bold font-sans" :class="cardDelta(m.key)!.good ? 'is-up text-status-approved-fg' : 'is-down text-status-needs-fix-fg'">
+                  <span class="perf-metric-cmp flex items-center gap-0.5 text-xs font-bold font-number" :class="cardDelta(m.key)!.good ? 'is-up text-status-approved-fg' : 'is-down text-status-needs-fix-fg'">
                     <span>{{ cardDelta(m.key)!.good ? '▲' : '▼' }}</span>
                     <span>{{ cardDelta(m.key)!.deltaLabel }}</span>
                     <span class="text-[10px] opacity-75">({{ cardDelta(m.key)!.pctLabel }})</span>
@@ -285,7 +285,7 @@
           </div>
 
           <!-- Main Chart -->
-          <div class="card card-pad rounded-2xl bg-card-bg/40 border border-border/60">
+          <div class="card card-pad rounded-2xl bg-card border border-border/60">
             <div class="mb-4 flex items-center justify-between">
               <h3 class="text-sm font-bold text-text-main font-sans tracking-wide uppercase">
                 {{ activeMetricMeta.label }} Trend
@@ -303,7 +303,7 @@
           </div>
 
           <!-- Data Tabs GSC style -->
-          <div class="card rounded-2xl overflow-hidden bg-card-bg/40 border border-border/60">
+          <div class="card rounded-2xl overflow-hidden bg-card border border-border/60">
             <div class="perf-tabs border-b border-border bg-soft/10">
               <button
                 v-for="t in tabList"
@@ -363,13 +363,13 @@
                       </span>
                       <span v-else>{{ activeTab === 'pages' ? shortUrl(r.label) : r.label }}</span>
                     </td>
-                    <td class="num font-sans font-medium">{{ fmtNum(r.clicks) }}</td>
-                    <td v-if="showChangeCol" class="num font-sans font-semibold" :class="(r.change ?? 0) >= 0 ? 'text-status-approved-fg' : 'text-status-needs-fix-fg'">
+                    <td class="num font-number font-medium">{{ fmtNum(r.clicks) }}</td>
+                    <td v-if="showChangeCol" class="num font-number font-semibold" :class="(r.change ?? 0) >= 0 ? 'text-status-approved-fg' : 'text-status-needs-fix-fg'">
                       {{ (r.change ?? 0) >= 0 ? '+' : '−' }}{{ fmtNum(Math.abs(r.change ?? 0)) }}
                     </td>
-                    <td class="num font-sans text-text-muted">{{ fmtNum(r.impressions) }}</td>
-                    <td class="num font-sans text-text-muted">{{ fmtPct(r.ctr) }}</td>
-                    <td class="num font-sans text-text-muted">{{ fmtPos(r.position) }}</td>
+                    <td class="num font-number text-text-muted">{{ fmtNum(r.impressions) }}</td>
+                    <td class="num font-number text-text-muted">{{ fmtPct(r.ctr) }}</td>
+                    <td class="num font-number text-text-muted">{{ fmtPos(r.position) }}</td>
                     <td v-if="activeTab === 'websites'" class="whitespace-nowrap">
                       <span class="px-2 py-0.5 rounded-full text-[10px] font-bold" :class="getWebsiteStatus(r.key).class">
                         {{ getWebsiteStatus(r.key).label }}
@@ -410,7 +410,7 @@
 
           <!-- Bottom insights cards -->
           <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <div class="perf-insight bg-card-bg/40 border border-border/60">
+            <div class="perf-insight bg-card border border-border/60">
               <div class="perf-insight-l">Top Website</div>
               <div class="perf-insight-v flex items-center gap-2 mt-1 truncate">
                 <WebsiteFavicon v-if="topWebsite" :favicon-url="websiteObj(topWebsite.id)?.faviconUrl" :domain="websiteObj(topWebsite.id)?.domain" :name="topWebsite.label" :size="20" />
@@ -419,7 +419,7 @@
               <div class="perf-insight-s mt-1 font-sans">{{ topWebsite ? fmtNum(topWebsite.clicks) + ' clicks' : 'No data' }}</div>
             </div>
 
-            <div class="perf-insight bg-card-bg/40 border border-border/60">
+            <div class="perf-insight bg-card border border-border/60">
               <div class="perf-insight-l">Biggest Growth</div>
               <div class="perf-insight-v truncate mt-1 font-sans font-bold text-sm">{{ biggestGrowth[0]?.name || '—' }}</div>
               <div class="perf-insight-s mt-1 font-sans text-status-approved-fg" v-if="biggestGrowth[0]">
@@ -428,7 +428,7 @@
               <div class="perf-insight-s mt-1 font-sans text-text-muted" v-else>No increase</div>
             </div>
 
-            <div class="perf-insight bg-card-bg/40 border border-border/60">
+            <div class="perf-insight bg-card border border-border/60">
               <div class="perf-insight-l">Biggest Drop</div>
               <div class="perf-insight-v truncate mt-1 font-sans font-bold text-sm">{{ biggestDrop[0]?.name || '—' }}</div>
               <div class="perf-insight-s mt-1 font-sans text-status-needs-fix-fg" v-if="biggestDrop[0]">
@@ -437,7 +437,7 @@
               <div class="perf-insight-s mt-1 font-sans text-text-muted" v-else>No decrease</div>
             </div>
 
-            <div class="perf-insight bg-card-bg/40 border border-border/60">
+            <div class="perf-insight bg-card border border-border/60">
               <div class="perf-insight-l">Alerts / Attention</div>
               <div class="perf-insight-v mt-1 font-sans font-bold text-sm text-status-submitted-fg">
                 {{ needsAttention.length }} website(s)
@@ -449,7 +449,7 @@
           </div>
 
           <!-- Connections Table (Management Only) -->
-          <div v-if="isManagement" class="card card-pad rounded-2xl bg-card-bg/40 border border-border/60 mt-6">
+          <div v-if="isManagement" class="card card-pad rounded-2xl bg-card border border-border/60 mt-6">
             <h3 class="text-sm font-bold text-text-main font-sans tracking-wide uppercase mb-1">
               Search Console Connections Mapping
             </h3>
@@ -476,7 +476,7 @@
                       </div>
                     </td>
                     <td>
-                      <input v-model="propInputs[w.id]" class="input h-8 text-xs font-sans max-w-sm w-full bg-card-bg" :placeholder="`sc-domain:${bareDomain(w.domain)}`" />
+                      <input v-model="propInputs[w.id]" class="input h-8 text-xs font-sans max-w-sm w-full bg-input" :placeholder="`sc-domain:${bareDomain(w.domain)}`" />
                     </td>
                     <td>
                       <div class="flex items-center gap-1.5">
@@ -554,7 +554,7 @@
             :key="t.key"
             type="button"
             class="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors bg-transparent border-0 cursor-pointer"
-            :class="detailTab === t.key ? 'bg-primary text-black font-bold' : 'text-text-muted hover:text-text-main hover:bg-soft/20'"
+            :class="detailTab === t.key ? 'bg-primary text-on-primary font-bold' : 'text-text-muted hover:text-text-main hover:bg-soft/20'"
             @click="detailTab = t.key"
           >
             {{ t.label }}
@@ -608,7 +608,7 @@
             <div class="mb-1 flex items-center justify-between">
               <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide">Clicks Trend Over Time</h4>
             </div>
-            <LineChart v-if="detailSeries.length > 1" :data="detailSeries" color="#15D6C2" :height="180" />
+            <LineChart v-if="detailSeries.length > 1" :data="detailSeries" color="var(--primary)" :height="180" />
             <p v-else class="text-center py-12 text-sm text-text-muted">No historical trends synced.</p>
           </div>
 
@@ -1080,7 +1080,7 @@ const rangeShortfall = computed(() => {
 
 type Metric = 'clicks' | 'impressions' | 'ctr' | 'position';
 const metricList: { key: Metric; label: string; color: string; format: (t: GscTotals) => string }[] = [
-  { key: 'clicks', label: 'Total Clicks', color: '#15D6C2', format: (t) => fmtNum(t.clicks) },
+  { key: 'clicks', label: 'Total Clicks', color: 'var(--primary)', format: (t) => fmtNum(t.clicks) },
   { key: 'impressions', label: 'Total Impressions', color: '#8b5cf6', format: (t) => fmtNum(t.impressions) },
   { key: 'ctr', label: 'Average CTR', color: '#22c55e', format: (t) => fmtPct(t.ctr) },
   { key: 'position', label: 'Average Position', color: '#f59e0b', format: (t) => fmtPos(t.position) }
@@ -1634,7 +1634,7 @@ onMounted(() => {
   padding: 0.6rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: 0.8rem;
-  background: var(--card-bg);
+  background: color-mix(in srgb, var(--card-bg) 88%, var(--bg-page));
 }
 
 .perf-wsel {
@@ -1651,7 +1651,7 @@ onMounted(() => {
   font-size: 0.78rem;
   cursor: pointer;
   transition: all 120ms ease;
-  background: var(--card-bg);
+  background: var(--input-bg);
   font-family: 'Raleway', sans-serif;
 }
 
@@ -1747,12 +1747,12 @@ onMounted(() => {
 }
 
 .perf-metric:hover {
-  border-color: var(--text-muted);
+  border-color: color-mix(in srgb, var(--primary) 38%, var(--border));
   transform: translateY(-1px);
 }
 
 .perf-metric.active {
-  background: var(--soft-bg, rgba(255,255,255,0.02));
+  background: color-mix(in srgb, var(--primary) 7%, var(--card-bg));
 }
 
 .perf-metric-dot {
@@ -1799,7 +1799,7 @@ onMounted(() => {
 
 .perf-tab.active {
   background: var(--primary, #15D6C2);
-  color: #04201d !important;
+  color: var(--on-primary) !important;
   font-weight: 750;
 }
 
@@ -1841,7 +1841,7 @@ onMounted(() => {
 }
 
 .perf-row-click:hover td {
-  background: var(--soft-bg);
+  background: color-mix(in srgb, var(--soft-bg) 78%, var(--card-bg));
 }
 
 .perf-sort {

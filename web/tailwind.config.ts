@@ -8,6 +8,11 @@ export default {
     extend: {
       colors: {
         bg: withOpacity('--color-bg'),
+        page: withOpacity('--color-bg-page'),
+        'bg-main': withOpacity('--color-bg'),
+        'bg-page': withOpacity('--color-bg-page'),
+        'bg-card': withOpacity('--color-bg-card'),
+        'bg-soft': withOpacity('--color-bg-soft'),
         sidebar: withOpacity('--color-sidebar-bg'),
         topbar: withOpacity('--color-topbar-bg'),
         card: withOpacity('--color-card-bg'),
@@ -16,12 +21,19 @@ export default {
           DEFAULT: withOpacity('--color-primary'),
           hover: withOpacity('--color-primary-hover')
         },
+        accent: {
+          primary: withOpacity('--color-accent-primary'),
+          cyan: withOpacity('--color-accent-cyan')
+        },
         text: {
           main: withOpacity('--color-text-main'),
-          muted: withOpacity('--color-text-muted')
+          secondary: withOpacity('--color-text-secondary'),
+          muted: withOpacity('--color-text-muted'),
+          soft: withOpacity('--color-text-soft')
         },
         border: {
-          DEFAULT: withOpacity('--color-border')
+          DEFAULT: withOpacity('--color-border'),
+          muted: withOpacity('--color-border-muted')
         },
         soft: withOpacity('--color-soft-bg'),
         status: {
@@ -43,7 +55,8 @@ export default {
       },
       fontFamily: {
         sans: ['Raleway', '"Kantumruy Pro"', 'system-ui', 'sans-serif'],
-        ui: ['"Google Sans"', '"Product Sans"', '"Kantumruy Pro"', 'Arial', 'sans-serif']
+        ui: ['"Google Sans"', '"Product Sans"', '"Kantumruy Pro"', 'Arial', 'sans-serif'],
+        number: ['Pliant', 'sans-serif']
       },
       borderRadius: {
         card: '14px',

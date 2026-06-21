@@ -2361,7 +2361,7 @@ onMounted(async () => {
   pointer-events: none;       /* never blocks the cursor / underlying card */
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: var(--card-bg, #fff);
+  background: var(--card-bg);
   box-shadow:
     0 24px 60px rgba(8, 12, 20, 0.32),
     0 6px 18px rgba(8, 12, 20, 0.2);

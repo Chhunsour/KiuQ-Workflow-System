@@ -3,11 +3,43 @@
 @tailwind utilities;
 
 @font-face {
+  font-family: 'Pliant';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Pliant'), url('https://fonts.gstatic.com/s/pliant/v1/R70xjyYdl_WLNKb6P3NQcLsvUCb5T137p26TBozFA2e_cZudoqNw.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Pliant';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('Pliant'), url('https://fonts.gstatic.com/s/pliant/v1/R70xjyYdl_WLNKb6P3NQcLsvUCb5T137p26TBozFA2e_cZuvoqNw.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Pliant';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Pliant'), url('https://fonts.gstatic.com/s/pliant/v1/R70xjyYdl_WLNKb6P3NQcLsvUCb5T137p26TBozFA2e_cZtDpaNw.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Pliant';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Pliant'), url('https://fonts.gstatic.com/s/pliant/v1/R70xjyYdl_WLNKb6P3NQcLsvUCb5T137p26TBozFA2e_cZt6paNw.ttf') format('truetype');
+}
+
+@font-face {
   font-family: 'Jost Numbers';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('https://cdn.jsdelivr.net/fontsource/fonts/cal-sans@latest/latin-400-normal.woff2') format('woff2');
+  src: local('Pliant'), url('https://fonts.gstatic.com/s/pliant/v1/R70xjyYdl_WLNKb6P3NQcLsvUCb5T137p26TBozFA2e_cZudoqNw.ttf') format('truetype');
   unicode-range: U+0030-0039;
 }
 
@@ -16,7 +48,7 @@
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('https://cdn.jsdelivr.net/fontsource/fonts/cal-sans@latest/latin-400-normal.woff2') format('woff2');
+  src: local('Pliant'), url('https://fonts.gstatic.com/s/pliant/v1/R70xjyYdl_WLNKb6P3NQcLsvUCb5T137p26TBozFA2e_cZuvoqNw.ttf') format('truetype');
   unicode-range: U+0030-0039;
 }
 
@@ -25,7 +57,7 @@
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('https://cdn.jsdelivr.net/fontsource/fonts/cal-sans@latest/latin-400-normal.woff2') format('woff2');
+  src: local('Pliant'), url('https://fonts.gstatic.com/s/pliant/v1/R70xjyYdl_WLNKb6P3NQcLsvUCb5T137p26TBozFA2e_cZtDpaNw.ttf') format('truetype');
   unicode-range: U+0030-0039;
 }
 
@@ -34,51 +66,82 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('https://cdn.jsdelivr.net/fontsource/fonts/cal-sans@latest/latin-400-normal.woff2') format('woff2');
+  src: local('Pliant'), url('https://fonts.gstatic.com/s/pliant/v1/R70xjyYdl_WLNKb6P3NQcLsvUCb5T137p26TBozFA2e_cZt6paNw.ttf') format('truetype');
   unicode-range: U+0030-0039;
 }
 
 :root {
-  --bg: #ffffff;
-  --sidebar-bg: #ffffff;
-  --topbar-bg: #ffffff;
-  --card-bg: #ffffff;
-  --input-bg: #ffffff;
-  --soft-bg: #f4f7fb;
-  --primary: #15D6C2;
-  --primary-hover: #13c7b5;
-  --text-main: #111827;
-  --text-muted: #6b7280;
-  --text-soft: #9aa1ad;
-  --border: #e7e9ee;
-  --border-strong: #d4d8e0;
+  --font-number-fallback: sans-serif;
+  --bg-main: #f6f6f6;
+  --bg-page: #f7f8fa;
+  --bg-card: #ffffff;
+  --bg-soft: #f1f3f5;
+  --border-main: #e2e5e9;
+  --border-muted: #edf0f3;
+  --text-main: #1f2933;
+  --text-secondary: #5f6b7a;
+  --text-muted: #5f6b7a;
+  --text-soft: #8a94a3;
+  --accent-primary: #3f8dfe;
+  --accent-cyan: #15D6C2;
+
+  --bg: var(--bg-main);
+  --sidebar-bg: #fbfbfc;
+  --topbar-bg: #fbfbfc;
+  --card-bg: var(--bg-card);
+  --input-bg: #fbfbfb;
+  --soft-bg: var(--bg-soft);
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --on-primary: #ffffff;
+  --border: var(--border-main);
+  --border-strong: #cfd5dd;
 
   /* Selected / active surfaces — active nav + selected cards */
-  --primary-soft: rgba(21, 214, 194, 0.08);
-  --primary-soft-strong: rgba(21, 214, 194, 0.16);
-  --primary-ring: rgba(21, 214, 194, 0.18);
+  --primary-soft: rgba(63, 141, 254, 0.09);
+  --primary-soft-strong: rgba(63, 141, 254, 0.15);
+  --primary-ring: rgba(63, 141, 254, 0.20);
 
   /* Elevation scale — resting → hover → floating → modal. */
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 2px rgba(16, 24, 40, 0.04);
-  --shadow-md: 0 4px 12px -2px rgba(16, 24, 40, 0.08), 0 2px 4px -2px rgba(16, 24, 40, 0.05);
-  --shadow-lg: 0 16px 32px -10px rgba(16, 24, 40, 0.16), 0 4px 8px -4px rgba(16, 24, 40, 0.06);
-  --shadow-primary: 0 6px 16px -4px rgba(21, 214, 194, 0.40);
+  --shadow-sm: 0 1px 2px rgba(31, 41, 51, 0.04), 0 1px 2px rgba(31, 41, 51, 0.03);
+  --shadow-md: 0 5px 14px -4px rgba(31, 41, 51, 0.10), 0 2px 5px -3px rgba(31, 41, 51, 0.08);
+  --shadow-lg: 0 18px 36px -14px rgba(31, 41, 51, 0.20), 0 6px 14px -8px rgba(31, 41, 51, 0.10);
+  --shadow-primary: 0 6px 16px -5px rgba(37, 99, 235, 0.34);
 
-  --color-bg: 255 255 255;
-  --color-sidebar-bg: 255 255 255;
-  --color-topbar-bg: 255 255 255;
+  --color-bg: 246 246 246;
+  --color-bg-page: 247 248 250;
+  --color-bg-card: 255 255 255;
+  --color-bg-soft: 241 243 245;
+  --color-sidebar-bg: 251 251 252;
+  --color-topbar-bg: 251 251 252;
   --color-card-bg: 255 255 255;
-  --color-input-bg: 255 255 255;
-  --color-soft-bg: 244 247 251;
-  --color-primary: 21 214 194;
-  --color-primary-hover: 19 199 181;
-  --color-text-main: 17 24 39;
-  --color-text-muted: 107 114 128;
-  --color-border: 231 233 238;
+  --color-input-bg: 251 251 251;
+  --color-soft-bg: 241 243 245;
+  --color-primary: 37 99 235;
+  --color-primary-hover: 29 78 216;
+  --color-accent-primary: 63 141 254;
+  --color-accent-cyan: 21 214 194;
+  --color-text-main: 31 41 51;
+  --color-text-secondary: 95 107 122;
+  --color-text-muted: 95 107 122;
+  --color-text-soft: 138 148 163;
+  --color-border: 226 229 233;
+  --color-border-muted: 237 240 243;
   color-scheme: light;
 }
 
 :root[data-theme='dark-gray'] {
+  --font-number-fallback: sans-serif;
+  --bg-main: #1f1f21;
+  --bg-page: #242426;
+  --bg-card: #2c2c2f;
+  --bg-soft: #38383b;
+  --border-main: #3c3c40;
+  --border-muted: #333336;
+  --text-secondary: #b6b8bd;
+  --accent-primary: #15D6C2;
+  --accent-cyan: #15D6C2;
+
   --bg: #1f1f21;
   --sidebar-bg: #262628;
   --topbar-bg: #262628;
@@ -87,6 +150,7 @@
   --soft-bg: #38383b;
   --primary: #15D6C2;
   --primary-hover: #13c7b5;
+  --on-primary: #04201d;
   --text-main: #f4f4f5;
   --text-muted: #b6b8bd;
   --text-soft: #85878d;
@@ -103,6 +167,9 @@
   --shadow-primary: 0 6px 18px -4px rgba(21, 214, 194, 0.45);
 
   --color-bg: 31 31 33;
+  --color-bg-page: 36 36 38;
+  --color-bg-card: 44 44 47;
+  --color-bg-soft: 56 56 59;
   --color-sidebar-bg: 38 38 40;
   --color-topbar-bg: 38 38 40;
   --color-card-bg: 44 44 47;
@@ -110,9 +177,14 @@
   --color-soft-bg: 56 56 59;
   --color-primary: 21 214 194;
   --color-primary-hover: 19 199 181;
+  --color-accent-primary: 21 214 194;
+  --color-accent-cyan: 21 214 194;
   --color-text-main: 244 244 245;
+  --color-text-secondary: 182 184 189;
   --color-text-muted: 182 184 189;
+  --color-text-soft: 133 135 141;
   --color-border: 60 60 64;
+  --color-border-muted: 51 51 54;
   color-scheme: dark;
 }
 
@@ -193,6 +265,11 @@
 }
 
 @layer components {
+  .font-number {
+    font-family: 'Pliant', var(--font-number-fallback);
+    font-variant-numeric: tabular-nums;
+  }
+
   /* ── Surfaces ──────────────────────────────────────────────────────────
      A card is now defined by a hairline border + a *whisper* of elevation
      (one shadow, not border-plus-heavy-shadow). This kills the old
@@ -281,7 +358,8 @@
   }
 
   .btn-primary {
-    @apply btn bg-primary text-white;
+    @apply btn bg-primary;
+    color: var(--on-primary);
     box-shadow: 0 1px 2px rgba(16, 24, 40, 0.10), 0 2px 8px -2px var(--primary-ring);
   }
   .btn-primary:hover {
@@ -331,7 +409,7 @@
   .chip-active {
     background: var(--primary);
     border-color: var(--primary);
-    color: #fff;
+    color: var(--on-primary);
   }
 
   /* Square rounded icon tile — replaces ad-hoc rainbow icon chips.
@@ -486,6 +564,11 @@
 @layer utilities {
   .bg-white {
     background-color: rgb(var(--color-card-bg) / var(--tw-bg-opacity, 1));
+  }
+
+  .bg-primary.text-white,
+  .text-on-primary {
+    color: var(--on-primary) !important;
   }
 
   .divide-border > :not([hidden]) ~ :not([hidden]) {

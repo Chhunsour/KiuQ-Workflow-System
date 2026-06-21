@@ -7,7 +7,7 @@
     </div>
     
     <div class="relative overflow-hidden rounded-full bg-soft/30 px-6 py-2 mb-2 max-w-sm">
-      <div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
+      <div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-text-soft/15 to-transparent"></div>
       <div class="ui-font text-sm font-medium text-text-main relative z-10">{{ currentMessage.text }}</div>
     </div>
     

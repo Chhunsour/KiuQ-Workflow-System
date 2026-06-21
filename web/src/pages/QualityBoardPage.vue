@@ -626,8 +626,8 @@ onMounted(async () => {
   width: 3rem;
   height: 3rem;
   border-radius: 14px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: color-mix(in srgb, var(--card-bg) 88%, var(--soft-bg));
+  border: 1px solid var(--border);
   color: var(--primary);
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.95rem;

@@ -34,7 +34,7 @@ const letter = computed(() => (props.name || cleanDomain.value || '?').charAt(0)
   justify-content: center;
   flex-shrink: 0;
   border-radius: 0.4rem;
-  background: #ffffff;
+  background: color-mix(in srgb, var(--card-bg) 88%, var(--soft-bg));
   border: 1px solid var(--border);
   overflow: hidden;
 }

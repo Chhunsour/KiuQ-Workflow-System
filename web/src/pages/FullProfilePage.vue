@@ -1395,7 +1395,7 @@ const BadgeGrid = defineComponent({
 .fp-avatar-skeleton,
 .fp-skeleton-line,
 .fp-skeleton-card {
-  background: linear-gradient(90deg, var(--soft-bg), color-mix(in srgb, var(--soft-bg) 70%, white 30%), var(--soft-bg));
+  background: linear-gradient(90deg, var(--soft-bg), color-mix(in srgb, var(--soft-bg) 70%, var(--card-bg) 30%), var(--soft-bg));
   background-size: 220% 100%;
   animation: fp-shimmer 1.5s infinite;
 }

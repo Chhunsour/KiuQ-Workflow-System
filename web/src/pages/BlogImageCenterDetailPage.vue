@@ -333,7 +333,7 @@ onMounted(() => {
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 14px;
-  background: #fff;
+  background: color-mix(in srgb, var(--card-bg) 88%, var(--soft-bg));
   border: 2px solid color-mix(in srgb, var(--hero-color, var(--primary)) 20%, transparent);
   display: flex;
   align-items: center;

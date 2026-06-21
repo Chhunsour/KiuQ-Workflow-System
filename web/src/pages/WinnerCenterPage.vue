@@ -2036,7 +2036,7 @@ onMounted(async () => {
 .wc-prize-chance {
   position: absolute; top: 0.65rem; left: 0.65rem; z-index: 1;
   border-radius: 7px; border: 1px solid rgba(15,23,42,0.1);
-  background: color-mix(in srgb, var(--card-bg) 88%, white);
+  background: color-mix(in srgb, var(--card-bg) 88%, var(--bg-page));
   color: var(--text-main); padding: 0.16rem 0.42rem;
   font-size: 0.68rem; font-weight: 850;
 }

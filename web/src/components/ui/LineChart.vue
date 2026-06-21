@@ -67,7 +67,7 @@
           :cx="pt.x"
           :cy="pt.y"
           r="5"
-          :fill="pt.active ? '#ffffff' : color"
+          :fill="pt.active ? 'var(--card-bg)' : color"
           :stroke="color"
           stroke-width="3"
           class="chart-node"

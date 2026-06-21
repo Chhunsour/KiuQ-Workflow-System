@@ -53,7 +53,7 @@ watch(
   gap: 0.6rem;
   padding: 0.7rem 1.1rem;
   border-radius: 12px;
-  background: var(--card-bg, #fff);
+  background: var(--card-bg);
   border: 1px solid var(--border, #e5e7eb);
   box-shadow: 0 8px 32px rgba(15, 23, 42, 0.14);
   pointer-events: auto;

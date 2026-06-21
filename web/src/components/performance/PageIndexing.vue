@@ -3,26 +3,26 @@
     <div v-if="websites.length > 0">
       <!-- Summary metrics cards -->
       <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 mb-4">
-        <div class="pi-card py-2 px-3.5 bg-card-bg/40 border border-border/60">
-          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#15D6C2" />Known pages</div>
-          <div class="pi-card-v font-sans font-extrabold text-2xl mt-1">{{ fmtNum(activeSummary.known) }}</div>
+        <div class="pi-card py-2 px-3.5 bg-card border border-border/60">
+          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:var(--accent-cyan)" />Known pages</div>
+          <div class="pi-card-v font-number font-extrabold text-2xl mt-1">{{ fmtNum(activeSummary.known) }}</div>
         </div>
-        <div class="pi-card py-2 px-3.5 bg-card-bg/40 border border-border/60">
+        <div class="pi-card py-2 px-3.5 bg-card border border-border/60">
           <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#22c55e" />Indexed</div>
-          <div class="pi-card-v text-status-approved-fg font-sans font-extrabold text-2xl mt-1">{{ fmtNum(activeSummary.indexed) }}</div>
+          <div class="pi-card-v text-status-approved-fg font-number font-extrabold text-2xl mt-1">{{ fmtNum(activeSummary.indexed) }}</div>
         </div>
-        <div class="pi-card py-2 px-3.5 bg-card-bg/40 border border-border/60">
+        <div class="pi-card py-2 px-3.5 bg-card border border-border/60">
           <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#ef4444" />Not indexed</div>
-          <div class="pi-card-v text-status-needs-fix-fg font-sans font-extrabold text-2xl mt-1">{{ fmtNum(activeSummary.notIndexed) }}</div>
+          <div class="pi-card-v text-status-needs-fix-fg font-number font-extrabold text-2xl mt-1">{{ fmtNum(activeSummary.notIndexed) }}</div>
         </div>
-        <div class="pi-card py-2 px-3.5 bg-card-bg/40 border border-border/60">
-          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#3b82f6" />Indexing health</div>
-          <div class="pi-card-v font-sans font-extrabold text-2xl mt-1">{{ totalHealth }}%</div>
+        <div class="pi-card py-2 px-3.5 bg-card border border-border/60">
+          <div class="pi-card-top font-sans"><span class="pi-dot" style="background:var(--primary)" />Indexing health</div>
+          <div class="pi-card-v font-number font-extrabold text-2xl mt-1">{{ totalHealth }}%</div>
           <div class="pi-bar mt-1.5"><span class="pi-bar-fill" :class="healthBarClass(totalHealth)" :style="{ width: Math.min(totalHealth, 100) + '%' }" /></div>
         </div>
-        <div class="pi-card py-2 px-3.5 col-span-2 md:col-span-1 bg-card-bg/40 border border-border/60">
+        <div class="pi-card py-2 px-3.5 col-span-2 md:col-span-1 bg-card border border-border/60">
           <div class="pi-card-top font-sans"><span class="pi-dot" style="background:#f59e0b" />Sites with issues</div>
-          <div class="pi-card-v text-status-submitted-fg font-sans font-extrabold text-2xl mt-1">
+          <div class="pi-card-v text-status-submitted-fg font-number font-extrabold text-2xl mt-1">
             {{ websitesWithIssues }}
           </div>
         </div>
@@ -50,7 +50,7 @@
           <input v-model="tableSearch" class="input py-1.5 px-3 text-xs max-w-[14rem] font-sans" placeholder="Search websites…" />
           
           <!-- Status Filter -->
-          <select v-model="statusFilter" class="input py-1.5 px-3 text-xs max-w-[10rem] font-sans bg-card-bg">
+          <select v-model="statusFilter" class="input py-1.5 px-3 text-xs max-w-[10rem] font-sans bg-input">
             <option value="all">All statuses</option>
             <option value="healthy">Healthy</option>
             <option value="issues">Has issues</option>
@@ -59,13 +59,13 @@
           </select>
 
           <!-- Member Filter -->
-          <select v-model="memberFilter" class="input py-1.5 px-3 text-xs max-w-[10rem] font-sans bg-card-bg">
+          <select v-model="memberFilter" class="input py-1.5 px-3 text-xs max-w-[10rem] font-sans bg-input">
             <option value="all">All members</option>
             <option v-for="m in memberObjects" :key="m.id" :value="m.id">{{ m.fullName }}</option>
           </select>
           
           <!-- Sort Dropdown -->
-          <select v-model="sortBy" class="input py-1.5 px-3 text-xs max-w-[11rem] font-sans bg-card-bg">
+          <select v-model="sortBy" class="input py-1.5 px-3 text-xs max-w-[11rem] font-sans bg-input">
             <option value="issues_desc">Highest issues</option>
             <option value="health_asc">Lowest health</option>
             <option value="pages_desc">Most known pages</option>
@@ -74,7 +74,7 @@
           </select>
 
           <!-- Rows Per Page -->
-          <select v-if="viewMode === 'table' || viewMode === 'compact-row'" v-model="rowsPerPage" class="input py-1.5 px-3 text-xs max-w-[6.5rem] font-sans bg-card-bg">
+          <select v-if="viewMode === 'table' || viewMode === 'compact-row'" v-model="rowsPerPage" class="input py-1.5 px-3 text-xs max-w-[6.5rem] font-sans bg-input">
             <option :value="10">10 / page</option>
             <option :value="25">25 / page</option>
             <option :value="50">50 / page</option>
@@ -89,7 +89,7 @@
             :key="mode"
             type="button"
             class="px-2.5 py-1 text-xs font-semibold rounded-md transition-all duration-120 border-0 cursor-pointer"
-            :class="viewMode === mode ? 'bg-primary text-black font-bold' : 'bg-transparent text-text-muted hover:text-text-main'"
+            :class="viewMode === mode ? 'bg-primary text-on-primary font-bold' : 'bg-transparent text-text-muted hover:text-text-main'"
             @click="setViewMode(mode)"
           >
             <span class="capitalize">{{ mode.replace('-', ' ') }}</span>
@@ -122,7 +122,7 @@
       </div>
 
       <!-- 1. COMPACT ROW VIEW -->
-      <div v-if="viewMode === 'compact-row'" class="card border border-border/60 rounded-2xl overflow-hidden bg-card-bg/40">
+      <div v-if="viewMode === 'compact-row'" class="card border border-border/60 rounded-2xl overflow-hidden bg-card">
         <div class="overflow-x-auto">
           <table class="pi-table pi-table--compact">
             <thead>
@@ -162,11 +162,11 @@
                     <span class="text-[10px] text-text-muted font-sans font-mono truncate max-w-[8rem] hidden sm:inline">{{ cleanDomain(w.domain) }}</span>
                   </div>
                 </td>
-                <td class="num font-bold text-xs font-sans">{{ fmtNum(sumOf(w).known) }}</td>
-                <td class="num text-xs font-sans"><span :class="sumOf(w).indexed ? 'text-status-approved-fg font-semibold' : 'text-text-muted/40'">{{ fmtNum(sumOf(w).indexed) }}</span></td>
-                <td class="num text-xs font-sans"><span :class="sumOf(w).notIndexed ? 'text-status-needs-fix-fg font-semibold' : 'text-text-muted/40'">{{ fmtNum(sumOf(w).notIndexed) }}</span></td>
-                <td class="num font-bold text-xs font-sans" :class="healthClass(store.health(sumOf(w)))">{{ store.health(sumOf(w)) }}%</td>
-                <td class="num text-xs font-sans">
+                <td class="num font-bold text-xs font-number">{{ fmtNum(sumOf(w).known) }}</td>
+                <td class="num text-xs font-number"><span :class="sumOf(w).indexed ? 'text-status-approved-fg font-semibold' : 'text-text-muted/40'">{{ fmtNum(sumOf(w).indexed) }}</span></td>
+                <td class="num text-xs font-number"><span :class="sumOf(w).notIndexed ? 'text-status-needs-fix-fg font-semibold' : 'text-text-muted/40'">{{ fmtNum(sumOf(w).notIndexed) }}</span></td>
+                <td class="num font-bold text-xs font-number" :class="healthClass(store.health(sumOf(w)))">{{ store.health(sumOf(w)) }}%</td>
+                <td class="num text-xs font-number">
                   <span v-if="sumOf(w).notIndexed + sumOf(w).warning > 0" class="text-status-needs-fix-fg font-bold">
                     {{ sumOf(w).notIndexed + sumOf(w).warning }}
                   </span>
@@ -190,7 +190,7 @@
       </div>
 
       <!-- 2. TABLE VIEW -->
-      <div v-else-if="viewMode === 'table'" class="card border border-border/60 rounded-2xl overflow-hidden bg-card-bg/40">
+      <div v-else-if="viewMode === 'table'" class="card border border-border/60 rounded-2xl overflow-hidden bg-card">
         <div class="overflow-x-auto">
           <table class="pi-table">
             <thead>
@@ -233,13 +233,13 @@
                   </div>
                 </td>
                 <td class="font-mono text-xs text-text-muted">{{ cleanDomain(w.domain) }}</td>
-                <td class="num font-bold text-xs font-sans">{{ fmtNum(sumOf(w).known) }}</td>
-                <td class="num font-sans"><span :class="sumOf(w).indexed ? 'pi-pill pi-pill--ok' : 'pi-muted'">{{ fmtNum(sumOf(w).indexed) }}</span></td>
-                <td class="num font-sans"><span :class="sumOf(w).notIndexed ? 'pi-pill pi-pill--bad' : 'pi-muted'">{{ fmtNum(sumOf(w).notIndexed) }}</span></td>
+                <td class="num font-bold text-xs font-number">{{ fmtNum(sumOf(w).known) }}</td>
+                <td class="num font-number"><span :class="sumOf(w).indexed ? 'pi-pill pi-pill--ok' : 'pi-muted'">{{ fmtNum(sumOf(w).indexed) }}</span></td>
+                <td class="num font-number"><span :class="sumOf(w).notIndexed ? 'pi-pill pi-pill--bad' : 'pi-muted'">{{ fmtNum(sumOf(w).notIndexed) }}</span></td>
                 <td>
                   <div v-if="sumOf(w).checked" class="pi-health font-sans">
                     <div class="pi-bar"><span class="pi-bar-fill" :class="healthBarClass(store.health(sumOf(w)))" :style="{ width: Math.min(store.health(sumOf(w)), 100) + '%' }" /></div>
-                    <span class="pi-health-pct" :class="healthClass(store.health(sumOf(w)))">{{ store.health(sumOf(w)) }}%</span>
+                    <span class="pi-health-pct font-number" :class="healthClass(store.health(sumOf(w)))">{{ store.health(sumOf(w)) }}%</span>
                   </div>
                   <span v-else class="pi-muted font-sans">—</span>
                 </td>
@@ -289,21 +289,21 @@
             <div class="space-y-2 mt-4 text-xs font-sans">
               <div class="flex justify-between">
                 <span class="text-text-muted">Known pages</span>
-                <span class="font-bold text-text-main">{{ fmtNum(sumOf(w).known) }}</span>
+                <span class="font-bold text-text-main font-number">{{ fmtNum(sumOf(w).known) }}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-text-muted">Indexed</span>
-                <span class="font-bold text-status-approved-fg">{{ fmtNum(sumOf(w).indexed) }}</span>
+                <span class="font-bold text-status-approved-fg font-number">{{ fmtNum(sumOf(w).indexed) }}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-text-muted">Not indexed</span>
-                <span class="font-bold text-status-needs-fix-fg">{{ fmtNum(sumOf(w).notIndexed) }}</span>
+                <span class="font-bold text-status-needs-fix-fg font-number">{{ fmtNum(sumOf(w).notIndexed) }}</span>
               </div>
               
               <div class="pt-1">
                 <div class="flex justify-between items-center mb-1">
                   <span class="text-text-muted text-[10px] uppercase font-bold">Indexing Health</span>
-                  <span class="font-bold text-text-main" :class="healthClass(store.health(sumOf(w)))">{{ store.health(sumOf(w)) }}%</span>
+                  <span class="font-bold text-text-main font-number" :class="healthClass(store.health(sumOf(w)))">{{ store.health(sumOf(w)) }}%</span>
                 </div>
                 <div class="pi-bar"><span class="pi-bar-fill" :class="healthBarClass(store.health(sumOf(w)))" :style="{ width: Math.min(store.health(sumOf(w)), 100) + '%' }" /></div>
               </div>
@@ -338,7 +338,7 @@
             <div
               v-for="w in col.items"
               :key="w.id"
-              class="p-2.5 rounded-lg border border-border bg-card-bg flex flex-col justify-between hover:border-text-muted cursor-pointer transition-all duration-120"
+              class="p-2.5 rounded-lg border border-border bg-card flex flex-col justify-between hover:border-text-muted cursor-pointer transition-all duration-120"
               @click="openWebsite(w)"
             >
               <div class="flex items-start justify-between gap-1">
@@ -427,21 +427,21 @@
           <div class="flex-1 overflow-y-auto p-4 space-y-4">
             <!-- Stats overview grid -->
             <div class="grid grid-cols-2 gap-2 md:grid-cols-4 font-sans">
-              <div class="pi-card py-2 px-3 bg-card-bg/60 border border-border/40">
-                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:#15D6C2" />Known pages</div>
-                <div class="text-base font-extrabold text-text-main mt-0.5">{{ fmtNum(activeSummary.known) }}</div>
+              <div class="pi-card py-2 px-3 bg-card border border-border/40">
+                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:var(--accent-cyan)" />Known pages</div>
+                <div class="text-base font-extrabold text-text-main mt-0.5 font-number">{{ fmtNum(activeSummary.known) }}</div>
               </div>
-              <div class="pi-card py-2 px-3 bg-card-bg/60 border border-border/40">
+              <div class="pi-card py-2 px-3 bg-card border border-border/40">
                 <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:#22c55e" />Indexed</div>
-                <div class="text-base font-extrabold text-status-approved-fg mt-0.5">{{ fmtNum(activeSummary.indexed) }}</div>
+                <div class="text-base font-extrabold text-status-approved-fg mt-0.5 font-number">{{ fmtNum(activeSummary.indexed) }}</div>
               </div>
-              <div class="pi-card py-2 px-3 bg-card-bg/60 border border-border/40">
+              <div class="pi-card py-2 px-3 bg-card border border-border/40">
                 <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:#ef4444" />Not indexed</div>
-                <div class="text-base font-extrabold text-status-needs-fix-fg mt-0.5">{{ fmtNum(activeSummary.notIndexed) }}</div>
+                <div class="text-base font-extrabold text-status-needs-fix-fg mt-0.5 font-number">{{ fmtNum(activeSummary.notIndexed) }}</div>
               </div>
-              <div class="pi-card py-2 px-3 bg-card-bg/60 border border-border/40">
-                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:#3b82f6" />Health</div>
-                <div class="text-base font-extrabold text-text-main mt-0.5">{{ totalHealth }}%</div>
+              <div class="pi-card py-2 px-3 bg-card border border-border/40">
+                <div class="pi-card-top text-[10px]"><span class="pi-dot" style="background:var(--primary)" />Health</div>
+                <div class="text-base font-extrabold text-text-main mt-0.5 font-number">{{ totalHealth }}%</div>
               </div>
             </div>
 
@@ -494,7 +494,7 @@
             <template v-else-if="detailTab !== 'logs'">
               <!-- Detail filters -->
               <div class="flex flex-wrap items-center gap-2 bg-soft/10 p-2.5 rounded-xl border border-border/40 font-sans">
-                <select v-model="typeFilter" class="input py-1 px-2 text-xs max-w-[8rem] h-8 bg-card-bg">
+                <select v-model="typeFilter" class="input py-1 px-2 text-xs max-w-[8rem] h-8 bg-input">
                   <option value="">All types</option>
                   <option value="page">Pages</option>
                   <option value="blog">Blog</option>
@@ -502,13 +502,13 @@
                   <option value="category">Categories</option>
                   <option value="other">Other</option>
                 </select>
-                <select v-model="sourceFilter" class="input py-1 px-2 text-xs max-w-[8rem] h-8 bg-card-bg">
+                <select v-model="sourceFilter" class="input py-1 px-2 text-xs max-w-[8rem] h-8 bg-input">
                   <option value="">All sources</option>
                   <option value="sitemap">Sitemap</option>
                   <option value="manual">Manual</option>
                   <option value="cms">CMS</option>
                 </select>
-                <input v-model="search" class="input py-1 px-2 text-xs flex-1 h-8 bg-card-bg" placeholder="Search URL…" />
+                <input v-model="search" class="input py-1 px-2 text-xs flex-1 h-8 bg-input" placeholder="Search URL…" />
                 <span class="text-[10px] text-text-muted font-mono whitespace-nowrap">{{ filtered.length }} url(s)</span>
               </div>
 
@@ -631,7 +631,7 @@
         <p class="helper font-sans leading-relaxed">Enter one full URL path per line. These will be added as known website crawled references.</p>
         <textarea
           v-model="manualUrlsInput"
-          class="input w-full h-40 font-mono text-xs p-3 leading-relaxed bg-card-bg"
+          class="input w-full h-40 font-mono text-xs p-3 leading-relaxed bg-input"
           placeholder="https://example.com/page-1&#10;https://example.com/page-2"
         />
         <p v-if="manualUrlsError" class="text-xs text-status-needs-fix-fg">{{ manualUrlsError }}</p>
@@ -1243,7 +1243,8 @@ onMounted(() => {
 }
 
 .pi-btn:hover:not(:disabled) {
-  border-color: var(--primary, #15D6C2);
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  background: color-mix(in srgb, var(--primary) 5%, var(--card-bg));
 }
 
 .pi-btn:disabled {
@@ -1254,7 +1255,7 @@ onMounted(() => {
 .pi-btn--primary {
   background: var(--primary, #15D6C2);
   border-color: var(--primary, #15D6C2);
-  color: #04201d;
+  color: var(--on-primary);
 }
 
 .pi-badge {
@@ -1318,7 +1319,7 @@ onMounted(() => {
   width: 100%;
   max-width: 48rem;
   height: 100%;
-  background: var(--card-bg, #2c2c2f);
+  background: var(--card-bg);
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;

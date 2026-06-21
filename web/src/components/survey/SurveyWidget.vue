@@ -1101,7 +1101,7 @@ onBeforeUnmount(() => {
 .ks-opt:hover {
   border-color: rgba(21, 214, 194, 0.5);
   background: rgba(21, 214, 194, 0.05);
-  color: var(--text-main, #ffffff);
+  color: var(--text-main);
   transform: translateY(-1px);
 }
 .ks-opt.active {
@@ -1134,7 +1134,7 @@ onBeforeUnmount(() => {
 .ks-chip:hover {
   border-color: rgba(21, 214, 194, 0.5);
   background: rgba(21, 214, 194, 0.05);
-  color: var(--text-main, #ffffff);
+  color: var(--text-main);
   transform: scale(1.03);
 }
 .ks-chip.active {
@@ -1164,7 +1164,7 @@ onBeforeUnmount(() => {
 .ks-mood-btn:hover {
   border-color: rgba(21, 214, 194, 0.5);
   background: rgba(21, 214, 194, 0.05);
-  color: var(--text-main, #ffffff);
+  color: var(--text-main);
   transform: translateY(-1px);
 }
 .ks-mood-btn:hover .ks-mood-smiley {
@@ -1197,7 +1197,7 @@ onBeforeUnmount(() => {
 .ks-rate:hover {
   border-color: rgba(21, 214, 194, 0.5);
   background: rgba(21, 214, 194, 0.05);
-  color: var(--text-main, #ffffff);
+  color: var(--text-main);
   transform: translateY(-1px);
 }
 .ks-rate.active {
