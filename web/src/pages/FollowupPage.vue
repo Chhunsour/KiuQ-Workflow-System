@@ -416,7 +416,7 @@ import { RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type Member } from '@/stores/data';
 import { useImagePreviewStore } from '@/stores/imagePreview';
-import { pushToast } from '@/services/realtimeService';
+import { pushToast, usePageRealtime } from '@/services/realtimeService';
 
 const previewStore = useImagePreviewStore();
 const openPhotoPreview = (member: any) => {
@@ -435,6 +435,18 @@ import { isFollowupParticipant } from '@/lib/roles';
 const auth = useAuthStore();
 const data = useDataStore();
 const followup = useFollowupStore();
+
+// Live updates: followup completions / admin auto-fills / schedule changes made
+// anywhere patch the followup store reactively, so counts and rows stay current
+// without a manual refresh.
+usePageRealtime([
+  'blog_upload_slots',
+  'blog_followup_schedules',
+  'plugin_update_slots',
+  'speed_optimization_slots',
+  'ebay_click_followup',
+  'websites'
+]);
 
 const loading = ref(false);
 
@@ -1880,19 +1892,20 @@ onMounted(async () => {
   border: 1px solid var(--border);
   border-radius: 10px;
   box-shadow: var(--shadow-lg);
-  padding: 0.35rem;
+  padding: 0.3rem;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.1rem;
 }
 
 .fu-dropdown-item {
   display: block;
   width: 100%;
-  padding: 0.45rem 0.65rem;
+  padding: 0.4rem 0.6rem;
   text-align: left;
+  font-family: 'Raleway', 'Kantumruy Pro', sans-serif;
   font-size: 0.78rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-main);
   background: transparent;
   border: none;
@@ -1903,7 +1916,7 @@ onMounted(async () => {
 }
 
 .fu-dropdown-item:hover {
-  background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+  background: var(--soft-bg);
   color: var(--primary);
 }
 

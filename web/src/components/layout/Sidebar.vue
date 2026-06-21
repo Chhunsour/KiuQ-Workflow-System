@@ -41,21 +41,22 @@
             class="nav-item w-full"
             :class="{
               'nav-item-active': isGroupActive(item) && !isParentActiveOnly(item),
-              'nav-group-active-parent': isParentActiveOnly(item)
+              'nav-group-active-parent': isParentActiveOnly(item),
+              'nav-group-open': openGroup === item.to
             }"
           >
             <RouterLink
               :to="item.to"
               class="flex min-w-0 flex-1 items-center gap-3 truncate"
               style="text-decoration:none;color:inherit;"
-              @click="openGroup = item.to"
+              @click="toggleGroup(item.to)"
             >
               <span class="flex h-5 w-5 items-center justify-center" v-html="item.icon"></span>
               <span class="min-w-0 flex-1 truncate text-left">{{ item.label }}</span>
             </RouterLink>
             <button
               type="button"
-              class="ml-auto flex-shrink-0 rounded p-0.5 hover:bg-soft"
+              class="ml-auto flex-shrink-0 rounded p-1 transition-colors text-text-muted hover:text-text-main"
               aria-label="Toggle section"
               @click.stop="toggleGroup(item.to)"
             >
@@ -76,7 +77,7 @@
           <!-- Children (hidden entirely in collapsed mode) — smooth drop-down -->
           <Transition name="nav-dropdown">
             <div v-if="openGroup === item.to && !collapsed" class="nav-dropdown">
-              <div class="mt-0.5 ml-3 space-y-0.5 border-l border-border pl-3">
+              <div class="space-y-0.5">
                 <RouterLink
                   v-for="child in item.children"
                   :key="child.to"
@@ -275,8 +276,22 @@ const toggleGroup = (to: string) => {
 };
 
 const isActive = (item: NavItem) => {
-  if (item.to === '/') return route.path === '/';
-  return route.path === item.to || route.path.startsWith(item.to + '/');
+  const [path, queryStr] = item.to.split('?');
+  const pathMatches = route.path === path || (path !== '/' && route.path.startsWith(path + '/'));
+  if (!pathMatches) return false;
+
+  if (queryStr) {
+    const params = new URLSearchParams(queryStr);
+    for (const [key, val] of params.entries()) {
+      const qVal = route.query[key];
+      // Special case: if query expects view=overview and route has no view query parameter, treat as active
+      if (key === 'view' && val === 'overview' && !qVal) {
+        continue;
+      }
+      if (qVal !== val) return false;
+    }
+  }
+  return true;
 };
 
 const isGroupActive = (item: NavItem) => {
@@ -286,7 +301,6 @@ const isGroupActive = (item: NavItem) => {
 
 const isParentActiveOnly = (item: NavItem) => {
   if (!item.children?.length) return false;
-  if (route.path === item.to) return false;
   return item.children.some((c) => isActive(c));
 };
 
@@ -363,7 +377,100 @@ onMounted(() => {
 .nav-dropdown > div {
   overflow: hidden;
   min-height: 0;
+  margin-left: 21px;
+  border-left: 1px solid var(--border);
+  padding-left: 0.5rem; /* compact spacing */
+  margin-top: 0.15rem;
+  margin-bottom: 0.15rem;
 }
+
+.nav-dropdown .nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem; /* compact gap */
+  padding: 0.3rem 0.5rem; /* compact vertical & horizontal padding */
+  font-size: 0.78rem; /* premium compact text */
+  font-weight: 500;
+  color: var(--text-muted);
+  border-radius: 6px;
+  background: transparent;
+  transition: all 130ms ease;
+  margin-top: 0.05rem;
+  margin-bottom: 0.05rem;
+}
+
+.nav-dropdown .nav-item:hover {
+  background: var(--soft-bg);
+  color: var(--text-main);
+}
+
+.nav-dropdown .nav-item-active,
+.nav-dropdown .nav-item-active:hover {
+  background: rgba(21, 214, 194, 0.06) !important; /* soft dark/cyan tinted background */
+  color: var(--primary) !important;
+  font-weight: 600; /* clean weight, no layout shift */
+}
+
+/* Remove default active indicator bar on submenu items */
+.nav-dropdown :deep(.nav-item-active::before) {
+  display: none !important;
+}
+
+/* Premium active dot indicator centered on the vertical border-l line */
+.nav-dropdown .nav-item::after {
+  content: '';
+  position: absolute;
+  left: -0.5rem; /* aligned with padding-left 0.5rem */
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+  transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 10;
+}
+
+.nav-dropdown .nav-item-active::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Small, elegant submenu icons */
+.nav-dropdown .nav-item :deep(span.flex) {
+  width: 14px;
+  height: 14px;
+  color: var(--text-soft);
+  transition: color 150ms ease;
+}
+
+.nav-dropdown .nav-item :deep(span.flex svg) {
+  width: 14px;
+  height: 14px;
+}
+
+.nav-dropdown .nav-item:hover :deep(span.flex) {
+  color: var(--text-main);
+}
+
+.nav-dropdown .nav-item-active :deep(span.flex) {
+  color: var(--primary) !important;
+}
+
+/* Parent active/open states scoped overrides */
+.nav-group-open {
+  background: var(--soft-bg) !important;
+}
+
+:deep(.nav-group-active-parent) {
+  background: var(--soft-bg) !important;
+  color: var(--primary) !important; /* cyan text only if active */
+}
+
+:deep(.nav-group-active-parent svg) {
+  color: var(--primary) !important; /* cyan icon */
+}
+
 .nav-dropdown-enter-from,
 .nav-dropdown-leave-to {
   grid-template-rows: 0fr;

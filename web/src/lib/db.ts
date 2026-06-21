@@ -176,6 +176,7 @@ export interface WebsiteRow {
   created_at?: string;
   quality_class_id?: string | null;
   is_framework?: boolean | null;
+  platform_type?: 'wordpress' | 'framework' | 'unknown' | null;
   last_accessed_at?: string | null;
   website_products?: WebsiteProductRow[];
 }
@@ -240,6 +241,7 @@ export const websiteRowToWebsite = (r: WebsiteRow): Website => ({
   createdAt: (r.created_at ?? '').slice(0, 10),
   qualityClassId: r.quality_class_id ?? null,
   isFramework: r.is_framework ?? false,
+  platformType: r.platform_type ?? 'unknown',
   lastAccessedAt: r.last_accessed_at ?? null,
   products: (r.website_products ?? []).map(productRowToProduct)
 });
@@ -284,7 +286,8 @@ export const websiteToRow = (w: Website): Partial<WebsiteRow> => ({
   favicon_url: w.faviconUrl || null,
   created_by: w.createdBy || undefined,
   quality_class_id: w.qualityClassId ?? null,
-  is_framework: w.isFramework,
+  is_framework: w.platformType === 'framework',
+  platform_type: w.platformType || 'unknown',
   last_accessed_at: w.lastAccessedAt
 });
 

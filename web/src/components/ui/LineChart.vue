@@ -72,7 +72,7 @@
           text-anchor="middle"
           class="axis-text"
         >
-          {{ pt.label }}
+          {{ idx % Math.max(1, Math.round(points.length / 6)) === 0 || idx === points.length - 1 ? pt.label : '' }}
         </text>
       </g>
 

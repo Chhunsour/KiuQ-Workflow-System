@@ -171,6 +171,9 @@
       </div>
     </div>
   </Transition>
+
+  <!-- Team System Survey: banner + floating icon + form (only for signed-in users) -->
+  <SurveyWidget v-if="auth.profile" />
 </template>
 
 <script setup lang="ts">
@@ -178,6 +181,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch, h } from 'vue';
 import { useRouter } from 'vue-router';
 import AppLoadingScreen from '@/components/ui/AppLoadingScreen.vue';
 import Modal from '@/components/ui/Modal.vue';
+import SurveyWidget from '@/components/survey/SurveyWidget.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRealtimeService, usePageRealtime } from '@/services/realtimeService';
 import { useNotificationsStore } from '@/stores/notifications';

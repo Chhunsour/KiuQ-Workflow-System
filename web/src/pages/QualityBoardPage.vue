@@ -1179,7 +1179,7 @@ onMounted(async () => {
   width: 130px;
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: var(--shadow-lg);
   padding: 0.3rem;
   display: flex;
@@ -1194,11 +1194,11 @@ onMounted(async () => {
   border: none;
   background: transparent;
   color: var(--text-main);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.74rem;
-  font-weight: 700;
+  font-family: 'Google Sans', 'Kantumruy Pro', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
   padding: 0.4rem 0.6rem;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -1237,7 +1237,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Google Sans', 'Kantumruy Pro', sans-serif;
   font-weight: 800;
   color: var(--text-main);
   text-transform: uppercase;
@@ -1268,7 +1268,7 @@ onMounted(async () => {
 
 .tc-track-btn {
   flex: 1;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Google Sans', 'Kantumruy Pro', sans-serif;
   font-size: 0.66rem;
   font-weight: 750;
   padding: 0.2rem 0;

@@ -257,7 +257,7 @@ onBeforeUnmount(() => {
 .sub-label-row { display: flex; align-items: center; gap: 0.4rem; }
 
 .sub-badge {
-  font-family: 'Outfit', 'Google Sans', sans-serif;
+  font-family: 'Google Sans', sans-serif;
   font-size: 0.6rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -284,7 +284,7 @@ onBeforeUnmount(() => {
 
 .sub-details { display: flex; flex-direction: column; gap: 0.3rem; }
 .sub-title {
-  font-family: 'Raleway', 'Outfit', sans-serif;
+  font-family: 'Raleway', sans-serif;
   font-size: 1.05rem;
   font-weight: 850;
   color: var(--text-main);
@@ -310,7 +310,7 @@ onBeforeUnmount(() => {
 .sub-btn-arrow { transition: transform 0.2s ease; }
 
 .sub-btn-dismiss {
-  font-family: 'Outfit', 'Google Sans', sans-serif;
+  font-family: 'Google Sans', sans-serif;
   font-size: 0.8rem;
   font-weight: 800;
   border: none;

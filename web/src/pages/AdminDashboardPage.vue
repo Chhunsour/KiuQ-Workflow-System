@@ -708,6 +708,7 @@ import { useFollowupStore } from '@/stores/followup';
 import { useTaskAlertsStore, type TaskAlertMetrics } from '@/stores/taskAlerts';
 import { isDashboardVisibleMember, isFollowupParticipant, normalizeRole } from '@/lib/roles';
 import { useAuthStore } from '@/stores/auth';
+import { usePageRealtime, debounceRealtime } from '@/services/realtimeService';
 
 const data = useDataStore();
 const followup = useFollowupStore();
@@ -1133,6 +1134,48 @@ watch(
     }
   },
   { immediate: true }
+);
+
+// Live updates: the team-member table and summary cards come from aggregation
+// RPCs, so when an underlying table changes anywhere we debounce-refetch the
+// summary instead of patching individual rows. Followup slots are also patched
+// into the followup store (reactive summary cards) via the same subscription.
+const summaryTables = new Set([
+  'blog_upload_slots',
+  'blog_followup_schedules',
+  'plugin_update_slots',
+  'speed_optimization_slots',
+  'ebay_click_followup',
+  'section_tasks',
+  'prompt_assignments',
+  'submissions',
+  'quality_issues',
+  'websites'
+]);
+const refetchDashboard = debounceRealtime(async () => {
+  await loadDashboardData();
+  if (canViewTeamMemberDetails.value && currentRange.value) {
+    await data.fetchTeamMemberSummary(currentRange.value.start, currentRange.value.end);
+  }
+}, 800);
+usePageRealtime(
+  [
+    'blog_upload_slots',
+    'blog_followup_schedules',
+    'plugin_update_slots',
+    'speed_optimization_slots',
+    'ebay_click_followup',
+    'section_tasks',
+    'prompt_assignments',
+    'submissions',
+    'quality_issues',
+    'websites',
+    'activity_logs',
+    'profiles'
+  ],
+  (payload) => {
+    if (summaryTables.has(payload.table)) refetchDashboard();
+  }
 );
 
 onMounted(() => {

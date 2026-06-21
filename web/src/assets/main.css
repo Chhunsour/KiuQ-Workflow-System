@@ -124,7 +124,7 @@
   }
 
   body {
-    font-family: 'Jost Numbers', 'Raleway', sans-serif;
+    font-family: 'Jost Numbers', 'Raleway', 'Kantumruy Pro', sans-serif;
     background-color: var(--bg);
     color: var(--text-main);
     -webkit-font-smoothing: antialiased;
@@ -137,15 +137,18 @@
   h4,
   h5,
   h6 {
-    font-family: 'Jost Numbers', 'Raleway', sans-serif;
+    font-family: 'Jost Numbers', 'Raleway', 'Kantumruy Pro', sans-serif;
     font-weight: 600;
     color: var(--text-main);
     letter-spacing: -0.01em;
   }
 
   button,
+  .btn-primary,
+  .btn-secondary,
+  .pi-btn,
   .ui-font {
-    font-family: 'Jost Numbers', 'Google Sans', 'Product Sans', Arial, sans-serif;
+    font-family: 'Jost Numbers', 'Google Sans', 'Product Sans', 'Kantumruy Pro', Arial, sans-serif;
   }
 
   a {

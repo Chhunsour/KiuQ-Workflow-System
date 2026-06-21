@@ -76,12 +76,15 @@
               />
               <span v-if="exErrors.domain" class="nw-error-msg">{{ exErrors.domain }}</span>
             </div>
-            <!-- Framework flag -->
-            <div class="nw-field" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.8rem;">
-              <input v-model="exModel.isFramework" type="checkbox" id="exIsFramework" class="nw-checkbox" style="width: 1.1rem; height: 1.1rem; cursor: pointer;" />
-              <label for="exIsFramework" style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); cursor: pointer;">
-                Headless Framework Website (Laravel, React, etc.)
-              </label>
+            <!-- Platform selection dropdown -->
+            <div class="nw-field">
+              <label class="nw-label">Website Platform</label>
+              <select v-model="exModel.platformType" class="input">
+                <option value="wordpress">WordPress Website</option>
+                <option value="framework">Framework Website</option>
+                <option value="unknown">Not sure / Unknown</option>
+              </select>
+              <p class="nw-hint">Choose how this website is built so reports and dashboard counts stay accurate.</p>
             </div>
           </div>
         </div>
@@ -219,11 +222,22 @@
                 <option value="inactive">Inactive</option>
               </select>
             </div>
-            <div class="nw-field" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.6rem;">
-              <input v-model="model.isFramework" type="checkbox" id="isFramework" class="nw-checkbox" style="width: 1.1rem; height: 1.1rem; cursor: pointer;" />
-              <label for="isFramework" style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); cursor: pointer;">
-                Headless Framework Website (Laravel, React, etc.)
-              </label>
+            <div class="nw-field">
+              <label class="nw-label">Website Platform</label>
+              <select v-model="model.platformType" class="input" @change="model.isFramework = model.platformType === 'framework'">
+                <option value="wordpress">WordPress Website</option>
+                <option value="framework">Framework Website</option>
+                <option value="unknown">Not sure / Unknown</option>
+              </select>
+              <p class="nw-hint">Choose how this website is built so reports and dashboard counts stay accurate.</p>
+            </div>
+            <div v-if="auth.isAdmin" class="nw-field">
+              <label class="nw-label">Assigned Member</label>
+              <select v-model="model.createdBy" class="input">
+                <option value="">— Unassigned / No member —</option>
+                <option v-for="m in data.members" :key="m.id" :value="m.id">{{ m.fullName || m.email }}</option>
+              </select>
+              <p class="nw-hint">Assign this website to a team member who is responsible for it.</p>
             </div>
           </div>
 
@@ -457,6 +471,8 @@
               <div class="nw-review-row"><span>Name</span><strong>{{ model.name || '—' }}</strong></div>
               <div class="nw-review-row"><span>Domain</span><strong>{{ model.domain || '—' }}</strong></div>
               <div class="nw-review-row"><span>Type</span><strong>{{ websiteTypeLabel(model.websiteType) || '—' }}</strong></div>
+              <div class="nw-review-row"><span>Platform</span><strong>{{ model.platformType === 'wordpress' ? 'WordPress' : (model.platformType === 'framework' ? 'Framework' : 'Unknown') }}</strong></div>
+              <div class="nw-review-row"><span>Assigned Member</span><strong>{{ creatorName(model) || '—' }}</strong></div>
               <div class="nw-review-row"><span>Industry</span><strong>{{ model.industry || '—' }}</strong></div>
               <div class="nw-review-row"><span>Status</span><strong>{{ model.status }}</strong></div>
             </div>
@@ -585,8 +601,8 @@ const isEdit  = computed(() => !!editId.value);
 const mode = ref<'new' | 'existing'>('new');
 
 // ── Existing-website quick form ───────────────────────────────────────────────
-interface ExModel { name: string; domain: string; faviconUrl: string; isFramework: boolean; }
-const exModel   = reactive<ExModel>({ name: '', domain: '', faviconUrl: '', isFramework: false });
+interface ExModel { name: string; domain: string; faviconUrl: string; platformType: 'wordpress' | 'framework' | 'unknown'; }
+const exModel   = reactive<ExModel>({ name: '', domain: '', faviconUrl: '', platformType: 'unknown' });
 const exErrors  = reactive<Record<string, string>>({});
 const exSaving  = ref(false);
 
@@ -654,7 +670,8 @@ const submitExisting = async () => {
     createdBy: auth.user?.id || '',
     createdAt: '',
     qualityClassId: null,
-    isFramework: exModel.isFramework,
+    isFramework: exModel.platformType === 'framework',
+    platformType: exModel.platformType,
     lastAccessedAt: null,
     products: [],
   };
@@ -726,6 +743,7 @@ const blank = (): Website => ({
   createdAt: '',
   qualityClassId: null,
   isFramework: false,
+  platformType: 'unknown',
   lastAccessedAt: null,
   products: [],
 });
@@ -812,6 +830,12 @@ const websiteTypeLabel = (val: string) => {
   return map[val] ?? val;
 };
 
+const creatorName = (w: Website) => {
+  if (!w.createdBy) return '';
+  const member = data.memberById(w.createdBy);
+  return member?.fullName ?? '';
+};
+
 const showToastMsg = (msg: string) => {
   toastMsg.value  = msg;
   showToast.value = true;
@@ -833,6 +857,9 @@ onMounted(async () => {
     try { await data.fetchWebsites(); } catch (err) { console.error(err); } finally { loadingExisting.value = false; }
   }
   loadFromStore();
+  if (auth.isAdmin) {
+    data.fetchMembers();
+  }
   // Load docs for the selector
   await Promise.all([data.fetchDocsFolders(), data.fetchDocsFiles()]);
   // If editing, load existing linked docs

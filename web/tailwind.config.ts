@@ -42,8 +42,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Raleway', 'system-ui', 'sans-serif'],
-        ui: ['"Google Sans"', '"Product Sans"', 'Arial', 'sans-serif']
+        sans: ['Raleway', '"Kantumruy Pro"', 'system-ui', 'sans-serif'],
+        ui: ['"Google Sans"', '"Product Sans"', '"Kantumruy Pro"', 'Arial', 'sans-serif']
       },
       borderRadius: {
         card: '14px',

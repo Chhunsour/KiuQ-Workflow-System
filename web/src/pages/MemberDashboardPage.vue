@@ -435,12 +435,48 @@ import { useNotificationsStore } from '@/stores/notifications';
 import { useQualityCheckStore } from '@/stores/qualityCheck';
 import { roleLabel } from '@/lib/roles';
 import { supabase } from '@/lib/supabase';
+import { usePageRealtime, debounceRealtime } from '@/services/realtimeService';
 
 const auth     = useAuthStore();
 const data     = useDataStore();
 const followup = useFollowupStore();
 const notifsStore = useNotificationsStore();
 const qcStore = useQualityCheckStore();
+
+// Live updates: assignments, followups and quality issues are patched into their
+// stores reactively (so the cards/counts update), and we debounce-refetch the
+// summary RPC when an underlying table changes — no manual refresh needed.
+const memberSummaryTables = new Set([
+  'prompt_assignments',
+  'section_tasks',
+  'submissions',
+  'blog_upload_slots',
+  'plugin_update_slots',
+  'speed_optimization_slots',
+  'ebay_click_followup',
+  'quality_issues',
+  'websites'
+]);
+const refetchMemberSummary = debounceRealtime(() => {
+  void data.fetchDashboardSummary();
+}, 800);
+usePageRealtime(
+  [
+    'prompt_assignments',
+    'section_tasks',
+    'submissions',
+    'blog_upload_slots',
+    'blog_followup_schedules',
+    'plugin_update_slots',
+    'speed_optimization_slots',
+    'ebay_click_followup',
+    'quality_issues',
+    'websites'
+  ],
+  (payload) => {
+    if (memberSummaryTables.has(payload.table)) refetchMemberSummary();
+  }
+);
 
 const overdueTasksCount = computed(() => {
   return myAssignments.value.filter((a) => {

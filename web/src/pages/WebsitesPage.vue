@@ -115,9 +115,14 @@ import StatusBadge from '@/components/ui/StatusBadge.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import { useDataStore, type Website } from '@/stores/data';
+import { usePageRealtime } from '@/services/realtimeService';
 
 const data = useDataStore();
 const search = ref('');
+
+// Live updates: new/edited/deleted websites (incl. from other windows) patch
+// the data store reactively, so this list stays current without a refresh.
+usePageRealtime(['websites']);
 
 const filtered = computed(() =>
   data.websites.filter(

@@ -35,10 +35,15 @@ import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import FormSelect from '@/components/ui/FormSelect.vue';
 import { useDataStore, type ActivityAction } from '@/stores/data';
+import { usePageRealtime } from '@/services/realtimeService';
 
 const data = useDataStore();
 const search = ref('');
 const memberFilter = ref('');
+
+// Live updates: new activity log entries patch the data store reactively, so the
+// feed grows without a manual refresh.
+usePageRealtime(['activity_logs', 'profiles']);
 
 const memberOptions = computed(() =>
   data.members.map((member) => ({ value: member.id, label: member.fullName || member.email }))

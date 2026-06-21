@@ -479,6 +479,8 @@
           </div>
         </div>
       </div>
+
+      <SurveyManagement v-if="auth.isAdmin" />
     </div>
   </div>
 </template>
@@ -488,6 +490,7 @@ import { onMounted, reactive, ref, watch, computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import PushNotificationCard from '@/components/ui/PushNotificationCard.vue';
+import SurveyManagement from '@/components/survey/SurveyManagement.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useImagePreviewStore } from '@/stores/imagePreview';
 

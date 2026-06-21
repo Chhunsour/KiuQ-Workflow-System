@@ -727,7 +727,7 @@ onMounted(async () => {
 }
 
 .tab-btn {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Google Sans', 'Kantumruy Pro', sans-serif;
   font-size: 0.88rem;
   font-weight: 700;
   padding: 0.6rem 1.25rem;
@@ -757,7 +757,7 @@ onMounted(async () => {
 }
 
 .btn-filter-tag {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Google Sans', 'Kantumruy Pro', sans-serif;
   font-size: 0.72rem;
   font-weight: 700;
   border: 1px solid var(--border);
@@ -936,7 +936,7 @@ onMounted(async () => {
 .preview-icon-wrap--low { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
 
 .preview-badge {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Google Sans', 'Kantumruy Pro', sans-serif;
   font-size: 0.62rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -1098,7 +1098,7 @@ onMounted(async () => {
 }
 
 .btn-repush-single {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Google Sans', 'Kantumruy Pro', sans-serif;
   font-size: 0.68rem;
   font-weight: 800;
   border: 1px solid var(--primary);

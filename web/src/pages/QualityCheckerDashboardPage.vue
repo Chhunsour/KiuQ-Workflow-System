@@ -205,6 +205,7 @@ import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import { supabase, supabaseConfigured } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/auth';
+import { usePageRealtime, debounceRealtime } from '@/services/realtimeService';
 import type { QualityIssue, QualityIssueStatus } from '@/stores/qualityCheck';
 
 interface DashboardWebsite {
@@ -521,6 +522,18 @@ const formatDate = (iso: string) =>
 const scrollToReports = () => {
   reportsRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
+
+// Live updates: this dashboard builds local state from several tables via
+// loadDashboard(), so we debounce-refetch when any of them change (incl. new
+// issues assigned to this checker from another window) — no manual refresh.
+const dashboardTables = new Set(['quality_issues', 'quality_checker_assignments', 'quality_classes', 'websites']);
+const refetchCheckerDashboard = debounceRealtime(() => { void loadDashboard(); }, 600);
+usePageRealtime(
+  ['quality_issues', 'quality_checker_assignments', 'quality_classes', 'websites'],
+  (payload) => {
+    if (dashboardTables.has(payload.table)) refetchCheckerDashboard();
+  }
+);
 
 onMounted(loadDashboard);
 </script>

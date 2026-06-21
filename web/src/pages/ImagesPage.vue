@@ -1207,12 +1207,10 @@
                 </p>
               </div>
 
-              <!-- Full description View option -->
+              <!-- Full description View option (renders HTML from rich editor) -->
               <div v-if="activeFolderObj.description">
                 <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">Full Description</span>
-                <p class="text-text-main font-light leading-relaxed whitespace-pre-wrap max-h-32 overflow-y-auto">
-                  {{ activeFolderObj.description }}
-                </p>
+                <div class="fde-preview text-text-main font-light leading-relaxed max-h-40 overflow-y-auto text-xs" v-html="activeFolderObj.description"></div>
               </div>
             </div>
 
@@ -1872,7 +1870,7 @@
       :open="showEditFolderInfoModal"
       title="Edit Folder Info"
       subtitle="Modify folder name and configure product description details."
-      size="md"
+      size="lg"
       @close="showEditFolderInfoModal = false"
     >
       <div class="space-y-4 text-xs">
@@ -1907,15 +1905,10 @@
           ></textarea>
         </div>
 
-        <!-- Description -->
+        <!-- Description (Rich Text Editor) -->
         <div class="space-y-1">
           <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">Description</label>
-          <textarea
-            v-model="editFolderDescription"
-            placeholder="A longer product description explaining the machine, usage, benefits, and important details..."
-            rows="5"
-            class="w-full px-3 py-2 bg-soft/20 border border-border rounded-xl text-xs text-text-main focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
-          ></textarea>
+          <FolderDescriptionEditor v-model="editFolderDescription" />
         </div>
 
         <!-- Button URL -->
@@ -2025,8 +2018,10 @@ import { computed, onMounted, onUnmounted, ref, nextTick, watch } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { supabase, supabaseConfigured } from '@/lib/supabase';
+import { debounceRealtime } from '@/services/realtimeService';
 import { optimizeImage, formatFileSize } from '@/utils/imageOptimizer';
 import Modal from '@/components/ui/Modal.vue';
+import FolderDescriptionEditor from '@/components/ui/FolderDescriptionEditor.vue';
 
 const auth = useAuthStore();
 const route = useRoute();
@@ -2539,6 +2534,23 @@ const escapeCSV = (val: string) => {
   return `"${escaped}"`;
 };
 
+// Strip HTML tags for CSV export (preserves line breaks as spaces)
+const stripHtml = (html: string): string => {
+  if (!html) return '';
+  return html
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<\/?(p|div|h[1-6]|li|ul|ol|blockquote)[^>]*>/gi, ' ')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 const getExportFilename = () => {
   const dateStr = new Date().toISOString().split('T')[0];
   let baseName = '';
@@ -2644,7 +2656,7 @@ const triggerCsvExport = async () => {
         const realFolderObj = customFolders.value.find(f => f.id === folderId);
         if (realFolderObj) {
           shortDesc = realFolderObj.short_description || '';
-          desc = realFolderObj.description || '';
+          desc = stripHtml(realFolderObj.description || '');
           btnUrl = realFolderObj.button_url || '';
         }
       }
@@ -2978,19 +2990,27 @@ const loadLibraryFromDB = async () => {
   }
 };
 
+// Cross-window sync. Local mutations already patch state optimistically and do
+// their own targeted reload, so realtime only needs to catch changes from OTHER
+// windows. Debounce so a burst (e.g. another user saving image order, which
+// touches many rows) collapses into one refetch instead of an egress storm.
+const reloadLibraryDebounced = debounceRealtime(() => {
+  void loadLibraryFromDB();
+}, 500);
+
 const subscribeRealtime = () => {
   if (!supabaseConfigured) return;
   foldersSubscription = supabase
     .channel('public:team_folders_dashboard')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'team_folders' }, () => {
-      loadLibraryFromDB();
+      reloadLibraryDebounced();
     })
     .subscribe();
 
   imagesSubscription = supabase
     .channel('public:team_images_dashboard')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'team_images' }, () => {
-      loadLibraryFromDB();
+      reloadLibraryDebounced();
     })
     .subscribe();
 };
@@ -4355,4 +4375,24 @@ onUnmounted(() => {
     background: var(--primary-hover);
   }
 }
+
+/* ── Rich Description Preview (folder detail area) ── */
+.fde-preview h1 { font-size: 16px; font-weight: 800; margin: 8px 0 4px; line-height: 1.3; }
+.fde-preview h1:first-child { margin-top: 0; }
+.fde-preview h2 { font-size: 14px; font-weight: 700; margin: 6px 0 3px; line-height: 1.35; }
+.fde-preview h2:first-child { margin-top: 0; }
+.fde-preview h3 { font-size: 12px; font-weight: 700; margin: 5px 0 2px; line-height: 1.4; }
+.fde-preview h3:first-child { margin-top: 0; }
+.fde-preview p { margin: 0 0 4px; }
+.fde-preview p:last-child { margin-bottom: 0; }
+.fde-preview ul, .fde-preview ol { padding-left: 18px; margin: 4px 0 6px; }
+.fde-preview ul { list-style-type: disc; }
+.fde-preview ol { list-style-type: decimal; }
+.fde-preview li { margin-bottom: 2px; }
+.fde-preview li p { margin: 0; }
+.fde-preview strong { font-weight: 700; }
+.fde-preview em { font-style: italic; }
+.fde-preview u { text-decoration: underline; }
+.fde-preview a { color: var(--primary); text-decoration: underline; }
+.fde-preview img { max-width: 100%; height: auto; border-radius: 6px; margin: 4px 0; }
 </style>

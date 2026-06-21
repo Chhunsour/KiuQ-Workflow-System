@@ -252,7 +252,7 @@ onMounted(() => {
 }
 
 .alert-badge {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Google Sans', 'Kantumruy Pro', sans-serif;
   font-size: 0.58rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -317,7 +317,7 @@ onMounted(() => {
 .btn-got-it,
 .btn-open-task,
 .btn-dismiss {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Google Sans', 'Kantumruy Pro', sans-serif;
   font-size: 0.72rem;
   font-weight: 700;
   padding: 0.35rem 0.75rem;

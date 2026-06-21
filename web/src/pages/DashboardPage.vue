@@ -119,9 +119,15 @@ import PageHeader from '@/components/ui/PageHeader.vue';
 import StatCard from '@/components/ui/StatCard.vue';
 import { useDataStore } from '@/stores/data';
 import { useAuthStore } from '@/stores/auth';
+import { usePageRealtime } from '@/services/realtimeService';
 
 const data = useDataStore();
 const auth = useAuthStore();
+
+// Live updates: summary counts and recent activity are derived from store refs,
+// which the data store patches on realtime events — so the dashboard reflects
+// new websites/prompts/tasks/members without a refresh.
+usePageRealtime(['websites', 'section_tasks', 'prompt_templates', 'profiles', 'projects', 'activity_logs']);
 
 const welcomeTitle = computed(() => {
   const name = auth.profile?.fullName?.split(' ')[0];

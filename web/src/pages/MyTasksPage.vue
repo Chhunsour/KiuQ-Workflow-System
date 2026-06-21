@@ -80,6 +80,7 @@ import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
 import { useDataStore, type AssignmentStatus, type Priority } from '@/stores/data';
+import { usePageRealtime } from '@/services/realtimeService';
 
 type TabKey = 'all' | 'today' | 'in_progress' | 'needs_fix' | 'waiting_review' | 'approved' | 'overdue';
 
@@ -175,4 +176,8 @@ onMounted(() => {
   data.fetchProjects();
   data.fetchWebsites();
 });
+
+// Live updates: tasks assigned/updated/reviewed elsewhere appear here without a
+// refresh (the data store patches these tables on realtime events).
+usePageRealtime(['prompt_assignments', 'section_tasks', 'submissions', 'websites']);
 </script>

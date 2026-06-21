@@ -67,15 +67,25 @@ serve(async (req) => {
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE);
     // Single-account model: replace any existing account.
     await admin.from('gsc_oauth_accounts').delete().not('id', 'is', null);
-    await admin.from('gsc_oauth_accounts').insert({
+    const { data: insData, error: insErr } = await admin.from('gsc_oauth_accounts').insert({
       google_email: email,
       refresh_token: tok.refresh_token,
       access_token: tok.access_token ?? null,
       token_expiry: new Date(Date.now() + (Number(tok.expires_in) || 3600) * 1000).toISOString(),
       scope: tok.scope ?? null,
       connected_by: isUuid(state) ? state : null
-    });
+    }).select('id, updated_at').single();
+    if (insErr) {
+      // Most common cause: migration 0126 not applied (table missing).
+      console.error('[gsc-oauth-callback] token store failed:', insErr.message);
+      return back('error_store');
+    }
 
+    // Safe log — never prints the token, only the outcome.
+    console.log(`[gsc-oauth-callback] token exists: ${!!tok.refresh_token}`);
+    console.log(`[gsc-oauth-callback] account id: ${insData?.id ?? 'none'}`);
+    console.log(`[gsc-oauth-callback] connected user id: ${isUuid(state) ? state : 'none'}`);
+    console.log(`[gsc-oauth-callback] token updated timestamp: ${insData?.updated_at ?? 'none'}`);
     return back('connected');
   } catch (err) {
     console.error('[gsc-oauth-callback] error', err);

@@ -284,6 +284,7 @@ export interface Website {
   createdAt: string;
   qualityClassId: string | null;
   isFramework: boolean;
+  platformType: 'wordpress' | 'framework' | 'unknown';
   lastAccessedAt: string | null;
   products: Product[];
 }
@@ -2932,6 +2933,9 @@ export const useDataStore = defineStore('data', () => {
     id ? projects.value.find((p) => p.id === id) : undefined;
   const promptById = (id: string | null | undefined) =>
     id ? prompts.value.find((p) => p.id === id) : undefined;
+  const getUserAssignedWebsiteIds = (userId: string) => {
+    return websites.value.filter((w) => w.createdBy === userId).map((w) => w.id);
+  };
 
   // ============= Activity (derived from latest updates) =============
   const activity = computed(() => {
@@ -3208,9 +3212,14 @@ export const useDataStore = defineStore('data', () => {
     folderById,
     projectById,
     promptById,
+    getUserAssignedWebsiteIds,
     // lifecycle
     reset
   };
 });
+
+export const getUserAssignedWebsiteIds = (userId: string, websites: Website[]): string[] => {
+  return websites.filter((w) => w.createdBy === userId).map((w) => w.id);
+};
 
 export type { Status };

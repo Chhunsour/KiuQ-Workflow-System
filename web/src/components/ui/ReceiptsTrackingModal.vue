@@ -297,7 +297,7 @@ const repushAllPending = async () => {
 }
 
 .btn-repush {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Google Sans', sans-serif;
   font-size: 0.68rem;
   font-weight: 800;
   border: 1px solid var(--primary);

@@ -706,7 +706,7 @@ import { supabase, supabaseConfigured } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/auth';
 import { useImagePreviewStore } from '@/stores/imagePreview';
 import { useWinnerCenterStore, canSpinOfficialWheel, type MonthlyWinner } from '@/stores/winnerCenter';
-import { pushToast } from '@/services/realtimeService';
+import { pushToast, usePageRealtime, debounceRealtime } from '@/services/realtimeService';
 
 const previewStore = useImagePreviewStore();
 const openPhotoPreview = (member: any) => {
@@ -1392,6 +1392,15 @@ const load = async () => {
 
 watch(selectedMonth, load);
 onMounted(load);
+
+// Live updates: the leaderboard is an aggregation RPC, so when scores or manual
+// adjustments change anywhere we debounce-refetch it instead of patching rows.
+const refetchLeaderboard = debounceRealtime(() => { void load(); }, 600);
+usePageRealtime(['leaderboard_scores', 'leaderboard_adjustments'], (payload) => {
+  if (payload.table === 'leaderboard_scores' || payload.table === 'leaderboard_adjustments') {
+    refetchLeaderboard();
+  }
+});
 
 // ── Podium ──
 interface PodiumSlot { rank: 1 | 2 | 3; label: string; medal: string; row?: Row }

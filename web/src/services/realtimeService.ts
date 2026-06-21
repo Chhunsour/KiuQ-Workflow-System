@@ -64,6 +64,21 @@ const toastWindowMs = 30 * 1000;
 const activeTableSubscriptions = new Map<string, number>();
 let subscriptionDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
+// Page-level listeners invoked for every realtime payload (after it has been
+// routed to the relevant store). Used by aggregation pages (dashboards,
+// leaderboard) that derive their data from RPCs and need to refetch — not
+// just patch a single row — when an underlying table changes.
+const eventListeners = new Set<(payload: RealtimePayload) => void>();
+const notifyEventListeners = (payload: RealtimePayload) => {
+  eventListeners.forEach((fn) => {
+    try {
+      fn(payload);
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('[realtime] listener failed', err);
+    }
+  });
+};
+
 const asString = (value: unknown) => (typeof value === 'string' ? value : '');
 const currentUserId = () => useAuthStore().user?.id ?? '';
 
@@ -138,6 +153,10 @@ const notifToastTone: Record<string, RealtimeToast['tone']> = {
 };
 
 const handlePayload = (payload: RealtimePayload) => {
+  // Notify page-level listeners. These run debounced RPC refetches that read
+  // fresh from the DB, so ordering vs. the store patches below doesn't matter.
+  notifyEventListeners(payload);
+
   // Handle in-app notifications from the notifications table
   if (payload.table === 'notifications' && payload.eventType === 'INSERT') {
     if (import.meta.env.DEV) {
@@ -313,13 +332,37 @@ export const unsubscribeFromTables = (tables: string[]) => {
   }
 };
 
-export const usePageRealtime = (tables: string[]) => {
+export const usePageRealtime = (
+  tables: string[],
+  onEvent?: (payload: RealtimePayload) => void
+) => {
   onMounted(() => {
     subscribeToTables(tables);
+    if (onEvent) eventListeners.add(onEvent);
   });
   onBeforeUnmount(() => {
     unsubscribeFromTables(tables);
+    if (onEvent) eventListeners.delete(onEvent);
   });
+};
+
+/**
+ * Trailing-edge debounce helper for realtime callbacks. Aggregation pages wrap
+ * their refetch in this so a burst of realtime events (e.g. saving image order
+ * touches many rows) collapses into a single RPC call instead of a storm.
+ */
+export const debounceRealtime = <T extends (...args: any[]) => void>(
+  fn: T,
+  wait = 400
+): ((...args: Parameters<T>) => void) => {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  return (...args: Parameters<T>) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = null;
+      fn(...args);
+    }, wait);
+  };
 };
 
 const stopRealtime = async () => {
