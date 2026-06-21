@@ -123,8 +123,22 @@ create policy "notif_prefs_update_own" on public.notification_preferences
   with check (user_id = auth.uid());
 
 -- ─── Enable realtime ─────────────────────────────────────────────────────────
-alter publication supabase_realtime add table public.notifications;
-alter publication supabase_realtime add table public.notification_preferences;
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables 
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'notifications'
+  ) then
+    alter publication supabase_realtime add table public.notifications;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables 
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'notification_preferences'
+  ) then
+    alter publication supabase_realtime add table public.notification_preferences;
+  end if;
+end $$;
 
 -- ─── Backfill preferences for existing users ─────────────────────────────────
 insert into public.notification_preferences (user_id)

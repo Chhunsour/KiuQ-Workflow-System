@@ -7,7 +7,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/jost/v20/92zPtBhPNqw79Ij1E865zBUv7myjJQVG.ttf') format('truetype');
+  src: url('https://cdn.jsdelivr.net/fontsource/fonts/cal-sans@latest/latin-400-normal.woff2') format('woff2');
   unicode-range: U+0030-0039;
 }
 
@@ -16,7 +16,7 @@
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/jost/v20/92zPtBhPNqw79Ij1E865zBUv7myRJQVG.ttf') format('truetype');
+  src: url('https://cdn.jsdelivr.net/fontsource/fonts/cal-sans@latest/latin-400-normal.woff2') format('woff2');
   unicode-range: U+0030-0039;
 }
 
@@ -25,7 +25,7 @@
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/jost/v20/92zPtBhPNqw79Ij1E865zBUv7mx9IgVG.ttf') format('truetype');
+  src: url('https://cdn.jsdelivr.net/fontsource/fonts/cal-sans@latest/latin-400-normal.woff2') format('woff2');
   unicode-range: U+0030-0039;
 }
 
@@ -34,7 +34,7 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/jost/v20/92zPtBhPNqw79Ij1E865zBUv7mxEIgVG.ttf') format('truetype');
+  src: url('https://cdn.jsdelivr.net/fontsource/fonts/cal-sans@latest/latin-400-normal.woff2') format('woff2');
   unicode-range: U+0030-0039;
 }
 
