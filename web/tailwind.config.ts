@@ -12,10 +12,12 @@ export default {
         'bg-main': withOpacity('--color-bg'),
         'bg-page': withOpacity('--color-bg-page'),
         'bg-card': withOpacity('--color-bg-card'),
+        'bg-card-elevated': withOpacity('--color-bg-card-elevated'),
         'bg-soft': withOpacity('--color-bg-soft'),
         sidebar: withOpacity('--color-sidebar-bg'),
         topbar: withOpacity('--color-topbar-bg'),
         card: withOpacity('--color-card-bg'),
+        'card-elevated': withOpacity('--color-card-elevated-bg'),
         input: withOpacity('--color-input-bg'),
         primary: {
           DEFAULT: withOpacity('--color-primary'),

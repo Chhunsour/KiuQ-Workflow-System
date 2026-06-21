@@ -285,21 +285,53 @@
           </div>
 
           <!-- Main Chart -->
-          <div class="card card-pad rounded-2xl bg-card border border-border/60">
-            <div class="mb-4 flex items-center justify-between">
-              <h3 class="text-sm font-bold text-text-main font-sans tracking-wide uppercase">
-                {{ activeMetricMeta.label }} Trend
-              </h3>
-              <span class="text-xs text-text-muted font-sans font-medium">Daily granularity</span>
+          <div class="card p-6 rounded-2xl bg-card border border-border/60">
+            <!-- Header Block -->
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-border/40 pb-4 mb-6">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-bold text-text-main font-sans tracking-wide uppercase">
+                    {{ activeMetricMeta.label }} Trend
+                  </h3>
+                  <span class="px-2 py-0.5 rounded-full text-[9px] font-sans font-bold bg-soft text-text-muted">Daily</span>
+                </div>
+                <p class="text-xs text-text-muted font-sans mt-0.5">Performance tracking across selected parameters</p>
+              </div>
+
+              <!-- Inline Legend & Controls -->
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
+                <div class="flex items-center gap-1.5 font-sans font-medium text-text-main">
+                  <span class="w-3 h-0.5 rounded animate-pulse" :style="{ backgroundColor: activeMetricMeta.color }" />
+                  <span>Current Period</span>
+                </div>
+                <div v-if="compareActive && hasCompareData" class="flex items-center gap-1.5 font-sans font-medium text-text-muted">
+                  <span class="w-3 border-t-2 border-dashed border-text-muted" />
+                  <span>Comparison Period</span>
+                </div>
+                <div v-if="hasTrend" class="flex items-center gap-1.5 ml-2">
+                  <label class="flex items-center gap-1 cursor-pointer font-sans text-xs text-text-muted hover:text-text-main select-none">
+                    <input type="checkbox" v-model="showChartAverage" class="rounded border-border text-primary focus:ring-primary h-3.5 w-3.5 bg-input" />
+                    <span>Average line</span>
+                  </label>
+                </div>
+              </div>
             </div>
-            <LineChart
-              v-if="hasTrend"
-              :data="chartSeries"
-              :compare-data="compareChartSeries"
-              :color="activeMetricMeta.color"
-              :height="240"
-            />
-            <p v-else class="py-16 text-center text-sm text-text-muted">Insufficient daily statistics to plot trend line.</p>
+
+
+            <!-- Chart Plot -->
+            <div class="relative w-full">
+              <LineChart
+                v-if="hasTrend"
+                :data="chartSeries"
+                :compare-data="compareChartSeries"
+                :color="activeMetricMeta.color"
+                :height="240"
+                :metric-type="activeMetric"
+                :metric-name="activeMetricMeta.label.replace('Total ', '').replace('Average ', '')"
+                :show-average-line="showChartAverage"
+              />
+              <p v-else class="py-16 text-center text-sm text-text-muted">Insufficient daily statistics to plot trend line.</p>
+            </div>
           </div>
 
           <!-- Data Tabs GSC style -->
@@ -608,7 +640,14 @@
             <div class="mb-1 flex items-center justify-between">
               <h4 class="text-xs font-bold text-text-muted uppercase tracking-wide">Clicks Trend Over Time</h4>
             </div>
-            <LineChart v-if="detailSeries.length > 1" :data="detailSeries" color="var(--primary)" :height="180" />
+            <LineChart
+              v-if="detailSeries.length > 1"
+              :data="detailSeries"
+              color="var(--primary)"
+              :height="180"
+              metric-type="clicks"
+              metric-name="Clicks"
+            />
             <p v-else class="text-center py-12 text-sm text-text-muted">No historical trends synced.</p>
           </div>
 
@@ -1087,6 +1126,7 @@ const metricList: { key: Metric; label: string; color: string; format: (t: GscTo
 ];
 const activeMetric = ref<Metric>('clicks');
 const activeMetricMeta = computed(() => metricList.find((m) => m.key === activeMetric.value)!);
+const showChartAverage = ref(true);
 
 // Comparison calculation
 const compareActive = computed(() => perf.compareMode !== 'none');
@@ -1147,7 +1187,11 @@ const metricValue = (p: { clicks: number; impressions: number; ctr: number; posi
 };
 
 const chartSeries = computed(() => {
-  return trend.value.map((p) => ({ label: shortDate(p.date), value: metricValue(p) }));
+  return trend.value.map((p) => ({
+    label: shortDate(p.date),
+    value: metricValue(p),
+    rawDate: p.date
+  }));
 });
 
 const compareChartSeries = computed(() => {
@@ -1156,9 +1200,14 @@ const compareChartSeries = computed(() => {
   return compAgg.map((p, idx) => {
     const primaryPt = trend.value[idx];
     const label = primaryPt ? shortDate(primaryPt.date) : shortDate(p.date);
-    return { label, value: metricValue(p) };
+    return {
+      label,
+      value: metricValue(p),
+      rawDate: p.date
+    };
   });
 });
+
 
 const latestSyncTime = computed(() => {
   const ids = activeWebsiteIds.value;
@@ -1433,7 +1482,11 @@ const detailDelta = (metric: Metric): Delta | null => {
   return makeDelta(detailTotals.value[metric], prev, metric);
 };
 const detailSeries = computed(() => {
-  return aggregateByDate(detailDaily.value).map((p) => ({ label: shortDate(p.date), value: p.clicks }));
+  return aggregateByDate(detailDaily.value).map((p) => ({
+    label: shortDate(p.date),
+    value: p.clicks,
+    rawDate: p.date
+  }));
 });
 
 const groupClicks = (rows: GscTermStat[], key: 'query' | 'page_url') =>

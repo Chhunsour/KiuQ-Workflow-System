@@ -72,28 +72,43 @@
 
 :root {
   --font-number-fallback: sans-serif;
-  --bg-main: #f6f6f6;
-  --bg-page: #f7f8fa;
-  --bg-card: #ffffff;
-  --bg-soft: #f1f3f5;
-  --border-main: #e2e5e9;
-  --border-muted: #edf0f3;
-  --text-main: #1f2933;
-  --text-secondary: #5f6b7a;
-  --text-muted: #5f6b7a;
-  --text-soft: #8a94a3;
+  --light-bg-main: #f6f6f6;
+  --light-bg-page: #f5f6f8;
+  --light-bg-card: #f8f8f8;
+  --light-bg-card-elevated: #fbfbfb;
+  --light-bg-soft: #f1f3f5;
+  --light-bg-input: #f4f5f7;
+  --light-border: #e2e5e9;
+  --light-border-muted: #edf0f3;
+  --light-text-main: #1f2933;
+  --light-text-secondary: #5f6b7a;
+  --light-text-muted: #8a94a3;
+
+  --bg-main: var(--light-bg-main);
+  --bg-page: var(--light-bg-page);
+  --bg-card: var(--light-bg-card);
+  --bg-card-elevated: var(--light-bg-card-elevated);
+  --bg-soft: var(--light-bg-soft);
+  --bg-input: var(--light-bg-input);
+  --border-main: var(--light-border);
+  --border-muted: var(--light-border-muted);
+  --text-main: var(--light-text-main);
+  --text-secondary: var(--light-text-secondary);
+  --text-muted: var(--light-text-secondary);
+  --text-soft: var(--light-text-muted);
   --accent-primary: #3f8dfe;
   --accent-cyan: #15D6C2;
 
   --bg: var(--bg-main);
-  --sidebar-bg: #fbfbfc;
-  --topbar-bg: #fbfbfc;
+  --sidebar-bg: var(--bg-page);
+  --topbar-bg: var(--bg-page);
   --card-bg: var(--bg-card);
-  --input-bg: #fbfbfb;
+  --card-elevated-bg: var(--bg-card-elevated);
+  --input-bg: var(--bg-input);
   --soft-bg: var(--bg-soft);
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
-  --on-primary: #ffffff;
+  --on-primary: #f8fbff;
   --border: var(--border-main);
   --border-strong: #cfd5dd;
 
@@ -109,13 +124,15 @@
   --shadow-primary: 0 6px 16px -5px rgba(37, 99, 235, 0.34);
 
   --color-bg: 246 246 246;
-  --color-bg-page: 247 248 250;
-  --color-bg-card: 255 255 255;
+  --color-bg-page: 245 246 248;
+  --color-bg-card: 248 248 248;
+  --color-bg-card-elevated: 251 251 251;
   --color-bg-soft: 241 243 245;
-  --color-sidebar-bg: 251 251 252;
-  --color-topbar-bg: 251 251 252;
-  --color-card-bg: 255 255 255;
-  --color-input-bg: 251 251 251;
+  --color-sidebar-bg: 245 246 248;
+  --color-topbar-bg: 245 246 248;
+  --color-card-bg: 248 248 248;
+  --color-card-elevated-bg: 251 251 251;
+  --color-input-bg: 244 245 247;
   --color-soft-bg: 241 243 245;
   --color-primary: 37 99 235;
   --color-primary-hover: 29 78 216;
@@ -135,7 +152,9 @@
   --bg-main: #1f1f21;
   --bg-page: #242426;
   --bg-card: #2c2c2f;
+  --bg-card-elevated: #313134;
   --bg-soft: #38383b;
+  --bg-input: #232325;
   --border-main: #3c3c40;
   --border-muted: #333336;
   --text-secondary: #b6b8bd;
@@ -146,6 +165,7 @@
   --sidebar-bg: #262628;
   --topbar-bg: #262628;
   --card-bg: #2c2c2f;
+  --card-elevated-bg: #313134;
   --input-bg: #232325;
   --soft-bg: #38383b;
   --primary: #15D6C2;
@@ -169,10 +189,12 @@
   --color-bg: 31 31 33;
   --color-bg-page: 36 36 38;
   --color-bg-card: 44 44 47;
+  --color-bg-card-elevated: 49 49 52;
   --color-bg-soft: 56 56 59;
   --color-sidebar-bg: 38 38 40;
   --color-topbar-bg: 38 38 40;
   --color-card-bg: 44 44 47;
+  --color-card-elevated-bg: 49 49 52;
   --color-input-bg: 35 35 37;
   --color-soft-bg: 56 56 59;
   --color-primary: 21 214 194;
@@ -562,10 +584,6 @@
 }
 
 @layer utilities {
-  .bg-white {
-    background-color: rgb(var(--color-card-bg) / var(--tw-bg-opacity, 1));
-  }
-
   .bg-primary.text-white,
   .text-on-primary {
     color: var(--on-primary) !important;
