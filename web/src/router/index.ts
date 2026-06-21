@@ -88,6 +88,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'websites/team', name: 'websites-team', meta: adminOrMember, component: () => import('@/pages/TeamWebsitesPage.vue') },
       { path: 'websites/new', name: 'website-new', meta: adminOrMember, component: () => import('@/pages/NewWebsitePage.vue') },
       { path: 'websites/:id/edit', name: 'website-edit', meta: adminOrMember, component: () => import('@/pages/NewWebsitePage.vue') },
+      { path: 'performance', name: 'performance', meta: adminOrMember, component: () => import('@/pages/PerformancePage.vue') },
       { path: 'notes', name: 'notes', meta: adminOnly, component: () => import('@/pages/NotesPage.vue') },
       { path: 'prompt-library', name: 'prompt-library', meta: adminOrMember, component: () => import('@/pages/PromptLibraryPage.vue') },
       { path: 'prompt-library/website/:websiteId', name: 'prompt-library-website', meta: adminOrMember, component: () => import('@/pages/PromptLibraryPage.vue') },
