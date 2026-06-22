@@ -2,11 +2,11 @@
   <div class="qcd-page">
     <section class="qcd-welcome card card-pad">
       <div>
-        <h1>Quality Checker Dashboard</h1>
-        <p>Review assigned websites, report issues, and track website quality problems.</p>
+        <h1>{{ $t('Quality Checker Dashboard') }}</h1>
+        <p>{{ $t('Review assigned websites, report issues, and track website quality problems.') }}</p>
       </div>
       <RouterLink class="btn-primary" to="/quality-check">
-        Open Quality Check
+        {{ $t('Open Quality Check') }}
       </RouterLink>
     </section>
 
@@ -15,7 +15,7 @@
       :error="error"
       :retry="loadDashboard"
     >
-      <section class="qcd-summary" aria-label="Quality check summary">
+      <section class="qcd-summary" aria-:label="$t('Quality check summary')">
         <article v-for="card in summaryCards" :key="card.label" class="qcd-summary-card card card-pad">
           <span>{{ card.label }}</span>
           <strong>{{ card.value }}</strong>
@@ -24,19 +24,19 @@
 
       <section class="qcd-actions card card-pad">
         <RouterLink class="btn-primary" to="/quality-check">
-          Open Quality Check
+          {{ $t('Open Quality Check') }}
         </RouterLink>
         <RouterLink class="btn-secondary" to="/quality-check">
-          Report New Issue
+          {{ $t('Report New Issue') }}
         </RouterLink>
         <button class="btn-secondary" type="button" @click="scrollToReports">
-          View My Reported Issues
+          {{ $t('View My Reported Issues') }}
         </button>
       </section>
 
       <section class="qcd-section">
         <div class="qcd-section-head">
-          <h2>Need Fixed</h2>
+          <h2>{{ $t('Need Fixed') }}</h2>
         </div>
 
         <div v-if="needsFixIssues.length" class="qcd-issue-list">
@@ -65,10 +65,10 @@
                   target="_blank"
                   rel="noopener"
                 >
-                  Page URL
+                  {{ $t('Page URL') }}
                 </a>
                 <RouterLink class="btn-primary qcd-link-btn" :to="qualityIssueLink(issue)">
-                  Open Issue
+                  {{ $t('Open Issue') }}
                 </RouterLink>
               </div>
             </div>
@@ -77,14 +77,14 @@
 
         <EmptyState
           v-else
-          title="No issues need fixing yet."
+          :title="$t('No issues need fixing yet.')"
           description="Open quality issues that still need work will appear here."
         />
       </section>
 
       <section class="qcd-section">
         <div class="qcd-section-head">
-          <h2>Managed Websites</h2>
+          <h2>{{ $t('Managed Websites') }}</h2>
         </div>
 
         <div v-if="reviewWebsites.length" class="qcd-websites">
@@ -108,21 +108,21 @@
               <strong>{{ openIssueCount(website.id) }} open</strong>
             </div>
             <RouterLink class="btn-secondary qcd-open-board" :to="`/quality-check/${website.id}`">
-              Open Board
+              {{ $t('Open Board') }}
             </RouterLink>
           </article>
         </div>
 
         <EmptyState
           v-else
-          title="No websites assigned for review yet."
+          :title="$t('No websites assigned for review yet.')"
           description="Websites assigned to your Quality Checker account will appear here."
         />
       </section>
 
       <section class="qcd-section">
         <div class="qcd-section-head">
-          <h2>Recently Approved</h2>
+          <h2>{{ $t('Recently Approved') }}</h2>
         </div>
 
         <div v-if="recentlyApprovedIssues.length" class="qcd-issue-list">
@@ -151,10 +151,10 @@
                   target="_blank"
                   rel="noopener"
                 >
-                  Page URL
+                  {{ $t('Page URL') }}
                 </a>
                 <RouterLink class="btn-primary qcd-link-btn" :to="qualityIssueLink(issue)">
-                  Open Issue
+                  {{ $t('Open Issue') }}
                 </RouterLink>
               </div>
             </div>
@@ -163,14 +163,14 @@
 
         <EmptyState
           v-else
-          title="No approved issues yet."
+          :title="$t('No approved issues yet.')"
           description="Approved quality fixes will appear here."
         />
       </section>
 
       <section ref="reportsRef" class="qcd-section">
         <div class="qcd-section-head">
-          <h2>Recent Reports</h2>
+          <h2>{{ $t('Recent Reports') }}</h2>
         </div>
 
         <div v-if="reportedIssues.length" class="qcd-report-list card">
@@ -190,7 +190,7 @@
 
         <EmptyState
           v-else
-          title="No reports created yet."
+          :title="$t('No reports created yet.')"
           description="Issues you report from Quality Check will appear here."
         />
       </section>

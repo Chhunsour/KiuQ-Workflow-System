@@ -13,25 +13,25 @@
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Task Completion Rate</div>
+            <div class="kpi-label text-text-muted">{{ $t('Task Completion Rate') }}</div>
             <div class="kpi-value text-emerald-500">{{ stats.weeklyCompletionRate }}%</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Workflow Compliance</div>
+            <div class="kpi-label text-text-muted">{{ $t('Workflow Compliance') }}</div>
             <div class="kpi-value text-emerald-400 font-bold">{{ stats.avgWorkflowCompliance }}%</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Follow-Up Rate</div>
+            <div class="kpi-label text-text-muted">{{ $t('Follow-Up Rate') }}</div>
             <div class="kpi-value text-indigo-500 font-bold">{{ stats.avgFollowupCompletion }}%</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Overall Team Score</div>
+            <div class="kpi-label text-text-muted">{{ $t('Overall Team Score') }}</div>
             <div class="kpi-value text-primary font-bold">{{ overallTeamScore }}%</div>
           </div>
         </div>
@@ -45,7 +45,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
-            Top Contributors
+            {{ $t('Top Contributors') }}
           </h3>
           <div class="flex flex-col gap-3">
             <div
@@ -68,7 +68,7 @@
                 Score: {{ member.teamAccountabilityScore }}%
               </span>
             </div>
-            <div v-if="topContributors.length === 0" class="text-xs text-text-muted italic py-4">No data.</div>
+            <div v-if="topContributors.length === 0" class="text-xs text-text-muted italic py-4">{{ $t('No data.') }}</div>
           </div>
         </div>
 
@@ -78,7 +78,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="19" y1="18" x2="19.01" y2="18"/>
             </svg>
-            Members Needing Improvement
+            {{ $t('Members Needing Improvement') }}
           </h3>
           <div class="flex flex-col gap-3">
             <div
@@ -100,20 +100,20 @@
                 Score: {{ member.teamAccountabilityScore }}%
               </span>
             </div>
-            <div v-if="lowPerformers.length === 0" class="text-xs text-text-muted italic py-4">No coaching required. All members are performing above standards.</div>
+            <div v-if="lowPerformers.length === 0" class="text-xs text-text-muted italic py-4">{{ $t('No coaching required. All members are performing above standards.') }}</div>
           </div>
         </div>
       </div>
 
       <!-- ── Project Status Overview ── -->
       <div class="card p-5">
-        <h3 class="section-title mb-4">Project Accountability & Neglect Tracker</h3>
+        <h3 class="section-title mb-4">{{ $t('Project Accountability & Neglect Tracker') }}</h3>
         
         <div v-if="neglectedProjects.length === 0" class="text-sm text-text-muted py-4 flex flex-col items-center gap-1">
           <svg class="text-emerald-500" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
           </svg>
-          <span class="font-medium mt-1">All projects are moving forward. No neglect detected.</span>
+          <span class="font-medium mt-1">{{ $t('All projects are moving forward. No neglect detected.') }}</span>
         </div>
 
         <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -130,7 +130,7 @@
             <div>
               <div class="font-bold text-text-main text-sm">Project: {{ proj.projectName }}</div>
               <div class="text-xs text-text-muted mt-1 leading-relaxed">{{ proj.message }}</div>
-              <div class="mt-2 text-xs text-rose-400 font-bold uppercase tracking-wider">Action Required: Shift resources or reassign tasks</div>
+              <div class="mt-2 text-xs text-rose-400 font-bold uppercase tracking-wider">{{ $t('Action Required: Shift resources or reassign tasks') }}</div>
             </div>
           </div>
         </div>

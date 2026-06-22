@@ -4,17 +4,16 @@
       <div v-if="show" class="fa-backdrop" role="dialog" aria-modal="true" aria-labelledby="fa-title" @click.self="onClose">
         <Transition name="fa-pop" appear>
           <div v-if="show" class="fa-card">
-            <button class="fa-close" type="button" title="Close" @click="onClose">
+            <button class="fa-close" type="button" :title="$t('Close')" @click="onClose">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
 
             <!-- Header -->
             <header class="fa-header">
-              <span class="fa-badge">System Update</span>
-              <h2 id="fa-title" class="fa-title">New Features Added</h2>
+              <span class="fa-badge">{{ $t('System Update') }}</span>
+              <h2 id="fa-title" class="fa-title">{{ $t('New Features Added') }}</h2>
               <p class="fa-subtitle">
-                New workflow tools are now available to help the team track fixes,
-                speed checks, and daily followups faster.
+                {{ $t('New workflow tools are now available to help the team track fixes, speed checks, and daily followups faster.') }}
               </p>
             </header>
 
@@ -33,9 +32,9 @@
 
             <!-- Footer -->
             <footer class="fa-footer">
-              <span class="fa-foot-note">This update will only appear once.</span>
+              <span class="fa-foot-note">{{ $t('This update will only appear once.') }}</span>
               <div class="fa-foot-actions">
-                <button class="btn-ghost" type="button" @click="onClose">View Later</button>
+                <button class="btn-ghost" type="button" @click="onClose">{{ $t('View Later') }}</button>
                 <button class="btn-primary" type="button" :disabled="saving" @click="markSeen(true)">
                   {{ saving ? 'Saving…' : 'Got it' }}
                 </button>

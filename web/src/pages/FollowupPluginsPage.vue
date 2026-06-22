@@ -1,19 +1,19 @@
 <template>
   <div class="fp-page">
-    <PageHeader title="Plugin Update" subtitle="Track weekly WordPress plugin update checks for every website.">
+    <PageHeader :title="$t('Plugin Update')" subtitle="Track weekly WordPress plugin update checks for every website.">
       <template #actions>
         <RouterLink to="/followup" class="btn-secondary">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-          Back
+          {{ $t('Back') }}
         </RouterLink>
       </template>
     </PageHeader>
 
     <!-- Error -->
     <div v-if="error" class="card card-pad">
-      <p class="font-semibold text-status-needs-fix-fg">Failed to load websites.</p>
+      <p class="font-semibold text-status-needs-fix-fg">{{ $t('Failed to load websites.') }}</p>
       <p class="text-sm text-text-muted mt-1">{{ error }}</p>
-      <button class="btn-primary mt-3 w-fit" type="button" @click="load">Retry</button>
+      <button class="btn-primary mt-3 w-fit" type="button" @click="load">{{ $t('Retry') }}</button>
     </div>
 
     <!-- Loading -->
@@ -24,11 +24,11 @@
     <!-- Empty -->
     <EmptyState
       v-else-if="websites.length === 0"
-      title="No websites yet."
+      :title="$t('No websites yet.')"
       description="Add website profiles first — they will automatically appear here."
     >
       <template #action>
-        <RouterLink to="/websites/new" class="btn-primary">Add Website</RouterLink>
+        <RouterLink to="/websites/new" class="btn-primary">{{ $t('Add Website') }}</RouterLink>
       </template>
     </EmptyState>
 
@@ -38,11 +38,11 @@
     <!-- Member: own website grid -->
     <div v-else>
       <div class="mb-5">
-        <input v-model="search" class="input max-w-sm" type="search" placeholder="Search websites…" />
+        <input v-model="search" class="input max-w-sm" type="search" :placeholder="$t('Search websites…')" />
       </div>
 
       <div v-if="filtered.length === 0" class="card card-pad text-sm text-text-muted text-center py-6">
-        No websites match your search.
+        {{ $t('No websites match your search.') }}
       </div>
 
       <div v-else class="fp-grid">
@@ -65,7 +65,7 @@
 
           <!-- This-week status -->
           <div class="fp-card-week">
-            <span class="fp-week-label">This week</span>
+            <span class="fp-week-label">{{ $t('This week') }}</span>
             <span class="fp-week-chip" :class="`chip--${thisWeekStatus(w.id)}`">
               <span class="fp-week-dot" />
               {{ statusLabel(thisWeekStatus(w.id)) }}
@@ -75,7 +75,7 @@
           <!-- Month progress -->
           <div class="fp-card-progress">
             <div class="fp-prog-row">
-              <span class="fp-prog-label">This month</span>
+              <span class="fp-prog-label">{{ $t('This month') }}</span>
               <span class="fp-prog-text">{{ monthDone(w.id) }}/{{ monthTotal(w.id) }}</span>
             </div>
             <div class="fp-prog-track">
@@ -110,7 +110,7 @@
               {{ thisWeekStatus(w.id) === 'done' ? 'Done this week' : 'Mark Done' }}
             </button>
             <span class="fp-card-open">
-              Open
+              {{ $t('Open') }}
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </span>
           </div>
@@ -495,14 +495,14 @@ onMounted(load);
 .fp-quick-done:hover:not(:disabled) {
   background: #16a34a;
   border-color: #16a34a;
-  color: #fff;
+  color: #f8fbff;
   transform: translateY(-1px);
 }
 .fp-quick-done:disabled { cursor: wait; opacity: 0.6; }
 .fp-quick-done--done {
   background: #16a34a;
   border-color: #16a34a;
-  color: #fff;
+  color: #f8fbff;
 }
 .fp-quick-done--saving { opacity: 0.7; }
 
@@ -513,7 +513,7 @@ onMounted(load);
   width: 1.05rem;
   height: 1.05rem;
   border-radius: 5px;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(248, 251, 255, 0.18);
 }
 .fp-quick-done:not(.fp-quick-done--done) .fp-quick-done-box {
   background: transparent;
@@ -521,8 +521,8 @@ onMounted(load);
 }
 .fp-quick-done-dot {
   width: 7px; height: 7px; border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  border-top-color: #fff;
+  border: 2px solid rgba(248, 251, 255, 0.45);
+  border-top-color: #f8fbff;
   animation: fp-spin 0.6s linear infinite;
 }
 @keyframes fp-spin { to { transform: rotate(360deg); } }

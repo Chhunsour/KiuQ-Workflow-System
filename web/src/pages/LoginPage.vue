@@ -11,16 +11,16 @@
                 class="h-auto w-full max-w-[220px] object-contain"
               />
             </div>
-            <div class="kiuq-text-muted text-sm font-medium">Company access only</div>
+            <div class="kiuq-text-muted text-sm font-medium">{{ $t('Company access only') }}</div>
           </div>
 
           <div class="mt-12">
-            <p class="ui-font text-xs font-semibold uppercase tracking-wide text-primary">KiuQ Website System</p>
+            <p class="ui-font text-xs font-semibold uppercase tracking-wide text-primary">{{ $t('KiuQ Website System') }}</p>
             <h1 class="kiuq-text-main mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
-              Internal workflow for website teams.
+              {{ $t('Internal workflow for website teams.') }}
             </h1>
             <p class="kiuq-text-muted mt-5 max-w-sm text-sm leading-6">
-              Manage website prompts, team workflow, resources, and project reviews in one place.
+              {{ $t('Manage website prompts, team workflow, resources, and project reviews in one place.') }}
             </p>
           </div>
         </div>
@@ -40,16 +40,16 @@
       <div class="flex items-center px-6 py-8 sm:px-10 lg:px-12">
         <div class="w-full">
           <div>
-            <p class="ui-font text-sm font-semibold text-primary">KiuQ Website System</p>
-            <h2 class="kiuq-text-main mt-2 ui-font text-3xl font-semibold">Sign in</h2>
+            <p class="ui-font text-sm font-semibold text-primary">{{ $t('KiuQ Website System') }}</p>
+            <h2 class="kiuq-text-main mt-2 ui-font text-3xl font-semibold">{{ $t('Sign in') }}</h2>
             <p class="kiuq-text-muted mt-2 text-sm leading-6">
-              Use your KiuQ team account to continue.
+              {{ $t('Use your KiuQ team account to continue.') }}
             </p>
           </div>
 
           <form class="mt-8 space-y-5" novalidate @submit.prevent="onSubmit">
             <div>
-              <label class="kiuq-label" for="login-email">Email address</label>
+              <label class="kiuq-label" for="login-email">{{ $t('Email address') }}</label>
               <input
                 id="login-email"
                 v-model.trim="email"
@@ -64,7 +64,7 @@
             </div>
 
             <div>
-              <label class="kiuq-label" for="login-password">Password</label>
+              <label class="kiuq-label" for="login-password">{{ $t('Password') }}</label>
               <div class="relative">
                 <input
                   id="login-password"
@@ -73,28 +73,28 @@
                   :class="errorField === 'password' ? 'kiuq-login-input-error' : ''"
                   :type="showPassword ? 'text' : 'password'"
                   autocomplete="current-password"
-                  placeholder="Enter your password"
+                  :placeholder="$t('Enter your password')"
                   :aria-invalid="errorField === 'password'"
                   @input="clearError"
                 />
                 <button
                   class="kiuq-show-button ui-font absolute right-2 top-1/2 -translate-y-1/2 rounded-btn px-3 py-1.5 text-xs font-medium"
                   type="button"
-                  :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                  :aria-:label="$t('showPassword ? \'Hide password\' : \'Show password\'')"
                   @click="showPassword = !showPassword"
                 >
                   {{ showPassword ? 'Hide' : 'Show' }}
                 </button>
               </div>
               <p class="kiuq-text-muted mt-2 text-sm">
-                Forgot your password?
+                {{ $t('Forgot your password?') }}
                 <a
                   href="https://chat.whatsapp.com/Knw2RPjAhMr0c9O2M8ERKv?mode=gi_t"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="text-primary hover:underline"
                 >
-                  Contact Sour.
+                  {{ $t('Contact Sour.') }}
                 </a>
               </p>
             </div>
@@ -105,14 +105,14 @@
               role="alert"
             >
               <template v-if="errorMessage === failedLoginMessage">
-                Incorrect email or password. If you forgot your password,
+                {{ $t('Incorrect email or password. If you forgot your password,') }}
                 <a
                   href="https://chat.whatsapp.com/Knw2RPjAhMr0c9O2M8ERKv?mode=gi_t"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="font-medium underline decoration-status-needs-fix-fg/40 underline-offset-2 hover:decoration-status-needs-fix-fg"
                 >
-                  contact Sour.
+                  {{ $t('contact Sour.') }}
                 </a>
               </template>
               <template v-else>
@@ -125,15 +125,15 @@
             </button>
           </form>
 
-          <div class="mt-6 rounded-btn border border-white/10 bg-white/[0.03] px-4 py-3 text-center text-sm text-slate-300">
-            Need a local account?
+          <div class="mt-6 rounded-btn border border-slate-50/10 bg-slate-50/[0.03] px-4 py-3 text-center text-sm text-slate-300">
+            {{ $t('Need a local account?') }}
             <RouterLink to="/register" class="ui-font font-medium text-primary hover:underline">
-              Create account
+              {{ $t('Create account') }}
             </RouterLink>
           </div>
 
           <p class="kiuq-text-muted mt-8 text-center text-xs">
-            © KiuQ. Internal system access only.
+            {{ $t('© KiuQ. Internal system access only.') }}
           </p>
         </div>
       </div>

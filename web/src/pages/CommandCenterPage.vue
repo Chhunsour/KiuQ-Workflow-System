@@ -7,9 +7,9 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
           </svg>
-          Command Center
+          {{ $t('Command Center') }}
         </h1>
-        <p class="page-subtitle">Private Executive Workspace & Company Operating System</p>
+        <p class="page-subtitle">{{ $t('Private Executive Workspace & Company Operating System') }}</p>
       </div>
 
       <!-- Global Actions / Search -->
@@ -19,7 +19,7 @@
             v-model="searchQuery"
             type="text"
             class="input pl-9 py-2"
-            placeholder="Search all logs, ideas, notes..."
+            :placeholder="$t('Search all logs, ideas, notes...')"
           />
           <span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-soft">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -69,7 +69,7 @@
               ({{ filteredEntries.length }} entries)
             </span>
             <span class="text-xs text-text-soft font-mono" v-else-if="activeSection === 'playbook'">
-              (SaaS Frameworks & Guides)
+              {{ $t('(SaaS Frameworks & Guides)') }}
             </span>
           </div>
 
@@ -95,7 +95,7 @@
                 class="btn-primary py-1.5 px-3.5 text-xs rounded-xl"
                 @click="createNewEntry"
               >
-                + Create Entry
+                {{ $t('+ Create Entry') }}
               </button>
               <button
                 v-else
@@ -103,7 +103,7 @@
                 class="btn-primary py-1.5 px-3.5 text-xs rounded-xl"
                 @click="createNewReminder"
               >
-                + Add Reminder
+                {{ $t('+ Add Reminder') }}
               </button>
             </template>
           </div>
@@ -120,7 +120,7 @@
                 :class="{ 'chip-active': !selectedPlaybookCategory }"
                 @click="selectedPlaybookCategory = null"
               >
-                All
+                {{ $t('All') }}
               </span>
               <span
                 v-for="cat in playbookCategories"
@@ -164,7 +164,7 @@
               <svg class="mx-auto mb-2 text-text-soft" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/><path d="M8 12h8"/>
               </svg>
-              No entries found.
+              {{ $t('No entries found.') }}
             </div>
 
             <template v-else>
@@ -197,7 +197,7 @@
                     v-if="entry.metadata.priority === 'high'"
                     class="text-[9px] bg-status-needs-fix-bg text-status-needs-fix-fg px-1.5 rounded font-black uppercase shrink-0"
                   >
-                    High
+                    {{ $t('High') }}
                   </span>
                 </div>
 
@@ -220,8 +220,8 @@
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-text-soft opacity-60 mb-3">
                   <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
-                <h3 class="font-bold text-base text-text-main mb-1">Select a Playbook Guide</h3>
-                <p class="text-sm max-w-xs">Select a playbook or guide from the list to view modern management practices and copy them into your active workspace.</p>
+                <h3 class="font-bold text-base text-text-main mb-1">{{ $t('Select a Playbook Guide') }}</h3>
+                <p class="text-sm max-w-xs">{{ $t('Select a playbook or guide from the list to view modern management practices and copy them into your active workspace.') }}</p>
               </div>
               <template v-else>
                 <!-- Playbook Preview & Copy Panel -->
@@ -239,11 +239,11 @@
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path d="M14 2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
                       </svg>
-                      Use Template
+                      {{ $t('Use Template') }}
                     </button>
                   </div>
                   <div class="flex items-center gap-3 flex-wrap">
-                    <span class="text-xs text-text-soft font-mono">Suggested category:</span>
+                    <span class="text-xs text-text-soft font-mono">{{ $t('Suggested category:') }}</span>
                     <span class="badge bg-primary-soft text-primary capitalize text-[10px] py-0.5 font-bold">
                       {{ activePlaybookItem.suggestedCategory.replace('_', ' ') }}
                     </span>
@@ -265,8 +265,8 @@
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-text-soft opacity-60 mb-3">
                   <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 14h6M9 18h4"/>
                 </svg>
-                <h3 class="font-bold text-base text-text-main mb-1">No Entry Selected</h3>
-                <p class="text-sm max-w-xs">Select an entry from the list to view and edit details, or create a new one to get started.</p>
+                <h3 class="font-bold text-base text-text-main mb-1">{{ $t('No Entry Selected') }}</h3>
+                <p class="text-sm max-w-xs">{{ $t('Select an entry from the list to view and edit details, or create a new one to get started.') }}</p>
               </div>
 
               <template v-else>
@@ -277,7 +277,7 @@
                       v-model="editorForm.title"
                       type="text"
                       class="text-lg font-bold bg-transparent border-0 border-b border-transparent hover:border-border focus:border-primary focus:outline-none w-full px-1 py-0.5 text-text-main"
-                      placeholder="Entry Title"
+                      :placeholder="$t('Entry Title')"
                       @input="onContentChange"
                     />
                     
@@ -288,7 +288,7 @@
                       <button
                         type="button"
                         class="text-text-soft hover:text-status-needs-fix-fg p-1.5 rounded-lg hover:bg-soft transition"
-                        title="Delete Entry"
+                        :title="$t('Delete Entry')"
                         @click="deleteActiveEntry"
                       >
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -310,7 +310,7 @@
                     <!-- Custom fields depending on type -->
                     <div v-if="activeEntry.category === 'reminder'" class="flex items-center gap-3">
                       <span class="flex items-center gap-1">
-                        Due Date:
+                        {{ $t('Due Date:') }}
                         <input
                           v-model="editorForm.dueDate"
                           type="date"
@@ -319,21 +319,21 @@
                         />
                       </span>
                       <span class="flex items-center gap-1">
-                        Priority:
+                        {{ $t('Priority:') }}
                         <select
                           v-model="editorForm.priority"
                           class="bg-soft border border-border rounded px-1.5 py-0.5 text-xs focus:outline-none"
                           @change="onContentChange"
                         >
-                          <option value="low">Low</option>
-                          <option value="normal">Normal</option>
-                          <option value="high">High</option>
+                          <option value="low">{{ $t('Low') }}</option>
+                          <option value="normal">{{ $t('Normal') }}</option>
+                          <option value="high">{{ $t('High') }}</option>
                         </select>
                       </span>
                     </div>
 
                     <div v-if="activeEntry.category === 'decision'" class="flex items-center gap-1">
-                      Decision Date:
+                      {{ $t('Decision Date:') }}
                       <input
                         v-model="editorForm.decisionDate"
                         type="date"
@@ -356,14 +356,14 @@
                         class="hover:text-status-needs-fix-fg font-black"
                         @click="removeEditorTag(tag)"
                       >
-                        &times;
+                        {{ $t('&times;') }}
                       </button>
                     </span>
                     <input
                       v-model="editorTagInput"
                       type="text"
                       class="bg-transparent border-0 border-b border-border/40 hover:border-border text-xs focus:outline-none py-0.5 px-1 w-24 text-text-main"
-                      placeholder="+ Add tag..."
+                      :placeholder="$t('+ Add tag...')"
                       @keydown.enter.prevent="addEditorTag"
                     />
                   </div>
@@ -374,7 +374,7 @@
                   v-model="editorForm.content"
                   :saving="saving"
                   class="flex-1"
-                  placeholder="Start typing your strategy, meeting notes, log details or decision outcomes here... Auto-saves automatically."
+                  :placeholder="$t('Start typing your strategy, meeting notes, log details or decision outcomes here... Auto-saves automatically.')"
                   @change="onContentChange"
                 />
               </template>
@@ -390,8 +390,8 @@
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--status-needs-fix-fg)" stroke-width="2">
       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
     </svg>
-    <h2 class="text-lg font-bold text-text-main mt-4">Access Restricted</h2>
-    <p class="text-sm text-text-muted max-w-sm mt-1">This workspace is private and restricted strictly to Head and Supervisor executive roles.</p>
+    <h2 class="text-lg font-bold text-text-main mt-4">{{ $t('Access Restricted') }}</h2>
+    <p class="text-sm text-text-muted max-w-sm mt-1">{{ $t('This workspace is private and restricted strictly to Head and Supervisor executive roles.') }}</p>
   </div>
 </template>
 
@@ -1006,7 +1006,7 @@ onMounted(async () => {
   padding: 0.25rem 0.65rem;
   border-radius: 6px;
   background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
-  color: white;
+  color: #f8fbff;
   margin-bottom: 0.5rem;
 }
 

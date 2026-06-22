@@ -1,14 +1,14 @@
 <template>
   <div>
     <PageHeader
-      title="Prompt Library"
+      :title="$t('Prompt Library')"
       subtitle="Manage master prompt templates. Create, edit, approve and organise prompts by page group."
     >
       <template #actions>
-        <RouterLink to="/prompt" class="btn-secondary">← Dashboard</RouterLink>
+        <RouterLink to="/prompt" class="btn-secondary">{{ $t('← Dashboard') }}</RouterLink>
         <button v-if="auth.isAdmin" class="btn-primary" type="button" @click="openCreate">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          New Prompt
+          {{ $t('New Prompt') }}
         </button>
       </template>
     </PageHeader>
@@ -17,18 +17,18 @@
 
       <!-- Filters -->
       <div class="mb-5 flex flex-wrap gap-3">
-        <input v-model="search" type="search" class="input flex-1 min-w-[200px]" placeholder="Search prompts…" />
+        <input v-model="search" type="search" class="input flex-1 min-w-[200px]" :placeholder="$t('Search prompts…')" />
         <select v-model="filterPageType" class="input w-52">
-          <option value="">All page groups</option>
+          <option value="">{{ $t('All page groups') }}</option>
           <option v-for="g in pw.groups" :key="g.pageType" :value="g.pageType">{{ g.name }}</option>
         </select>
         <select v-model="filterStatus" class="input w-36">
-          <option value="">All statuses</option>
-          <option value="approved">Approved</option>
-          <option value="draft">Draft</option>
+          <option value="">{{ $t('All statuses') }}</option>
+          <option value="approved">{{ $t('Approved') }}</option>
+          <option value="draft">{{ $t('Draft') }}</option>
         </select>
         <select v-model="filterPromptType" class="input w-40">
-          <option value="">All types</option>
+          <option value="">{{ $t('All types') }}</option>
           <option v-for="opt in promptTypeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
         </select>
       </div>
@@ -37,19 +37,19 @@
       <div class="pwl-stats mb-5">
         <div class="pwl-stat">
           <span class="pwl-stat-val">{{ pw.templates.length }}</span>
-          <span class="pwl-stat-label">Total prompts</span>
+          <span class="pwl-stat-label">{{ $t('Total prompts') }}</span>
         </div>
         <div class="pwl-stat">
           <span class="pwl-stat-val">{{ approvedCount }}</span>
-          <span class="pwl-stat-label">Approved</span>
+          <span class="pwl-stat-label">{{ $t('Approved') }}</span>
         </div>
         <div class="pwl-stat">
           <span class="pwl-stat-val">{{ draftCount }}</span>
-          <span class="pwl-stat-label">Draft</span>
+          <span class="pwl-stat-label">{{ $t('Draft') }}</span>
         </div>
         <div class="pwl-stat">
           <span class="pwl-stat-val">{{ pw.groups.length }}</span>
-          <span class="pwl-stat-label">Page groups</span>
+          <span class="pwl-stat-label">{{ $t('Page groups') }}</span>
         </div>
       </div>
 
@@ -77,8 +77,8 @@
             <p v-if="t.shortDescription" class="pwl-desc">{{ t.shortDescription }}</p>
             <div class="pwl-chips mt-2">
               <span v-if="t.editableFields.length" class="pwl-chip">{{ t.editableFields.length }} editable fields</span>
-              <span v-if="t.lockedRules" class="pwl-chip">Has locked rules</span>
-              <span v-if="t.requiredProductDocs" class="pwl-chip pwl-chip--product">Requires product doc</span>
+              <span v-if="t.lockedRules" class="pwl-chip">{{ $t('Has locked rules') }}</span>
+              <span v-if="t.requiredProductDocs" class="pwl-chip pwl-chip--product">{{ $t('Requires product doc') }}</span>
             </div>
           </div>
 
@@ -100,7 +100,7 @@
               @click="openEdit(t)"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-              Edit
+              {{ $t('Edit') }}
             </button>
             <button
               class="btn-secondary pwl-action-btn"
@@ -124,11 +124,11 @@
 
       <EmptyState
         v-else-if="!pw.loadingTemplates"
-        title="No prompts found"
+        :title="$t('No prompts found')"
         :description="search || filterPageType || filterStatus ? 'No prompts match your filters.' : 'Create your first prompt to get started.'"
       >
         <template v-if="auth.isAdmin" #action>
-          <button class="btn-primary" type="button" @click="openCreate">New Prompt</button>
+          <button class="btn-primary" type="button" @click="openCreate">{{ $t('New Prompt') }}</button>
         </template>
       </EmptyState>
     </LoadingBlock>
@@ -148,54 +148,54 @@
             <!-- Basic info -->
             <div class="pwl-form-grid">
               <div class="pwl-form-full">
-                <label class="form-label">Title *</label>
-                <input v-model="form.title" class="input mt-1" placeholder="Hero / Banner Section" />
+                <label class="form-label">{{ $t('Title *') }}</label>
+                <input v-model="form.title" class="input mt-1" :placeholder="$t('Hero / Banner Section')" />
               </div>
               <div>
-                <label class="form-label">Page Group *</label>
+                <label class="form-label">{{ $t('Page Group *') }}</label>
                 <select v-model="form.pageType" class="input mt-1">
-                  <option value="">Select page group…</option>
+                  <option value="">{{ $t('Select page group…') }}</option>
                   <option v-for="g in pw.groups" :key="g.pageType" :value="g.pageType">{{ g.name }}</option>
                 </select>
               </div>
               <div>
-                <label class="form-label">Section Type</label>
-                <input v-model="form.sectionType" class="input mt-1" placeholder="e.g. Hero / Banner Section" />
+                <label class="form-label">{{ $t('Section Type') }}</label>
+                <input v-model="form.sectionType" class="input mt-1" :placeholder="$t('e.g. Hero / Banner Section')" />
               </div>
               <div>
-                <label class="form-label">Prompt Type</label>
+                <label class="form-label">{{ $t('Prompt Type') }}</label>
                 <select v-model="form.promptType" class="input mt-1">
                   <option v-for="opt in promptTypeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
                 </select>
               </div>
               <div>
-                <label class="form-label">Output Type</label>
+                <label class="form-label">{{ $t('Output Type') }}</label>
                 <select v-model="form.outputType" class="input mt-1">
                   <option v-for="opt in outputTypeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
                 </select>
               </div>
               <div>
-                <label class="form-label">Status</label>
+                <label class="form-label">{{ $t('Status') }}</label>
                 <select v-model="form.status" class="input mt-1">
-                  <option value="draft">Draft</option>
-                  <option value="approved">Approved</option>
+                  <option value="draft">{{ $t('Draft') }}</option>
+                  <option value="approved">{{ $t('Approved') }}</option>
                 </select>
               </div>
               <div>
-                <label class="form-label">Version</label>
+                <label class="form-label">{{ $t('Version') }}</label>
                 <input v-model.number="form.version" class="input mt-1" type="number" min="1" />
               </div>
             </div>
 
             <div>
-              <label class="form-label">Short Description</label>
-              <input v-model="form.shortDescription" class="input mt-1" placeholder="One-line description of this prompt" />
+              <label class="form-label">{{ $t('Short Description') }}</label>
+              <input v-model="form.shortDescription" class="input mt-1" :placeholder="$t('One-line description of this prompt')" />
             </div>
 
             <!-- Template body -->
             <div>
               <label class="form-label">
-                Template Body
+                {{ $t('Template Body') }}
                 <span v-pre class="text-xs font-normal text-text-muted ml-1">— use {{placeholder}} for dynamic values</span>
               </label>
               <textarea v-model="form.templateBody" class="input mt-1 pwl-textarea" rows="10" placeholder="Write the main prompt instruction here. Use {{website_name}}, {{primary_color}}, {{section_headline}}, etc." />
@@ -203,54 +203,54 @@
 
             <!-- Locked rules -->
             <div>
-              <label class="form-label">Locked Rules <span class="text-xs font-normal text-text-muted ml-1">— shown at bottom of final prompt</span></label>
-              <textarea v-model="form.lockedRules" class="input mt-1" rows="4" placeholder="- Output must be mobile-responsive&#10;- No inline styles except colors&#10;- Use semantic HTML5 elements" />
+              <label class="form-label">{{ $t('Locked Rules') }} <span class="text-xs font-normal text-text-muted ml-1">{{ $t('— shown at bottom of final prompt') }}</span></label>
+              <textarea v-model="form.lockedRules" class="input mt-1" rows="4" :placeholder="$t('- Output must be mobile-responsive') + '\n' + $t('- No inline styles except colors') + '\n' + $t('- Use semantic HTML5 elements')" />
             </div>
 
             <!-- Editable fields editor -->
             <div>
               <div class="flex items-center justify-between">
-                <label class="form-label">Editable Fields <span class="text-xs font-normal text-text-muted ml-1">— filled by team members</span></label>
-                <button class="btn-secondary pwl-add-field-btn" type="button" @click="addField">+ Add Field</button>
+                <label class="form-label">{{ $t('Editable Fields') }} <span class="text-xs font-normal text-text-muted ml-1">{{ $t('— filled by team members') }}</span></label>
+                <button class="btn-secondary pwl-add-field-btn" type="button" @click="addField">{{ $t('+ Add Field') }}</button>
               </div>
               <div v-if="form.editableFields.length" class="mt-3 space-y-3">
                 <div v-for="(field, i) in form.editableFields" :key="i" class="pwl-field-row">
                   <div class="pwl-field-row-inputs">
-                    <input v-model="field.key" class="input pwl-field-key" placeholder="key (e.g. section_headline)" />
-                    <input v-model="field.label" class="input pwl-field-label" placeholder="Label" />
+                    <input v-model="field.key" class="input pwl-field-key" :placeholder="$t('key (e.g. section_headline)')" />
+                    <input v-model="field.label" class="input pwl-field-label" :placeholder="$t('Label')" />
                     <select v-model="field.type" class="input pwl-field-type">
-                      <option value="text">Text</option>
-                      <option value="textarea">Textarea</option>
-                      <option value="select">Select</option>
+                      <option value="text">{{ $t('Text') }}</option>
+                      <option value="textarea">{{ $t('Textarea') }}</option>
+                      <option value="select">{{ $t('Select') }}</option>
                     </select>
-                    <button class="btn-ghost pwl-field-del" type="button" title="Remove field" @click="removeField(i)">
+                    <button class="btn-ghost pwl-field-del" type="button" :title="$t('Remove field')" @click="removeField(i)">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
                     </button>
                   </div>
                   <div class="pwl-field-row-extra">
-                    <input v-model="field.helper" class="input pwl-field-helper" placeholder="Helper text (optional)" />
-                    <input v-model="field.defaultValue" class="input pwl-field-default" placeholder="Default value (optional)" />
+                    <input v-model="field.helper" class="input pwl-field-helper" :placeholder="$t('Helper text (optional)')" />
+                    <input v-model="field.defaultValue" class="input pwl-field-default" :placeholder="$t('Default value (optional)')" />
                   </div>
                   <div v-if="field.type === 'select'" class="mt-1">
                     <input
                       :value="field.options?.join(', ') || ''"
                       class="input"
-                      placeholder="Options comma-separated: Option A, Option B"
+                      :placeholder="$t('Options comma-separated: Option A, Option B')"
                       @input="(e) => { field.options = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean) }"
                     />
                   </div>
                 </div>
               </div>
-              <p v-else class="mt-2 text-xs text-text-muted">No editable fields yet. Add fields team members can fill in.</p>
+              <p v-else class="mt-2 text-xs text-text-muted">{{ $t('No editable fields yet. Add fields team members can fill in.') }}</p>
             </div>
 
             <!-- Required website fields -->
             <div>
-              <label class="form-label">Required Website Fields <span class="text-xs font-normal text-text-muted ml-1">— show warning if missing</span></label>
+              <label class="form-label">{{ $t('Required Website Fields') }} <span class="text-xs font-normal text-text-muted ml-1">{{ $t('— show warning if missing') }}</span></label>
               <input
                 :value="form.requiredWebsiteFields.join(', ')"
                 class="input mt-1"
-                placeholder="e.g. primary_color, font_family, max_width"
+                :placeholder="$t('e.g. primary_color, font_family, max_width')"
                 @input="(e) => { form.requiredWebsiteFields = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean) }"
               />
             </div>
@@ -258,12 +258,12 @@
             <!-- Requires product docs -->
             <div class="flex items-center gap-2">
               <input id="req-product" v-model="form.requiredProductDocs" type="checkbox" class="rounded" />
-              <label for="req-product" class="form-label mb-0 cursor-pointer">Requires product details from Docs</label>
+              <label for="req-product" class="form-label mb-0 cursor-pointer">{{ $t('Requires product details from Docs') }}</label>
             </div>
 
             <!-- Available placeholders hint -->
             <details class="pwl-placeholders-hint">
-              <summary class="cursor-pointer text-xs text-primary font-semibold">Available placeholders</summary>
+              <summary class="cursor-pointer text-xs text-primary font-semibold">{{ $t('Available placeholders') }}</summary>
               <div class="mt-2 pwl-ph-grid">
                 <span v-for="p in knownPlaceholders" :key="p.key" class="pwl-ph-item" :title="p.description" v-text="wrapKey(p.key)" />
               </div>
@@ -274,7 +274,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" type="button" @click="closeModal">Cancel</button>
+            <button class="btn-secondary" type="button" @click="closeModal">{{ $t('Cancel') }}</button>
             <button class="btn-primary" type="button" :disabled="pw.savingTemplate || !form.title || !form.pageType" @click="save">
               {{ pw.savingTemplate ? 'Saving…' : editingId ? 'Save Changes' : 'Create Prompt' }}
             </button>
@@ -288,16 +288,15 @@
       <div v-if="deleteTarget" class="modal-backdrop" @click.self="deleteTarget = null">
         <div class="modal-box" style="max-width:440px">
           <div class="modal-header">
-            <h2 class="modal-title text-status-needs-fix-fg">Delete Prompt?</h2>
+            <h2 class="modal-title text-status-needs-fix-fg">{{ $t('Delete Prompt?') }}</h2>
           </div>
           <div class="modal-body">
             <p class="text-sm text-text-muted">
-              Are you sure you want to delete <strong class="text-text-main">{{ deleteTarget.title }}</strong>?
-              This cannot be undone.
+              {{ $t('Are you sure you want to delete') }} <strong class="text-text-main">{{ deleteTarget.title }}</strong>{{ $t('? This cannot be undone.') }}
             </p>
           </div>
           <div class="modal-footer">
-            <button class="btn-secondary" type="button" @click="deleteTarget = null">Cancel</button>
+            <button class="btn-secondary" type="button" @click="deleteTarget = null">{{ $t('Cancel') }}</button>
             <button class="btn-danger" type="button" :disabled="deleting" @click="doDelete">
               {{ deleting ? 'Deleting…' : 'Delete' }}
             </button>

@@ -1,13 +1,13 @@
 <template>
-  <Modal :open="open" title="Manage Class Folders" size="md" @close="$emit('close')">
+  <Modal :open="open" :title="$t('Manage Class Folders')" size="md" @close="$emit('close')">
     <div class="mc-body">
       <p class="mc-hint">
-        Organize your websites into class folders (e.g. <em>Class A</em>, <em>Product Landings</em>,
-        <em>Urgent Fixes</em>). Each website belongs to one class.
+        {{ $t('Organize your websites into class folders (e.g.') }} <em>{{ $t('Class A') }}</em>, <em>{{ $t('Product Landings') }}</em>,
+        <em>{{ $t('Urgent Fixes') }}</em>{{ $t('). Each website belongs to one class.') }}
       </p>
 
       <!-- Existing classes -->
-      <div v-if="qc.classes.length === 0" class="mc-empty">No class folders yet — create your first below.</div>
+      <div v-if="qc.classes.length === 0" class="mc-empty">{{ $t('No class folders yet — create your first below.') }}</div>
       <ul v-else class="mc-list">
         <li v-for="c in qc.classes" :key="c.id" class="mc-row">
           <span class="mc-swatch" :style="{ background: c.color }" />
@@ -21,14 +21,14 @@
             :value="c.color"
             class="mc-color-input"
             @change="(e) => recolor(c.id, (e.target as HTMLInputElement).value)"
-            title="Pick a color"
+            :title="$t('Pick a color')"
           />
           <button
             type="button"
             class="mc-delete-btn"
             :disabled="busyId === c.id"
             @click="remove(c.id, c.name)"
-            title="Delete class"
+            :title="$t('Delete class')"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6 17.39 19.4A2 2 0 0 1 15.39 21H8.61A2 2 0 0 1 6.61 19.4L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
           </button>
@@ -37,20 +37,20 @@
 
       <!-- Create new -->
       <div class="mc-create">
-        <span class="mc-label">New class folder</span>
+        <span class="mc-label">{{ $t('New class folder') }}</span>
         <div class="mc-create-row">
           <input
             v-model="newName"
             type="text"
             class="mc-input"
-            placeholder="e.g. Class A Websites"
+            :placeholder="$t('e.g. Class A Websites')"
             @keyup.enter="create"
           />
           <input
             v-model="newColor"
             type="color"
             class="mc-color-input"
-            title="Pick a color"
+            :title="$t('Pick a color')"
           />
           <button class="btn-primary mc-create-btn" type="button" :disabled="creating || !newName.trim()" @click="create">
             {{ creating ? 'Creating…' : 'Add' }}
@@ -63,7 +63,7 @@
 
     <template #footer>
       <div class="mc-footer">
-        <button class="btn-ghost" type="button" @click="$emit('close')">Done</button>
+        <button class="btn-ghost" type="button" @click="$emit('close')">{{ $t('Done') }}</button>
       </div>
     </template>
   </Modal>

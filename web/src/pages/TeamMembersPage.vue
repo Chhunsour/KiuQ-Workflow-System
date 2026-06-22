@@ -1,12 +1,12 @@
 <template>
   <div class="tm-page">
-    <PageHeader title="Members" subtitle="Your team — roles and contact details." />
+    <PageHeader :title="$t('Members')" subtitle="Your team — roles and contact details." />
 
     <!-- Toolbar -->
     <div class="tm-toolbar">
       <div class="tm-search">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input v-model="search" type="search" placeholder="Search by name, role, or position…" />
+        <input v-model="search" type="search" :placeholder="$t('Search by name, role, or position…')" />
       </div>
       <div class="tm-filters">
         <button
@@ -34,7 +34,7 @@
     <!-- Error -->
     <div v-else-if="error" class="tm-error">
       <p>{{ error }}</p>
-      <button class="btn-primary" type="button" @click="load">Retry</button>
+      <button class="btn-primary" type="button" @click="load">{{ $t('Retry') }}</button>
     </div>
 
     <!-- Content -->
@@ -91,7 +91,7 @@
 
     <EmptyState
       v-else
-      title="No members found"
+      :title="$t('No members found')"
       description="Try a different search or role filter."
     />
   </div>
@@ -300,7 +300,7 @@ onMounted(load);
 .tm-chip:hover { color: var(--text-main); }
 .tm-chip--active {
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--primary) 70%, transparent);
 }
 

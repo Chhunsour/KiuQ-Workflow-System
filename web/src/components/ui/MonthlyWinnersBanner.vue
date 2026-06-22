@@ -8,25 +8,25 @@
             <span v-for="i in 22" :key="i" :style="{ '--i': i }" />
           </div>
           <div class="mw-floaties" aria-hidden="true">
-            <span class="mw-float mw-float--1">🎉</span>
+            <span class="mw-float mw-float--1">{{ $t('🎉') }}</span>
             <span class="mw-float mw-float--2">⭐</span>
-            <span class="mw-float mw-float--3">🎊</span>
+            <span class="mw-float mw-float--3">{{ $t('🎊') }}</span>
             <span class="mw-float mw-float--4">✨</span>
           </div>
 
-          <span v-if="preview" class="mw-preview">Preview</span>
-          <button class="mw-close" type="button" aria-label="Close" @click="dismiss">
+          <span v-if="preview" class="mw-preview">{{ $t('Preview') }}</span>
+          <button class="mw-close" type="button" aria-:label="$t('Close')" @click="dismiss">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
 
           <!-- Header -->
           <div class="mw-head">
-            <div class="mw-trophy">🏆</div>
+            <div class="mw-trophy">{{ $t('🏆') }}</div>
             <h2 class="mw-title">{{ monthLabel }} Champions</h2>
-            <p class="mw-sub">The results are in — here's who crushed it! 🔥</p>
+            <p class="mw-sub">{{ $t('The results are in — here\'s who crushed it! 🔥') }}</p>
           </div>
 
-          <div v-if="loading" class="mw-loading">Loading results…</div>
+          <div v-if="loading" class="mw-loading">{{ $t('Loading results…') }}</div>
           <div v-else-if="winners.length === 0" class="mw-empty">No ranked activity for {{ monthLabel }} yet.</div>
 
           <template v-else>
@@ -38,7 +38,7 @@
                   <span class="mw-ava">
                     <img v-if="winners[1].avatarUrl" :src="winners[1].avatarUrl" :alt="winners[1].fullName" />
                     <span v-else>{{ initials(winners[1].fullName) }}</span>
-                    <span class="mw-medal">🥈</span>
+                    <span class="mw-medal">{{ $t('🥈') }}</span>
                   </span>
                   <span class="mw-name">{{ firstName(winners[1].fullName) }}</span>
                   <span class="mw-pts">{{ formatNumber(winners[1].totalPoints) }} pts</span>
@@ -48,12 +48,12 @@
 
               <!-- 1st -->
               <div v-if="winners[0]" class="mw-col mw-col--champ">
-                <div class="mw-crown" aria-hidden="true">👑</div>
+                <div class="mw-crown" aria-hidden="true">{{ $t('👑') }}</div>
                 <div class="mw-person">
                   <span class="mw-ava mw-ava--champ">
                     <img v-if="winners[0].avatarUrl" :src="winners[0].avatarUrl" :alt="winners[0].fullName" />
                     <span v-else>{{ initials(winners[0].fullName) }}</span>
-                    <span class="mw-medal mw-medal--champ">🥇</span>
+                    <span class="mw-medal mw-medal--champ">{{ $t('🥇') }}</span>
                   </span>
                   <span class="mw-name mw-name--champ">{{ firstName(winners[0].fullName) }}</span>
                   <span class="mw-pts mw-pts--champ">{{ formatNumber(winners[0].totalPoints) }} pts</span>
@@ -67,7 +67,7 @@
                   <span class="mw-ava">
                     <img v-if="winners[2].avatarUrl" :src="winners[2].avatarUrl" :alt="winners[2].fullName" />
                     <span v-else>{{ initials(winners[2].fullName) }}</span>
-                    <span class="mw-medal">🥉</span>
+                    <span class="mw-medal">{{ $t('🥉') }}</span>
                   </span>
                   <span class="mw-name">{{ firstName(winners[2].fullName) }}</span>
                   <span class="mw-pts">{{ formatNumber(winners[2].totalPoints) }} pts</span>
@@ -78,10 +78,10 @@
 
             <!-- Champion gift callout -->
             <div class="mw-gift">
-              <span class="mw-gift-emoji">🎁</span>
+              <span class="mw-gift-emoji">{{ $t('🎁') }}</span>
               <div class="mw-gift-text">
                 <strong>{{ firstName(winners[0].fullName) }} is the champion!</strong>
-                <span>Go ask a gift from Sour xD</span>
+                <span>{{ $t('Go ask a gift from Sour xD') }}</span>
               </div>
             </div>
 
@@ -92,13 +92,13 @@
                 <img v-if="winners[3].avatarUrl" :src="winners[3].avatarUrl" :alt="winners[3].fullName" />
                 <span v-else>{{ initials(winners[3].fullName) }}</span>
               </span>
-              <span class="mw-hm-text"><strong>{{ winners[3].fullName }}</strong> took 4th — also crushing it! 💪</span>
+              <span class="mw-hm-text"><strong>{{ winners[3].fullName }}</strong> {{ $t('took 4th — also crushing it! 💪') }}</span>
               <span class="mw-hm-pts">{{ formatNumber(winners[3].totalPoints) }} pts</span>
             </div>
           </template>
 
           <button class="mw-cta" type="button" @click="goLeaderboard">
-            See the full leaderboard →
+            {{ $t('See the full leaderboard →') }}
           </button>
         </div>
       </div>
@@ -356,7 +356,7 @@ onBeforeUnmount(() => {
   border-radius: 14px 14px 0 0;
   background: var(--soft-bg);
   border: 1px solid var(--border); border-bottom: none;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,0.05);
+  box-shadow: inset 0 2px 0 rgba(248,251,255,0.05);
 }
 .mw-stand--1 { height: 6rem; }
 .mw-stand--2 { height: 4rem; }
@@ -364,7 +364,7 @@ onBeforeUnmount(() => {
 .mw-stand--1 {
   background: color-mix(in srgb, #f59e0b 18%, var(--soft-bg));
   border-color: color-mix(in srgb, #f59e0b 48%, var(--border));
-  box-shadow: inset 0 2px 0 rgba(255,255,255,0.12), 0 -8px 26px -10px color-mix(in srgb, #f59e0b 60%, transparent);
+  box-shadow: inset 0 2px 0 rgba(248,251,255,0.12), 0 -8px 26px -10px color-mix(in srgb, #f59e0b 60%, transparent);
 }
 .mw-stand-num {
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
@@ -418,7 +418,7 @@ onBeforeUnmount(() => {
   margin-top: 1.25rem; width: 100%;
   padding: 0.78rem 1rem; border: none; border-radius: 14px; cursor: pointer;
   background: #f59e0b;
-  color: #fff; font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
+  color: #f8fbff; font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.92rem; font-weight: 800;
   box-shadow: 0 10px 26px -6px color-mix(in srgb, #f59e0b 65%, transparent);
   transition: transform 140ms ease, box-shadow 140ms ease;

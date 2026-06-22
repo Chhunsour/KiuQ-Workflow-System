@@ -3,8 +3,8 @@
     <!-- Page header -->
     <div class="np-header">
       <div>
-        <h1 class="np-title">Notifications Center</h1>
-        <p class="np-sub">Manage alerts, acknowledgements, quality issues, and performance metrics.</p>
+        <h1 class="np-title">{{ $t('Notifications Center') }}</h1>
+        <p class="np-sub">{{ $t('Manage alerts, acknowledgements, quality issues, and performance metrics.') }}</p>
       </div>
       <button
         v-if="notifs.hasUnread && activeTab !== 'analytics'"
@@ -12,7 +12,7 @@
         type="button"
         @click="notifs.markAllRead()"
       >
-        Mark all as read
+        {{ $t('Mark all as read') }}
       </button>
     </div>
 
@@ -77,39 +77,39 @@
 
     <!-- Analytics Dashboard Tab -->
     <div v-if="activeTab === 'analytics'" class="np-analytics">
-      <div v-if="loadingAnalytics" class="np-loading">Loading analytics data...</div>
-      <div v-else-if="!analyticsData" class="np-empty">Failed to load analytics.</div>
+      <div v-if="loadingAnalytics" class="np-loading">{{ $t('Loading analytics data...') }}</div>
+      <div v-else-if="!analyticsData" class="np-empty">{{ $t('Failed to load analytics.') }}</div>
       <div v-else class="space-y-6">
         <!-- Stats cards -->
         <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <div class="np-stat-card border-l-4 border-primary">
-            <span class="np-stat-label">Notifications Sent</span>
+            <span class="np-stat-label">{{ $t('Notifications Sent') }}</span>
             <span class="np-stat-value text-primary">{{ analyticsData.total_sent }}</span>
           </div>
           <div class="np-stat-card border-l-4 border-status-approved-fg">
-            <span class="np-stat-label">Notifications Read</span>
+            <span class="np-stat-label">{{ $t('Notifications Read') }}</span>
             <span class="np-stat-value text-status-approved-fg">{{ analyticsData.total_read }}</span>
           </div>
           <div class="np-stat-card border-l-4 border-status-needs-fix-fg">
-            <span class="np-stat-label">Ignored / Pending</span>
+            <span class="np-stat-label">{{ $t('Ignored / Pending') }}</span>
             <span class="np-stat-value text-status-needs-fix-fg">{{ analyticsData.total_ignored }}</span>
           </div>
           <div class="np-stat-card border-l-4 border-status-pending-fg">
-            <span class="np-stat-label">Avg Response Time</span>
+            <span class="np-stat-label">{{ $t('Avg Response Time') }}</span>
             <span class="np-stat-value text-status-pending-fg">{{ formatSeconds(analyticsData.avg_response_seconds) }}</span>
           </div>
         </div>
 
         <!-- Delayed Users Table -->
         <div class="card card-pad">
-          <h3 class="section-title mb-4">Delayed User Response Times</h3>
+          <h3 class="section-title mb-4">{{ $t('Delayed User Response Times') }}</h3>
           <div class="overflow-x-auto">
             <table class="np-analytics-table">
               <thead>
                 <tr>
-                  <th>Teammate</th>
-                  <th>Ignored / Pending Alert Count</th>
-                  <th>Average Response Duration</th>
+                  <th>{{ $t('Teammate') }}</th>
+                  <th>{{ $t('Ignored / Pending Alert Count') }}</th>
+                  <th>{{ $t('Average Response Duration') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -148,8 +148,8 @@
           <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
         </svg>
       </div>
-      <h3 class="np-empty-title">All caught up!</h3>
-      <p class="np-empty-desc">You don't have any notifications matching this filter.</p>
+      <h3 class="np-empty-title">{{ $t('All caught up!') }}</h3>
+      <p class="np-empty-desc">{{ $t('You don\'t have any notifications matching this filter.') }}</p>
     </div>
 
     <!-- Grouped/Single items list -->
@@ -251,7 +251,7 @@
                             type="button"
                             @click.stop="notifs.markRead(subNotif.id)"
                           >
-                            Mark Read
+                            {{ $t('Mark Read') }}
                           </button>
                           <button
                             v-if="!subNotif.acknowledgedAt"
@@ -259,7 +259,7 @@
                             type="button"
                             @click.stop="notifs.acknowledgeNotification(subNotif.id)"
                           >
-                            I Got It
+                            {{ $t('I Got It') }}
                           </button>
                           <button
                             v-else
@@ -327,7 +327,7 @@
                       type="button"
                       @click.stop="notifs.markRead(groupItem.id)"
                     >
-                      Mark Read
+                      {{ $t('Mark Read') }}
                     </button>
                     <button
                       v-if="!groupItem.acknowledgedAt"
@@ -335,7 +335,7 @@
                       type="button"
                       @click.stop="notifs.acknowledgeNotification(groupItem.id)"
                     >
-                      I Got It
+                      {{ $t('I Got It') }}
                     </button>
                     <button
                       v-else

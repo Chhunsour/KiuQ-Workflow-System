@@ -1,8 +1,8 @@
 <template>
   <div class="dfd-root">
     <!-- Breadcrumb -->
-    <nav class="dfd-breadcrumb" aria-label="Breadcrumb">
-      <RouterLink to="/docs" class="dfd-bc-link">Docs Drive</RouterLink>
+    <nav class="dfd-breadcrumb" aria-:label="$t('Breadcrumb')">
+      <RouterLink to="/docs" class="dfd-bc-link">{{ $t('Docs Drive') }}</RouterLink>
       <span class="dfd-bc-sep">›</span>
       <span class="dfd-bc-current">{{ folder?.name ?? 'Folder' }}</span>
     </nav>
@@ -10,9 +10,9 @@
     <!-- Folder missing -->
     <div v-if="folderMissing" class="dfd-missing">
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-      <h3>Folder not found</h3>
-      <p>It may have been deleted, or you do not have access.</p>
-      <RouterLink to="/docs" class="btn-primary">Back to Docs</RouterLink>
+      <h3>{{ $t('Folder not found') }}</h3>
+      <p>{{ $t('It may have been deleted, or you do not have access.') }}</p>
+      <RouterLink to="/docs" class="btn-primary">{{ $t('Back to Docs') }}</RouterLink>
     </div>
 
     <!-- Loading skeleton -->
@@ -33,31 +33,31 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
             <span>{{ folder?.name }}</span>
           </div>
-          <button v-if="canWrite" class="dfd-new-doc-btn" type="button" @click="createDoc" :disabled="creating" title="New document">
+          <button v-if="canWrite" class="dfd-new-doc-btn" type="button" @click="createDoc" :disabled="creating" :title="$t('New document')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-            New
+            {{ $t('New') }}
           </button>
         </div>
 
         <!-- Search -->
         <div class="dfd-search-wrap">
           <svg class="dfd-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input v-model="sidebarSearch" class="dfd-search" type="text" placeholder="Search docs…" />
+          <input v-model="sidebarSearch" class="dfd-search" type="text" :placeholder="$t('Search docs…')" />
         </div>
 
         <!-- Doc list -->
         <div class="dfd-doc-list">
           <!-- Empty state inside sidebar -->
           <div v-if="textDocs.length === 0 && !creating" class="dfd-sidebar-empty">
-            <p>No docs yet.</p>
+            <p>{{ $t('No docs yet.') }}</p>
             <button v-if="canWrite" class="dfd-sidebar-create-btn" type="button" @click="createDoc">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-              Create New Doc
+              {{ $t('Create New Doc') }}
             </button>
           </div>
 
           <div v-else-if="filteredDocs.length === 0 && sidebarSearch" class="dfd-sidebar-empty">
-            <p>No matches.</p>
+            <p>{{ $t('No matches.') }}</p>
           </div>
 
           <div
@@ -91,7 +91,7 @@
                 <span v-if="doc.updatedAt" class="dfd-doc-item-date">{{ relativeDate(doc.updatedAt) }}</span>
               </template>
             </div>
-            <span v-if="unsavedDocIds.has(doc.id)" class="dfd-unsaved-dot" title="Unsaved changes" />
+            <span v-if="unsavedDocIds.has(doc.id)" class="dfd-unsaved-dot" :title="$t('Unsaved changes')" />
           </div>
         </div>
       </aside>
@@ -108,8 +108,8 @@
         <!-- No doc selected / empty folder -->
         <div v-if="!activeDoc && textDocs.length === 0" class="dfd-empty-main">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.25"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
-          <h3>No documents yet</h3>
-          <p>Create your first document to get started.</p>
+          <h3>{{ $t('No documents yet') }}</h3>
+          <p>{{ $t('Create your first document to get started.') }}</p>
           <button v-if="canWrite" class="btn-primary" type="button" :disabled="creating" @click="createDoc">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
             {{ creating ? 'Creating…' : 'Create New Doc' }}
@@ -118,7 +118,7 @@
 
         <div v-else-if="!activeDoc" class="dfd-empty-main">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.25"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-          <p>Select a document from the sidebar.</p>
+          <p>{{ $t('Select a document from the sidebar.') }}</p>
         </div>
 
         <template v-else>
@@ -131,7 +131,7 @@
                 v-model="draftTitle"
                 class="dfd-title-input"
                 type="text"
-                placeholder="Untitled"
+                :placeholder="$t('Untitled')"
                 maxlength="200"
                 :disabled="auth.isViewer"
                 @input="onTitleInput"
@@ -143,15 +143,15 @@
             <div class="dfd-save-status" :class="`dfd-save-status--${saveStatus}`">
               <template v-if="saveStatus === 'saving'">
                 <span class="dfd-save-spinner" />
-                Saving…
+                {{ $t('Saving…') }}
               </template>
               <template v-else-if="saveStatus === 'saved'">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-                Saved
+                {{ $t('Saved') }}
               </template>
               <template v-else-if="saveStatus === 'error'">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Error saving
+                {{ $t('Error saving') }}
               </template>
             </div>
 
@@ -163,19 +163,19 @@
                 <span class="dfd-action-label">{{ copyLabel }}</span>
               </button>
               <!-- Duplicate -->
-              <button v-if="!auth.isViewer" class="dfd-action-btn" type="button" title="Duplicate" @click="duplicateDoc">
+              <button v-if="!auth.isViewer" class="dfd-action-btn" type="button" :title="$t('Duplicate')" @click="duplicateDoc">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/><rect x="11" y="11" width="11" height="11" rx="2"/></svg>
-                <span class="dfd-action-label">Duplicate</span>
+                <span class="dfd-action-label">{{ $t('Duplicate') }}</span>
               </button>
               <!-- Delete -->
-              <button v-if="canDeleteDoc" class="dfd-action-btn dfd-action-btn--danger" type="button" title="Delete" @click="confirmDeleteDoc">
+              <button v-if="canDeleteDoc" class="dfd-action-btn dfd-action-btn--danger" type="button" :title="$t('Delete')" @click="confirmDeleteDoc">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                <span class="dfd-action-label">Delete</span>
+                <span class="dfd-action-label">{{ $t('Delete') }}</span>
               </button>
               <!-- Manual save -->
               <button v-if="!auth.isViewer" class="dfd-action-btn dfd-action-btn--save" type="button" :disabled="saveStatus === 'saving'" @click="saveNow">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                <span class="dfd-action-label">Save</span>
+                <span class="dfd-action-label">{{ $t('Save') }}</span>
               </button>
             </div>
           </div>
@@ -186,7 +186,7 @@
               ref="editorRef"
               v-model="draftContent"
               class="dfd-editor"
-              placeholder="Start writing…"
+              :placeholder="$t('Start writing…')"
               spellcheck="true"
               :readonly="auth.isViewer"
               @input="onContentInput"
@@ -790,7 +790,7 @@ watch(activeDoc, (doc, prev) => {
   gap: 0.25rem;
   flex-shrink: 0;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   border: none;
   border-radius: 7px;
   padding: 0.28rem 0.55rem;
@@ -1081,7 +1081,7 @@ watch(activeDoc, (doc, prev) => {
 
 .dfd-action-btn--save {
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   border-color: var(--primary);
 }
 .dfd-action-btn--save:hover:not(:disabled) { opacity: 0.88; }
@@ -1145,8 +1145,8 @@ watch(activeDoc, (doc, prev) => {
   pointer-events: none;
   white-space: nowrap;
 }
-.dfd-toast--success { background: #16a34a; color: #fff; }
-.dfd-toast--error   { background: #dc2626; color: #fff; }
+.dfd-toast--success { background: #16a34a; color: #f8fbff; }
+.dfd-toast--error   { background: #dc2626; color: #f8fbff; }
 
 .dfd-toast-anim-enter-active { transition: opacity 160ms, transform 160ms; }
 .dfd-toast-anim-leave-active { transition: opacity 200ms, transform 200ms; }

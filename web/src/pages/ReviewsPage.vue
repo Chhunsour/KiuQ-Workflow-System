@@ -1,11 +1,11 @@
 <template>
   <div>
-    <PageHeader title="Reviews" subtitle="Review submitted work, approve it, reject it, or request fixes." />
+    <PageHeader :title="$t('Reviews')" subtitle="Review submitted work, approve it, reject it, or request fixes." />
 
 
 
     <div class="mb-5 flex flex-wrap items-center gap-3">
-      <input v-model="search" class="input max-w-sm" type="search" placeholder="Search submissions..." />
+      <input v-model="search" class="input max-w-sm" type="search" :placeholder="$t('Search submissions...')" />
       <FormSelect
         v-model="statusFilter"
         class="max-w-[220px]"
@@ -31,7 +31,7 @@
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <RouterLink class="btn-secondary h-8 px-3 text-xs" :to="`/profiles/${item.memberId}`">
-                View Full
+                {{ $t('View Full') }}
               </RouterLink>
               <StatusBadge :status="item.submission.status === 'submitted' ? 'pending_review' : item.submission.status" />
             </div>
@@ -39,7 +39,7 @@
 
           <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div>
-              <div class="ui-font mb-2 text-sm font-medium text-text-main">Submitted output</div>
+              <div class="ui-font mb-2 text-sm font-medium text-text-main">{{ $t('Submitted output') }}</div>
               <pre class="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-card border border-border bg-soft p-4 text-sm text-text-main">{{ item.submission.content }}</pre>
               <a
                 v-if="item.submission.screenshotUrl"
@@ -48,14 +48,14 @@
                 rel="noopener"
                 class="mt-2 inline-block text-sm text-primary hover:underline"
               >
-                Open screenshot
+                {{ $t('Open screenshot') }}
               </a>
             </div>
             <div>
               <FormTextarea
                 v-model="feedback[item.submission.id]"
-                label="Feedback"
-                placeholder="Write what needs fixing, or leave blank for a simple approval."
+                :label="$t('Feedback')"
+                :placeholder="$t('Write what needs fixing, or leave blank for a simple approval.')"
                 :rows="8"
               />
               <div class="mt-3 flex flex-wrap justify-end gap-2">
@@ -65,16 +65,16 @@
                   type="button"
                   @click="openReplace(assignmentById(item.submission.assignmentId)!)"
                 >
-                  Replace Prompt
+                  {{ $t('Replace Prompt') }}
                 </button>
                 <button class="btn-secondary h-9 px-3 text-xs" type="button" @click="review(item.submission, 'needs_fix')">
-                  Needs Fix
+                  {{ $t('Needs Fix') }}
                 </button>
                 <button class="btn-danger h-9 px-3 text-xs" type="button" @click="review(item.submission, 'rejected')">
-                  Reject
+                  {{ $t('Reject') }}
                 </button>
                 <button class="btn-primary h-9 px-3 text-xs" type="button" @click="review(item.submission, 'approved')">
-                  Approve
+                  {{ $t('Approve') }}
                 </button>
               </div>
             </div>
@@ -83,7 +83,7 @@
       </div>
       <EmptyState
         v-else
-        title="No submissions"
+        :title="$t('No submissions')"
         description="Team submissions will appear here when they are ready for review."
       />
     </LoadingBlock>

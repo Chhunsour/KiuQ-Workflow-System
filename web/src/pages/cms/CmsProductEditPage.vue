@@ -3,7 +3,7 @@
     <CmsLockedScreen
       v-if="true"
       badge="Under Review"
-      title="Product Catalog CMS is Locked"
+      :title="$t('Product Catalog CMS is Locked')"
       description="The Product CMS dashboard is currently disabled while the management team reviews its implementation scope and guidelines."
       :hint="null"
     />
@@ -12,7 +12,7 @@
     <header class="cpe-header">
       <RouterLink to="/cms/products" class="cpe-back">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-        All Products
+        {{ $t('All Products') }}
       </RouterLink>
       <div class="cpe-header-meta">
         <span class="cpe-badge" :class="`cpe-badge--${form.status}`">
@@ -23,8 +23,8 @@
       </div>
     </header>
 
-    <div v-if="loading" class="cpe-loading card card-pad">Loading product…</div>
-    <div v-else-if="!product" class="cpe-loading card card-pad">Product not found.</div>
+    <div v-if="loading" class="cpe-loading card card-pad">{{ $t('Loading product…') }}</div>
+    <div v-else-if="!product" class="cpe-loading card card-pad">{{ $t('Product not found.') }}</div>
 
     <template v-else>
       <!-- Main content -->
@@ -32,32 +32,32 @@
         <!-- LEFT column: editorial -->
         <div class="cpe-col">
           <section class="card card-pad cpe-section">
-            <label class="cpe-label">Product name *</label>
-            <input v-model="form.productName" class="cpe-input cpe-input--big" type="text" placeholder="e.g. Mini Excavator MX-200" />
+            <label class="cpe-label">{{ $t('Product name *') }}</label>
+            <input v-model="form.productName" class="cpe-input cpe-input--big" type="text" :placeholder="$t('e.g. Mini Excavator MX-200')" />
 
-            <label class="cpe-label">Slug</label>
+            <label class="cpe-label">{{ $t('Slug') }}</label>
             <div class="cpe-slug-row">
               <span class="cpe-slug-prefix">/</span>
-              <input v-model="form.slug" class="cpe-input" type="text" placeholder="auto-generated from name" @blur="onSlugBlur" />
+              <input v-model="form.slug" class="cpe-input" type="text" :placeholder="$t('auto-generated from name')" @blur="onSlugBlur" />
             </div>
-            <p class="cpe-hint">URL path on the public website. Auto-generated from the product name; tweak if needed.</p>
+            <p class="cpe-hint">{{ $t('URL path on the public website. Auto-generated from the product name; tweak if needed.') }}</p>
 
             <div class="cpe-row2">
               <div>
-                <label class="cpe-label">Category</label>
-                <input v-model="form.category" class="cpe-input" type="text" placeholder="e.g. Heavy Machinery" />
+                <label class="cpe-label">{{ $t('Category') }}</label>
+                <input v-model="form.category" class="cpe-input" type="text" :placeholder="$t('e.g. Heavy Machinery')" />
               </div>
               <div>
-                <label class="cpe-label">Price (optional)</label>
+                <label class="cpe-label">{{ $t('Price (optional)') }}</label>
                 <input v-model.number="form.price" class="cpe-input" type="number" min="0" step="0.01" placeholder="0.00" />
               </div>
             </div>
 
-            <label class="cpe-label">Short description</label>
-            <textarea v-model="form.shortDescription" class="cpe-input cpe-textarea" rows="2" placeholder="One or two sentences — shown in product cards and listings." />
+            <label class="cpe-label">{{ $t('Short description') }}</label>
+            <textarea v-model="form.shortDescription" class="cpe-input cpe-textarea" rows="2" :placeholder="$t('One or two sentences — shown in product cards and listings.')" />
 
-            <label class="cpe-label">Full description</label>
-            <textarea v-model="form.fullDescription" class="cpe-input cpe-textarea cpe-textarea--tall" rows="5" placeholder="The detailed description shown on the product page." />
+            <label class="cpe-label">{{ $t('Full description') }}</label>
+            <textarea v-model="form.fullDescription" class="cpe-input cpe-textarea cpe-textarea--tall" rows="5" :placeholder="$t('The detailed description shown on the product page.')" />
           </section>
 
           <!-- Secondary sections tile two-up to keep the editor short & wide -->
@@ -65,15 +65,15 @@
           <!-- Specs -->
           <section class="card card-pad cpe-section">
             <div class="cpe-section-head">
-              <h3 class="cpe-section-title">Specs</h3>
-              <button type="button" class="btn-secondary cpe-section-add" @click="addSpec">+ Add spec</button>
+              <h3 class="cpe-section-title">{{ $t('Specs') }}</h3>
+              <button type="button" class="btn-secondary cpe-section-add" @click="addSpec">{{ $t('+ Add spec') }}</button>
             </div>
-            <div v-if="form.specs.length === 0" class="cpe-empty">No specs yet.</div>
+            <div v-if="form.specs.length === 0" class="cpe-empty">{{ $t('No specs yet.') }}</div>
             <div v-else class="cpe-rows">
               <div v-for="(s, i) in form.specs" :key="`spec-${i}`" class="cpe-row">
-                <input v-model="s.label" class="cpe-input" type="text" placeholder="Label (e.g. Weight)" />
-                <input v-model="s.value" class="cpe-input" type="text" placeholder="Value (e.g. 2,400 kg)" />
-                <button type="button" class="cpe-row-remove" title="Remove" @click="form.specs.splice(i, 1)">×</button>
+                <input v-model="s.label" class="cpe-input" type="text" :placeholder="$t('Label (e.g. Weight)')" />
+                <input v-model="s.value" class="cpe-input" type="text" :placeholder="$t('Value (e.g. 2,400 kg)')" />
+                <button type="button" class="cpe-row-remove" :title="$t('Remove')" @click="form.specs.splice(i, 1)">×</button>
               </div>
             </div>
           </section>
@@ -81,15 +81,15 @@
           <!-- Features -->
           <section class="card card-pad cpe-section">
             <div class="cpe-section-head">
-              <h3 class="cpe-section-title">Features</h3>
-              <button type="button" class="btn-secondary cpe-section-add" @click="addFeature">+ Add feature</button>
+              <h3 class="cpe-section-title">{{ $t('Features') }}</h3>
+              <button type="button" class="btn-secondary cpe-section-add" @click="addFeature">{{ $t('+ Add feature') }}</button>
             </div>
-            <div v-if="form.features.length === 0" class="cpe-empty">No features yet.</div>
+            <div v-if="form.features.length === 0" class="cpe-empty">{{ $t('No features yet.') }}</div>
             <div v-else class="cpe-rows">
               <div v-for="(f, i) in form.features" :key="`feat-${i}`" class="cpe-row">
-                <input v-model="f.title" class="cpe-input" type="text" placeholder="Title" />
-                <input v-model="f.detail" class="cpe-input" type="text" placeholder="Detail (optional)" />
-                <button type="button" class="cpe-row-remove" title="Remove" @click="form.features.splice(i, 1)">×</button>
+                <input v-model="f.title" class="cpe-input" type="text" :placeholder="$t('Title')" />
+                <input v-model="f.detail" class="cpe-input" type="text" :placeholder="$t('Detail (optional)')" />
+                <button type="button" class="cpe-row-remove" :title="$t('Remove')" @click="form.features.splice(i, 1)">×</button>
               </div>
             </div>
           </section>
@@ -97,26 +97,26 @@
           <!-- FAQ -->
           <section class="card card-pad cpe-section">
             <div class="cpe-section-head">
-              <h3 class="cpe-section-title">FAQ</h3>
-              <button type="button" class="btn-secondary cpe-section-add" @click="addFaq">+ Add Q&amp;A</button>
+              <h3 class="cpe-section-title">{{ $t('FAQ') }}</h3>
+              <button type="button" class="btn-secondary cpe-section-add" @click="addFaq">{{ $t('+ Add Q&amp;A') }}</button>
             </div>
-            <div v-if="form.faq.length === 0" class="cpe-empty">No FAQs yet.</div>
+            <div v-if="form.faq.length === 0" class="cpe-empty">{{ $t('No FAQs yet.') }}</div>
             <div v-else class="cpe-faq-list">
               <div v-for="(q, i) in form.faq" :key="`faq-${i}`" class="cpe-faq-item">
-                <input v-model="q.question" class="cpe-input" type="text" placeholder="Question" />
-                <textarea v-model="q.answer" class="cpe-input cpe-textarea" rows="2" placeholder="Answer" />
-                <button type="button" class="cpe-row-remove cpe-faq-remove" title="Remove" @click="form.faq.splice(i, 1)">×</button>
+                <input v-model="q.question" class="cpe-input" type="text" :placeholder="$t('Question')" />
+                <textarea v-model="q.answer" class="cpe-input cpe-textarea" rows="2" :placeholder="$t('Answer')" />
+                <button type="button" class="cpe-row-remove cpe-faq-remove" :title="$t('Remove')" @click="form.faq.splice(i, 1)">×</button>
               </div>
             </div>
           </section>
 
           <!-- SEO -->
           <section class="card card-pad cpe-section">
-            <h3 class="cpe-section-title">SEO</h3>
-            <label class="cpe-label">SEO title</label>
-            <input v-model="form.seoTitle" class="cpe-input" type="text" maxlength="70" placeholder="Shown in search results" />
-            <label class="cpe-label">SEO description</label>
-            <textarea v-model="form.seoDescription" class="cpe-input cpe-textarea" rows="3" maxlength="180" placeholder="Search snippet, 150–180 chars" />
+            <h3 class="cpe-section-title">{{ $t('SEO') }}</h3>
+            <label class="cpe-label">{{ $t('SEO title') }}</label>
+            <input v-model="form.seoTitle" class="cpe-input" type="text" maxlength="70" :placeholder="$t('Shown in search results')" />
+            <label class="cpe-label">{{ $t('SEO description') }}</label>
+            <textarea v-model="form.seoDescription" class="cpe-input cpe-textarea" rows="3" maxlength="180" :placeholder="$t('Search snippet, 150–180 chars')" />
           </section>
           </div>
         </div>
@@ -125,22 +125,22 @@
         <aside class="cpe-col cpe-col-side">
           <!-- Status / publish actions -->
           <section class="card card-pad cpe-section">
-            <h3 class="cpe-section-title">Publishing</h3>
-            <label class="cpe-label">Status</label>
+            <h3 class="cpe-section-title">{{ $t('Publishing') }}</h3>
+            <label class="cpe-label">{{ $t('Status') }}</label>
             <select
               v-model="form.status"
               class="cpe-input"
               :disabled="!store.canPublish()"
               :title="store.canPublish() ? '' : 'Only Head/Supervisor/Assistant Head can change publish status.'"
             >
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
+              <option value="draft">{{ $t('Draft') }}</option>
+              <option value="published">{{ $t('Published') }}</option>
             </select>
             <p v-if="!store.canPublish()" class="cpe-hint">
-              You can edit drafts. Ask a Head or Supervisor to publish.
+              {{ $t('You can edit drafts. Ask a Head or Supervisor to publish.') }}
             </p>
             <p v-else class="cpe-hint">
-              Published rows are visible to the public framework website.
+              {{ $t('Published rows are visible to the public framework website.') }}
             </p>
           </section>
 
@@ -155,14 +155,14 @@
             @drop.prevent="onImageDrop"
           >
             <div class="cpe-section-head">
-              <h3 class="cpe-section-title">Product images</h3>
+              <h3 class="cpe-section-title">{{ $t('Product images') }}</h3>
               <label class="btn-secondary cpe-section-add" :class="{ 'is-disabled': uploadingImage }">
                 <input type="file" accept="image/*" :disabled="uploadingImage" @change="onImageChange" />
                 {{ uploadingImage ? 'Uploading…' : '+ Upload image' }}
               </label>
             </div>
             <p class="cpe-hint cpe-hint--drop">
-              Drop, paste (⌘V), or click to upload. PNG / JPG are auto-converted to WebP for faster AI access.
+              {{ $t('Drop, paste (⌘V), or click to upload. PNG / JPG are auto-converted to WebP for faster AI access.') }}
             </p>
             <div v-if="form.productImages.length === 0" class="cpe-empty">
               {{ isDraggingImage ? 'Drop image to upload' : 'No images yet.' }}
@@ -170,8 +170,8 @@
             <ul v-else class="cpe-img-list">
               <li v-for="(img, i) in form.productImages" :key="`img-${i}`" class="cpe-img-item">
                 <img :src="img.url" :alt="img.alt || ''" />
-                <input v-model="img.alt" class="cpe-input cpe-input--alt" type="text" placeholder="alt text" />
-                <button type="button" class="cpe-row-remove" title="Remove" @click="form.productImages.splice(i, 1)">×</button>
+                <input v-model="img.alt" class="cpe-input cpe-input--alt" type="text" :placeholder="$t('alt text')" />
+                <button type="button" class="cpe-row-remove" :title="$t('Remove')" @click="form.productImages.splice(i, 1)">×</button>
               </li>
             </ul>
           </section>
@@ -179,18 +179,18 @@
           <!-- Attachments -->
           <section class="card card-pad cpe-section">
             <div class="cpe-section-head">
-              <h3 class="cpe-section-title">Attachments</h3>
+              <h3 class="cpe-section-title">{{ $t('Attachments') }}</h3>
               <label class="btn-secondary cpe-section-add" :class="{ 'is-disabled': uploadingAttachment }">
                 <input type="file" :disabled="uploadingAttachment" @change="onAttachmentChange" />
                 {{ uploadingAttachment ? 'Uploading…' : '+ Upload file' }}
               </label>
             </div>
-            <div v-if="form.attachments.length === 0" class="cpe-empty">No attachments.</div>
+            <div v-if="form.attachments.length === 0" class="cpe-empty">{{ $t('No attachments.') }}</div>
             <ul v-else class="cpe-att-list">
               <li v-for="(a, i) in form.attachments" :key="`att-${i}`" class="cpe-att-item">
                 <a :href="a.url" target="_blank" rel="noopener" class="cpe-att-link">{{ a.label || a.url }}</a>
-                <input v-model="a.label" class="cpe-input cpe-input--alt" type="text" placeholder="Label" />
-                <button type="button" class="cpe-row-remove" title="Remove" @click="form.attachments.splice(i, 1)">×</button>
+                <input v-model="a.label" class="cpe-input cpe-input--alt" type="text" :placeholder="$t('Label')" />
+                <button type="button" class="cpe-row-remove" :title="$t('Remove')" @click="form.attachments.splice(i, 1)">×</button>
               </li>
             </ul>
           </section>
@@ -207,11 +207,11 @@
             :disabled="saving"
             @click="onDelete"
           >
-            Delete
+            {{ $t('Delete') }}
           </button>
         </div>
         <div class="cpe-footer-right">
-          <RouterLink to="/cms/products" class="btn-ghost">Close</RouterLink>
+          <RouterLink to="/cms/products" class="btn-ghost">{{ $t('Close') }}</RouterLink>
           <button type="button" class="btn-primary" :disabled="saving" @click="save">
             {{ saving ? 'Saving…' : 'Save Changes' }}
           </button>

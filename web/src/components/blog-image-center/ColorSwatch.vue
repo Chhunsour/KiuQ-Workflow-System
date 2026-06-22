@@ -71,7 +71,7 @@ const copy = async () => {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 :root[data-theme='dark-gray'] .swatch-circle {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(248, 251, 255, 0.12);
 }
 
 .swatch-info {

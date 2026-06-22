@@ -1,0 +1,354 @@
+
+======================================================================
+SCANNING: /Users/sour/Documents/Wordpress prompt System/web/src/components/layout/Sidebar.vue
+======================================================================
+[Line 10] Attribute title: "Refresh page"
+   Suggestion: Replace with :title="$t('Refresh page')"
+[Line 11] Attribute label: "Refresh page"
+   Suggestion: Replace with :label="$t('Refresh page')"
+[Line 19] Text node: "KiuQ Website System"
+   Suggestion: Replace with {{ $t('KiuQ Website System') }}
+[Line 24] Attribute label: "Close menu"
+   Suggestion: Replace with :label="$t('Close menu')"
+[Line 64] Attribute label: "Toggle section"
+   Suggestion: Replace with :label="$t('Toggle section')"
+[Line 96] Attribute title: "Locked"
+   Suggestion: Replace with :title="$t('Locked')"
+[Line 119] Attribute title: "Locked"
+   Suggestion: Replace with :title="$t('Locked')"
+[Line 140] Attribute label: "collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+   Suggestion: Replace with :label="$t('collapsed ? 'Expand sidebar' : 'Collapse sidebar'')"
+[Line 141] Attribute title: "collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+   Suggestion: Replace with :title="$t('collapsed ? 'Expand sidebar' : 'Collapse sidebar'')"
+Found 9 hardcoded English string(s) in /Users/sour/Documents/Wordpress prompt System/web/src/components/layout/Sidebar.vue
+
+======================================================================
+SCANNING: /Users/sour/Documents/Wordpress prompt System/web/src/components/layout/Topbar.vue
+======================================================================
+[Line 10] Attribute label: "Open menu"
+   Suggestion: Replace with :label="$t('Open menu')"
+[Line 24] Attribute label: "Search (Cmd/Ctrl + K)"
+   Suggestion: Replace with :label="$t('Search (Cmd/Ctrl + K)')"
+[Line 25] Attribute title: "Search — ⌘K"
+   Suggestion: Replace with :title="$t('Search — ⌘K')"
+[Line 29] Text node: "Search"
+   Suggestion: Replace with {{ $t('Search') }}
+[Line 39] Attribute title: "theme.label"
+   Suggestion: Replace with :title="$t('theme.label')"
+[Line 77] Attribute label: "User menu"
+   Suggestion: Replace with :label="$t('User menu')"
+Found 6 hardcoded English string(s) in /Users/sour/Documents/Wordpress prompt System/web/src/components/layout/Topbar.vue
+
+======================================================================
+SCANNING: /Users/sour/Documents/Wordpress prompt System/web/src/components/performance/PerformanceSidebar.vue
+======================================================================
+[Line 40] Attribute title: "View performance for this website"
+   Suggestion: Replace with :title="$t('View performance for this website')"
+Found 1 hardcoded English string(s) in /Users/sour/Documents/Wordpress prompt System/web/src/components/performance/PerformanceSidebar.vue
+
+======================================================================
+SCANNING: /Users/sour/Documents/Wordpress prompt System/web/src/components/performance/PageIndexing.vue
+======================================================================
+[Line 51] Text node: "Retry"
+   Suggestion: Replace with {{ $t('Retry') }}
+[Line 88] Text node: "● Connected"
+   Suggestion: Replace with {{ $t('● Connected') }}
+[Line 176] Text node: "Sort By"
+   Suggestion: Replace with {{ $t('Sort By') }}
+[Line 188] Text node: "Rows Per Page"
+   Suggestion: Replace with {{ $t('Rows Per Page') }}
+[Line 453] Attribute title: "w.name || w.domain"
+   Suggestion: Replace with :title="$t('w.name || w.domain')"
+[Line 490] Attribute title: "fmtDateTime(sumOf(w).lastChecked)"
+   Suggestion: Replace with :title="$t('fmtDateTime(sumOf(w).lastChecked)')"
+[Line 524] Attribute title: "w.name || w.domain"
+   Suggestion: Replace with :title="$t('w.name || w.domain')"
+[Line 587] Attribute title: "openSite.name || openSite.domain"
+   Suggestion: Replace with :title="$t('openSite.name || openSite.domain')"
+[Line 675] Text node: "Pages"
+   Suggestion: Replace with {{ $t('Pages') }}
+[Line 676] Text node: "Blog"
+   Suggestion: Replace with {{ $t('Blog') }}
+[Line 677] Text node: "Products"
+   Suggestion: Replace with {{ $t('Products') }}
+[Line 678] Text node: "Categories"
+   Suggestion: Replace with {{ $t('Categories') }}
+[Line 679] Text node: "Other"
+   Suggestion: Replace with {{ $t('Other') }}
+[Line 683] Text node: "Sitemap"
+   Suggestion: Replace with {{ $t('Sitemap') }}
+[Line 684] Text node: "Manual"
+   Suggestion: Replace with {{ $t('Manual') }}
+[Line 685] Text node: "CMS"
+   Suggestion: Replace with {{ $t('CMS') }}
+[Line 707] Attribute title: "r.url"
+   Suggestion: Replace with :title="$t('r.url')"
+[Line 714] Attribute title: "r.status?.coverage_state || '—'"
+   Suggestion: Replace with :title="$t('r.status?.coverage_state || '—'')"
+[Line 728] Text node: "No URLs match filters."
+   Suggestion: Replace with {{ $t('No URLs match filters.') }}
+[Line 792] Text node: "Google canonical"
+   Suggestion: Replace with {{ $t('Google canonical') }}
+[Line 793] Text node: "User canonical"
+   Suggestion: Replace with {{ $t('User canonical') }}
+[Line 795] Text node: "Raw GSC response payload (admin)"
+   Suggestion: Replace with {{ $t('Raw GSC response payload (admin)') }}
+[Line 801] Text node: "Inspect again"
+   Suggestion: Replace with {{ $t('Inspect again') }}
+Found 23 hardcoded English string(s) in /Users/sour/Documents/Wordpress prompt System/web/src/components/performance/PageIndexing.vue
+
+======================================================================
+SCANNING: /Users/sour/Documents/Wordpress prompt System/web/src/pages/PerformancePage.vue
+======================================================================
+[Line 130] Text node: "Retry"
+   Suggestion: Replace with {{ $t('Retry') }}
+[Line 167] Text node: "● Connected"
+   Suggestion: Replace with {{ $t('● Connected') }}
+[Line 300] Text node: "to"
+   Suggestion: Replace with {{ $t('to') }}
+[Line 373] Text node: "Comparing current values to"
+   Suggestion: Replace with {{ $t('Comparing current values to') }}
+[Line 379] Text node: "Only"
+   Suggestion: Replace with {{ $t('Only') }}
+[Line 394] Text node: "Daily"
+   Suggestion: Replace with {{ $t('Daily') }}
+[Line 396] Text node: "Performance tracking across selected parameters"
+   Suggestion: Replace with {{ $t('Performance tracking across selected parameters') }}
+[Line 403] Text node: "Current Period"
+   Suggestion: Replace with {{ $t('Current Period') }}
+[Line 407] Text node: "Comparison Period"
+   Suggestion: Replace with {{ $t('Comparison Period') }}
+[Line 412] Text node: "Average line"
+   Suggestion: Replace with {{ $t('Average line') }}
+[Line 431] Text node: "Insufficient daily statistics to plot trend line."
+   Suggestion: Replace with {{ $t('Insufficient daily statistics to plot trend line.') }}
+[Line 465] Text node: "Clicks Change"
+   Suggestion: Replace with {{ $t('Clicks Change') }}
+[Line 475] Text node: "Sync Status"
+   Suggestion: Replace with {{ $t('Sync Status') }}
+[Line 479] Text node: "Actions"
+   Suggestion: Replace with {{ $t('Actions') }}
+[Line 489] Attribute title: "r.label"
+   Suggestion: Replace with :title="$t('r.label')"
+[Line 539] Text node: "Prev"
+   Suggestion: Replace with {{ $t('Prev') }}
+[Line 540] Text node: "Next"
+   Suggestion: Replace with {{ $t('Next') }}
+[Line 548] Text node: "Top Website"
+   Suggestion: Replace with {{ $t('Top Website') }}
+[Line 557] Text node: "Biggest Growth"
+   Suggestion: Replace with {{ $t('Biggest Growth') }}
+[Line 562] Text node: "No increase"
+   Suggestion: Replace with {{ $t('No increase') }}
+[Line 566] Text node: "Biggest Drop"
+   Suggestion: Replace with {{ $t('Biggest Drop') }}
+[Line 571] Text node: "No decrease"
+   Suggestion: Replace with {{ $t('No decrease') }}
+[Line 575] Text node: "Alerts / Attention"
+   Suggestion: Replace with {{ $t('Alerts / Attention') }}
+[Line 604] Text node: "Website"
+   Suggestion: Replace with {{ $t('Website') }}
+[Line 605] Text node: "GSC Property URL"
+   Suggestion: Replace with {{ $t('GSC Property URL') }}
+[Line 606] Text node: "Status"
+   Suggestion: Replace with {{ $t('Status') }}
+[Line 607] Text node: "Last Sync Timestamp"
+   Suggestion: Replace with {{ $t('Last Sync Timestamp') }}
+[Line 608] Text node: "Actions"
+   Suggestion: Replace with {{ $t('Actions') }}
+[Line 622] Attribute title: "View performance for this website"
+   Suggestion: Replace with :title="$t('View performance for this website')"
+[Line 640] Text node: "(?)"
+   Suggestion: Replace with {{ $t('(?)') }}
+[Line 640] Attribute title: "getWebsiteStatus(w.id).error || undefined"
+   Suggestion: Replace with :title="$t('getWebsiteStatus(w.id).error || undefined')"
+[Line 647] Text node: "Save"
+   Suggestion: Replace with {{ $t('Save') }}
+[Line 672] Text node: "No websites match filters."
+   Suggestion: Replace with {{ $t('No websites match filters.') }}
+[Line 701] Attribute title: "detailWebsite?.name || detailWebsite?.domain || 'Website'"
+   Suggestion: Replace with :title="$t('detailWebsite?.name || detailWebsite?.domain || 'Website'')"
+[Line 701] Attribute title: "Website Search Console Property Details"
+   Suggestion: Replace with :title="$t('Website Search Console Property Details')"
+[Line 711] Text node: "Owner:"
+   Suggestion: Replace with {{ $t('Owner:') }}
+[Line 712] Text node: "Status:"
+   Suggestion: Replace with {{ $t('Status:') }}
+[Line 736] Text node: "Total Clicks"
+   Suggestion: Replace with {{ $t('Total Clicks') }}
+[Line 743] Text node: "Total Impressions"
+   Suggestion: Replace with {{ $t('Total Impressions') }}
+[Line 750] Text node: "Average CTR"
+   Suggestion: Replace with {{ $t('Average CTR') }}
+[Line 757] Text node: "Average Position"
+   Suggestion: Replace with {{ $t('Average Position') }}
+[Line 766] Text node: "Google Search Property:"
+   Suggestion: Replace with {{ $t('Google Search Property:') }}
+[Line 767] Text node: "Last Synced At:"
+   Suggestion: Replace with {{ $t('Last Synced At:') }}
+[Line 768] Text node: "Comparison baseline: Compared to previous days last month."
+   Suggestion: Replace with {{ $t('Comparison baseline: Compared to previous days last month.') }}
+[Line 775] Text node: "Clicks Trend Over Time"
+   Suggestion: Replace with {{ $t('Clicks Trend Over Time') }}
+[Line 785] Text node: "No historical trends synced."
+   Suggestion: Replace with {{ $t('No historical trends synced.') }}
+[Line 795] Text node: "Total URLs"
+   Suggestion: Replace with {{ $t('Total URLs') }}
+[Line 799] Text node: "Indexed"
+   Suggestion: Replace with {{ $t('Indexed') }}
+[Line 803] Text node: "Not Indexed"
+   Suggestion: Replace with {{ $t('Not Indexed') }}
+[Line 811] Text node: "Top Searches"
+   Suggestion: Replace with {{ $t('Top Searches') }}
+[Line 815] Text node: "Query"
+   Suggestion: Replace with {{ $t('Query') }}
+[Line 815] Text node: "Clicks"
+   Suggestion: Replace with {{ $t('Clicks') }}
+[Line 823] Text node: "No search queries logged."
+   Suggestion: Replace with {{ $t('No search queries logged.') }}
+[Line 832] Text node: "Top Visited Pages"
+   Suggestion: Replace with {{ $t('Top Visited Pages') }}
+[Line 836] Text node: "Page URL"
+   Suggestion: Replace with {{ $t('Page URL') }}
+[Line 836] Text node: "Clicks"
+   Suggestion: Replace with {{ $t('Clicks') }}
+[Line 840] Attribute title: "r.label"
+   Suggestion: Replace with :title="$t('r.label')"
+[Line 844] Text node: "No page URLs logged."
+   Suggestion: Replace with {{ $t('No page URLs logged.') }}
+[Line 853] Text node: "Device Breakdown"
+   Suggestion: Replace with {{ $t('Device Breakdown') }}
+[Line 857] Text node: "Device"
+   Suggestion: Replace with {{ $t('Device') }}
+[Line 857] Text node: "Clicks"
+   Suggestion: Replace with {{ $t('Clicks') }}
+[Line 857] Text node: "Share"
+   Suggestion: Replace with {{ $t('Share') }}
+[Line 872] Text node: "Countries Breakdown"
+   Suggestion: Replace with {{ $t('Countries Breakdown') }}
+[Line 876] Text node: "Country"
+   Suggestion: Replace with {{ $t('Country') }}
+[Line 876] Text node: "Clicks"
+   Suggestion: Replace with {{ $t('Clicks') }}
+[Line 876] Text node: "Share"
+   Suggestion: Replace with {{ $t('Share') }}
+[Line 897] Text node: "Recent GSC Performance Logs"
+   Suggestion: Replace with {{ $t('Recent GSC Performance Logs') }}
+[Line 898] Text node: "Refresh"
+   Suggestion: Replace with {{ $t('Refresh') }}
+[Line 900] Text node: "Loading sync history..."
+   Suggestion: Replace with {{ $t('Loading sync history...') }}
+[Line 901] Text node: "No sync history logged."
+   Suggestion: Replace with {{ $t('No sync history logged.') }}
+[Line 920] Text node: "Close"
+   Suggestion: Replace with {{ $t('Close') }}
+[Line 938] Text node: "Websites"
+   Suggestion: Replace with {{ $t('Websites') }}
+Found 72 hardcoded English string(s) in /Users/sour/Documents/Wordpress prompt System/web/src/pages/PerformancePage.vue
+
+======================================================================
+SCANNING: /Users/sour/Documents/Wordpress prompt System/web/src/pages/SettingsPage.vue
+======================================================================
+[Line 225] Attribute placeholder: "e.g. feature-work-board-v2"
+   Suggestion: Replace with :placeholder="$t('e.g. feature-work-board-v2')"
+[Line 230] Text node: "Feature"
+   Suggestion: Replace with {{ $t('Feature') }}
+[Line 231] Text node: "Fix"
+   Suggestion: Replace with {{ $t('Fix') }}
+[Line 232] Text node: "Improvement"
+   Suggestion: Replace with {{ $t('Improvement') }}
+[Line 233] Text node: "Announcement"
+   Suggestion: Replace with {{ $t('Announcement') }}
+[Line 238] Attribute placeholder: "e.g. New Work Board UI Released"
+   Suggestion: Replace with :placeholder="$t('e.g. New Work Board UI Released')"
+[Line 242] Attribute placeholder: "e.g. We have upgraded the work board with drag and drop support and cleaner layouts..."
+   Suggestion: Replace with :placeholder="$t('e.g. We have upgraded the work board with drag and drop support and cleaner layouts...')"
+[Line 330] Text node: "Receipts"
+   Suggestion: Replace with {{ $t('Receipts') }}
+[Line 366] Attribute title: "Force show this update again to all teammates who already dismissed it"
+   Suggestion: Replace with :title="$t('Force show this update again to all teammates who already dismissed it')"
+Found 9 hardcoded English string(s) in /Users/sour/Documents/Wordpress prompt System/web/src/pages/SettingsPage.vue
+
+======================================================================
+SCANNING: /Users/sour/Documents/Wordpress prompt System/web/src/pages/TranslationReviewPage.vue
+======================================================================
+[Line 105] Attribute placeholder: "Enter Khmer translation..."
+   Suggestion: Replace with :placeholder="$t('Enter Khmer translation...')"
+[Line 142] Attribute title: "fmtDateTime(row.created_at)"
+   Suggestion: Replace with :title="$t('fmtDateTime(row.created_at)')"
+Found 2 hardcoded English string(s) in /Users/sour/Documents/Wordpress prompt System/web/src/pages/TranslationReviewPage.vue
+
+======================================================================
+SCANNING: /Users/sour/Documents/Wordpress prompt System/web/src/pages/TodaysWorkPage.vue
+======================================================================
+[Line 54] Attribute label: "Board metrics"
+   Suggestion: Replace with :label="$t('Board metrics')"
+[Line 116] Attribute title: "Clear"
+   Suggestion: Replace with :title="$t('Clear')"
+[Line 135] Attribute label: "Task board columns"
+   Suggestion: Replace with :label="$t('Task board columns')"
+[Line 218] Attribute title: "member.fullName || member.email"
+   Suggestion: Replace with :title="$t('member.fullName || member.email')"
+[Line 321] Attribute title: "memberName(comment.userId)"
+   Suggestion: Replace with :title="$t('memberName(comment.userId)')"
+[Line 506] Attribute title: "Remove"
+   Suggestion: Replace with :title="$t('Remove')"
+[Line 575] Attribute title: "activeCard.title"
+   Suggestion: Replace with :title="$t('activeCard.title')"
+Found 7 hardcoded English string(s) in /Users/sour/Documents/Wordpress prompt System/web/src/pages/TodaysWorkPage.vue
+
+======================================================================
+SCANNING: /Users/sour/Documents/Wordpress prompt System/web/src/pages/QualityCheckPage.vue
+======================================================================
+[Line 21] Attribute title: "qc.classes.length === 0 ? 'Create a class folder first' : 'Arrange websites into folders'"
+   Suggestion: Replace with :title="$t('qc.classes.length === 0 ? 'Create a class folder first' : 'Arrange websites into folders'')"
+[Line 35] Attribute label: "Quality metrics"
+   Suggestion: Replace with :label="$t('Quality metrics')"
+[Line 69] Text node: "⏱️"
+   Suggestion: Replace with {{ $t('⏱️') }}
+[Line 145] Text node: "Unclassified"
+   Suggestion: Replace with {{ $t('Unclassified') }}
+[Line 170] Text node: "No quality check folders yet."
+   Suggestion: Replace with {{ $t('No quality check folders yet.') }}
+[Line 230] Text node: "No websites in this folder yet."
+   Suggestion: Replace with {{ $t('No websites in this folder yet.') }}
+[Line 272] Text node: "No domain set"
+   Suggestion: Replace with {{ $t('No domain set') }}
+[Line 343] Attribute title: "Issue actions"
+   Suggestion: Replace with :title="$t('Issue actions')"
+[Line 353] Text node: "Send Alert"
+   Suggestion: Replace with {{ $t('Send Alert') }}
+[Line 354] Text node: "View Receipts"
+   Suggestion: Replace with {{ $t('View Receipts') }}
+[Line 356] Text node: "Archive"
+   Suggestion: Replace with {{ $t('Archive') }}
+[Line 395] Text node: "Delivered:"
+   Suggestion: Replace with {{ $t('Delivered:') }}
+[Line 395] Text node: "Yes"
+   Suggestion: Replace with {{ $t('Yes') }}
+[Line 396] Text node: "Opened:"
+   Suggestion: Replace with {{ $t('Opened:') }}
+[Line 397] Text node: "Acked:"
+   Suggestion: Replace with {{ $t('Acked:') }}
+[Line 403] Text node: "View Receipts"
+   Suggestion: Replace with {{ $t('View Receipts') }}
+[Line 412] Attribute title: "memberName(issue.assignedTo)"
+   Suggestion: Replace with :title="$t('memberName(issue.assignedTo)')"
+[Line 443] Attribute title: "Edit issue"
+   Suggestion: Replace with :title="$t('Edit issue')"
+[Line 452] Attribute title: "deletingId === issue.id ? 'Click again to confirm delete' : 'Delete issue'"
+   Suggestion: Replace with :title="$t('deletingId === issue.id ? 'Click again to confirm delete' : 'Delete issue'')"
+[Line 458] Text node: "Confirm"
+   Suggestion: Replace with {{ $t('Confirm') }}
+Found 20 hardcoded English string(s) in /Users/sour/Documents/Wordpress prompt System/web/src/pages/QualityCheckPage.vue
+
+======================================================================
+SCANNING: /Users/sour/Documents/Wordpress prompt System/web/src/pages/QualityBoardPage.vue
+======================================================================
+[Line 17] Text node: "Quality Check"
+   Suggestion: Replace with {{ $t('Quality Check') }}
+[Line 78] Attribute label: "Quality issue board columns"
+   Suggestion: Replace with :label="$t('Quality issue board columns')"
+[Line 186] Attribute title: "memberName(issue.assignedTo)"
+   Suggestion: Replace with :title="$t('memberName(issue.assignedTo)')"
+Found 3 hardcoded English string(s) in /Users/sour/Documents/Wordpress prompt System/web/src/pages/QualityBoardPage.vue

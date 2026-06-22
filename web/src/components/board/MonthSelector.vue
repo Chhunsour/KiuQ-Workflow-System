@@ -1,6 +1,6 @@
 <template>
   <div class="ms-bar">
-    <button class="ms-nav-btn" type="button" title="Previous month" @click="prev">
+    <button class="ms-nav-btn" type="button" :title="$t('Previous month')" @click="prev">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
 
@@ -8,7 +8,7 @@
       <button class="ms-label" type="button" @click="pickerOpen = !pickerOpen">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         <span class="ms-month-label">{{ displayLabel }}</span>
-        <span v-if="isCurrentMonth" class="ms-now-chip">Now</span>
+        <span v-if="isCurrentMonth" class="ms-now-chip">{{ $t('Now') }}</span>
       </button>
 
       <!-- Month picker dropdown -->
@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <button class="ms-nav-btn" type="button" title="Next month" @click="next">
+    <button class="ms-nav-btn" type="button" :title="$t('Next month')" @click="next">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
 
@@ -50,7 +50,7 @@
       type="button"
       @click="goToCurrentMonth"
     >
-      Current month
+      {{ $t('Current month') }}
     </button>
   </div>
 
@@ -178,7 +178,7 @@ const selectPickerMonth = (month: number) => {
   font-size: 0.68rem;
   font-weight: 800;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   padding: 0.1rem 0.45rem;
   border-radius: 999px;
 }
@@ -254,7 +254,7 @@ const selectPickerMonth = (month: number) => {
 }
 .ms-picker-month--active {
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   border-color: var(--primary);
 }
 

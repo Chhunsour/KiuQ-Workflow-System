@@ -14,19 +14,19 @@
           <span v-else>{{ (website?.name || 'QC').slice(0, 2).toUpperCase() }}</span>
         </div>
         <div class="board-hero-text">
-          <span class="board-hero-kicker">Quality Check</span>
-          <h1 class="page-title">{{ website?.name || 'Quality Board' }}</h1>
-          <p class="page-subtitle">{{ website?.domain || 'Track and fix website issues — kanban-style.' }}</p>
+          <span class="board-hero-kicker">{{ $t('Quality Check') }}</span>
+          <h1 class="page-title">{{ website?.name || $t('nav.qualityCheckBoard') }}</h1>
+          <p class="page-subtitle">{{ website?.domain || $t('qualityCheck.trackAndFixSubtitle') }}</p>
         </div>
       </div>
       <div class="board-hero-actions">
         <RouterLink :to="qualityCheckHome" class="btn-secondary">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-          All Websites
+          {{ $t('qualityCheck.allWebsites') }}
         </RouterLink>
         <button class="btn-primary" type="button" @click="openCreate">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New Issue
+          {{ $t('qualityCheck.newIssue') }}
         </button>
       </div>
     </section>
@@ -40,42 +40,42 @@
     <section v-else class="board-shell">
       <div v-if="issues.length > 0 && filteredIssues.length === 0" class="filter-empty card">
         <div>
-          <h2>No issues match these filters.</h2>
-          <p>Clear search or filters to see more issues.</p>
+          <h2>{{ $t('qualityCheck.noIssuesMatch') }}</h2>
+          <p>{{ $t('qualityCheck.clearSearchOrFilters') }}</p>
         </div>
-        <button class="btn-secondary" type="button" @click="clearFilters">Clear filters</button>
+        <button class="btn-secondary" type="button" @click="clearFilters">{{ $t('qualityCheck.clearFilters') }}</button>
       </div>
 
       <!-- Toolbar: zoom + search + type filter -->
       <div class="board-toolbar card">
         <div class="zoom-controls">
-          <span class="zoom-label">Board View</span>
+          <span class="zoom-label">{{ $t('qualityCheck.boardView') }}</span>
           <div class="zoom-actions">
-            <button class="zoom-btn" type="button" @click="zoomOut" :disabled="zoomLevel === 70" title="Zoom Out">
+            <button class="zoom-btn" type="button" @click="zoomOut" :disabled="zoomLevel === 70" :title="$t('workBoardDetail.zoomOut') || 'Zoom Out'">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
             <span class="zoom-percentage">{{ zoomLevel }}%</span>
-            <button class="zoom-btn" type="button" @click="zoomIn" :disabled="zoomLevel === 120" title="Zoom In">
+            <button class="zoom-btn" type="button" @click="zoomIn" :disabled="zoomLevel === 120" :title="$t('workBoardDetail.zoomIn') || 'Zoom In'">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
-            <button class="zoom-reset" type="button" @click="resetZoom" :class="{ visible: zoomLevel !== 100 }" title="Reset Board Zoom">Reset</button>
+            <button class="zoom-reset" type="button" @click="resetZoom" :class="{ visible: zoomLevel !== 100 }" :title="$t('workBoardDetail.resetZoom') || 'Reset Board Zoom'">{{ $t('qualityCheck.reset') }}</button>
           </div>
-          <span class="zoom-helper">Board zoom only.</span>
+          <span class="zoom-helper">{{ $t('qualityCheck.boardZoomOnly') }}</span>
         </div>
 
         <div class="toolbar-filters">
           <div class="toolbar-search">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input v-model="search" type="search" placeholder="Search issues…" />
+            <input v-model="search" type="search" :placeholder="$t('qualityCheck.searchIssues')" />
           </div>
           <select v-model="typeFilter" class="filter-select">
-            <option value="all">All types</option>
+            <option value="all">{{ $t('qualityCheck.allTypes') }}</option>
             <option v-for="t in QUALITY_ISSUE_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
           </select>
         </div>
       </div>
 
-      <div class="board-scroll" aria-label="Quality issue board columns">
+      <div class="board-scroll" :aria-label="$t('Quality issue board columns')">
         <div class="board-zoom-layer" :style="{ '--board-zoom': zoomLevel / 100 }">
           <section
             v-for="col in QUALITY_STATUS_COLUMNS"
@@ -90,7 +90,7 @@
           >
             <header class="column-head">
               <div>
-                <h2>{{ col.label }}</h2>
+                <h2>{{ columnHelper(col.value) || col.label }}</h2>
               </div>
               <span>{{ columnIssues(col.value).length }}</span>
             </header>
@@ -101,7 +101,7 @@
               type="button"
               @click="openCreate"
             >
-              + Add issue
+              {{ $t('qualityCheck.addIssue') }}
             </button>
 
             <div class="column-card-list">
@@ -123,7 +123,7 @@
                   <button
                     class="tc-menu-trigger"
                     type="button"
-                    title="Issue actions"
+                    :title="$t('common.actions')"
                     @click.stop="toggleCardMenu(issue.id)"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -131,12 +131,12 @@
                     </svg>
                   </button>
                   <div v-if="activeMenuCardId === issue.id" class="tc-menu-dropdown">
-                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">Edit</button>
-                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">Assign</button>
-                    <button class="tc-menu-item" type="button" @click.stop="handleAlertCard(issue)">Send Alert</button>
-                    <button class="tc-menu-item" type="button" @click.stop="handleReceiptsCard(issue)">View Receipts</button>
+                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">{{ $t('qualityCheck.edit') }}</button>
+                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">{{ $t('qualityCheck.assign') }}</button>
+                    <button class="tc-menu-item" type="button" @click.stop="handleAlertCard(issue)">{{ $t('qualityCheck.sendAlert') }}</button>
+                    <button class="tc-menu-item" type="button" @click.stop="handleReceiptsCard(issue)">{{ $t('qualityCheck.viewReceipts') }}</button>
                     <div class="tc-menu-divider" />
-                    <button class="tc-menu-item tc-menu-item--danger" type="button" @click.stop="handleArchiveCard(issue.id)">Archive</button>
+                    <button class="tc-menu-item tc-menu-item--danger" type="button" @click.stop="handleArchiveCard(issue.id)">{{ $t('qualityCheck.archive') }}</button>
                   </div>
                 </div>
 
@@ -155,27 +155,27 @@
                   <span v-if="issue.priority !== 'normal'" class="tc-priority-pill" :class="`tc-priority--${issue.priority}`">
                     {{ priorityLabel(issue.priority) }}
                   </span>
-                  <span v-if="issue.dueDate" class="tc-due-pill">Due {{ formatDate(issue.dueDate) }}</span>
+                  <span v-if="issue.dueDate" class="tc-due-pill">{{ $t('qualityCheck.due') }} {{ formatDate(issue.dueDate) }}</span>
                 </div>
 
                 <!-- Alert Tracking Panel -->
                 <div v-if="isManager && receiptSummaries[issue.id] && receiptSummaries[issue.id].delivered > 0" class="tc-tracking-panel" @click.stop>
                   <div class="tc-tracking-header">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    Alert Status
+                    {{ $t('qualityCheck.alertStatus') }}
                   </div>
                   <div class="tc-tracking-stats">
-                    <span>Delivered: <strong>Yes</strong></span>
-                    <span>Opened: <strong>{{ receiptSummaries[issue.id].opened > 0 ? 'Yes' : 'No' }}</strong></span>
-                    <span>Acked: <strong>{{ receiptSummaries[issue.id].acknowledged === receiptSummaries[issue.id].delivered ? 'Yes' : 'No' }}</strong></span>
+                    <span>{{ $t('qualityCheck.delivered') }}: <strong>{{ $t('common.yes') }}</strong></span>
+                    <span>{{ $t('qualityCheck.opened') }}: <strong>{{ receiptSummaries[issue.id].opened > 0 ? $t('common.yes') : $t('common.no') }}</strong></span>
+                    <span>{{ $t('qualityCheck.acked') }}: <strong>{{ receiptSummaries[issue.id].acknowledged === receiptSummaries[issue.id].delivered ? $t('common.yes') : $t('common.no') }}</strong></span>
                   </div>
                   <div v-if="receiptSummaries[issue.id].lastAlertAt" class="tc-tracking-time">
-                    Last Alert: <strong>{{ formattedAlertDate(receiptSummaries[issue.id].lastAlertAt) }}</strong>
+                    {{ $t('qualityCheck.lastAlert') }}: <strong>{{ formattedAlertDate(receiptSummaries[issue.id].lastAlertAt) }}</strong>
                   </div>
                   <div class="tc-tracking-actions">
-                    <button class="tc-track-btn" type="button" @click.stop="handleReceiptsCard(issue)">View Receipts</button>
+                    <button class="tc-track-btn" type="button" @click.stop="handleReceiptsCard(issue)">{{ $t('qualityCheck.viewReceipts') }}</button>
                     <button class="tc-track-btn" type="button" :disabled="repushingAlerts[issue.id] || receiptSummaries[issue.id].pending === 0" @click.stop="handleRepushCard(issue.id)">
-                      {{ repushingAlerts[issue.id] ? 'Nudging...' : 'Repush' }}
+                      {{ repushingAlerts[issue.id] ? $t('qualityCheck.nudging') : $t('qualityCheck.repush') }}
                     </button>
                   </div>
                 </div>
@@ -198,9 +198,9 @@
                     </div>
                     <span class="tc-name">{{ memberName(issue.assignedTo) }}</span>
                   </div>
-                  <span v-else class="tc-unassigned">Unassigned</span>
+                  <span v-else class="tc-unassigned">{{ $t('qualityCheck.unassigned') }}</span>
 
-                  <button class="tc-open" type="button" @click.stop="openDetail(issue.id)">Open</button>
+                  <button class="tc-open" type="button" @click.stop="openDetail(issue.id)">{{ $t('qualityCheck.open') }}</button>
                 </div>
               </article>
 
@@ -235,11 +235,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import CreateIssueModal from '@/components/quality/CreateIssueModal.vue';
 import IssueDetailModal from '@/components/quality/IssueDetailModal.vue';
 import { playCardDropSound } from '@/composables/useCardDropSound';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type Member } from '@/stores/data';
+
+const { t, te } = useI18n();
 import {
   useQualityCheckStore,
   QUALITY_ISSUE_TYPES,
@@ -333,7 +336,7 @@ const handleReceiptsCard = (issue: any) => {
 
 const handleArchiveCard = async (id: string) => {
   closeCardMenu();
-  if (window.confirm('Are you sure you want to archive this Quality Check card?')) {
+  if (window.confirm(t('qualityCheck.confirmArchive'))) {
     const ok = await qc.archiveIssue(id);
     if (!ok) {
       alert('Could not archive Quality Check: ' + (qc.error || ''));
@@ -527,19 +530,19 @@ const COLUMN_ACCENT: Record<string, string> = {
   needs_review: '#a855f7',
   approved:     '#16a34a'
 };
-const COLUMN_HELPER: Record<string, string> = {
-  in_progress:  'Fix in progress',
-  needs_review: 'Ready for review',
-  approved:     'Completed issues'
-};
-const COLUMN_EMPTY: Record<string, string> = {
-  in_progress:  'No cards in progress yet.',
-  needs_review: 'Fixed cards waiting for a manager to review.',
-  approved:     'Approved cards appear here. 🎉'
-};
 const columnAccent = (s: QualityIssueStatus) => COLUMN_ACCENT[s] || '#9ca3af';
-const columnHelper = (s: QualityIssueStatus) => COLUMN_HELPER[s] || '';
-const columnEmpty  = (s: QualityIssueStatus) => COLUMN_EMPTY[s] || '';
+const columnHelper = (s: QualityIssueStatus) => {
+  if (s === 'in_progress') return t('qualityCheck.inProgress');
+  if (s === 'needs_review') return t('qualityCheck.review');
+  if (s === 'approved') return t('qualityCheck.approved');
+  return '';
+};
+const columnEmpty  = (s: QualityIssueStatus) => {
+  if (s === 'in_progress') return t('qualityCheck.inProgressEmpty');
+  if (s === 'needs_review') return t('qualityCheck.needsReviewEmpty');
+  if (s === 'approved') return t('qualityCheck.approvedEmpty');
+  return '';
+};
 
 const assignableMembers = computed<Member[]>(() => {
   if (auth.isQualityChecker) return auth.profile ? [auth.profile] : [];
@@ -549,14 +552,18 @@ const assignableMembers = computed<Member[]>(() => {
 const memberById = (id: string | null): Member | undefined =>
   id ? data.members.find((m) => m.id === id) ?? (auth.profile?.id === id ? auth.profile : undefined) : undefined;
 const memberName = (id: string | null) =>
-  memberById(id)?.fullName || memberById(id)?.email || 'Unassigned';
+  memberById(id)?.fullName || memberById(id)?.email || t('qualityCheck.unassigned');
 const initials = (name: string) =>
   (name || '?').trim().split(/\s+/).slice(0, 2).map((p) => p[0] ?? '').join('').toUpperCase() || '?';
 
-const typeLabel = (t: QualityIssueType) =>
-  QUALITY_ISSUE_TYPES.find((x) => x.value === t)?.label ?? t;
-const priorityLabel = (p: QualityIssuePriority) =>
-  p.charAt(0).toUpperCase() + p.slice(1);
+const typeLabel = (tVal: QualityIssueType) => {
+  const key = `qualityCheck.types.${tVal}`;
+  return te(key) ? t(key) : (QUALITY_ISSUE_TYPES.find((x) => x.value === tVal)?.label ?? tVal);
+};
+const priorityLabel = (p: QualityIssuePriority) => {
+  const key = `qualityCheck.priorities.${p}`;
+  return te(key) ? t(key) : p.charAt(0).toUpperCase() + p.slice(1);
+};
 const formatDate = (d: string) =>
   new Date(`${d}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
@@ -1108,7 +1115,7 @@ onMounted(async () => {
 .tc-open:hover {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 36%, transparent);
 }
 .tc-open:active { transform: scale(0.95); }
@@ -1161,15 +1168,15 @@ onMounted(async () => {
   background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(248, 251, 255, 0.08);
+  color: rgba(248, 251, 255, 0.85);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .tc-menu-trigger:hover {
   background: rgba(15, 23, 42, 0.75);
-  color: #fff;
+  color: #f8fbff;
 }
 
 .tc-menu-dropdown {

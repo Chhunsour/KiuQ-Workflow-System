@@ -107,6 +107,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'calendar', name: 'calendar', meta: adminOrMember, component: () => import('@/pages/CalendarPage.vue') },
       { path: 'activity', name: 'activity', meta: adminOnly, component: () => import('@/pages/ActivityPage.vue') },
       { path: 'settings', name: 'settings', meta: adminOrQualityChecker, component: () => import('@/pages/SettingsPage.vue') },
+      { path: 'settings/translations', name: 'translations-review', meta: adminOnly, component: () => import('@/pages/TranslationReviewPage.vue') },
       { path: 'my-dashboard', name: 'member-dashboard', meta: memberOnly, component: () => import('@/pages/MemberDashboardPage.vue') },
       { path: 'team-members', name: 'team-members', meta: memberOnly, component: () => import('@/pages/TeamMembersPage.vue') },
       { path: 'quality-check', name: 'quality-check-direct', meta: qualityCheckAccess, component: () => import('@/pages/QualityCheckPage.vue') },

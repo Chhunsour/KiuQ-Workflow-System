@@ -11,16 +11,16 @@
       <div class="aw-filters">
         <div class="aw-search">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input v-model="search" type="search" placeholder="Search by name or domain…" />
+          <input v-model="search" type="search" :placeholder="$t('Search by name or domain…')" />
         </div>
         <select v-model="creatorFilter" class="aw-select">
-          <option value="all">All creators</option>
+          <option value="all">{{ $t('All creators') }}</option>
           <option v-for="m in creators" :key="m.id" :value="m.id">
             {{ m.fullName || m.email }}
           </option>
         </select>
         <select v-model="typeFilter" class="aw-select">
-          <option value="all">All website types</option>
+          <option value="all">{{ $t('All website types') }}</option>
           <option v-for="t in websiteTypes" :key="t" :value="t">{{ t }}</option>
         </select>
       </div>
@@ -31,8 +31,8 @@
         <section class="aw-pane">
           <header class="aw-pane-head">
             <div>
-              <h3>Available websites</h3>
-              <p>Not in this folder.</p>
+              <h3>{{ $t('Available websites') }}</h3>
+              <p>{{ $t('Not in this folder.') }}</p>
             </div>
             <span class="aw-count">{{ filteredAvailable.length }}</span>
           </header>
@@ -68,7 +68,7 @@
                     <span v-if="w.websiteType">{{ w.websiteType }}</span>
                     <span v-if="memberName(w.createdBy)">· by {{ memberName(w.createdBy) }}</span>
                     <span v-if="currentClassOf(w.id)" class="aw-item-class">
-                      · in <strong>{{ classNameOf(currentClassOf(w.id)!) }}</strong>
+                      {{ $t('· in') }} <strong>{{ classNameOf(currentClassOf(w.id)!) }}</strong>
                     </span>
                   </div>
                 </div>
@@ -83,28 +83,28 @@
             type="button"
             class="aw-mover-btn"
             :disabled="busy || availableSelection.size === 0"
-            title="Add selected to this folder"
+            :title="$t('Add selected to this folder')"
             @click="moveIntoFolder"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"/>
               <polyline points="12 5 19 12 12 19"/>
             </svg>
-            <span>Add</span>
+            <span>{{ $t('Add') }}</span>
             <span v-if="availableSelection.size" class="aw-mover-count">{{ availableSelection.size }}</span>
           </button>
           <button
             type="button"
             class="aw-mover-btn aw-mover-btn--ghost"
             :disabled="busy || insideSelection.size === 0"
-            title="Remove selected from this folder"
+            :title="$t('Remove selected from this folder')"
             @click="moveOutOfFolder"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="12 5 5 12 12 19"/>
               <line x1="19" y1="12" x2="5" y2="12"/>
             </svg>
-            <span>Remove</span>
+            <span>{{ $t('Remove') }}</span>
             <span v-if="insideSelection.size" class="aw-mover-count">{{ insideSelection.size }}</span>
           </button>
         </div>
@@ -113,7 +113,7 @@
         <section class="aw-pane">
           <header class="aw-pane-head">
             <div>
-              <h3>In this folder</h3>
+              <h3>{{ $t('In this folder') }}</h3>
               <p>{{ folderLabel }}</p>
             </div>
             <span class="aw-count">{{ filteredInside.length }}</span>
@@ -163,9 +163,9 @@
     <template #footer>
       <div class="aw-footer">
         <span class="aw-footer-hint">
-          Changes save immediately. Each website belongs to one folder at a time.
+          {{ $t('Changes save immediately. Each website belongs to one folder at a time.') }}
         </span>
-        <button class="btn-ghost" type="button" @click="$emit('close')">Done</button>
+        <button class="btn-ghost" type="button" @click="$emit('close')">{{ $t('Done') }}</button>
       </div>
     </template>
   </Modal>
@@ -555,7 +555,7 @@ const initials = (name: string) =>
   gap: 0.35rem;
   border: 1px solid var(--primary);
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   border-radius: 10px;
   padding: 0.5rem 0.85rem;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
@@ -572,7 +572,7 @@ const initials = (name: string) =>
   border-color: var(--border);
 }
 .aw-mover-count {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(248, 251, 255, 0.22);
   border-radius: 999px;
   padding: 0.05rem 0.4rem;
   font-size: 0.7rem;

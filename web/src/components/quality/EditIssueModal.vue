@@ -1,28 +1,28 @@
 <template>
-  <Modal :open="open && !!issue" title="Edit Issue" size="md" @close="close">
+  <Modal :open="open && !!issue" :title="$t('qualityModal.editIssue') || 'Edit Issue'" size="md" @close="close">
     <div v-if="issue" class="ei-body" @paste="onPaste">
-      <label class="ei-label">Issue title</label>
+      <label class="ei-label">{{ $t('qualityModal.issueTitle') }}</label>
       <input
         ref="titleEl"
         v-model="form.title"
         class="ei-input"
         type="text"
-        placeholder="Issue title"
+        :placeholder="$t('qualityModal.issueTitlePlaceholder')"
         @keyup.enter="save"
       />
 
       <div class="ei-row">
         <div class="ei-col">
-          <label class="ei-label">Page URL</label>
+          <label class="ei-label">{{ $t('qualityModal.pageUrl') }}</label>
           <input
             v-model="form.pageUrl"
             class="ei-input"
             type="url"
-            placeholder="https://..."
+            :placeholder="$t('qualityModal.pageUrlPlaceholder')"
           />
         </div>
         <div v-if="canEditStatus" class="ei-col">
-          <label class="ei-label">Status</label>
+          <label class="ei-label">{{ $t('common.status') }}</label>
           <select v-model="form.status" class="ei-input">
             <option v-for="s in statusOptions" :key="s.value" :value="s.value">
               {{ s.label }}
@@ -32,16 +32,16 @@
       </div>
 
       <div v-if="isManager" class="ei-col">
-        <label class="ei-label">Assigned member</label>
+        <label class="ei-label">{{ $t('qualityModal.assignedMember') }}</label>
         <select v-model="form.assignedTo" class="ei-input">
-          <option value="">Unassigned</option>
+          <option value="">{{ $t('qualityCheck.unassigned') }}</option>
           <option v-for="m in members" :key="m.id" :value="m.id">
             {{ m.fullName || m.email }}
           </option>
         </select>
       </div>
 
-      <label class="ei-label">Screenshot</label>
+      <label class="ei-label">{{ $t('qualityModal.screenshot') }}</label>
       <div
         class="ei-screenshot"
         :class="{ 'ei-screenshot--has': !!shotPreview, 'ei-screenshot--busy': uploading }"
@@ -58,10 +58,10 @@
           <img :src="shotPreview" alt="Screenshot preview" class="ei-shot-preview" />
           <div class="ei-shot-actions">
             <button type="button" class="ei-shot-btn" :disabled="uploading" @click.stop="pickFile">
-              Replace
+              {{ $t('qualityModal.replace') }}
             </button>
             <button type="button" class="ei-shot-btn ei-shot-btn--danger" :disabled="uploading" @click.stop="clearShot">
-              Remove
+              {{ $t('qualityModal.remove') }}
             </button>
           </div>
         </template>
@@ -69,12 +69,12 @@
         <div v-else class="ei-shot-empty" :class="{ 'is-drag': dragOver }">
           <svg v-if="!uploading" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           <span v-if="uploading" class="ei-shot-spin" />
-          <p v-if="uploading">Uploading...</p>
+          <p v-if="uploading">{{ $t('qualityModal.optimizing') || 'Uploading...' }}</p>
           <template v-else>
             <p class="ei-shot-primary">
-              Paste with <kbd>{{ pasteKey }}</kbd> + <kbd>V</kbd>
+              {{ $t('qualityModal.pasteWith') }} <kbd>{{ pasteKey }}</kbd> + <kbd>V</kbd>
             </p>
-            <p class="ei-shot-secondary">or click to upload / drag &amp; drop</p>
+            <p class="ei-shot-secondary">{{ $t('qualityModal.orClickToUpload') }}</p>
           </template>
         </div>
 
@@ -87,11 +87,11 @@
         />
       </div>
 
-      <label class="ei-label">Short note</label>
+      <label class="ei-label">{{ $t('qualityModal.shortNote') }}</label>
       <textarea
         v-model="form.description"
         class="ei-input ei-textarea"
-        placeholder="What's wrong? What should be fixed?"
+        :placeholder="$t('qualityModal.shortNotePlaceholder')"
         rows="3"
       />
 
@@ -100,9 +100,9 @@
 
     <template #footer>
       <div class="ei-footer">
-        <button class="btn-ghost" type="button" :disabled="saving" @click="close">Cancel</button>
+        <button class="btn-ghost" type="button" :disabled="saving" @click="close">{{ $t('qualityModal.cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="saving || uploading || !canEdit" @click="save">
-          {{ saving ? 'Saving...' : 'Save Changes' }}
+          {{ saving ? $t('qualityModal.saving') : $t('qualityModal.save') }}
         </button>
       </div>
     </template>
@@ -111,12 +111,15 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Modal from '@/components/ui/Modal.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useQualityCheckStore, type QualityIssueStatus } from '@/stores/qualityCheck';
 import type { Member } from '@/stores/data';
 import { optimizeImage } from '@/utils/imageOptimizer';
 import { useTaskAlertsStore } from '@/stores/taskAlerts';
+
+const { t, te } = useI18n();
 
 const props = defineProps<{
   open: boolean;
@@ -144,11 +147,11 @@ const canEditStatus = computed(() => canEdit.value);
 
 const statusOptions = computed<{ value: QualityIssueStatus; label: string }[]>(() => {
   const base: { value: QualityIssueStatus; label: string }[] = [
-    { value: 'in_progress',  label: 'Progress' },
-    { value: 'needs_review', label: 'Review' }
+    { value: 'in_progress',  label: t('common.statuses.in_progress') },
+    { value: 'needs_review', label: t('common.statuses.review') }
   ];
   if (canApprove.value) {
-    base.push({ value: 'approved', label: 'Completed' });
+    base.push({ value: 'approved', label: t('common.statuses.completed') });
   }
   return base;
 });
@@ -199,7 +202,7 @@ const loadIssue = async () => {
   // Use the actual status — no mapping needed now that all statuses
   // have their own dropdown option including in_progress and needs_review.
   form.status = current.status;
-  err.value = canEdit.value ? '' : 'You do not have permission to edit this issue.';
+  err.value = canEdit.value ? '' : t('common.accessDenied');
   dragOver.value = false;
   await nextTick();
   titleEl.value?.focus();
@@ -217,8 +220,8 @@ const close = () => {
 };
 
 const validateFile = (file: File): string | null => {
-  if (!ACCEPT_TYPES.includes(file.type)) return 'Please use a PNG, JPG, or WebP image.';
-  if (file.size > MAX_BYTES) return 'Screenshot is too large. Please use an image under 5MB.';
+  if (!ACCEPT_TYPES.includes(file.type)) return t('qualityModal.errors.screenshotFormat');
+  if (file.size > MAX_BYTES) return t('qualityModal.errors.screenshotSize');
   return null;
 };
 
@@ -247,14 +250,14 @@ const uploadFile = async (file: File) => {
     const url = await qc.uploadIssueScreenshot(uploadFile);
     if (!url) {
       revokePreview();
-      err.value = qc.error || 'Could not attach screenshot. Please try again.';
+      err.value = qc.error || t('qualityModal.errors.screenshotError');
       return;
     }
     form.screenshotUrl = url;
     revokePreview();
   } catch {
     revokePreview();
-    err.value = 'Could not attach screenshot. Please try again.';
+    err.value = t('qualityModal.errors.screenshotError');
   } finally {
     uploading.value = false;
   }
@@ -299,7 +302,7 @@ const save = async () => {
   const current = issue.value;
   if (!current || !canEdit.value) return;
   err.value = '';
-  if (!form.title.trim()) { err.value = 'Please enter an issue title.'; return; }
+  if (!form.title.trim()) { err.value = t('qualityModal.errors.titleRequired'); return; }
 
   // Only admins + assistant heads may approve; others cannot save with status 'approved'.
   const nextStatus = form.status === 'approved' && !canApprove.value ? current.status : form.status;
@@ -316,7 +319,7 @@ const save = async () => {
     });
     if (!ok) {
       console.warn('[qualityCheck] updateIssue failed', qc.error);
-      err.value = 'Could not update issue. Please try again.';
+      err.value = t('qualityModal.errors.updateError');
       return;
     }
 
@@ -421,7 +424,7 @@ const save = async () => {
   border: none;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.64);
-  color: #fff;
+  color: #f8fbff;
   padding: 0.32rem 0.7rem;
   font-size: 0.72rem;
   font-weight: 800;

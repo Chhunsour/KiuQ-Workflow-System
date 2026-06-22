@@ -17,7 +17,7 @@
           <button
             type="button"
             class="btn-ghost h-8 w-8 px-0 flex-shrink-0"
-            aria-label="Close"
+            aria-:label="$t('Close')"
             @click="$emit('close')"
           >
             <svg

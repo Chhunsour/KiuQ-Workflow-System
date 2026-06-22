@@ -18,7 +18,7 @@
           <path d="m17 8-5-5-5 5" />
           <path d="M12 3v12" />
         </svg>
-        <p class="text-sm">Drag &amp; drop a file here, or</p>
+        <p class="text-sm">{{ $t('Drag &amp; drop a file here, or') }}</p>
         <button
           class="btn-secondary"
           type="button"
@@ -51,7 +51,7 @@
         :disabled="uploading"
         @click="triggerPicker"
       >
-        Replace
+        {{ $t('Replace') }}
       </button>
       <button
         class="btn-danger h-8 px-3 text-xs"
@@ -59,7 +59,7 @@
         :disabled="uploading"
         @click="clear"
       >
-        Remove
+        {{ $t('Remove') }}
       </button>
     </div>
 

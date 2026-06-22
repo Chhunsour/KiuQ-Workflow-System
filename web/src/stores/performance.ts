@@ -48,6 +48,8 @@ export interface GscConnectionInfo {
   connected: boolean;
   google_email: string | null;
   connected_at: string | null;
+  status: string | null;
+  last_error: string | null;
 }
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
@@ -92,7 +94,7 @@ export const aggregateByDate = (rows: GscDaily[]): { date: string; clicks: numbe
     }));
 };
 
-export type DateRange = 'today' | 'yesterday' | 7 | 28 | 90 | 'this_month' | 'last_month' | 'custom';
+export type DateRange = 'today' | 'yesterday' | 7 | 28 | 90 | 'last_16_months' | 'this_month' | 'last_month' | 'custom';
 
 export const getRangeDurationDays = (start: string, end: string): number => {
   const s = new Date(start);
@@ -108,7 +110,13 @@ export const usePerformanceStore = defineStore('performance', () => {
   const daily = ref<GscDaily[]>([]);
   const queries = ref<GscTermStat[]>([]);
   const pages = ref<GscTermStat[]>([]);
-  const connectionInfo = ref<GscConnectionInfo>({ connected: false, google_email: null, connected_at: null });
+  const connectionInfo = ref<GscConnectionInfo>({
+    connected: false,
+    google_email: null,
+    connected_at: null,
+    status: null,
+    last_error: null
+  });
 
   const rangeDays = ref<DateRange>(28);
   const customStartDate = ref<string>('');
@@ -151,6 +159,10 @@ export const usePerformanceStore = defineStore('performance', () => {
     } else if (rangeDays.value === 90) {
       d.setUTCDate(d.getUTCDate() - 90);
       return ymd(d);
+    } else if (rangeDays.value === 'last_16_months') {
+      const dCopy = new Date(d.getTime());
+      dCopy.setUTCMonth(dCopy.getUTCMonth() - 16);
+      return ymd(dCopy);
     } else if (rangeDays.value === 'this_month') {
       const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
       return ymd(start);
@@ -170,7 +182,7 @@ export const usePerformanceStore = defineStore('performance', () => {
     } else if (rangeDays.value === 'yesterday') {
       d.setUTCDate(d.getUTCDate() - 1);
       return ymd(d);
-    } else if (rangeDays.value === 7 || rangeDays.value === 28 || rangeDays.value === 90 || rangeDays.value === 'this_month') {
+    } else if (rangeDays.value === 'last_16_months' || rangeDays.value === 7 || rangeDays.value === 28 || rangeDays.value === 90 || rangeDays.value === 'this_month') {
       return ymd(d);
     } else if (rangeDays.value === 'last_month') {
       const end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 0));
@@ -193,13 +205,49 @@ export const usePerformanceStore = defineStore('performance', () => {
   // ── Fetchers ───────────────────────────────────────────────────────────────
   const fetchConnectionInfo = async () => {
     if (!supabaseConfigured) return;
+    try {
+      const { data: userConn, error: userConnErr } = await supabase
+        .from('user_google_connections')
+        .select('google_email, connected_at, status, last_error')
+        .eq('user_id', auth.user?.id)
+        .maybeSingle();
+
+      if (userConnErr) {
+        console.error('Error fetching user google connection:', userConnErr);
+      }
+
+      if (userConn) {
+        connectionInfo.value = {
+          connected: userConn.status === 'connected',
+          google_email: userConn.google_email ?? null,
+          connected_at: userConn.connected_at ?? null,
+          status: userConn.status ?? null,
+          last_error: userConn.last_error ?? null
+        };
+        return;
+      }
+    } catch (e) {
+      console.error('Failed to query user_google_connections:', e);
+    }
+
+    // Fallback to legacy RPC
     const { data } = await supabase.rpc('gsc_connection_info');
     const row = Array.isArray(data) ? data[0] : data;
     if (row) {
       connectionInfo.value = {
         connected: !!row.connected,
         google_email: row.google_email ?? null,
-        connected_at: row.connected_at ?? null
+        connected_at: row.connected_at ?? null,
+        status: row.connected ? 'connected' : null,
+        last_error: null
+      };
+    } else {
+      connectionInfo.value = {
+        connected: false,
+        google_email: null,
+        connected_at: null,
+        status: null,
+        last_error: null
       };
     }
   };
@@ -327,9 +375,25 @@ export const usePerformanceStore = defineStore('performance', () => {
   };
 
   const saveConnection = async (websiteId: string, propertyUrl: string): Promise<boolean> => {
-    if (!auth.isAdmin) return false;
     const url = propertyUrl.trim();
     if (!url) return false;
+
+    // 1. Verify GSC property access via Edge Function
+    const { data: verifyData, error: verifyErr } = await supabase.functions.invoke('gsc-verify-property', {
+      body: { website_id: websiteId, gsc_property_url: url }
+    });
+
+    if (verifyErr) {
+      error.value = verifyErr.message || 'Could not verify Search Console property access.';
+      return false;
+    }
+
+    if (verifyData && verifyData.error) {
+      error.value = verifyData.message || 'This Google account does not have access to this Search Console property.';
+      return false;
+    }
+
+    // 2. Save mapping if verified
     const { error: err } = await supabase
       .from('website_gsc_connections')
       .upsert(
@@ -342,7 +406,6 @@ export const usePerformanceStore = defineStore('performance', () => {
   };
 
   const removeConnection = async (websiteId: string): Promise<boolean> => {
-    if (!auth.isAdmin) return false;
     const { error: err } = await supabase.from('website_gsc_connections').delete().eq('website_id', websiteId);
     if (err) { error.value = err.message; return false; }
     connections.value = connections.value.filter((c) => c.website_id !== websiteId);
@@ -350,7 +413,7 @@ export const usePerformanceStore = defineStore('performance', () => {
   };
 
   // ── Sync ─────────────────────────────────────────────────────────────────────
-  const runSync = async (body: { website_id?: string; all?: boolean; days: 7 | 28 | 90 }): Promise<boolean> => {
+  const runSync = async (body: { website_id?: string; all?: boolean; days: 7 | 28 | 90 | 'last_16_months' }): Promise<boolean> => {
     if (body.all) {
       if (connections.value.length === 0) {
         lastSyncMessage.value = 'No Search Console property is mapped to this website.';
@@ -388,10 +451,10 @@ export const usePerformanceStore = defineStore('performance', () => {
   };
 
   const syncWebsite = async (websiteId: string, range: DateRange = rangeDays.value): Promise<boolean> => {
-    const daysParam = typeof range === 'number' ? range : 28;
+    const daysParam = typeof range === 'number' || range === 'last_16_months' ? range : 28;
     syncingIds.value = new Set(syncingIds.value).add(websiteId);
     try {
-      const ok = await runSync({ website_id: websiteId, days: daysParam as 7 | 28 | 90 });
+      const ok = await runSync({ website_id: websiteId, days: daysParam as 7 | 28 | 90 | 'last_16_months' });
       await Promise.all([fetchConnections(), fetchStats()]);
       return ok;
     } finally {
@@ -402,17 +465,43 @@ export const usePerformanceStore = defineStore('performance', () => {
   };
 
   const syncAll = async (range: DateRange = rangeDays.value): Promise<boolean> => {
-    const daysParam = typeof range === 'number' ? range : 28;
+    const daysParam = typeof range === 'number' || range === 'last_16_months' ? range : 28;
     syncAllRunning.value = true;
     try {
-      const ok = await runSync({ all: true, days: daysParam as 7 | 28 | 90 });
+      const ok = await runSync({ all: true, days: daysParam as 7 | 28 | 90 | 'last_16_months' });
       await Promise.all([fetchConnections(), fetchStats()]);
       return ok;
     } finally {
       syncAllRunning.value = false;
     }
   };
+  const teamConnections = ref<any[]>([]);
 
+  const fetchTeamConnections = async () => {
+    if (!supabaseConfigured) return;
+    const { data, error: err } = await supabase
+      .from('user_google_connections')
+      .select('user_id, google_email, connected_at, status, last_error');
+    if (err) {
+      console.error('Error fetching team connections:', err.message);
+      return;
+    }
+    teamConnections.value = data || [];
+  };
+
+  const disconnectGoogle = async (): Promise<boolean> => {
+    if (!supabaseConfigured || !auth.user?.id) return false;
+    const { error: err } = await supabase
+      .from('user_google_connections')
+      .delete()
+      .eq('user_id', auth.user.id);
+    if (err) {
+      error.value = err.message;
+      return false;
+    }
+    await fetchConnectionInfo();
+    return true;
+  };
 
   return {
     connections,
@@ -421,6 +510,8 @@ export const usePerformanceStore = defineStore('performance', () => {
     pages,
     connectionInfo,
     rangeDays,
+    startDateStr,
+    endDateStr,
     customStartDate,
     customEndDate,
     loading,
@@ -433,11 +524,14 @@ export const usePerformanceStore = defineStore('performance', () => {
     connectionByWebsite,
     latestSnapshotDate,
     comparePeriodLabel,
+    teamConnections,
     // actions
     fetchAll,
     fetchStats,
     fetchConnections,
     fetchConnectionInfo,
+    fetchTeamConnections,
+    disconnectGoogle,
     setRange,
     fetchCompare,
     setCompareMode,

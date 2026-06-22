@@ -2,73 +2,73 @@
   <div class="qc-page">
     <section class="qc-hero">
       <div class="qc-hero-copy">
-        <span class="qc-hero-kicker">QUALITY WORKFLOW</span>
-        <h1 class="qc-hero-title">Quality Check Board</h1>
+        <span class="qc-hero-kicker">{{ $t('qualityCheck.title').toUpperCase() }}</span>
+        <h1 class="qc-hero-title">{{ $t('qualityCheck.title') }}</h1>
         <p class="qc-hero-subtitle">
-          Track website issues, review fixes, and manage quality checks across every website in one place.
+          {{ $t('qualityCheck.subtitle') }}
         </p>
       </div>
       <div class="qc-hero-actions">
         <button v-if="auth.isAdmin" class="btn-secondary" type="button" @click="manageOpen = true">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-          Manage Classes
+          {{ $t('mediaLibrary.newFolder') }}
         </button>
         <button
           v-if="auth.isAdmin"
           class="btn-secondary"
           type="button"
           :disabled="qc.classes.length === 0"
-          :title="qc.classes.length === 0 ? 'Create a class folder first' : 'Arrange websites into folders'"
+          :title="qc.classes.length === 0 ? $t('Create a class folder first') : $t('Arrange websites into folders')"
           @click="openArrange(selectedClassId === undefined ? (qc.classes[0]?.id ?? null) : selectedClassId)"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          Arrange Websites
+          {{ $t('qualityCheck.arrangeWebsites') }}
         </button>
         <button v-if="selectedWebsiteId" class="btn-primary" type="button" @click="createOpen = true">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New Issue
+          {{ $t('qualityCheck.createIssue') }}
         </button>
       </div>
     </section>
 
     <!-- ── Compact metric pills ───────────────────────────────────────── -->
-    <section class="qc-metrics" aria-label="Quality metrics">
+    <section class="qc-metrics" :aria-label="$t('Quality metrics')">
       <div class="qc-pill">
         <span class="qc-pill-ico qc-pill-ico--sites">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>
         </span>
         <span class="qc-pill-num">{{ qcMetrics.websites }}</span>
-        <span class="qc-pill-label">Websites</span>
+        <span class="qc-pill-label">{{ $t('qualityCheck.websites') }}</span>
       </div>
       <div class="qc-pill">
         <span class="qc-pill-dot qc-pill-dot--open" />
         <span class="qc-pill-num">{{ qcMetrics.open }}</span>
-        <span class="qc-pill-label">Open</span>
+        <span class="qc-pill-label">{{ $t('qualityCheck.openIssues') }}</span>
       </div>
       <div class="qc-pill">
         <span class="qc-pill-dot qc-pill-dot--prog" />
         <span class="qc-pill-num">{{ qcMetrics.inProgress }}</span>
-        <span class="qc-pill-label">In Progress</span>
+        <span class="qc-pill-label">{{ $t('qualityCheck.inProgress') }}</span>
       </div>
       <div class="qc-pill">
         <span class="qc-pill-dot qc-pill-dot--review" />
         <span class="qc-pill-num">{{ qcMetrics.review }}</span>
-        <span class="qc-pill-label">Review</span>
+        <span class="qc-pill-label">{{ $t('qualityCheck.review') }}</span>
       </div>
       <div class="qc-pill">
         <span class="qc-pill-dot qc-pill-dot--approved" />
         <span class="qc-pill-num">{{ qcMetrics.approved }}</span>
-        <span class="qc-pill-label">Approved</span>
+        <span class="qc-pill-label">{{ $t('qualityCheck.approved') }}</span>
       </div>
       <div class="qc-pill qc-pill--accent">
         <span class="qc-pill-dot qc-pill-dot--fixed" />
         <span class="qc-pill-num">{{ qcMetrics.fixedToday }}</span>
-        <span class="qc-pill-label">Fixed Today</span>
+        <span class="qc-pill-label">{{ $t('qualityCheck.fixedToday') }}</span>
       </div>
       <div class="qc-pill">
-        <span class="qc-pill-ico">⏱️</span>
+        <span class="qc-pill-ico">{{ $t('⏱️') }}</span>
         <span class="qc-pill-num">{{ averageResolutionTime }}</span>
-        <span class="qc-pill-label">Avg Resolution</span>
+        <span class="qc-pill-label">{{ $t('qualityCheck.avgResolution') }}</span>
       </div>
     </section>
 
@@ -97,19 +97,19 @@
           <ul class="qc-class-stats">
             <li>
               <span class="qc-stat-num">{{ c.websites }}</span>
-              <span class="qc-stat-label">Sites</span>
+              <span class="qc-stat-label">{{ $t('qualityCheck.sites') }}</span>
             </li>
             <li>
               <span class="qc-stat-num">{{ c.open }}</span>
-              <span class="qc-stat-label">Open</span>
+              <span class="qc-stat-label">{{ $t('qualityCheck.openIssues') }}</span>
             </li>
             <li>
               <span class="qc-stat-num">{{ c.assigned }}</span>
-              <span class="qc-stat-label">Active</span>
+              <span class="qc-stat-label">{{ $t('qualityCheck.active') }}</span>
             </li>
             <li>
               <span class="qc-stat-num">{{ c.fixed }}</span>
-              <span class="qc-stat-label">Fixed</span>
+              <span class="qc-stat-label">{{ $t('qualityCheck.fixed') }}</span>
             </li>
           </ul>
         </button>
@@ -122,10 +122,10 @@
             class="qc-card-link"
             @click.stop="openArrange(c.id)"
           >
-            Arrange
+            {{ $t('qualityCheck.arrange') || 'Arrange' }}
           </button>
           <button type="button" class="qc-card-link qc-card-link--accent" @click.stop="selectClass(c.id)">
-            Open
+            {{ $t('common.view') }}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
         </div>
@@ -142,23 +142,23 @@
             <span class="qc-class-icon" aria-hidden="true">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
             </span>
-            <span class="qc-class-name">Unclassified</span>
+            <span class="qc-class-name">{{ $t('Unclassified') }}</span>
             <span class="qc-class-total">{{ unclassifiedCard.total }}</span>
           </div>
           <ul class="qc-class-stats qc-class-stats--narrow">
             <li>
               <span class="qc-stat-num">{{ unclassifiedCard.websites }}</span>
-              <span class="qc-stat-label">Sites</span>
+              <span class="qc-stat-label">{{ $t('qualityCheck.sites') }}</span>
             </li>
             <li>
               <span class="qc-stat-num">{{ unclassifiedCard.open }}</span>
-              <span class="qc-stat-label">Open</span>
+              <span class="qc-stat-label">{{ $t('qualityCheck.openIssues') }}</span>
             </li>
           </ul>
         </button>
         <div class="qc-class-actions">
           <button type="button" class="qc-card-link qc-card-link--accent" @click.stop="selectClass(null)">
-            Open
+            {{ $t('common.view') }}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
         </div>
@@ -167,13 +167,13 @@
       <!-- Empty state when no classes exist yet -->
       <div v-if="qc.classes.length === 0" class="qc-classes-empty card card-pad">
         <div>
-          <p class="qc-empty-title">No quality check folders yet.</p>
+          <p class="qc-empty-title">{{ $t('No quality check folders yet.') }}</p>
           <p class="qc-empty-sub">
-            Group your saved websites (admin + member) into class folders, then track issues per folder.
+            {{ $t('Group your saved websites (admin + member) into class folders, then track issues per folder.') }}
           </p>
         </div>
         <button v-if="auth.isAdmin" class="btn-primary" type="button" @click="manageOpen = true">
-          Create Folder
+          {{ $t('Create Folder') }}
         </button>
       </div>
     </section>
@@ -192,7 +192,7 @@
         <header class="qc-sites-head">
           <div class="qc-sites-label-wrap">
             <span class="qc-sites-label-dot" aria-hidden="true" />
-            <span class="qc-sites-label">Websites in this folder</span>
+            <span class="qc-sites-label">{{ $t('qualityCheck.websitesInFolder') }}</span>
             <span class="qc-sites-count">{{ websitesInSelected.length }}</span>
           </div>
           <button
@@ -201,7 +201,7 @@
             class="qc-card-link qc-card-link--ghost"
             @click="openArrange(selectedClassId)"
           >
-            Arrange
+            {{ $t('qualityCheck.arrangeWebsites') }}
           </button>
         </header>
 
@@ -227,9 +227,9 @@
       <!-- Folder has no websites: show admin prompt to arrange -->
       <div v-else class="qc-folder-empty card card-pad">
         <div>
-          <p class="qc-empty-title">No websites in this folder yet.</p>
+          <p class="qc-empty-title">{{ $t('No websites in this folder yet.') }}</p>
           <p class="qc-empty-sub">
-            Pick from your existing saved websites — admin, team, and existing entries are all available.
+            {{ $t('Pick from your existing saved websites — admin, team, and existing entries are all available.') }}
           </p>
         </div>
         <button
@@ -238,13 +238,13 @@
           type="button"
           @click="openArrange(selectedClassId)"
         >
-          Arrange Websites
+          {{ $t('qualityCheck.arrangeWebsites') }}
         </button>
       </div>
 
       <div v-if="selectedWebsite" class="qc-website-context">
         <div class="qc-website-context-main">
-          <span class="qc-context-label">Website board</span>
+          <span class="qc-context-label">{{ $t('qualityCheck.websiteBoard') }}</span>
           <!-- Clickable name + URL → live site in a new tab. Falls back
                to a plain span if there's no domain to open. -->
           <template v-if="selectedWebsiteUrl">
@@ -269,18 +269,18 @@
           </template>
           <template v-else>
             <strong>{{ selectedWebsite.name || 'Untitled website' }}</strong>
-            <span>No domain set</span>
+            <span>{{ $t('No domain set') }}</span>
           </template>
         </div>
         <button class="btn-secondary" type="button" @click="clearWebsiteSelection">
-          Back to Class
+          {{ $t('qualityCheck.backToClass') || 'Back to Class' }}
         </button>
       </div>
 
       <div v-else-if="websitesInSelected.length > 0" class="qc-pick-website card card-pad">
         <div>
-          <p class="qc-empty-title">Pick a website board.</p>
-          <p class="qc-empty-sub">Use the website buttons above to open that website's Quality Check board.</p>
+          <p class="qc-empty-title">{{ $t('qualityCheck.pickWebsite') || 'Pick a website board.' }}</p>
+          <p class="qc-empty-sub">{{ $t('qualityCheck.pickWebsiteSub') || "Use the website buttons above to open that website's Quality Check board." }}</p>
         </div>
       </div>
 
@@ -304,7 +304,7 @@
           >
             <header class="column-head">
               <div>
-                <h2>{{ col.label }}</h2>
+                <h2>{{ $t('qualityCheck.columns.' + col.value) }}</h2>
               </div>
               <span>{{ columnIssues(col.value).length }}</span>
             </header>
@@ -340,7 +340,7 @@
                   <button
                     class="tc-menu-trigger"
                     type="button"
-                    title="Issue actions"
+                    :title="$t('Issue actions')"
                     @click.stop="toggleCardMenu(issue.id)"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -348,12 +348,12 @@
                     </svg>
                   </button>
                   <div v-if="activeMenuCardId === issue.id" class="tc-menu-dropdown">
-                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">Edit</button>
-                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">Assign</button>
-                    <button class="tc-menu-item" type="button" @click.stop="handleAlertCard(issue)">Send Alert</button>
-                    <button class="tc-menu-item" type="button" @click.stop="handleReceiptsCard(issue)">View Receipts</button>
+                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">{{ $t('common.edit') }}</button>
+                    <button class="tc-menu-item" type="button" @click.stop="openDetail(issue.id)">{{ $t('workBoardDetail.assignee') }}</button>
+                    <button class="tc-menu-item" type="button" @click.stop="handleAlertCard(issue)">{{ $t('Send Alert') }}</button>
+                    <button class="tc-menu-item" type="button" @click.stop="handleReceiptsCard(issue)">{{ $t('View Receipts') }}</button>
                     <div class="tc-menu-divider" />
-                    <button class="tc-menu-item tc-menu-item--danger" type="button" @click.stop="handleArchiveCard(issue.id)">Archive</button>
+                    <button class="tc-menu-item tc-menu-item--danger" type="button" @click.stop="handleArchiveCard(issue.id)">{{ $t('Archive') }}</button>
                   </div>
                 </div>
 
@@ -389,20 +389,20 @@
                 <div v-if="isManager && receiptSummaries[issue.id] && receiptSummaries[issue.id].delivered > 0" class="tc-tracking-panel" @click.stop>
                   <div class="tc-tracking-header">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    Alert Status
+                    {{ $t('Alert Status') }}
                   </div>
                   <div class="tc-tracking-stats">
-                    <span>Delivered: <strong>Yes</strong></span>
-                    <span>Opened: <strong>{{ receiptSummaries[issue.id].opened > 0 ? 'Yes' : 'No' }}</strong></span>
-                    <span>Acked: <strong>{{ receiptSummaries[issue.id].acknowledged === receiptSummaries[issue.id].delivered ? 'Yes' : 'No' }}</strong></span>
+                    <span>{{ $t('Delivered:') }} <strong>{{ $t('Yes') }}</strong></span>
+                    <span>{{ $t('Opened:') }} <strong>{{ receiptSummaries[issue.id].opened > 0 ? $t('Yes') : $t('No') }}</strong></span>
+                    <span>{{ $t('Acked:') }} <strong>{{ receiptSummaries[issue.id].acknowledged === receiptSummaries[issue.id].delivered ? $t('Yes') : $t('No') }}</strong></span>
                   </div>
                   <div v-if="receiptSummaries[issue.id].lastAlertAt" class="tc-tracking-time">
-                    Last Alert: <strong>{{ formattedAlertDate(receiptSummaries[issue.id].lastAlertAt) }}</strong>
+                    {{ $t('Last Alert:') }} <strong>{{ formattedAlertDate(receiptSummaries[issue.id].lastAlertAt) }}</strong>
                   </div>
                   <div class="tc-tracking-actions">
-                    <button class="tc-track-btn" type="button" @click.stop="handleReceiptsCard(issue)">View Receipts</button>
+                    <button class="tc-track-btn" type="button" @click.stop="handleReceiptsCard(issue)">{{ $t('View Receipts') }}</button>
                     <button class="tc-track-btn" type="button" :disabled="repushingAlerts[issue.id] || receiptSummaries[issue.id].pending === 0" @click.stop="handleRepushCard(issue.id)">
-                      {{ repushingAlerts[issue.id] ? 'Nudging...' : 'Repush' }}
+                      {{ repushingAlerts[issue.id] ? $t('Nudging...') : $t('Repush') }}
                     </button>
                   </div>
                 </div>
@@ -422,7 +422,7 @@
                     </span>
                     <span class="tc-name">{{ memberName(issue.assignedTo) }}</span>
                   </div>
-                  <span v-else class="tc-unassigned">Unassigned</span>
+                  <span v-else class="tc-unassigned">{{ $t('workBoardDetail.unassigned') }}</span>
                   <div class="tc-actions">
                     <a
                       v-if="issue.pageUrl"
@@ -434,36 +434,36 @@
                       @click.stop
                     >
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                      Link
+                      {{ $t('Link') }}
                     </a>
                     <button
                       v-if="canEdit(issue)"
                       type="button"
                       class="tc-edit"
-                      title="Edit issue"
+                      :title="$t('Edit issue')"
                       @click.stop="openEdit(issue.id)"
                     >
-                      Edit
+                      {{ $t('common.edit') }}
                     </button>
                     <button
                       v-if="canDelete(issue)"
                       type="button"
                       class="tc-delete"
-                      :title="deletingId === issue.id ? 'Click again to confirm delete' : 'Delete issue'"
+                      :title="deletingId === issue.id ? $t('Click again to confirm delete') : $t('Delete issue')"
                       :class="{ 'tc-delete--confirm': deletingId === issue.id }"
                       :disabled="deleteBusy === issue.id"
                       @click.stop="onDeleteClick(issue.id, $event)"
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6 17.39 19.4A2 2 0 0 1 15.39 21H8.61A2 2 0 0 1 6.61 19.4L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                      <span v-if="deletingId === issue.id">Confirm</span>
+                      <span v-if="deletingId === issue.id">{{ $t('Confirm') }}</span>
                     </button>
-                    <button class="tc-open" type="button" @click.stop="openDetail(issue.id)">Open</button>
+                    <button class="tc-open" type="button" @click.stop="openDetail(issue.id)">{{ $t('common.view') }}</button>
                   </div>
                 </div>
               </article>
 
               <div v-if="columnIssues(col.value).length === 0" class="column-empty">
-                No issues here.
+                {{ $t('qualityCheck.noIssues') }}
               </div>
             </div>
           </section>
@@ -562,7 +562,7 @@
                   </span>
                   {{ memberName(hoverPreview.issue.assignedTo) }}
                 </span>
-                <span v-else class="hp-unassigned">Unassigned</span>
+                <span v-else class="hp-unassigned">{{ $t('workBoardDetail.unassigned') }}</span>
               </div>
             </div>
           </template>
@@ -582,6 +582,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import CreateIssueModal from '@/components/quality/CreateIssueModal.vue';
 import IssueDetailModal from '@/components/quality/IssueDetailModal.vue';
@@ -592,6 +593,7 @@ import { playCardDropSound } from '@/composables/useCardDropSound';
 import { useAuthStore } from '@/stores/auth';
 import { useImagePreviewStore } from '@/stores/imagePreview';
 
+const { t } = useI18n();
 const previewStore = useImagePreviewStore();
 const openPhotoPreview = (member: any) => {
   if (member?.avatarUrl) {
@@ -1472,12 +1474,12 @@ onMounted(async () => {
   background: var(--soft-bg);
 }
 .qc-card-link--accent {
-  color: #fff;
+  color: #f8fbff;
   background: var(--primary);
   border-color: var(--primary);
 }
 .qc-card-link--accent:hover {
-  color: #fff;
+  color: #f8fbff;
   background: var(--primary-hover);
   border-color: var(--primary-hover);
 }
@@ -2173,7 +2175,7 @@ onMounted(async () => {
 .tc-link:focus-visible {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   outline: none;
   transform: translateY(-1px);
 }
@@ -2199,12 +2201,12 @@ onMounted(async () => {
 }
 .tc-delete:disabled { opacity: 0.5; cursor: wait; }
 .tc-delete--confirm {
-  color: #fff;
+  color: #f8fbff;
   background: #dc2626;
   border-color: #dc2626;
 }
 .tc-delete--confirm:hover:not(:disabled) {
-  color: #fff;
+  color: #f8fbff;
   background: #b91c1c;
   border-color: #b91c1c;
 }
@@ -2227,7 +2229,7 @@ onMounted(async () => {
 .tc-edit:hover {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 .tc-open {
   flex-shrink: 0;
@@ -2248,7 +2250,7 @@ onMounted(async () => {
 .tc-open:hover {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 
 .qc-toast {
@@ -2263,8 +2265,8 @@ onMounted(async () => {
   font-weight: 800;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
 }
-.qc-toast--success { background: #16a34a; color: #fff; }
-.qc-toast--error { background: #dc2626; color: #fff; }
+.qc-toast--success { background: #16a34a; color: #f8fbff; }
+.qc-toast--error { background: #dc2626; color: #f8fbff; }
 .qc-toast-fade-enter-active,
 .qc-toast-fade-leave-active { transition: opacity 180ms ease, transform 180ms ease; }
 .qc-toast-fade-enter-from,
@@ -2360,7 +2362,7 @@ onMounted(async () => {
   z-index: 120;
   pointer-events: none;       /* never blocks the cursor / underlying card */
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(248, 251, 255, 0.08);
   background: var(--card-bg);
   box-shadow:
     0 24px 60px rgba(8, 12, 20, 0.32),
@@ -2519,15 +2521,15 @@ onMounted(async () => {
   background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(248, 251, 255, 0.08);
+  color: rgba(248, 251, 255, 0.85);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .tc-menu-trigger:hover {
   background: rgba(15, 23, 42, 0.75);
-  color: #fff;
+  color: #f8fbff;
 }
 
 .tc-menu-dropdown {

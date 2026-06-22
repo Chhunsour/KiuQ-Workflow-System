@@ -13,7 +13,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          Add Folder
+          {{ $t('Add Folder') }}
         </button>
         <button v-if="!auth.isViewer" class="btn-secondary" type="button" @click="openCreateFile()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -21,14 +21,14 @@
             <path d="M14 2v6h6" />
             <path d="M12 12v6M9 15h6" />
           </svg>
-          Add File / Link
+          {{ $t('Add File / Link') }}
         </button>
         <button v-if="auth.isAdmin && !auth.isViewer" class="btn-primary" type="button" @click="openAssignPicker">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m22 2-7 20-4-9-9-4z" />
             <path d="M22 2 11 13" />
           </svg>
-          Assign Doc
+          {{ $t('Assign Doc') }}
         </button>
       </template>
     </PageHeader>
@@ -65,7 +65,7 @@
         v-model="search"
         class="input max-w-sm"
         type="search"
-        placeholder="Search..."
+        :placeholder="$t('Search...')"
       />
       <FormSelect
         v-if="activeTab === 'product-docs'"
@@ -126,7 +126,7 @@
                 v-if="auth.isAdmin"
                 class="btn-ghost pd-icon-btn"
                 type="button"
-                title="Edit"
+                :title="$t('Edit')"
                 @click="openEditFile(f)"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
@@ -135,7 +135,7 @@
                 v-if="auth.isAdmin"
                 class="btn-ghost pd-icon-btn pd-icon-btn--danger"
                 type="button"
-                title="Delete"
+                :title="$t('Delete')"
                 @click="confirmDeleteFile(f)"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
@@ -163,7 +163,7 @@
             </span>
             <span v-if="linkedPrompt(f)" class="pd-doc-meta-chip pd-doc-meta-chip--prompt">
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Prompt linked
+              {{ $t('Prompt linked') }}
             </span>
           </div>
 
@@ -171,20 +171,20 @@
           <div v-if="f.productUrl || f.driveLink || safeOpenUrl(f.url)" class="pd-doc-links">
             <a v-if="f.productUrl" :href="f.productUrl" target="_blank" rel="noopener" class="pd-doc-link">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Product Page
+              {{ $t('Product Page') }}
             </a>
             <a v-if="f.driveLink" :href="f.driveLink" target="_blank" rel="noopener" class="pd-doc-link">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15l5-9 5 9H3z"/><path d="M13 15l4-7 4 7h-8z"/><path d="M7.5 15l4.5 8"/><path d="M16.5 15L12 23"/></svg>
-              Google Drive
+              {{ $t('Google Drive') }}
             </a>
-            <a v-if="safeOpenUrl(f.url)" :href="safeOpenUrl(f.url)!" target="_blank" rel="noopener" class="pd-doc-link">Open File</a>
+            <a v-if="safeOpenUrl(f.url)" :href="safeOpenUrl(f.url)!" target="_blank" rel="noopener" class="pd-doc-link">{{ $t('Open File') }}</a>
           </div>
 
           <!-- Action buttons -->
           <div class="pd-doc-actions">
             <button class="btn-secondary pd-doc-action-btn" type="button" @click="openDetail(f)">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              Details
+              {{ $t('Details') }}
             </button>
             <button
               class="btn-secondary pd-doc-action-btn"
@@ -217,11 +217,11 @@
 
       <EmptyState
         v-else-if="!data.loading.docsFiles"
-        title="No product docs yet"
+        :title="$t('No product docs yet')"
         :description="auth.isAdmin ? 'Add a file and set its category to \'Product Details\' to see it here.' : 'No product docs have been assigned to you yet.'"
       >
         <template v-if="auth.isAdmin" #action>
-          <button class="btn-primary" type="button" @click="openCreateFile(undefined, true)">Add Product Doc</button>
+          <button class="btn-primary" type="button" @click="openCreateFile(undefined, true)">{{ $t('Add Product Doc') }}</button>
         </template>
       </EmptyState>
     </LoadingBlock>
@@ -281,24 +281,24 @@
               <span class="text-xs text-text-muted">Updated {{ folder.updatedAt }}</span>
               <div class="flex flex-wrap gap-2">
                 <button class="btn-primary h-8 whitespace-nowrap px-3 text-xs" @click.stop="openDocsFolder(folder.id)">
-                  Open
+                  {{ $t('Open') }}
                 </button>
                 <button class="btn-secondary h-8 whitespace-nowrap px-3 text-xs" @click.stop="openAssignFolder(folder)">
-                  Assign
+                  {{ $t('Assign') }}
                 </button>
-                <button class="btn-secondary h-8 whitespace-nowrap px-3 text-xs" @click.stop="openEditFolder(folder)">Edit</button>
-                <button class="btn-danger h-8 whitespace-nowrap px-3 text-xs" @click.stop="confirmDeleteFolder(folder)">Delete</button>
+                <button class="btn-secondary h-8 whitespace-nowrap px-3 text-xs" @click.stop="openEditFolder(folder)">{{ $t('Edit') }}</button>
+                <button class="btn-danger h-8 whitespace-nowrap px-3 text-xs" @click.stop="confirmDeleteFolder(folder)">{{ $t('Delete') }}</button>
               </div>
             </div>
           </article>
         </div>
         <EmptyState
           v-else
-          title="No folders yet"
+          :title="$t('No folders yet')"
           description="Create a folder for each product category (e.g. Mini Excavator, Forklift). Inside each folder you can write and save text documents."
         >
           <template #action>
-            <button class="btn-primary" type="button" @click="openCreateFolder">Add Folder</button>
+            <button class="btn-primary" type="button" @click="openCreateFolder">{{ $t('Add Folder') }}</button>
           </template>
         </EmptyState>
       </LoadingBlock>
@@ -314,12 +314,12 @@
           <table class="w-full text-sm">
             <thead class="bg-soft text-left text-xs uppercase tracking-wide text-text-muted">
               <tr>
-                <th class="ui-font px-6 py-3 font-medium">File</th>
-                <th class="ui-font px-6 py-3 font-medium">Type</th>
-                <th class="ui-font px-6 py-3 font-medium">Folder</th>
-                <th class="ui-font px-6 py-3 font-medium">Linked to</th>
-                <th class="ui-font px-6 py-3 font-medium">Sent to</th>
-                <th class="ui-font px-6 py-3 font-medium text-right">Actions</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('File') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Type') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Folder') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Linked to') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Sent to') }}</th>
+                <th class="ui-font px-6 py-3 font-medium text-right">{{ $t('Actions') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -354,10 +354,10 @@
                       target="_blank"
                       rel="noopener"
                       class="btn-secondary h-8 px-3 text-xs"
-                    >Open</a>
-                    <button class="btn-secondary h-8 px-3 text-xs" @click="openAssignFile(file)">Assign</button>
-                    <button class="btn-secondary h-8 px-3 text-xs" @click="openEditFile(file)">Edit</button>
-                    <button class="btn-danger h-8 px-3 text-xs" @click="confirmDeleteFile(file)">Delete</button>
+                    >{{ $t('Open') }}</a>
+                    <button class="btn-secondary h-8 px-3 text-xs" @click="openAssignFile(file)">{{ $t('Assign') }}</button>
+                    <button class="btn-secondary h-8 px-3 text-xs" @click="openEditFile(file)">{{ $t('Edit') }}</button>
+                    <button class="btn-danger h-8 px-3 text-xs" @click="confirmDeleteFile(file)">{{ $t('Delete') }}</button>
                   </div>
                 </td>
               </tr>
@@ -366,11 +366,11 @@
         </div>
         <EmptyState
           v-else
-          title="No files yet"
+          :title="$t('No files yet')"
           description="Add a Google Doc, Sheet, Drive folder, PDF, or any reference link."
         >
           <template #action>
-            <button class="btn-primary" type="button" @click="openCreateFile()">Add File / Link</button>
+            <button class="btn-primary" type="button" @click="openCreateFile()">{{ $t('Add File / Link') }}</button>
           </template>
         </EmptyState>
       </LoadingBlock>
@@ -386,13 +386,13 @@
           <table class="w-full text-sm">
             <thead class="bg-soft text-left text-xs uppercase tracking-wide text-text-muted">
               <tr>
-                <th class="ui-font px-6 py-3 font-medium">Item</th>
-                <th class="ui-font px-6 py-3 font-medium">Sent to</th>
-                <th class="ui-font px-6 py-3 font-medium">Project / Website</th>
-                <th class="ui-font px-6 py-3 font-medium">Priority</th>
-                <th class="ui-font px-6 py-3 font-medium">Due</th>
-                <th class="ui-font px-6 py-3 font-medium">Status</th>
-                <th class="ui-font px-6 py-3 font-medium text-right">Actions</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Item') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Sent to') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Project / Website') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Priority') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Due') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Status') }}</th>
+                <th class="ui-font px-6 py-3 font-medium text-right">{{ $t('Actions') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -427,7 +427,7 @@
                 <td class="px-6 py-4">
                   <div class="flex justify-end gap-1">
                     <button class="btn-danger h-8 px-3 text-xs" @click="confirmDeleteAssignment(a)">
-                      Remove
+                      {{ $t('Remove') }}
                     </button>
                   </div>
                 </td>
@@ -437,11 +437,11 @@
         </div>
         <EmptyState
           v-else
-          title="No assignments yet"
+          :title="$t('No assignments yet')"
           description="Pick a folder or file and click Assign to send it to a team member."
         >
           <template #action>
-            <button class="btn-primary" type="button" @click="openAssignPicker">Assign Doc</button>
+            <button class="btn-primary" type="button" @click="openAssignPicker">{{ $t('Assign Doc') }}</button>
           </template>
         </EmptyState>
       </LoadingBlock>
@@ -475,7 +475,7 @@
         </div>
         <EmptyState
           v-else
-          title="Nothing added recently"
+          :title="$t('Nothing added recently')"
           description="Add a folder or file to see it here."
         />
       </LoadingBlock>
@@ -545,7 +545,7 @@
               v-if="a.message"
               class="mt-3 whitespace-pre-line rounded-btn bg-soft px-3 py-2 text-sm text-text-main"
             >
-              <span class="ui-font block text-xs font-medium text-text-muted">From admin</span>
+              <span class="ui-font block text-xs font-medium text-text-muted">{{ $t('From admin') }}</span>
               {{ a.message }}
             </p>
 
@@ -557,31 +557,31 @@
                 rel="noopener"
                 class="btn-primary"
                 @click="autoMarkViewed(a)"
-              >Open Link</a>
+              >{{ $t('Open Link') }}</a>
               <button
                 v-if="a.status !== 'viewed' && a.status !== 'used'"
                 class="btn-secondary"
                 type="button"
                 @click="markStatus(a, 'viewed')"
-              >Mark Viewed</button>
+              >{{ $t('Mark Viewed') }}</button>
               <button
                 v-if="a.status !== 'used'"
                 class="btn-secondary"
                 type="button"
                 @click="markStatus(a, 'used')"
-              >Mark Used</button>
+              >{{ $t('Mark Used') }}</button>
               <button
                 v-if="a.status !== 'archived'"
                 class="btn-ghost"
                 type="button"
                 @click="markStatus(a, 'archived')"
-              >Archive</button>
+              >{{ $t('Archive') }}</button>
             </div>
           </article>
         </div>
         <EmptyState
           v-else
-          title="No docs assigned yet"
+          :title="$t('No docs assigned yet')"
           description="No docs assigned yet. Your admin will send project files, Google Docs, or folders here."
         />
       </LoadingBlock>
@@ -623,10 +623,10 @@
             <p v-if="folder.description" class="mt-3 text-sm text-text-muted">{{ folder.description }}</p>
             <div class="mt-3 flex flex-wrap gap-1.5 text-xs text-text-muted">
               <span v-if="isOwnDocsFolder(folder)" class="ui-font rounded-full bg-soft px-2 py-0.5 text-primary">
-                Your folder
+                {{ $t('Your folder') }}
               </span>
               <span v-else-if="isDocsFolderAssignedToMe(folder)" class="ui-font rounded-full bg-soft px-2 py-0.5 text-primary">
-                Assigned
+                {{ $t('Assigned') }}
               </span>
               <span v-if="projectName(folder.relatedProjectId)" class="ui-font rounded-full bg-soft px-2 py-0.5">
                 {{ projectName(folder.relatedProjectId) }}
@@ -639,21 +639,21 @@
               <span class="text-xs text-text-muted">Updated {{ folder.updatedAt }}</span>
               <div class="flex flex-wrap gap-2">
                 <button class="btn-primary h-8 whitespace-nowrap px-3 text-xs" @click.stop="openDocsFolder(folder.id)">
-                  Open
+                  {{ $t('Open') }}
                 </button>
-                <button v-if="!auth.isViewer && isOwnDocsFolder(folder)" class="btn-secondary h-8 whitespace-nowrap px-3 text-xs" @click.stop="openEditFolder(folder)">Edit</button>
-                <button v-if="!auth.isViewer && isOwnDocsFolder(folder)" class="btn-danger h-8 whitespace-nowrap px-3 text-xs" @click.stop="confirmDeleteFolder(folder)">Delete</button>
+                <button v-if="!auth.isViewer && isOwnDocsFolder(folder)" class="btn-secondary h-8 whitespace-nowrap px-3 text-xs" @click.stop="openEditFolder(folder)">{{ $t('Edit') }}</button>
+                <button v-if="!auth.isViewer && isOwnDocsFolder(folder)" class="btn-danger h-8 whitespace-nowrap px-3 text-xs" @click.stop="confirmDeleteFolder(folder)">{{ $t('Delete') }}</button>
               </div>
             </div>
           </article>
         </div>
         <EmptyState
           v-else
-          title="No folders yet"
+          :title="$t('No folders yet')"
           description="Create your own folders here, or wait for your admin to share project folders with you."
         >
           <template v-if="!auth.isViewer" #action>
-            <button class="btn-primary" type="button" @click="openCreateFolder">Add Folder</button>
+            <button class="btn-primary" type="button" @click="openCreateFolder">{{ $t('Add Folder') }}</button>
           </template>
         </EmptyState>
       </LoadingBlock>
@@ -669,11 +669,11 @@
           <table class="w-full text-sm">
             <thead class="bg-soft text-left text-xs uppercase tracking-wide text-text-muted">
               <tr>
-                <th class="ui-font px-6 py-3 font-medium">File</th>
-                <th class="ui-font px-6 py-3 font-medium">Type</th>
-                <th class="ui-font px-6 py-3 font-medium">Folder</th>
-                <th class="ui-font px-6 py-3 font-medium">Linked to</th>
-                <th class="ui-font px-6 py-3 font-medium text-right">Actions</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('File') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Type') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Folder') }}</th>
+                <th class="ui-font px-6 py-3 font-medium">{{ $t('Linked to') }}</th>
+                <th class="ui-font px-6 py-3 font-medium text-right">{{ $t('Actions') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -698,19 +698,19 @@
                       target="_blank"
                       rel="noopener"
                       class="btn-secondary h-8 px-3 text-xs"
-                    >Open</a>
+                    >{{ $t('Open') }}</a>
                     <button
                       v-if="!auth.isViewer && isOwnDocsFile(file)"
                       class="btn-secondary h-8 px-3 text-xs"
                       type="button"
                       @click="openEditFile(file)"
-                    >Edit</button>
+                    >{{ $t('Edit') }}</button>
                     <button
                       v-if="!auth.isViewer && isOwnDocsFile(file)"
                       class="btn-danger h-8 px-3 text-xs"
                       type="button"
                       @click="confirmDeleteFile(file)"
-                    >Delete</button>
+                    >{{ $t('Delete') }}</button>
                   </div>
                 </td>
               </tr>
@@ -719,11 +719,11 @@
         </div>
         <EmptyState
           v-else
-          title="No files yet"
+          :title="$t('No files yet')"
           description="Add your own file or link, or wait for your admin to send you project docs."
         >
           <template v-slot:action v-if="!auth.isViewer">
-            <button class="btn-primary" type="button" @click="openCreateFile()">Add File / Link</button>
+            <button class="btn-primary" type="button" @click="openCreateFile()">{{ $t('Add File / Link') }}</button>
           </template>
         </EmptyState>
       </LoadingBlock>
@@ -760,12 +760,12 @@
               rel="noopener"
               class="btn-secondary mt-3 inline-flex w-full justify-center"
               @click="autoMarkViewed(a)"
-            >Open again</a>
+            >{{ $t('Open again') }}</a>
           </article>
         </div>
         <EmptyState
           v-else
-          title="Nothing here yet"
+          :title="$t('Nothing here yet')"
           description="Files you open or mark as Used will appear here."
         />
       </LoadingBlock>
@@ -779,29 +779,29 @@
       @close="folderModalOpen = false"
     >
       <form class="space-y-4" @submit.prevent="saveFolder">
-        <FormInput v-model="folderForm.name" label="Folder name" placeholder="Website Requirements" />
-        <FormTextarea v-model="folderForm.description" label="Description" />
+        <FormInput v-model="folderForm.name" :label="$t('Folder name')" :placeholder="$t('Website Requirements')" />
+        <FormTextarea v-model="folderForm.description" :label="$t('Description')" />
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormSelect
             v-model="folderForm.relatedProjectIdValue"
-            label="Related project (optional)"
-            placeholder="None"
+            :label="$t('Related project (optional)')"
+            :placeholder="$t('None')"
             :options="projectOptions"
           />
           <FormSelect
             v-model="folderForm.relatedWebsiteIdValue"
-            label="Related website (optional)"
-            placeholder="None"
+            :label="$t('Related website (optional)')"
+            :placeholder="$t('None')"
             :options="websiteOptions"
           />
         </div>
-        <ColorField v-model="folderForm.folderColor" label="Folder color (optional)" />
+        <ColorField v-model="folderForm.folderColor" :label="$t('Folder color (optional)')" />
       </form>
       <div v-if="data.errors.docsFolders" class="mt-3 text-sm text-status-needs-fix-fg">
         {{ data.errors.docsFolders }}
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="folderModalOpen = false">Cancel</button>
+        <button class="btn-ghost" type="button" @click="folderModalOpen = false">{{ $t('Cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="saving" @click="saveFolder">
           {{ saving ? 'Saving...' : 'Save Folder' }}
         </button>
@@ -818,73 +818,73 @@
     >
       <form class="space-y-4" @submit.prevent="saveFile">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <FormInput v-model="fileForm.title" label="Title" placeholder="Homepage Brief" />
+          <FormInput v-model="fileForm.title" :label="$t('Title')" :placeholder="$t('Homepage Brief')" />
           <FormSelect
             v-model="fileForm.category"
-            label="Category"
+            :label="$t('Category')"
             :options="categoryOptions.filter(o => o.value !== '')"
           />
         </div>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormSelect
             v-model="fileForm.type"
-            label="File type"
+            :label="$t('File type')"
             :options="fileTypeSelectOptions"
           />
           <FormSelect
             v-model="fileForm.folderIdValue"
-            label="Folder"
-            placeholder="No folder"
+            :label="$t('Folder')"
+            :placeholder="$t('No folder')"
             :options="folderOptions"
           />
         </div>
         <FormInput
           v-model="fileForm.url"
-          label="URL"
+          :label="$t('URL')"
           placeholder="https://docs.google.com/..."
           :helper="urlHelperText"
         />
-        <FormTextarea v-model="fileForm.description" label="Description (optional)" :rows="2" />
+        <FormTextarea v-model="fileForm.description" :label="$t('Description (optional)')" :rows="2" />
 
         <!-- Product detail fields (shown when category is product_details) -->
         <template v-if="fileForm.category === 'product_details'">
-          <div class="pd-product-section-header">Product Details</div>
+          <div class="pd-product-section-header">{{ $t('Product Details') }}</div>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormInput v-model="fileForm.productName" label="Product name" placeholder="Mini Excavator 1.5T" />
-            <FormInput v-model="fileForm.productUrl" label="Product page URL" placeholder="https://..." />
+            <FormInput v-model="fileForm.productName" :label="$t('Product name')" :placeholder="$t('Mini Excavator 1.5T')" />
+            <FormInput v-model="fileForm.productUrl" :label="$t('Product page URL')" placeholder="https://..." />
           </div>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <FormInput v-model="fileForm.productImageUrl" label="Image URL" placeholder="https://..." />
-            <FormInput v-model="fileForm.productPrice" label="Price (optional)" placeholder="$24,900" />
-            <FormInput v-model="fileForm.productSku" label="SKU (optional)" placeholder="EX-15T-2024" />
+            <FormInput v-model="fileForm.productImageUrl" :label="$t('Image URL')" placeholder="https://..." />
+            <FormInput v-model="fileForm.productPrice" :label="$t('Price (optional)')" placeholder="$24,900" />
+            <FormInput v-model="fileForm.productSku" :label="$t('SKU (optional)')" :placeholder="$t('EX-15T-2024')" />
           </div>
-          <FormTextarea v-model="fileForm.productShortDesc" label="Short description" :rows="2" placeholder="One-sentence summary for badges and cards." />
-          <FormTextarea v-model="fileForm.productLongDesc" label="Full description" :rows="4" placeholder="Full marketing description." />
-          <FormTextarea v-model="fileForm.productFeatures" label="Features (one per line)" :rows="4" placeholder="Compact design for tight spaces&#10;360° rotation&#10;Fast dig cycle" />
-          <FormTextarea v-model="fileForm.productSpecs" label="Specifications (one per line, key: value)" :rows="4" placeholder="Operating Weight: 1,500 kg&#10;Bucket Capacity: 0.045 m³&#10;Engine: 13.5 kW" />
-          <FormInput v-model="fileForm.driveLink" label="Google Drive folder link (optional)" placeholder="https://drive.google.com/..." />
-          <FormTextarea v-model="fileForm.productNotes" label="Internal notes (optional)" :rows="2" />
+          <FormTextarea v-model="fileForm.productShortDesc" :label="$t('Short description')" :rows="2" :placeholder="$t('One-sentence summary for badges and cards.')" />
+          <FormTextarea v-model="fileForm.productLongDesc" :label="$t('Full description')" :rows="4" :placeholder="$t('Full marketing description.')" />
+          <FormTextarea v-model="fileForm.productFeatures" :label="$t('Features (one per line)')" :rows="4" :placeholder="$t('Compact design for tight spaces') + '\n' + $t('360° rotation') + '\n' + $t('Fast dig cycle')" />
+          <FormTextarea v-model="fileForm.productSpecs" :label="$t('Specifications (one per line, key: value)')" :rows="4" :placeholder="$t('Operating Weight: 1,500 kg') + '\n' + $t('Bucket Capacity: 0.045 m³') + '\n' + $t('Engine: 13.5 kW')" />
+          <FormInput v-model="fileForm.driveLink" :label="$t('Google Drive folder link (optional)')" placeholder="https://drive.google.com/..." />
+          <FormTextarea v-model="fileForm.productNotes" :label="$t('Internal notes (optional)')" :rows="2" />
         </template>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormSelect
             v-model="fileForm.relatedProjectIdValue"
-            label="Related project (optional)"
-            placeholder="None"
+            :label="$t('Related project (optional)')"
+            :placeholder="$t('None')"
             :options="projectOptions"
           />
           <FormSelect
             v-model="fileForm.relatedWebsiteIdValue"
-            label="Related website (optional)"
-            placeholder="None"
+            :label="$t('Related website (optional)')"
+            :placeholder="$t('None')"
             :options="websiteOptions"
           />
         </div>
         <FormSelect
           v-if="fileForm.category === 'product_details'"
           v-model="fileForm.linkedPromptIdValue"
-          label="Link to prompt template (optional)"
-          placeholder="None"
+          :label="$t('Link to prompt template (optional)')"
+          :placeholder="$t('None')"
           :options="[{ value: '', label: 'None' }, ...pw.templates.filter(t => t.status === 'approved').map(t => ({ value: t.id, label: t.title }))]"
         />
       </form>
@@ -892,7 +892,7 @@
         {{ data.errors.docsFiles }}
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="fileModalOpen = false">Cancel</button>
+        <button class="btn-ghost" type="button" @click="fileModalOpen = false">{{ $t('Cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="saving" @click="saveFile">
           {{ saving ? 'Saving...' : 'Save File' }}
         </button>
@@ -919,10 +919,10 @@
             />
             <div class="pd-detail-links">
               <a v-if="detailFile.productUrl" :href="detailFile.productUrl" target="_blank" rel="noopener" class="btn-secondary w-full justify-center text-xs">
-                Product Page
+                {{ $t('Product Page') }}
               </a>
               <a v-if="detailFile.driveLink" :href="detailFile.driveLink" target="_blank" rel="noopener" class="btn-secondary w-full justify-center text-xs">
-                Google Drive
+                {{ $t('Google Drive') }}
               </a>
             </div>
           </div>
@@ -937,13 +937,13 @@
             <p v-if="detailFile.productLongDesc" class="pd-detail-long-desc">{{ detailFile.productLongDesc }}</p>
 
             <div v-if="detailFile.productFeatures" class="pd-detail-section">
-              <div class="pd-detail-section-label">Features</div>
+              <div class="pd-detail-section-label">{{ $t('Features') }}</div>
               <ul class="pd-detail-list">
                 <li v-for="(feat, i) in detailFile.productFeatures.split('\n').filter(Boolean)" :key="i">{{ feat }}</li>
               </ul>
             </div>
             <div v-if="detailFile.productSpecs" class="pd-detail-section">
-              <div class="pd-detail-section-label">Specifications</div>
+              <div class="pd-detail-section-label">{{ $t('Specifications') }}</div>
               <div class="pd-detail-specs">
                 <div v-for="(spec, i) in detailFile.productSpecs.split('\n').filter(Boolean)" :key="i" class="pd-detail-spec-row">
                   <span class="pd-detail-spec-key">{{ spec.split(':')[0]?.trim() }}</span>
@@ -952,11 +952,11 @@
               </div>
             </div>
             <div v-if="detailFile.productNotes" class="pd-detail-section">
-              <div class="pd-detail-section-label">Notes</div>
+              <div class="pd-detail-section-label">{{ $t('Notes') }}</div>
               <p class="pd-detail-notes">{{ detailFile.productNotes }}</p>
             </div>
             <div v-if="linkedPrompt(detailFile)" class="pd-detail-section pd-detail-prompt-info">
-              <div class="pd-detail-section-label">Linked Prompt</div>
+              <div class="pd-detail-section-label">{{ $t('Linked Prompt') }}</div>
               <div class="pd-detail-prompt-name">{{ linkedPrompt(detailFile)!.title }}</div>
             </div>
           </div>
@@ -964,7 +964,7 @@
       </template>
 
       <template #footer>
-        <button class="btn-ghost" type="button" @click="detailModalOpen = false">Close</button>
+        <button class="btn-ghost" type="button" @click="detailModalOpen = false">{{ $t('Close') }}</button>
         <button
           v-if="detailFile"
           class="btn-secondary"
@@ -995,7 +995,7 @@
     <!-- ============== Assign Modal ============== -->
     <Modal
       :open="assignModalOpen"
-      title="Assign to Team"
+      :title="$t('Assign to Team')"
       subtitle="Send this folder or document to selected members."
       size="xl"
       @close="assignModalOpen = false"
@@ -1012,14 +1012,14 @@
             <p>{{ assignTargetSubLabel }}</p>
           </div>
           <button v-if="assignForm.targetId" class="assign-link-btn" type="button" @click="resetAssignTarget">
-            Change selection
+            {{ $t('Change selection') }}
           </button>
         </section>
 
         <div v-if="assignForm.targetId === ''" class="assign-picker-grid">
           <FormSelect
             v-model="assignForm.type"
-            label="What are you sending?"
+            :label="$t('What are you sending?')"
             :options="[
               { value: 'folder', label: 'A whole folder' },
               { value: 'file', label: 'A single file or link' }
@@ -1028,7 +1028,7 @@
           <FormSelect
             v-model="assignForm.targetId"
             :label="assignForm.type === 'folder' ? 'Pick folder' : 'Pick file'"
-            placeholder="Choose..."
+            :placeholder="$t('Choose...')"
             :options="assignForm.type === 'folder' ? folderOptions : fileOptions"
           />
         </div>
@@ -1036,15 +1036,15 @@
         <section class="assign-section">
           <div class="assign-section-head">
             <div>
-              <h3>Send to members</h3>
-              <p>Pick one or more active team members.</p>
+              <h3>{{ $t('Send to members') }}</h3>
+              <p>{{ $t('Pick one or more active team members.') }}</p>
             </div>
             <div class="assign-member-actions">
               <button class="btn-secondary assign-small-btn" type="button" @click="selectAllAssignMembers">
-                Select All
+                {{ $t('Select All') }}
               </button>
               <button class="btn-ghost assign-small-btn" type="button" @click="clearAssignMembers">
-                Clear
+                {{ $t('Clear') }}
               </button>
             </div>
           </div>
@@ -1053,7 +1053,7 @@
             v-model="assignMemberSearch"
             class="input assign-member-search"
             type="search"
-            placeholder="Search members..."
+            :placeholder="$t('Search members...')"
           />
 
           <div v-if="filteredAssignMembers.length" class="assign-member-grid">
@@ -1082,22 +1082,22 @@
 
         <FormTextarea
           v-model="assignForm.message"
-          label="Message (optional)"
-          placeholder="Add instructions for the team..."
+          :label="$t('Message (optional)')"
+          :placeholder="$t('Add instructions for the team...')"
           :rows="3"
         />
 
         <section class="assign-details-grid">
           <FormSelect
             v-model="assignForm.priority"
-            label="Priority"
+            :label="$t('Priority')"
             :options="priorityOptions"
           />
-          <FormInput v-model="assignForm.dueDate" label="Due date" type="date" />
+          <FormInput v-model="assignForm.dueDate" :label="$t('Due date')" type="date" />
           <FormSelect
             v-model="assignForm.relatedProjectIdValue"
-            label="Project"
-            placeholder="None"
+            :label="$t('Project')"
+            :placeholder="$t('None')"
             :options="projectOptions"
           />
         </section>
@@ -1105,8 +1105,8 @@
         <div class="assign-website-row">
           <FormSelect
             v-model="assignForm.relatedWebsiteIdValue"
-            label="Website (optional)"
-            placeholder="None"
+            :label="$t('Website (optional)')"
+            :placeholder="$t('None')"
             :options="websiteOptions"
           />
         </div>
@@ -1118,14 +1118,14 @@
               <path d="M12 9v4M12 17h.01" />
             </svg>
           </div>
-          <p>Make sure this Google Drive file is shared with selected members, or they may not be able to open it.</p>
+          <p>{{ $t('Make sure this Google Drive file is shared with selected members, or they may not be able to open it.') }}</p>
         </div>
       </div>
       <div v-if="data.errors.docsAssignments" class="mt-3 text-sm text-status-needs-fix-fg">
         {{ data.errors.docsAssignments }}
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="assignModalOpen = false">Cancel</button>
+        <button class="btn-ghost" type="button" @click="assignModalOpen = false">{{ $t('Cancel') }}</button>
         <button
           class="btn-primary"
           type="button"
@@ -2171,7 +2171,7 @@ onMounted(async () => {
 .assign-member-card--selected {
   border-color: var(--primary);
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 
 .assign-member-avatar {
@@ -2191,8 +2191,8 @@ onMounted(async () => {
 }
 
 .assign-member-card--selected .assign-member-avatar {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
+  background: rgba(248, 251, 255, 0.18);
+  color: #f8fbff;
 }
 
 .assign-member-avatar img {
@@ -2229,7 +2229,7 @@ onMounted(async () => {
 }
 
 .assign-member-card--selected .assign-member-copy span {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(248, 251, 255, 0.78);
 }
 
 .assign-warning-card {

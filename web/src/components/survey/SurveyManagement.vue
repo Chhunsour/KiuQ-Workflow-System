@@ -2,14 +2,14 @@
   <div class="card card-pad">
     <div class="flex items-start justify-between gap-3">
       <div>
-        <h3 class="section-title mb-1">Team Survey</h3>
-        <p class="helper">Collect feedback from your team and see who received, opened, draft, skipped, or submitted it.</p>
+        <h3 class="section-title mb-1">{{ $t('survey.title') }}</h3>
+        <p class="helper">{{ $t('survey.subtitle') }}</p>
       </div>
-      <label class="survey-switch" :title="campaign?.is_active ? 'Survey is ON' : 'Survey is OFF'">
+      <label class="survey-switch" :title="campaign?.is_active ? $t('survey.campaignOn') : $t('survey.campaignOff')">
         <input type="checkbox" :checked="!!campaign?.is_active" :disabled="saving" @change="toggleActive" />
         <span class="survey-switch-track"><span class="survey-switch-thumb" /></span>
         <span class="ml-2 text-xs font-semibold" :class="campaign?.is_active ? 'text-primary' : 'text-text-muted'">
-          {{ campaign?.is_active ? 'On' : 'Off' }}
+          {{ campaign?.is_active ? $t('survey.on') : $t('survey.off') }}
         </span>
       </label>
     </div>
@@ -21,16 +21,16 @@
     <!-- Settings -->
     <div class="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
       <div>
-        <label class="label">Survey title</label>
-        <input v-model="settings.title" class="input" placeholder="Help us improve KiuQ Website Team" />
+        <label class="label">{{ $t('survey.surveyTitle') }}</label>
+        <input v-model="settings.title" class="input" :placeholder="$t('survey.surveyTitlePlaceholder')" />
       </div>
       <div>
-        <label class="label">Short message</label>
-        <input v-model="settings.description" class="input" placeholder="Tell us what is hard, what is good…" />
+        <label class="label">{{ $t('survey.shortMessage') }}</label>
+        <input v-model="settings.description" class="input" :placeholder="$t('survey.shortMessagePlaceholder')" />
       </div>
     </div>
     <div class="mt-4">
-      <label class="label">Who receives it?</label>
+      <label class="label">{{ $t('survey.whoReceives') }}</label>
       <div class="mt-1 flex flex-wrap gap-2">
         <button
           v-for="r in audienceRoleOptions"
@@ -42,7 +42,7 @@
       </div>
     </div>
     <div class="mt-4 flex items-center gap-2">
-      <button class="btn-primary" type="button" :disabled="saving" @click="saveSettings">Save survey settings</button>
+      <button class="btn-primary" type="button" :disabled="saving" @click="saveSettings">{{ $t('survey.saveSurvey') }}</button>
       <span v-if="savedMsg" class="text-xs text-primary">{{ savedMsg }}</span>
     </div>
 
@@ -50,79 +50,76 @@
     <div class="mt-5 rounded-card border border-border bg-soft/30 p-4">
       <div class="flex flex-wrap items-end gap-3">
         <div>
-          <label class="label">Preview as</label>
+          <label class="label">{{ $t('survey.previewAs') }}</label>
           <select v-model="previewRole" class="input survey-filter">
-            <option value="team_member">Team Member</option>
-            <option value="assistant_head">Assistant Head</option>
-            <option value="quality_checker">Quality Checker</option>
-            <option value="head">Head / Admin</option>
+            <option value="team_member">{{ roleLabel('team_member') }}</option>
+            <option value="assistant_head">{{ roleLabel('assistant_head') }}</option>
+            <option value="quality_checker">{{ roleLabel('quality_checker') }}</option>
+            <option value="head">{{ roleLabel('head') }}</option>
           </select>
         </div>
         <span class="survey-aud-note" :class="previewInAudience ? 'is-ok' : 'is-no'">
-          {{ previewInAudience ? 'In audience — would receive it' : 'Not in audience — would not receive it' }}
+          {{ previewInAudience ? $t('survey.inAudience') : $t('survey.notInAudience') }}
         </span>
-        <button class="btn-primary" type="button" @click="openPreview">Preview &amp; Test Survey</button>
+        <button class="btn-primary" type="button" @click="openPreview">{{ $t('survey.previewTest') }}</button>
       </div>
-      <p class="helper mt-2">
-        Opens the survey in <strong>Testing Mode</strong> — exactly as a team member sees it. Your answers save as a
-        <strong>test response</strong> (not team feedback) and never mark anyone as submitted.
-      </p>
+      <p class="helper mt-2" v-html="$t('survey.previewTestDesc')"></p>
     </div>
 
     <!-- Stat cards -->
     <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-      <div class="survey-stat"><div class="survey-stat-num">{{ store.stats.received }}</div><div class="survey-stat-lbl">Received</div></div>
-      <div class="survey-stat"><div class="survey-stat-num">{{ store.stats.opened }}</div><div class="survey-stat-lbl">Opened</div></div>
-      <div class="survey-stat"><div class="survey-stat-num text-purple-500">{{ store.stats.inProgress }}</div><div class="survey-stat-lbl">In progress / Draft</div></div>
-      <div class="survey-stat"><div class="survey-stat-num">{{ store.stats.skipped }}</div><div class="survey-stat-lbl">Skipped</div></div>
-      <div class="survey-stat"><div class="survey-stat-num text-primary">{{ store.stats.submitted }}</div><div class="survey-stat-lbl">Submitted</div></div>
-      <div class="survey-stat"><div class="survey-stat-num">{{ store.stats.notResponded }}</div><div class="survey-stat-lbl">Not responded</div></div>
+      <div class="survey-stat"><div class="survey-stat-num">{{ store.stats.received }}</div><div class="survey-stat-lbl">{{ $t('survey.received') }}</div></div>
+      <div class="survey-stat"><div class="survey-stat-num">{{ store.stats.opened }}</div><div class="survey-stat-lbl">{{ $t('survey.opened') }}</div></div>
+      <div class="survey-stat"><div class="survey-stat-num text-purple-500">{{ store.stats.inProgress }}</div><div class="survey-stat-lbl">{{ $t('survey.inProgress') }}</div></div>
+      <div class="survey-stat"><div class="survey-stat-num">{{ store.stats.skipped }}</div><div class="survey-stat-lbl">{{ $t('survey.skipped') }}</div></div>
+      <div class="survey-stat"><div class="survey-stat-num text-primary">{{ store.stats.submitted }}</div><div class="survey-stat-lbl">{{ $t('survey.submitted') }}</div></div>
+      <div class="survey-stat"><div class="survey-stat-num">{{ store.stats.notResponded }}</div><div class="survey-stat-lbl">{{ $t('survey.notResponded') }}</div></div>
     </div>
 
     <!-- View switch -->
     <div class="mt-6 flex items-center justify-between gap-3">
       <div class="survey-tabs">
-        <button type="button" :class="['survey-tab', view === 'responses' && 'is-active']" @click="view = 'responses'">Responses ({{ responsesCount }})</button>
-        <button type="button" :class="['survey-tab', view === 'people' && 'is-active']" @click="view = 'people'">People ({{ store.adminRecipients.length }})</button>
+        <button type="button" :class="['survey-tab', view === 'responses' && 'is-active']" @click="view = 'responses'">{{ $t('survey.responses') }} ({{ responsesCount }})</button>
+        <button type="button" :class="['survey-tab', view === 'people' && 'is-active']" @click="view = 'people'">{{ $t('survey.recipients') }} ({{ store.adminRecipients.length }})</button>
       </div>
       <div v-if="view === 'responses'" class="flex items-center gap-3">
         <label class="survey-check">
           <input type="checkbox" v-model="showTestResponses" />
-          Show test responses<span v-if="testCount"> ({{ testCount }})</span>
+          {{ $t('survey.showTestResponses') }}<span v-if="testCount"> ({{ testCount }})</span>
         </label>
-        <button class="btn-secondary px-3 py-1.5 text-xs" type="button" :disabled="!filteredResponses.length" @click="exportCsv">Export CSV</button>
+        <button class="btn-secondary px-3 py-1.5 text-xs" type="button" :disabled="!filteredResponses.length" @click="exportCsv">{{ $t('survey.exportCsv') }}</button>
       </div>
     </div>
 
     <!-- Filters -->
     <div class="mt-3 flex flex-wrap items-end gap-2">
-      <input v-model="filters.search" class="input survey-filter" placeholder="Search name / email…" />
+      <input v-model="filters.search" class="input survey-filter" :placeholder="$t('survey.searchPlaceholder')" />
       <select v-model="filters.role" class="input survey-filter">
-        <option value="">All roles</option>
+        <option value="">{{ $t('survey.allRoles') }}</option>
         <option v-for="r in roleFilterOptions" :key="r" :value="r">{{ roleLabel(r) }}</option>
       </select>
       <template v-if="view === 'responses'">
         <select v-model="filters.dashboard" class="input survey-filter">
-          <option value="">All pages</option>
-          <option v-for="o in surveyOptions.dashboards" :key="o.value" :value="o.value">{{ o.en }}</option>
+          <option value="">{{ $t('survey.allPages') }}</option>
+          <option v-for="o in surveyOptions.dashboards" :key="o.value" :value="o.value">{{ locale === 'km' ? o.kh : o.en }}</option>
         </select>
         <select v-model="filters.feedbackType" class="input survey-filter">
-          <option value="">All types</option>
-          <option v-for="o in surveyOptions.feedbackTypes" :key="o.value" :value="o.value">{{ o.en }}</option>
+          <option value="">{{ $t('survey.allTypes') }}</option>
+          <option v-for="o in surveyOptions.feedbackTypes" :key="o.value" :value="o.value">{{ locale === 'km' ? o.kh : o.en }}</option>
         </select>
         <select v-model="filters.language" class="input survey-filter">
-          <option value="">Any language</option>
-          <option value="en">English</option>
-          <option value="kh">Khmer</option>
+          <option value="">{{ $t('survey.anyLanguage') }}</option>
+          <option value="en">{{ $t('survey.english') }}</option>
+          <option value="kh">{{ $t('survey.khmer') }}</option>
         </select>
       </template>
       <select v-else v-model="filters.status" class="input survey-filter">
-        <option value="">All statuses</option>
-        <option value="received">Received</option>
-        <option value="opened">Opened</option>
-        <option value="draft">In progress / Draft</option>
-        <option value="skipped">Skipped</option>
-        <option value="submitted">Submitted</option>
+        <option value="">{{ $t('survey.allStatuses') }}</option>
+        <option value="received">{{ $t('survey.received') }}</option>
+        <option value="opened">{{ $t('survey.opened') }}</option>
+        <option value="draft">{{ $t('survey.inProgress') }}</option>
+        <option value="skipped">{{ $t('survey.skipped') }}</option>
+        <option value="submitted">{{ $t('survey.submitted') }}</option>
       </select>
       <input v-model="filters.from" type="date" class="input survey-filter" />
       <input v-model="filters.to" type="date" class="input survey-filter" />
@@ -132,13 +129,22 @@
     <div v-if="view === 'responses'" class="mt-3 overflow-x-auto">
       <table class="survey-table">
         <thead>
-          <tr><th>User</th><th>Role</th><th>Page(s)</th><th>Type</th><th>Ease</th><th>Speed</th><th>Submitted</th><th></th></tr>
+          <tr>
+            <th>{{ $t('survey.user') }}</th>
+            <th>{{ $t('survey.role') }}</th>
+            <th>{{ $t('survey.pages') }}</th>
+            <th>{{ $t('survey.type') }}</th>
+            <th>{{ $t('survey.ease') }}</th>
+            <th>{{ $t('survey.speed') }}</th>
+            <th>{{ $t('survey.submitted') }}</th>
+            <th></th>
+          </tr>
         </thead>
         <tbody>
           <tr v-for="r in filteredResponses" :key="r.id">
             <td class="font-medium text-text-main">
               {{ memberName(r.user_id) }}
-              <span v-if="r.is_test_response" class="survey-test-badge">TEST</span>
+              <span v-if="r.is_test_response" class="survey-test-badge">{{ $t('survey.testResponseBadge') }}</span>
             </td>
             <td><span class="survey-role" :class="roleBadgeClass(memberRole(r.user_id))">{{ roleLabel(memberRole(r.user_id)) }}</span></td>
             <td class="max-w-[200px] truncate" :title="formatDashboards(r.dashboard_keys, r.dashboard_key)">
@@ -149,11 +155,11 @@
             <td>{{ lbl(surveyOptions.speed, r.speed_rating) }}</td>
             <td class="whitespace-nowrap text-text-muted">{{ fmtDate(r.created_at) }}</td>
             <td class="whitespace-nowrap">
-              <button class="btn-ghost px-2 py-1 text-xs" type="button" @click="viewing = r">View</button>
-              <button v-if="r.is_test_response" class="btn-ghost px-2 py-1 text-xs text-status-needs-fix-fg" type="button" @click="removeTest(r)">Delete</button>
+              <button class="btn-ghost px-2 py-1 text-xs" type="button" @click="viewing = r">{{ $t('survey.view') }}</button>
+              <button v-if="r.is_test_response" class="btn-ghost px-2 py-1 text-xs text-status-needs-fix-fg" type="button" @click="removeTest(r)">{{ $t('survey.delete') }}</button>
             </td>
           </tr>
-          <tr v-if="!filteredResponses.length"><td colspan="8" class="py-8 text-center text-sm text-text-muted">No responses yet.</td></tr>
+          <tr v-if="!filteredResponses.length"><td colspan="8" class="py-8 text-center text-sm text-text-muted">{{ $t('survey.noResponses') }}</td></tr>
         </tbody>
       </table>
     </div>
@@ -162,49 +168,56 @@
     <div v-else class="mt-3 overflow-x-auto">
       <table class="survey-table">
         <thead>
-          <tr><th>User</th><th>Role</th><th>Status</th><th>Opened</th><th>Skipped</th><th>Submitted</th></tr>
+          <tr>
+            <th>{{ $t('survey.user') }}</th>
+            <th>{{ $t('survey.role') }}</th>
+            <th>{{ $t('survey.status') }}</th>
+            <th>{{ $t('survey.opened') }}</th>
+            <th>{{ $t('survey.skipped') }}</th>
+            <th>{{ $t('survey.submitted') }}</th>
+          </tr>
         </thead>
         <tbody>
           <tr v-for="p in filteredPeople" :key="p.id">
             <td class="font-medium text-text-main">{{ memberName(p.user_id) }}</td>
             <td><span class="survey-role" :class="roleBadgeClass(memberRole(p.user_id))">{{ roleLabel(memberRole(p.user_id)) }}</span></td>
-            <td><span class="survey-status" :class="`survey-status--${p.status}`">{{ p.status }}</span></td>
+            <td><span class="survey-status" :class="`survey-status--${p.status}`">{{ $t('survey.' + p.status) }}</span></td>
             <td class="whitespace-nowrap text-text-muted">{{ fmtDate(p.opened_at) }}</td>
             <td class="whitespace-nowrap text-text-muted">{{ fmtDate(p.skipped_at) }}</td>
             <td class="whitespace-nowrap text-text-muted">{{ fmtDate(p.submitted_at) }}</td>
           </tr>
-          <tr v-if="!filteredPeople.length"><td colspan="6" class="py-8 text-center text-sm text-text-muted">No recipients yet.</td></tr>
+          <tr v-if="!filteredPeople.length"><td colspan="6" class="py-8 text-center text-sm text-text-muted">{{ $t('survey.noRecipients') }}</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <!-- View response modal -->
-  <Modal :open="!!viewing" :title="viewing ? memberName(viewing.user_id) : 'Response'" subtitle="Survey response" size="lg" @close="viewing = null">
+  <Modal :open="!!viewing" :title="viewing ? memberName(viewing.user_id) : $t('survey.view')" :subtitle="$t('survey.surveyResponseSubtitle')" size="lg" @close="viewing = null">
     <div v-if="viewing" class="space-y-4">
       <div v-if="viewing.is_test_response" class="rounded-card border border-status-submitted-bg bg-status-submitted-bg/30 px-3 py-2 text-xs font-semibold text-status-submitted-fg">
-        Test response — not counted as team feedback.
+        {{ $t('survey.testResponseDesc') }}
       </div>
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div class="survey-kv"><div class="survey-kv-l">Role</div><div class="survey-kv-v">{{ roleLabel(memberRole(viewing.user_id)) }}</div></div>
-        <div class="survey-kv"><div class="survey-kv-l">Language</div><div class="survey-kv-v">{{ viewing.language === 'kh' ? 'Khmer' : 'English' }}</div></div>
+        <div class="survey-kv"><div class="survey-kv-l">{{ $t('survey.role') }}</div><div class="survey-kv-v">{{ roleLabel(memberRole(viewing.user_id)) }}</div></div>
+        <div class="survey-kv"><div class="survey-kv-l">{{ $t('survey.language') }}</div><div class="survey-kv-v">{{ viewing.language === 'kh' ? $t('survey.khmer') : $t('survey.english') }}</div></div>
         <div class="survey-kv">
-          <div class="survey-kv-l">Page(s)</div>
+          <div class="survey-kv-l">{{ $t('survey.pages') }}</div>
           <div class="survey-kv-v text-ellipsis overflow-hidden" :title="formatDashboards(viewing.dashboard_keys, viewing.dashboard_key)">
             {{ formatDashboards(viewing.dashboard_keys, viewing.dashboard_key) }}
           </div>
         </div>
         <div class="survey-kv">
-          <div class="survey-kv-l">Mood Tags</div>
+          <div class="survey-kv-l">{{ $t('survey.moodTags') }}</div>
           <div class="survey-kv-v">{{ formatMoodTags(viewing.mood_tags) }}</div>
         </div>
-        <div class="survey-kv"><div class="survey-kv-l">Ease</div><div class="survey-kv-v">{{ lbl(surveyOptions.ease, viewing.ease_rating) }}</div></div>
-        <div class="survey-kv"><div class="survey-kv-l">Speed</div><div class="survey-kv-v">{{ lbl(surveyOptions.speed, viewing.speed_rating) }}</div></div>
-        <div class="survey-kv"><div class="survey-kv-l">Design/Visual</div><div class="survey-kv-v">{{ lbl(surveyOptions.usefulness, viewing.usefulness_rating) }}</div></div>
+        <div class="survey-kv"><div class="survey-kv-l">{{ $t('survey.ease') }}</div><div class="survey-kv-v">{{ lbl(surveyOptions.ease, viewing.ease_rating) }}</div></div>
+        <div class="survey-kv"><div class="survey-kv-l">{{ $t('survey.speed') }}</div><div class="survey-kv-v">{{ lbl(surveyOptions.speed, viewing.speed_rating) }}</div></div>
+        <div class="survey-kv"><div class="survey-kv-l">{{ $t('survey.designVisual') }}</div><div class="survey-kv-v">{{ lbl(surveyOptions.usefulness, viewing.usefulness_rating) }}</div></div>
       </div>
 
       <div v-if="viewing.issue_tags && viewing.issue_tags.length" class="survey-kv">
-        <div class="survey-kv-l">Problems / Issues</div>
+        <div class="survey-kv-l">{{ $t('survey.problemsIssues') }}</div>
         <div class="mt-1 flex flex-wrap gap-1">
           <span v-for="t in viewing.issue_tags" :key="t" class="px-2 py-0.5 rounded-full text-xs bg-status-needs-fix-bg/20 text-status-needs-fix-fg border border-status-needs-fix-bg/40">
             {{ lbl([...surveyOptions.commonProblems, ...surveyOptions.workflowFeedback], t) }}
@@ -213,7 +226,7 @@
       </div>
 
       <div v-if="viewing.improvement_tags && viewing.improvement_tags.length" class="survey-kv">
-        <div class="survey-kv-l">Requested Improvements</div>
+        <div class="survey-kv-l">{{ $t('survey.requestedImprovements') }}</div>
         <div class="mt-1 flex flex-wrap gap-1">
           <span v-for="t in viewing.improvement_tags" :key="t" class="px-2 py-0.5 rounded-full text-xs bg-primary-soft text-primary border border-primary/20">
             {{ lbl(surveyOptions.improvements, t) }}
@@ -222,48 +235,49 @@
       </div>
 
       <div v-if="viewing.generated_summary" class="survey-kv">
-        <div class="survey-kv-l">Generated Summary</div>
+        <div class="survey-kv-l">{{ $t('survey.generatedSummary') }}</div>
         <p class="survey-kv-text font-mono text-xs bg-soft/20 p-2.5 rounded-card border border-border whitespace-pre-wrap leading-relaxed">{{ viewing.generated_summary }}</p>
       </div>
 
       <div v-if="viewing.custom_note" class="survey-kv">
-        <div class="survey-kv-l">Custom Note</div>
+        <div class="survey-kv-l">{{ $t('survey.customNote') }}</div>
         <p class="survey-kv-text">{{ viewing.custom_note }}</p>
       </div>
 
       <!-- Fallback values for older DB records -->
       <div v-if="!viewing.generated_summary && viewing.problem_text" class="survey-kv">
-        <div class="survey-kv-l">Problem (Legacy)</div>
+        <div class="survey-kv-l">{{ $t('survey.problemLegacy') }}</div>
         <p class="survey-kv-text">{{ viewing.problem_text }}</p>
       </div>
       <div v-if="(!viewing.issue_tags || !viewing.issue_tags.length) && viewing.fix_request_text" class="survey-kv">
-        <div class="survey-kv-l">Wants fixed (Legacy)</div>
+        <div class="survey-kv-l">{{ $t('survey.wantsFixedLegacy') }}</div>
         <p class="survey-kv-text">{{ viewing.fix_request_text }}</p>
       </div>
       <div v-if="(!viewing.improvement_tags || !viewing.improvement_tags.length) && viewing.feature_request_text" class="survey-kv">
-        <div class="survey-kv-l">Feature idea (Legacy)</div>
+        <div class="survey-kv-l">{{ $t('survey.featureIdeaLegacy') }}</div>
         <p class="survey-kv-text">{{ viewing.feature_request_text }}</p>
       </div>
       <div v-if="!viewing.custom_note && viewing.extra_text" class="survey-kv">
-        <div class="survey-kv-l">Extra note (Legacy)</div>
+        <div class="survey-kv-l">{{ $t('survey.extraNoteLegacy') }}</div>
         <p class="survey-kv-text">{{ viewing.extra_text }}</p>
       </div>
 
       <div v-if="viewing.screenshot_url">
-        <div class="survey-kv-l mb-1">Screenshot</div>
+        <div class="survey-kv-l mb-1">{{ $t('Screenshot') }}</div>
         <a :href="viewing.screenshot_url" target="_blank" rel="noopener">
           <img :src="viewing.screenshot_url" alt="screenshot" class="max-h-72 rounded-card border border-border object-contain" />
         </a>
       </div>
     </div>
     <template #footer>
-      <button class="btn-secondary" type="button" @click="viewing = null">Close</button>
+      <button class="btn-secondary" type="button" @click="viewing = null">{{ $t('survey.close') }}</button>
     </template>
   </Modal>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Modal from '@/components/ui/Modal.vue';
 import { useSurveyStore, type SurveyResponse, type SurveyRecipient } from '@/stores/survey';
 import { useDataStore } from '@/stores/data';
@@ -272,6 +286,7 @@ import { debounceRealtime } from '@/services/realtimeService';
 import { surveyOptions, audienceRoleOptions, type SurveyOption } from '@/lib/surveyI18n';
 import { roleLabel, roleBadgeClass, normalizeRole } from '@/lib/roles';
 
+const { t, locale } = useI18n();
 const store = useSurveyStore();
 const data = useDataStore();
 
@@ -299,7 +314,7 @@ const responsesCount = computed(() =>
 );
 
 const removeTest = async (r: SurveyResponse) => {
-  if (!confirm('Delete this test response?')) return;
+  if (!confirm(t('survey.confirmDeleteTest'))) return;
   await store.deleteResponse(r.id);
 };
 
@@ -335,7 +350,7 @@ const saveSettings = async () => {
     audience_roles: settings.audience_roles
   });
   saving.value = false;
-  if (ok) flash('Saved');
+  if (ok) flash(t('survey.saved'));
 };
 
 const toggleActive = async (e: Event) => {
@@ -343,7 +358,7 @@ const toggleActive = async (e: Event) => {
   saving.value = true;
   await store.saveCampaign({ is_active: checked });
   saving.value = false;
-  flash(checked ? 'Survey is now ON' : 'Survey turned OFF');
+  flash(checked ? t('survey.campaignOnToast') : t('survey.campaignOffToast'));
 };
 
 // ── Lookups ────────────────────────────────────────────────────────────────
@@ -352,9 +367,16 @@ const memberName = (id: string) => {
   return m?.fullName || m?.email || 'Unknown user';
 };
 const memberRole = (id: string) => data.memberById(id)?.role ?? 'member';
-const lbl = (list: SurveyOption[], value: string | null) =>
-  (value && list.find((o) => o.value === value)?.en) || (value ? value : '—');
-const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—');
+const lbl = (list: SurveyOption[], value: string | null) => {
+  if (!value) return '—';
+  const item = list.find((o) => o.value === value);
+  if (!item) return value;
+  return locale.value === 'km' ? item.kh : item.en;
+};
+const fmtDate = (iso: string | null) => {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString(locale.value === 'km' ? 'km-KH' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
 
 const roleFilterOptions = computed(() => {
   const ids = view.value === 'responses' ? store.adminResponses.map((r) => r.user_id) : store.adminRecipients.map((r) => r.user_id);
@@ -508,7 +530,7 @@ onBeforeUnmount(() => {
 }
 .survey-switch-thumb {
   position: absolute; top: 2px; left: 2px; width: 1.05rem; height: 1.05rem; border-radius: 9999px;
-  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.18s ease;
+  background: var(--card-elevated-bg); box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.18s ease;
 }
 .survey-switch input:checked + .survey-switch-track { background: var(--primary, #15D6C2); }
 .survey-switch input:checked + .survey-switch-track .survey-switch-thumb { transform: translateX(1.05rem); }

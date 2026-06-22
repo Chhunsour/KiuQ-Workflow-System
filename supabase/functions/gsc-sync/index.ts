@@ -45,7 +45,7 @@ const friendlyError = (status?: number): string =>
   status === 403 ? 'This Google account does not have access to this Search Console property.'
   : status === 400 ? 'Invalid Search Console property URL format.'
   : status === 404 ? 'Search Console property not found. Check the mapped property URL.'
-  : status === 401 ? 'Google token expired and refresh failed. Please reconnect.'
+  : status === 401 ? 'Google connection expired. Please reconnect.'
   : 'Could not fetch Search Console data. Please try again.';
 
 async function getAccessToken(refreshToken: string): Promise<string> {
@@ -99,18 +99,27 @@ serve(async (req) => {
 
   const { data: prof } = await admin.from('profiles').select('role, status').eq('id', user.id).single();
   const role = String(prof?.role ?? '').toLowerCase();
-  if (!['admin', 'owner', 'head', 'supervisor'].includes(role) || prof?.status !== 'active') {
+  if (prof?.status !== 'active') {
     return json({ error: 'forbidden' }, 403);
   }
+  const isManagement = ['admin', 'owner', 'head', 'supervisor'].includes(role);
 
   let body: { website_id?: string; all?: boolean; days?: number | string } = {};
   try { body = await req.json(); } catch { /* default */ }
   const is24h = body.days === '24h';
-  const days = is24h ? 3 : [7, 28, 90].includes(Number(body.days)) ? Number(body.days) : 28;
+  const is16m = body.days === 'last_16_months' || body.days === 480;
 
   // GSC data lags ~2 days.
   const end = new Date(); end.setUTCDate(end.getUTCDate() - 2);
-  const start = new Date(end); start.setUTCDate(start.getUTCDate() - (days - 1));
+  let start: Date;
+  if (is24h) {
+    start = new Date(end); start.setUTCDate(start.getUTCDate() - 2);
+  } else if (is16m) {
+    start = new Date(end); start.setUTCMonth(start.getUTCMonth() - 16);
+  } else {
+    const numDays = [7, 28, 90].includes(Number(body.days)) ? Number(body.days) : 28;
+    start = new Date(end); start.setUTCDate(start.getUTCDate() - (numDays - 1));
+  }
   const startDate = ymd(start);
   const endDate = ymd(end);
 
@@ -121,23 +130,52 @@ serve(async (req) => {
     return json({ error: 'not_configured' }, 200);
   }
 
-  const { data: acct } = await admin.from('gsc_oauth_accounts').select('refresh_token').limit(1).maybeSingle();
-  if (!acct?.refresh_token) {
-    console.error('[gsc-sync] no stored google_oauth_accounts row found');
+  let refreshToken = '';
+  let googleEmail = '';
+
+  // 1. Try to find the token in user_google_connections for the calling user
+  const { data: userConn } = await admin.from('user_google_connections').select('refresh_token, google_email').eq('user_id', user.id).maybeSingle();
+  if (userConn?.refresh_token) {
+    refreshToken = userConn.refresh_token;
+    googleEmail = userConn.google_email || '';
+  } else {
+    // 2. Fall back to gsc_oauth_accounts (legacy)
+    const { data: acct } = await admin.from('gsc_oauth_accounts').select('refresh_token, google_email').limit(1).maybeSingle();
+    if (acct?.refresh_token) {
+      refreshToken = acct.refresh_token;
+      googleEmail = acct.google_email || '';
+    }
+  }
+
+  if (!refreshToken) {
+    console.error('[gsc-sync] no stored google connection found for user', user.id);
     return json({ error: 'not_connected' }, 200);
   }
 
   let accessToken: string;
   try {
-    accessToken = await getAccessToken(acct.refresh_token);
-    console.log('[gsc-sync] access token refreshed successfully');
+    accessToken = await getAccessToken(refreshToken);
+    console.log('[gsc-sync] access token refreshed successfully for email:', googleEmail);
   } catch (e) {
     console.error('[gsc-sync] Google token refresh failed:', String(e));
     return json({ error: 'auth_failed' }, 200);
   }
 
+  if (!isManagement && body.website_id && !body.all) {
+    const { data: web } = await admin.from('websites').select('created_by').eq('id', body.website_id).maybeSingle();
+    if (!web || web.created_by !== user.id) {
+      return json({ error: 'forbidden', message: 'You do not have permission to sync this website.' }, 403);
+    }
+  }
+
   let q = admin.from('website_gsc_connections').select('id, website_id, gsc_property_url');
-  if (body.website_id && !body.all) q = q.eq('website_id', body.website_id);
+  if (body.website_id && !body.all) {
+    q = q.eq('website_id', body.website_id);
+  } else if (!isManagement) {
+    const { data: userWebsites } = await admin.from('websites').select('id').eq('created_by', user.id);
+    const ownedIds = (userWebsites ?? []).map((w) => w.id);
+    q = q.in('website_id', ownedIds);
+  }
   const { data: conns } = await q;
   if (!conns || conns.length === 0) {
     const code = body.website_id && !body.all ? 'not_mapped' : 'no_connections';
@@ -162,6 +200,9 @@ serve(async (req) => {
         website_id: c.website_id,
         status: 'running',
         sync_type: is24h ? 'hourly' : 'daily',
+        range_key: String(body.days || '28'),
+        start_date: startDate,
+        end_date: endDate,
         created_by: user.id
       })
       .select('id')

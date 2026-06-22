@@ -4,15 +4,15 @@
 
       <!-- Website not found -->
       <div v-if="!website" class="card card-pad text-center">
-        <h2 class="section-title">Website not found</h2>
-        <p class="mt-2 text-sm text-text-muted">This website does not exist or is not available to your account.</p>
-        <RouterLink to="/prompt" class="btn-primary mt-5">Back to Prompt Dashboard</RouterLink>
+        <h2 class="section-title">{{ $t('Website not found') }}</h2>
+        <p class="mt-2 text-sm text-text-muted">{{ $t('This website does not exist or is not available to your account.') }}</p>
+        <RouterLink to="/prompt" class="btn-primary mt-5">{{ $t('Back to Prompt Dashboard') }}</RouterLink>
       </div>
 
       <template v-else>
         <!-- Breadcrumb -->
-        <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-text-muted" aria-label="Breadcrumb">
-          <RouterLink to="/prompt" class="hover:text-text-main">Prompt Dashboard</RouterLink>
+        <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-text-muted" aria-:label="$t('Breadcrumb')">
+          <RouterLink to="/prompt" class="hover:text-text-main">{{ $t('Prompt Dashboard') }}</RouterLink>
           <span aria-hidden="true">›</span>
           <span class="ui-font font-medium text-text-main">{{ website.name }}</span>
         </nav>
@@ -44,24 +44,24 @@
           <div class="pw-header-meta">
             <div class="pw-meta-grid">
               <div v-if="website.websiteType" class="pw-meta-item">
-                <span class="pw-meta-label">Type</span>
+                <span class="pw-meta-label">{{ $t('Type') }}</span>
                 <span class="pw-meta-val">{{ websiteTypeLabel(website.websiteType) }}</span>
               </div>
               <div v-if="website.industry" class="pw-meta-item">
-                <span class="pw-meta-label">Industry</span>
+                <span class="pw-meta-label">{{ $t('Industry') }}</span>
                 <span class="pw-meta-val">{{ website.industry }}</span>
               </div>
               <div v-if="website.primaryColor" class="pw-meta-item">
-                <span class="pw-meta-label">Primary</span>
+                <span class="pw-meta-label">{{ $t('Primary') }}</span>
                 <span class="pw-color-chip" :style="{ background: website.primaryColor }" />
                 <span class="pw-meta-val">{{ website.primaryColor }}</span>
               </div>
               <div v-if="website.fontFamily" class="pw-meta-item">
-                <span class="pw-meta-label">Font</span>
+                <span class="pw-meta-label">{{ $t('Font') }}</span>
                 <span class="pw-meta-val">{{ website.fontFamily }}</span>
               </div>
               <div v-if="website.products?.length" class="pw-meta-item">
-                <span class="pw-meta-label">Products</span>
+                <span class="pw-meta-label">{{ $t('Products') }}</span>
                 <span class="pw-meta-val">{{ website.products.length }}</span>
               </div>
             </div>
@@ -69,10 +69,10 @@
             <div class="pw-header-actions">
               <RouterLink :to="`/websites/${website.id}/edit`" class="btn-secondary pw-edit-btn">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-                Edit Website
+                {{ $t('Edit Website') }}
               </RouterLink>
               <RouterLink to="/prompt" class="btn-ghost pw-edit-btn">
-                ← All Websites
+                {{ $t('← All Websites') }}
               </RouterLink>
             </div>
           </div>
@@ -81,8 +81,8 @@
         <!-- Page groups heading -->
         <div class="mb-4 flex items-center justify-between">
           <div>
-            <h2 class="section-title">Choose a Page Group</h2>
-            <p class="mt-0.5 text-sm text-text-muted">Select the page type you want to build prompts for.</p>
+            <h2 class="section-title">{{ $t('Choose a Page Group') }}</h2>
+            <p class="mt-0.5 text-sm text-text-muted">{{ $t('Select the page type you want to build prompts for.') }}</p>
           </div>
           <div class="text-sm text-text-muted">
             {{ groupsWithPrompts.length }} group{{ groupsWithPrompts.length !== 1 ? 's' : '' }} available
@@ -119,11 +119,11 @@
 
         <EmptyState
           v-if="!groupsWithPrompts.length && !loading"
-          title="No prompts available yet"
+          :title="$t('No prompts available yet')"
           description="No approved prompts have been created yet. Ask your admin to add prompts in the Prompt Library."
         >
           <template v-if="auth.isAdmin" #action>
-            <RouterLink to="/prompt/library" class="btn-primary">Open Prompt Library</RouterLink>
+            <RouterLink to="/prompt/library" class="btn-primary">{{ $t('Open Prompt Library') }}</RouterLink>
           </template>
         </EmptyState>
       </template>
@@ -309,7 +309,7 @@ onMounted(load);
   height: 2.5rem;
   border-radius: 50%;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   flex-shrink: 0;
   opacity: 0.85;
 }

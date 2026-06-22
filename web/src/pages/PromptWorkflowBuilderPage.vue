@@ -1,11 +1,11 @@
 <template>
   <div>
     <PageHeader
-      title="Prompt Builder"
+      :title="$t('Prompt Builder')"
       subtitle="Select website, fill fields, preview and copy the final prompt."
     >
       <template #actions>
-        <RouterLink to="/prompt" class="btn-secondary">← Prompt Dashboard</RouterLink>
+        <RouterLink to="/prompt" class="btn-secondary">{{ $t('← Prompt Dashboard') }}</RouterLink>
       </template>
     </PageHeader>
 
@@ -16,10 +16,10 @@
 
           <!-- Step 1: Select Website -->
           <div class="card card-pad">
-            <div class="pwb-step-label">Step 1 — Select Website</div>
-            <label class="form-label mt-3">Website</label>
+            <div class="pwb-step-label">{{ $t('Step 1 — Select Website') }}</div>
+            <label class="form-label mt-3">{{ $t('Website') }}</label>
             <select v-model="selectedWebsiteId" class="input mt-1">
-              <option value="">Choose a website…</option>
+              <option value="">{{ $t('Choose a website…') }}</option>
               <option v-for="w in availableWebsites" :key="w.id" :value="w.id">{{ w.name }}</option>
             </select>
 
@@ -40,17 +40,17 @@
 
           <!-- Step 2: Select Page Group + Prompt -->
           <div class="card card-pad">
-            <div class="pwb-step-label">Step 2 — Select Page Group &amp; Prompt</div>
+            <div class="pwb-step-label">{{ $t('Step 2 — Select Page Group &amp; Prompt') }}</div>
 
-            <label class="form-label mt-3">Page Group</label>
+            <label class="form-label mt-3">{{ $t('Page Group') }}</label>
             <select v-model="selectedPageType" class="input mt-1">
-              <option value="">Choose page group…</option>
+              <option value="">{{ $t('Choose page group…') }}</option>
               <option v-for="g in pw.groups" :key="g.pageType" :value="g.pageType">{{ g.name }}</option>
             </select>
 
-            <label class="form-label mt-3">Prompt</label>
+            <label class="form-label mt-3">{{ $t('Prompt') }}</label>
             <select v-model="selectedPromptId" class="input mt-1" :disabled="!selectedPageType">
-              <option value="">Choose prompt…</option>
+              <option value="">{{ $t('Choose prompt…') }}</option>
               <option v-for="t in promptsForGroup" :key="t.id" :value="t.id">{{ t.title }}</option>
             </select>
 
@@ -76,12 +76,12 @@
 
           <!-- Step 3: Product Doc (if website has products or template requires docs) -->
           <div v-if="selectedWebsite && (selectedWebsite.products?.length || selectedTemplate?.requiredProductDocs)" class="card card-pad">
-            <div class="pwb-step-label">Step 3 — Select Product (Optional)</div>
-            <p class="mt-1 text-xs text-text-muted">Select a product to inject its details into the prompt.</p>
+            <div class="pwb-step-label">{{ $t('Step 3 — Select Product (Optional)') }}</div>
+            <p class="mt-1 text-xs text-text-muted">{{ $t('Select a product to inject its details into the prompt.') }}</p>
 
-            <label class="form-label mt-3">Product</label>
+            <label class="form-label mt-3">{{ $t('Product') }}</label>
             <select v-model="selectedProductIndex" class="input mt-1">
-              <option value="-1">No product selected</option>
+              <option value="-1">{{ $t('No product selected') }}</option>
               <option
                 v-for="(p, i) in selectedWebsite.products"
                 :key="p.id || i"
@@ -100,8 +100,8 @@
 
           <!-- Step 4: Editable Fields -->
           <div v-if="selectedTemplate && selectedTemplate.editableFields.length" class="card card-pad">
-            <div class="pwb-step-label">Step 4 — Fill Editable Fields</div>
-            <p class="mt-1 text-xs text-text-muted">These fields customize your prompt. Admin locked rules cannot be changed.</p>
+            <div class="pwb-step-label">{{ $t('Step 4 — Fill Editable Fields') }}</div>
+            <p class="mt-1 text-xs text-text-muted">{{ $t('These fields customize your prompt. Admin locked rules cannot be changed.') }}</p>
 
             <div class="mt-4 space-y-4">
               <div v-for="field in selectedTemplate.editableFields" :key="field.key">
@@ -142,18 +142,18 @@
           <div v-if="missingWarnings.length" class="card card-pad pwb-warnings">
             <div class="pwb-warnings-title">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
-              Missing website data (placeholders will show "Not provided")
+              {{ $t('Missing website data (placeholders will show "Not provided")') }}
             </div>
             <ul class="mt-2 space-y-1">
               <li v-for="w in missingWarnings" :key="w" class="text-xs text-status-needs-fix-fg">
-                <span v-text="wrapKey(w)" /> — not set on this website
+                <span v-text="wrapKey(w)" /> {{ $t('— not set on this website') }}
               </li>
             </ul>
             <RouterLink
               v-if="selectedWebsite"
               :to="`/websites/${selectedWebsite.id}/edit`"
               class="mt-3 inline-block text-xs text-primary hover:underline"
-            >Update website details →</RouterLink>
+            >{{ $t('Update website details →') }}</RouterLink>
           </div>
         </div>
 
@@ -163,8 +163,8 @@
             <!-- Preview header -->
             <div class="pwb-preview-header">
               <div>
-                <div class="pwb-step-label">Final Prompt Preview</div>
-                <p class="mt-0.5 text-xs text-text-muted">Copy this and paste into ChatGPT, Claude, Gemini, or any AI tool.</p>
+                <div class="pwb-step-label">{{ $t('Final Prompt Preview') }}</div>
+                <p class="mt-0.5 text-xs text-text-muted">{{ $t('Copy this and paste into ChatGPT, Claude, Gemini, or any AI tool.') }}</p>
               </div>
               <button
                 class="btn-primary pwb-copy-btn"
@@ -183,7 +183,7 @@
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 text-text-muted opacity-40">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
-              <p class="text-sm text-text-muted">Select a website and prompt to preview the final output here.</p>
+              <p class="text-sm text-text-muted">{{ $t('Select a website and prompt to preview the final output here.') }}</p>
             </div>
 
             <!-- Final prompt text -->
@@ -193,19 +193,19 @@
 
             <!-- Copy feedback -->
             <div v-if="copied" class="pwb-copy-feedback">
-              Prompt copied — paste it into your AI tool now.
+              {{ $t('Prompt copied — paste it into your AI tool now.') }}
             </div>
           </div>
 
           <!-- Sticky info: what AI tools can use this -->
           <div v-if="finalPrompt" class="pwb-ai-tools card card-pad mt-4">
-            <div class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">Paste into any AI tool</div>
+            <div class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">{{ $t('Paste into any AI tool') }}</div>
             <div class="pwb-ai-chips">
-              <span class="pwb-ai-chip">ChatGPT</span>
-              <span class="pwb-ai-chip">Claude</span>
-              <span class="pwb-ai-chip">Gemini</span>
-              <span class="pwb-ai-chip">Codex</span>
-              <span class="pwb-ai-chip">Copilot</span>
+              <span class="pwb-ai-chip">{{ $t('ChatGPT') }}</span>
+              <span class="pwb-ai-chip">{{ $t('Claude') }}</span>
+              <span class="pwb-ai-chip">{{ $t('Gemini') }}</span>
+              <span class="pwb-ai-chip">{{ $t('Codex') }}</span>
+              <span class="pwb-ai-chip">{{ $t('Copilot') }}</span>
             </div>
           </div>
         </div>
@@ -662,7 +662,7 @@ onMounted(load);
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   opacity: 0.8;
 }
 

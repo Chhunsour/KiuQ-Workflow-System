@@ -1,63 +1,63 @@
 <template>
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
     <div class="space-y-5">
-      <FormInput v-model="model.title" label="Prompt title" placeholder="Hero Section" />
+      <FormInput v-model="model.title" :label="$t('Prompt title')" :placeholder="$t('Hero Section')" />
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormSelect
           v-model="model.pageGroup"
-          label="Page group"
+          :label="$t('Page group')"
           :options="pageGroupOptions"
         />
         <FormSelect
           v-if="model.pageGroup === 'topic-pages'"
           v-model="topicTypeValue"
-          label="Topic page type"
-          placeholder="None"
+          :label="$t('Topic page type')"
+          :placeholder="$t('None')"
           :options="topicTypeOptions"
         />
         <FormInput
           v-model="model.sectionType"
-          label="Section type"
-          placeholder="Hero Section"
+          :label="$t('Section type')"
+          :placeholder="$t('Hero Section')"
           helper="Use for Homepage sections like Hero, Trust, FAQ, CTA, Footer."
         />
         <FormSelect
           v-model="folderValue"
-          label="Folder"
-          placeholder="No folder"
+          :label="$t('Folder')"
+          :placeholder="$t('No folder')"
           :options="folderOptions"
         />
       </div>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormSelect
           v-model="model.promptMode"
-          label="Prompt mode"
+          :label="$t('Prompt mode')"
           helper="Section = generates one section. Full Page = generates the whole page."
           :options="promptModeOptions"
         />
         <FormSelect
           v-model="model.promptType"
-          label="Prompt type"
+          :label="$t('Prompt type')"
           :options="promptTypeOptions"
         />
         <FormSelect
           v-model="model.outputType"
-          label="Output type"
+          :label="$t('Output type')"
           :options="outputTypeOptions"
         />
         <FormInput
           :model-value="String(model.requiresProducts)"
           type="number"
-          label="Required products"
+          :label="$t('Required products')"
           helper="0 = none/optional. 1 = single product. N = multiple."
           @update:model-value="(v) => (model.requiresProducts = Math.max(0, Number(v) || 0))"
         />
       </div>
 
       <div>
-        <label class="label">Compatible website types</label>
+        <label class="label">{{ $t('Compatible website types') }}</label>
         <p class="helper -mt-1 mb-2">
-          Pick the website types this prompt is intended for. Leave empty = works with any.
+          {{ $t('Pick the website types this prompt is intended for. Leave empty = works with any.') }}
         </p>
         <div class="flex flex-wrap gap-2">
           <button
@@ -78,14 +78,14 @@
       </div>
       <FormTextarea
         v-model="model.shortDescription"
-        label="Short description"
+        :label="$t('Short description')"
         helper="Shown on prompt cards so the team understands when to use it."
         :rows="2"
       />
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <FormSelect
           v-model="model.status"
-          label="Status"
+          :label="$t('Status')"
           :options="[
             { value: 'draft', label: 'Draft' },
             { value: 'approved', label: 'Approved' }
@@ -93,7 +93,7 @@
         />
         <FormSelect
           v-model="model.qualityStatus"
-          label="Quality"
+          :label="$t('Quality')"
           helper="Mark Weak/Needs Improvement based on AI output performance."
           :options="[
             { value: 'good', label: 'Good' },
@@ -102,12 +102,12 @@
             { value: 'archived', label: 'Archived (hidden from team)' }
           ]"
         />
-        <FormInput :model-value="String(model.version)" label="Version" disabled />
+        <FormInput :model-value="String(model.version)" :label="$t('Version')" disabled />
       </div>
 
       <FormTextarea
         v-model="model.lockedRules"
-        label="Locked admin rules"
+        :label="$t('Locked admin rules')"
         helper="Always applied. Team members cannot edit these."
         :rows="4"
       />
@@ -115,13 +115,13 @@
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FormTextarea
           v-model="requiredWebsiteFieldsText"
-          label="Required website fields"
+          :label="$t('Required website fields')"
           helper="One field per line, such as website_name, primary_color, max_width."
           :rows="5"
         />
         <FormTextarea
           v-model="requiredProductFieldsText"
-          label="Required product fields"
+          :label="$t('Required product fields')"
           helper="One field per line, such as product_name, product_image_url, product_specs."
           :rows="5"
         />
@@ -134,7 +134,7 @@
 
       <FormTextarea
         v-model="model.templateContent"
-        label="Prompt template"
+        :label="$t('Prompt template')"
         helper="Use {{key}} placeholders. Long structured prompts are supported."
         :rows="14"
       />
@@ -155,7 +155,7 @@
         </div>
       </details>
 
-      <FormTextarea v-model="model.notes" label="Internal notes" :rows="3" />
+      <FormTextarea v-model="model.notes" :label="$t('Internal notes')" :rows="3" />
     </div>
 
     <div class="space-y-5">

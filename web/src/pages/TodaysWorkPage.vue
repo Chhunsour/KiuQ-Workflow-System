@@ -2,16 +2,16 @@
   <div class="work-board-page">
     <section v-if="!embedded" class="board-hero">
       <div class="hero-left">
-        <span class="hero-kicker">{{ auth.isAdmin ? 'Live Board' : 'My Work Board' }}</span>
-        <h1 class="page-title">My Work Board</h1>
-        <p class="page-subtitle">Manage assigned website tasks from start to review.</p>
+        <span class="hero-kicker">{{ auth.isAdmin ? $t('workBoardDetail.liveBoard') : $t('workBoardDetail.myWorkBoard') }}</span>
+        <h1 class="page-title">{{ $t('workBoardDetail.myWorkBoard') }}</h1>
+        <p class="page-subtitle">{{ $t('workBoardDetail.subtitle') }}</p>
       </div>
       <div class="hero-right">
         <MonthSelector v-model="localBoardMonth" />
         <div class="hero-actions">
-          <RouterLink to="/docs" class="btn-secondary">Open Docs</RouterLink>
+          <RouterLink to="/docs" class="btn-secondary">{{ $t('workBoardDetail.openDocs') }}</RouterLink>
           <button v-if="auth.isAdmin" class="btn-primary" type="button" @click="openAddTask()">
-            Add Task
+            {{ $t('workBoardDetail.addTask') }}
           </button>
         </div>
       </div>
@@ -22,10 +22,10 @@
       class="card card-pad flex flex-col gap-3 text-sm md:flex-row md:items-center md:justify-between"
     >
       <div>
-        <div class="ui-font font-semibold text-status-needs-fix-fg">Could not load work board.</div>
+        <div class="ui-font font-semibold text-status-needs-fix-fg">{{ $t('workBoardDetail.errorLoad') }}</div>
         <p class="mt-1 text-text-muted">{{ pageError }}</p>
       </div>
-      <button class="btn-primary w-fit" type="button" @click="loadBoardData">Retry</button>
+      <button class="btn-primary w-fit" type="button" @click="loadBoardData">{{ $t('common.retry') }}</button>
     </div>
 
     <section v-else-if="isInitialLoading" class="board-loading">
@@ -38,70 +38,70 @@
 
     <EmptyState
       v-else-if="allCards.length === 0 && !auth.isAdmin && !props.embedded"
-      title="No tasks for this month."
-      :description="props.boardMonth ? 'No tasks planned for this month yet.' : 'Your admin has not assigned any board cards to you yet. Use Docs or Resources while waiting.'"
+      :title="$t('workBoardDetail.noTasksMonth')"
+      :description="props.boardMonth ? $t('workBoardDetail.noTasksMonthSubAdmin') : $t('workBoardDetail.noTasksMonthSubMember')"
     >
       <template #action>
         <div class="flex flex-wrap justify-center gap-2">
-          <RouterLink to="/docs" class="btn-primary">Open Docs</RouterLink>
-          <RouterLink to="/resources" class="btn-secondary">Open Resources</RouterLink>
+          <RouterLink to="/docs" class="btn-primary">{{ $t('workBoardDetail.openDocs') }}</RouterLink>
+          <RouterLink to="/resources" class="btn-secondary">{{ $t('workBoardDetail.openResources') }}</RouterLink>
         </div>
       </template>
     </EmptyState>
 
     <section v-else class="board-shell">
       <!-- ── Live metrics bar ─────────────────────────────────────────── -->
-      <div class="wb-metrics" aria-label="Board metrics">
+      <div class="wb-metrics" :aria-label="$t('Board metrics')">
         <div class="wb-metric wb-metric--todo">
           <span class="wb-metric-ico">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
           </span>
-          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.toDo }}</span><span class="wb-metric-label">Open</span></span>
+          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.toDo }}</span><span class="wb-metric-label">{{ $t('workBoardDetail.columns.to_do.title') }}</span></span>
         </div>
         <div class="wb-metric wb-metric--prog">
           <span class="wb-metric-ico">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4"/></svg>
           </span>
-          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.inProgress }}</span><span class="wb-metric-label">In Progress</span></span>
+          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.inProgress }}</span><span class="wb-metric-label">{{ $t('workBoardDetail.columns.in_progress.title') }}</span></span>
         </div>
         <div class="wb-metric wb-metric--postpone">
           <span class="wb-metric-ico">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
           </span>
-          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.postpone }}</span><span class="wb-metric-label">Postpone</span></span>
+          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.postpone }}</span><span class="wb-metric-label">{{ $t('workBoardDetail.columns.postpone.title') }}</span></span>
         </div>
         <div class="wb-metric wb-metric--review">
           <span class="wb-metric-ico">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           </span>
-          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.review }}</span><span class="wb-metric-label">Review</span></span>
+          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.review }}</span><span class="wb-metric-label">{{ $t('workBoardDetail.columns.waiting_review.title') }}</span></span>
         </div>
         <div class="wb-metric wb-metric--fix">
           <span class="wb-metric-ico">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
           </span>
-          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.needsFix }}</span><span class="wb-metric-label">Needs Fix</span></span>
+          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.needsFix }}</span><span class="wb-metric-label">{{ $t('workBoardDetail.columns.needs_fix.title') }}</span></span>
         </div>
         <div class="wb-metric wb-metric--done">
           <span class="wb-metric-ico">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
           </span>
-          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.completed }}</span><span class="wb-metric-label">Completed</span></span>
+          <span class="wb-metric-data"><span class="wb-metric-num">{{ boardMetrics.completed }}</span><span class="wb-metric-label">{{ $t('workBoardDetail.columns.completed.title') }}</span></span>
         </div>
         <div class="wb-metric wb-metric--rate">
           <span class="wb-rate-ring" :style="{ '--rate': boardMetrics.rate }">
             <span class="wb-rate-val">{{ boardMetrics.rate }}<small>%</small></span>
           </span>
-          <span class="wb-metric-data"><span class="wb-metric-label">Completion</span><span class="wb-metric-sub">{{ boardMetrics.completed }}/{{ boardMetrics.total }} done</span></span>
+          <span class="wb-metric-data"><span class="wb-metric-label">{{ $t('workBoardDetail.rate') }}</span><span class="wb-metric-sub">{{ boardMetrics.completed }}/{{ boardMetrics.total }} {{ $t('workBoardDetail.done') }}</span></span>
         </div>
       </div>
 
       <div v-if="allCards.length > 0 && filteredCards.length === 0" class="filter-empty card">
         <div>
-          <h2>No cards match these filters.</h2>
-          <p>Clear search or filters to see more board cards.</p>
+          <h2>{{ $t('workBoardDetail.noCardsFilters') }}</h2>
+          <p>{{ $t('workBoardDetail.noCardsFiltersSub') }}</p>
         </div>
-        <button class="btn-secondary" type="button" @click="clearFilters">Clear filters</button>
+        <button class="btn-secondary" type="button" @click="clearFilters">{{ $t('workBoardDetail.clearFilters') }}</button>
       </div>
 
       <div class="board-toolbar card">
@@ -111,28 +111,28 @@
             v-model="searchQuery"
             type="search"
             class="wb-search-input"
-            placeholder="Search tasks, websites, members…"
+            :placeholder="$t('workBoardDetail.searchPlaceholder')"
           />
-          <button v-if="searchQuery" type="button" class="wb-search-clear" title="Clear" @click="searchQuery = ''">
+          <button v-if="searchQuery" type="button" class="wb-search-clear" :title="$t('Clear')" @click="searchQuery = ''">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
         <div class="zoom-controls">
-          <span class="zoom-label">Board View</span>
+          <span class="zoom-label">{{ $t('workBoardDetail.boardView') }}</span>
           <div class="zoom-actions">
-            <button class="zoom-btn" type="button" @click="zoomOut" :disabled="zoomLevel === 70" title="Zoom Out (Cmd -)">
+            <button class="zoom-btn" type="button" @click="zoomOut" :disabled="zoomLevel === 70" :title="$t('workBoardDetail.zoomOut')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
             <span class="zoom-percentage">{{ zoomLevel }}%</span>
-            <button class="zoom-btn" type="button" @click="zoomIn" :disabled="zoomLevel === 120" title="Zoom In Board">
+            <button class="zoom-btn" type="button" @click="zoomIn" :disabled="zoomLevel === 120" :title="$t('workBoardDetail.zoomIn')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
-            <button class="zoom-reset" type="button" @click="resetZoom" :class="{ visible: zoomLevel !== 100 }" title="Reset Board Zoom">Reset</button>
+            <button class="zoom-reset" type="button" @click="resetZoom" :class="{ visible: zoomLevel !== 100 }" :title="$t('workBoardDetail.resetZoom')">{{ $t('workBoardDetail.reset') }}</button>
           </div>
         </div>
       </div>
 
-      <div class="board-scroll" aria-label="Task board columns">
+      <div class="board-scroll" :aria-label="$t('Task board columns')">
         <div class="board-zoom-layer" :style="{ '--board-zoom': zoomLevel / 100 }">
           <section
             v-for="column in boardColumns"
@@ -151,8 +151,8 @@
             <header class="column-head">
               <span class="column-dot" aria-hidden="true" />
               <div class="column-head-text">
-                <h2>{{ column.title }}</h2>
-                <p>{{ column.helper }}</p>
+                <h2>{{ $t('workBoardDetail.columns.' + column.key + '.title') }}</h2>
+                <p>{{ $t('workBoardDetail.columns.' + column.key + '.helper') }}</p>
               </div>
               <span class="column-count">{{ cardsByColumn[column.key].length }}</span>
             </header>
@@ -162,7 +162,7 @@
               type="button"
               @click="openAddTask(column.key)"
             >
-              + Add card
+              {{ $t('workBoardDetail.addCard') }}
             </button>
             <div class="column-card-list">
               <TaskCard
@@ -180,8 +180,9 @@
                 @dragstart="dragCard(card.id)"
                 @dragend="endDrag"
               />
+
               <div v-if="cardsByColumn[column.key].length === 0" class="column-empty">
-                No cards here.
+                {{ $t('workBoardDetail.noCardsHere') }}
               </div>
             </div>
           </section>
@@ -191,7 +192,7 @@
 
     <Modal
       :open="!!activeCard"
-      :title="activeCard?.title || 'Task details'"
+      :title="activeCard?.title || $t('workBoardDetail.taskDetails')"
       size="xl"
       @close="closeCard"
     >
@@ -231,14 +232,14 @@
             </div>
           </div>
           <div class="td-header-right">
-            <label class="td-move-label">Move to</label>
+            <label class="td-move-label">{{ $t('workBoardDetail.moveTo') }}</label>
             <select
               class="td-move-select"
               :value="activeCard.columnKey"
               :disabled="!canMoveCard(activeCard)"
               @change="moveCard(activeCard, ($event.target as HTMLSelectElement).value as BoardColumnKey)"
             >
-              <option v-for="target in boardColumns" :key="target.key" :value="target.key">{{ target.title }}</option>
+              <option v-for="target in boardColumns" :key="target.key" :value="target.key">{{ $t('workBoardDetail.columns.' + target.key + '.title') }}</option>
             </select>
             <button
               v-if="auth.isAdmin"
@@ -248,7 +249,7 @@
               @click="deleteCard(activeCard)"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-              {{ deletingCard ? 'Deleting…' : 'Delete task' }}
+              {{ deletingCard ? $t('workBoardDetail.deleting') : $t('workBoardDetail.deleteTask') }}
             </button>
           </div>
         </div>
@@ -258,7 +259,7 @@
           <img class="td-cover-img" :src="cardImageUrl(activeCard)" :alt="activeCard.title" />
           <button type="button" class="td-cover-expand" @click="detailPreviewOpen = true">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-            Expand
+            {{ $t('workBoardDetail.expand') }}
           </button>
         </div>
 
@@ -271,19 +272,19 @@
             <!-- Task description -->
             <section class="td-section">
               <div class="td-section-head">
-                <h3 class="td-section-title">Task Description</h3>
+                <h3 class="td-section-title">{{ $t('workBoardDetail.descriptionTitle') }}</h3>
                 <button
                   v-if="canEditDetails(activeCard) && detailDraftDirty"
                   class="td-save-btn"
                   type="button"
                   @click="saveActiveCardDetails"
-                >Save Changes</button>
+                >{{ $t('workBoardDetail.saveChanges') }}</button>
               </div>
               <input
                 v-if="canEditDetails(activeCard)"
                 v-model="detailDraft.title"
                 class="td-title-input"
-                placeholder="Task title"
+                :placeholder="$t('workBoardDetail.taskDetails')"
               />
               <p v-else class="td-title-readonly">{{ activeCard.title }}</p>
               <p v-if="activeCard.adminNote" class="td-admin-note">
@@ -294,7 +295,7 @@
                 v-if="canEditDetails(activeCard)"
                 v-model="detailDraft.description"
                 class="td-desc-textarea"
-                placeholder="Explain exactly what needs to be done…"
+                :placeholder="$t('workBoardDetail.descriptionPlaceholder')"
                 rows="5"
               />
               <div
@@ -307,13 +308,13 @@
             <!-- Comments -->
             <section class="td-section cs-section" style="border:none;padding:0;background:transparent;">
               <div class="cs-header">
-                <h3 class="cs-title">Comments</h3>
+                <h3 class="cs-title">{{ $t('workBoardDetail.comments') }}</h3>
                 <span v-if="activeCard.comments.length" class="cs-count">{{ activeCard.comments.length }}</span>
               </div>
               <div v-if="activeCard.comments.length === 0" class="cs-empty">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.28"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
-                <p class="cs-empty-title">No comments yet</p>
-                <p class="cs-empty-sub">Add an update, instruction, or question.</p>
+                <p class="cs-empty-title">{{ $t('workBoardDetail.noComments') }}</p>
+                <p class="cs-empty-sub">{{ $t('workBoardDetail.commentsEmptySub') }}</p>
               </div>
               <div v-else class="cs-list">
                 <article v-for="comment in activeCard.comments" :key="comment.id" class="cs-card" :class="{ 'cs-card--own': comment.userId === auth.user?.id }">
@@ -338,12 +339,12 @@
                     <textarea v-if="editingCommentId === comment.id" v-model="editingCommentText" class="cs-edit-input" rows="3" @keydown.enter.exact.prevent="saveEditComment(comment)" @keydown.escape="cancelEditComment" />
                     <img v-if="comment.attachmentUrl" :src="comment.attachmentUrl" class="cs-attachment" alt="Attachment" />
                     <div class="cs-actions" v-if="editingCommentId !== comment.id">
-                      <button v-if="comment.userId === auth.user?.id" class="cs-action-btn" type="button" @click="startEditComment(comment)">Edit</button>
-                      <button v-if="canDeleteComment(comment)" class="cs-action-btn cs-action-btn--danger" type="button" @click="deleteComment(comment.id)">Delete</button>
+                      <button v-if="comment.userId === auth.user?.id" class="cs-action-btn" type="button" @click="startEditComment(comment)">{{ $t('common.edit') }}</button>
+                      <button v-if="canDeleteComment(comment)" class="cs-action-btn cs-action-btn--danger" type="button" @click="deleteComment(comment.id)">{{ $t('common.delete') }}</button>
                     </div>
                     <div class="cs-edit-actions" v-if="editingCommentId === comment.id">
-                      <button class="btn-primary" style="font-size:0.75rem;padding:0.3rem 0.8rem;" type="button" @click="saveEditComment(comment)">Save</button>
-                      <button class="btn-secondary" style="font-size:0.75rem;padding:0.3rem 0.8rem;" type="button" @click="cancelEditComment">Cancel</button>
+                      <button class="btn-primary" style="font-size:0.75rem;padding:0.3rem 0.8rem;" type="button" @click="saveEditComment(comment)">{{ $t('common.save') }}</button>
+                      <button class="btn-secondary" style="font-size:0.75rem;padding:0.3rem 0.8rem;" type="button" @click="cancelEditComment">{{ $t('common.cancel') }}</button>
                     </div>
                   </div>
                 </article>
@@ -364,13 +365,13 @@
                     v-model="commentText"
                     :mentionables="mentionables"
                     :disabled="props.readOnly"
-                    placeholder="Write a comment… use @ to mention a teammate"
+                    :placeholder="$t('workBoardDetail.commentPlaceholder')"
                     :rows="2"
                     @submit="addComment"
                   />
                   <div class="cs-input-footer">
-                    <span class="cs-input-hint">@ to mention · Shift+Enter for new line</span>
-                    <button class="btn-primary cs-submit-btn" type="button" :disabled="props.readOnly || !commentText.trim()" @click="addComment">Add Comment</button>
+                    <span class="cs-input-hint">{{ $t('workBoardDetail.commentHint') }}</span>
+                    <button class="btn-primary cs-submit-btn" type="button" :disabled="props.readOnly || !commentText.trim()" @click="addComment">{{ $t('workBoardDetail.addComment') }}</button>
                   </div>
                 </div>
               </div>
@@ -379,14 +380,14 @@
             <!-- Submit Work (member only) -->
             <section v-if="!auth.isAdmin" class="td-section">
               <div class="td-section-head">
-                <h3 class="td-section-title">Submit Work</h3>
-                <span v-if="activeCard.status === 'submitted'" class="td-submitted-badge">Submitted for review</span>
-                <span v-if="activeCard.columnKey === 'needs_fix'" class="td-fix-badge">Admin requested changes</span>
+                <h3 class="td-section-title">{{ $t('workBoardDetail.submitWork') }}</h3>
+                <span v-if="activeCard.status === 'submitted'" class="td-submitted-badge">{{ $t('workBoardDetail.submittedForReview') }}</span>
+                <span v-if="activeCard.columnKey === 'needs_fix'" class="td-fix-badge">{{ $t('workBoardDetail.adminRequestedChanges') }}</span>
               </div>
               <textarea
                 v-model="submitWorkText"
                 class="td-desc-textarea"
-                placeholder="Paste the finished code, notes, or summary here…"
+                :placeholder="$t('workBoardDetail.submitWorkPlaceholder')"
                 rows="4"
               />
               <div class="td-screenshot-wrap">
@@ -399,35 +400,35 @@
                 <label v-else class="td-screenshot-upload">
                   <input type="file" class="hidden" accept="image/*" @change="uploadSubmissionScreenshot" />
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  <span>{{ attachmentUploading ? 'Optimizing…' : 'Upload result screenshot (optional)' }}</span>
+                  <span>{{ attachmentUploading ? $t('workBoardDetail.optimizing') : $t('workBoardDetail.uploadScreenshot') }}</span>
                 </label>
               </div>
 
               <!-- Work Evidence Section -->
               <div class="mt-4 border-t border-border pt-4">
-                <h4 class="text-xs font-bold text-text-main uppercase tracking-wider mb-2">Work Evidence Archive</h4>
+                <h4 class="text-xs font-bold text-text-main uppercase tracking-wider mb-2">{{ $t('workBoardDetail.evidenceArchive') }}</h4>
                 <div v-if="reports.evidenceList.length" class="flex flex-col gap-2 mb-3">
                   <div v-for="ev in reports.evidenceList" :key="ev.id" class="flex items-center justify-between p-2 rounded-btn bg-soft text-xs">
                     <div class="flex items-center gap-2">
                       <span>{{ ev.evidenceType === 'link' ? '🔗' : ev.evidenceType === 'note' ? '📝' : '📁' }}</span>
                       <a v-if="ev.url" :href="ev.url" target="_blank" class="text-primary hover:underline font-semibold">{{ ev.evidenceType.toUpperCase() }} File/Link</a>
-                      <span v-else class="font-semibold">Text Note</span>
+                      <span v-else class="font-semibold">{{ $t('workBoardDetail.addNote') }}</span>
                       <span v-if="ev.notes" class="text-text-muted">({{ ev.notes }})</span>
                     </div>
                   </div>
                 </div>
-                <div v-else class="text-xs text-text-muted mb-3">No custom work evidence uploaded.</div>
+                <div v-else class="text-xs text-text-muted mb-3">{{ $t('workBoardDetail.noEvidence') }}</div>
                 
                 <div class="flex flex-wrap gap-2">
                   <label class="btn-secondary py-1 px-3 text-xs cursor-pointer h-auto">
                     <input type="file" class="hidden" @change="uploadCustomEvidence" />
-                    📤 Upload File/Doc
+                    📤 {{ $t('workBoardDetail.uploadFileDoc') }}
                   </label>
                   <button type="button" class="btn-secondary py-1 px-3 text-xs h-auto" @click="promptEvidenceLink">
-                    🔗 Add Link
+                    🔗 {{ $t('workBoardDetail.addLink') }}
                   </button>
                   <button type="button" class="btn-secondary py-1 px-3 text-xs h-auto" @click="promptEvidenceNote">
-                    📝 Add Note
+                    📝 {{ $t('workBoardDetail.addNote') }}
                   </button>
                 </div>
               </div>
@@ -437,7 +438,7 @@
                 type="button"
                 :disabled="props.readOnly || submittingWork || !submitWorkText.trim()"
                 @click="submitWork"
-              >{{ submittingWork ? 'Submitting…' : 'Submit for Review' }}</button>
+              >{{ submittingWork ? $t('workBoardDetail.submitting') : $t('workBoardDetail.submitForReview') }}</button>
               <p v-if="data.errors.submissions" class="td-task-error">{{ data.errors.submissions }}</p>
             </section>
           </div>
@@ -448,32 +449,32 @@
             <!-- Task details meta -->
             <section class="td-section">
               <div class="td-section-head">
-                <h3 class="td-section-title">Details</h3>
+                <h3 class="td-section-title">{{ $t('workBoardDetail.details') }}</h3>
               </div>
               <div class="td-meta-list">
                 <div class="td-meta-row">
-                  <span class="td-meta-label">Assignee</span>
+                  <span class="td-meta-label">{{ $t('workBoardDetail.assignee') }}</span>
                   <select v-if="canEditDetails(activeCard)" v-model="detailDraft.assignedMemberId" class="td-meta-date" style="font-size: 0.8rem; padding: 2px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); color: var(--text-main);">
-                    <option value="">Unassigned</option>
+                    <option value="">{{ $t('workBoardDetail.unassigned') }}</option>
                     <option v-for="m in data.members" :key="m.id" :value="m.id">{{ m.fullName || m.email }}</option>
                   </select>
-                  <span v-else class="td-meta-value">{{ memberName(activeCard.assignedMemberId) || 'Unassigned' }}</span>
+                  <span v-else class="td-meta-value">{{ memberName(activeCard.assignedMemberId) || $t('workBoardDetail.unassigned') }}</span>
                 </div>
                 <div class="td-meta-row">
-                  <span class="td-meta-label">Deadline</span>
+                  <span class="td-meta-label">{{ $t('workBoardDetail.deadline') }}</span>
                   <input v-if="canEditDetails(activeCard)" v-model="detailDraft.dueDate" class="td-meta-date" type="date" />
                   <span v-else class="td-meta-value">{{ activeCard.dueDate || '—' }}</span>
                 </div>
                 <div class="td-meta-row">
-                  <span class="td-meta-label">Status</span>
+                  <span class="td-meta-label">{{ $t('common.status') }}</span>
                   <StatusBadge :status="statusForCard(activeCard)" />
                 </div>
                 <div class="td-meta-row" v-if="activeCard.assignment.assignedAt">
-                  <span class="td-meta-label">Assigned</span>
+                  <span class="td-meta-label">{{ $t('workBoardDetail.assigned') }}</span>
                   <span class="td-meta-value">{{ activeCard.assignment.assignedAt }}</span>
                 </div>
                 <div class="td-meta-row" v-if="activeCard.assignment.updatedAt">
-                  <span class="td-meta-label">Updated</span>
+                  <span class="td-meta-label">{{ $t('workBoardDetail.updated') }}</span>
                   <span class="td-meta-value">{{ activeCard.assignment.updatedAt }}</span>
                 </div>
               </div>
@@ -482,13 +483,13 @@
             <!-- Attachments -->
             <section class="td-section">
               <div class="td-section-head">
-                <h3 class="td-section-title">Attachments <span v-if="activeCard.attachments.length" class="td-count-pill">{{ activeCard.attachments.length }}</span></h3>
-                <label class="td-icon-btn" :title="attachmentUploading ? 'Uploading…' : 'Add attachment'">
+                <h3 class="td-section-title">{{ $t('workBoardDetail.attachments') }} <span v-if="activeCard.attachments.length" class="td-count-pill">{{ activeCard.attachments.length }}</span></h3>
+                <label class="td-icon-btn" :title="attachmentUploading ? $t('workBoardDetail.optimizing') : $t('workBoardDetail.attachments')">
                   <input type="file" class="hidden" multiple accept="image/*,.pdf,.zip,.doc,.docx" @change="uploadAttachment" />
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </label>
               </div>
-              <div v-if="activeCard.attachments.length === 0" class="td-empty-small">No attachments yet.</div>
+              <div v-if="activeCard.attachments.length === 0" class="td-empty-small">{{ $t('workBoardDetail.noAttachments') }}</div>
               <div v-else class="td-attachment-list">
                 <div v-for="att in activeCard.attachments" :key="att.id" class="td-att-card">
                   <img v-if="isImageAttachment(att) && attachmentPreview(att)" :src="attachmentPreview(att)" class="td-att-thumb" @click="previewImage(attachmentPreview(att))" />
@@ -498,11 +499,11 @@
                   <div class="td-att-info">
                     <span class="td-att-name">{{ att.fileName }}</span>
                     <span class="td-att-size">
-                      <template v-if="att.optimizedSize">{{ formatFileSize(att.optimizedSize) }} · saved {{ att.compressionRatio }}%</template>
+                      <template v-if="att.optimizedSize">{{ formatFileSize(att.optimizedSize) }} · {{ $t('workBoardDetail.saved') }} {{ att.compressionRatio }}%</template>
                       <template v-else>{{ formatFileSize(att.fileSize) }}</template>
                     </span>
                   </div>
-                  <button class="td-att-remove" type="button" title="Remove" @click="removeAttachment(att.id)">
+                  <button class="td-att-remove" type="button" :title="$t('Remove')" @click="removeAttachment(att.id)">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </div>
@@ -512,7 +513,7 @@
             <!-- Links -->
             <section class="td-section">
               <div class="td-section-head">
-                <h3 class="td-section-title">Links <span v-if="activeCard.links.length" class="td-count-pill">{{ activeCard.links.length }}</span></h3>
+                <h3 class="td-section-title">{{ $t('workBoardDetail.links') }} <span v-if="activeCard.links.length" class="td-count-pill">{{ activeCard.links.length }}</span></h3>
               </div>
               <div v-if="activeCard.links.length" class="td-link-list">
                 <a v-for="link in activeCard.links" :key="link.id" :href="link.url" target="_blank" class="td-link-row">
@@ -522,7 +523,7 @@
               </div>
               <div class="td-add-link-row">
                 <input v-model="linkForm.url" class="td-add-input" placeholder="https://…" @keyup.enter="addLink" />
-                <button class="td-icon-btn" type="button" :disabled="props.readOnly" @click="addLink" title="Add link">
+                <button class="td-icon-btn" type="button" :disabled="props.readOnly" @click="addLink" :title="$t('workBoardDetail.addLink')">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
               </div>
@@ -531,7 +532,7 @@
             <!-- Checklist -->
             <section class="td-section">
               <div class="td-section-head">
-                <h3 class="td-section-title">Checklist
+                <h3 class="td-section-title">{{ $t('workBoardDetail.checklist') }}
                   <span v-if="activeCard.checklist.length" class="td-count-pill">{{ activeCard.checklistDone }}/{{ activeCard.checklist.length }}</span>
                 </h3>
               </div>
@@ -542,8 +543,8 @@
                 </label>
               </div>
               <div class="td-add-link-row">
-                <input v-model="checklistText" class="td-add-input" placeholder="Add checklist item…" @keyup.enter="addChecklistItem" />
-                <button class="td-icon-btn" type="button" :disabled="props.readOnly" @click="addChecklistItem" title="Add item">
+                <input v-model="checklistText" class="td-add-input" :placeholder="$t('workBoardDetail.addChecklistItemPlaceholder')" @keyup.enter="addChecklistItem" />
+                <button class="td-icon-btn" type="button" :disabled="props.readOnly" @click="addChecklistItem" :title="$t('workBoardDetail.addChecklistItem')">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
               </div>
@@ -562,7 +563,7 @@
       @close="addTaskOpen = false"
     />
 
-    <Modal :open="!!imagePreviewUrl" title="Image preview" size="lg" @close="imagePreviewUrl = ''">
+    <Modal :open="!!imagePreviewUrl" :title="$t('workBoardDetail.imagePreview')" size="lg" @close="imagePreviewUrl = ''">
       <img v-if="imagePreviewUrl" class="preview-image" :src="imagePreviewUrl" alt="Task preview" />
     </Modal>
 
@@ -577,13 +578,14 @@
       :due-date="activeCard.dueDate"
       :status="statusForCard(activeCard)"
       :created-by="getCreatorName(activeCard.assignment.assignedBy)"
-      :on-close="() => detailPreviewOpen = false"
+      :on-close="() => { detailPreviewOpen = false; }"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RouterLink, useRoute } from 'vue-router';
 import StatusBadge, { type Status } from '@/components/ui/StatusBadge.vue';
 import TaskDeadlineBadge from '@/components/ui/TaskDeadlineBadge.vue';
@@ -593,6 +595,8 @@ import MonthSelector from '@/components/board/MonthSelector.vue';
 import { useImagePreviewStore } from '@/stores/imagePreview';
 
 const previewStore = useImagePreviewStore();
+const { t, te } = useI18n();
+
 const openPhotoPreview = (member: any) => {
   if (member?.avatarUrl) {
     previewStore.triggerPreview({
@@ -1185,8 +1189,10 @@ const statusForCard = (card: BoardCard): Status => {
   return card.status;
 };
 
-const priorityLabel = (priority: Priority) =>
-  priority === 'normal' ? 'Normal' : priority[0].toUpperCase() + priority.slice(1);
+const priorityLabel = (priority: Priority) => {
+  const key = `workBoardDetail.priorities.${priority}`;
+  return te(key) ? t(key) : priority === 'normal' ? 'Normal' : priority[0].toUpperCase() + priority.slice(1);
+};
 
 const priorityClass = (priority: Priority) => {
   if (priority === 'urgent') return 'danger';
@@ -3330,7 +3336,7 @@ defineExpose({ openAddTask });
 .open-card-btn {
   border-radius: 10px;
   background: var(--primary);
-  color: white;
+  color: #f8fbff;
   padding: 0.5rem 0.65rem;
   font-family: 'Jost Numbers', 'Google Sans', 'Product Sans', Arial, sans-serif;
   font-size: 0.74rem;
@@ -4222,7 +4228,7 @@ defineExpose({ openAddTask });
 }
 
 :root[data-theme='dark-gray'] .cs-body {
-  background: color-mix(in srgb, #fff 4%, var(--card-bg));
+  background: color-mix(in srgb, var(--text-main) 4%, var(--card-bg));
 }
 
 :root[data-theme='dark-gray'] .cs-card--own .cs-body {
@@ -4602,10 +4608,10 @@ defineExpose({ openAddTask });
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid rgba(248,251,255,0.3);
   border-radius: 8px;
   background: rgba(0,0,0,0.45);
-  color: #fff;
+  color: #f8fbff;
   padding: 0.35rem 0.65rem;
   font-size: 0.72rem;
   font-weight: 700;
@@ -4675,7 +4681,7 @@ defineExpose({ openAddTask });
   border: 1px solid var(--primary);
   border-radius: 8px;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   padding: 0.35rem 0.8rem;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.75rem;
@@ -5167,13 +5173,13 @@ defineExpose({ openAddTask });
 
 /* ── Dark mode overrides ── */
 :root[data-theme='dark-gray'] .td-section {
-  background: color-mix(in srgb, #fff 3%, var(--card-bg));
+  background: color-mix(in srgb, var(--text-main) 3%, var(--card-bg));
 }
 
 :root[data-theme='dark-gray'] .td-att-card,
 :root[data-theme='dark-gray'] .td-check-item,
 :root[data-theme='dark-gray'] .td-link-row {
-  background: color-mix(in srgb, #fff 4%, var(--card-bg));
+  background: color-mix(in srgb, var(--text-main) 4%, var(--card-bg));
 }
 
 /* ── Mobile stacking ── */

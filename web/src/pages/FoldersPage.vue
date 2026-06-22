@@ -1,12 +1,12 @@
 <template>
   <div>
-    <PageHeader title="Folders" subtitle="Group prompts by topic so the team can find them quickly.">
+    <PageHeader :title="$t('Folders')" subtitle="Group prompts by topic so the team can find them quickly.">
       <template v-if="auth.isAdmin" #actions>
         <button class="btn-primary" type="button" @click="openCreate">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          New Folder
+          {{ $t('New Folder') }}
         </button>
       </template>
     </PageHeader>
@@ -38,8 +38,8 @@
           <div class="mt-4 flex items-center justify-between text-xs text-text-muted">
             <span>Created {{ folder.createdAt }}</span>
             <div v-if="auth.isAdmin" class="flex gap-1">
-              <button class="btn-ghost h-8 px-3 text-xs" @click.stop="openEdit(folder)">Edit</button>
-              <button class="btn-danger h-8 px-3 text-xs" @click.stop="confirmDelete(folder)">Delete</button>
+              <button class="btn-ghost h-8 px-3 text-xs" @click.stop="openEdit(folder)">{{ $t('Edit') }}</button>
+              <button class="btn-danger h-8 px-3 text-xs" @click.stop="confirmDelete(folder)">{{ $t('Delete') }}</button>
             </div>
           </div>
         </div>
@@ -47,11 +47,11 @@
 
       <EmptyState
         v-if="data.folders.length === 0"
-        title="No folders yet"
+        :title="$t('No folders yet')"
         description="Create folders like Homepage Sections, SEO Prompts, or Blog Prompts."
       >
         <template #action>
-          <button v-if="auth.isAdmin" class="btn-primary" @click="openCreate">New Folder</button>
+          <button v-if="auth.isAdmin" class="btn-primary" @click="openCreate">{{ $t('New Folder') }}</button>
         </template>
       </EmptyState>
     </LoadingBlock>
@@ -63,14 +63,14 @@
       @close="closeModal"
     >
       <form class="space-y-4" @submit.prevent="save(form)">
-        <FormInput v-model="form.name" label="Folder name" placeholder="Homepage Sections" />
-        <FormTextarea v-model="form.description" label="Description" />
+        <FormInput v-model="form.name" :label="$t('Folder name')" :placeholder="$t('Homepage Sections')" />
+        <FormTextarea v-model="form.description" :label="$t('Description')" />
       </form>
       <div v-if="data.errors.folders" class="mt-3 text-sm text-status-needs-fix-fg">
         {{ data.errors.folders }}
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="closeModal">Cancel</button>
+        <button class="btn-ghost" type="button" @click="closeModal">{{ $t('Cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="saving" @click="save(form)">
           {{ saving ? 'Saving...' : 'Save' }}
         </button>

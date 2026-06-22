@@ -2,46 +2,46 @@
   <div v-if="store.sendAlertModalOpen && target" class="modal-overlay" @click.self="close">
     <div class="quick-alert-modal card p-5">
       <header class="flex justify-between items-center mb-4 border-b border-border/60 pb-3">
-        <h3 class="text-sm font-bold text-text-main uppercase tracking-wider">Send Alert From Card</h3>
-        <button class="text-text-muted hover:text-text-main text-lg" @click="close">&times;</button>
+        <h3 class="text-sm font-bold text-text-main uppercase tracking-wider">{{ $t('Send Alert From Card') }}</h3>
+        <button class="text-text-muted hover:text-text-main text-lg" @click="close">{{ $t('&times;') }}</button>
       </header>
 
       <div class="flex flex-col gap-4">
         <!-- Prefilled details -->
         <div class="grid grid-cols-2 gap-3 bg-soft/30 p-3 rounded-xl text-xs">
           <div>
-            <span class="text-text-muted block font-semibold uppercase tracking-wider text-[10px] mb-0.5">Task Title</span>
+            <span class="text-text-muted block font-semibold uppercase tracking-wider text-[10px] mb-0.5">{{ $t('Task Title') }}</span>
             <strong class="text-text-main line-clamp-1">{{ target.title }}</strong>
           </div>
           <div>
-            <span class="text-text-muted block font-semibold uppercase tracking-wider text-[10px] mb-0.5">Recipient (Assignee)</span>
+            <span class="text-text-muted block font-semibold uppercase tracking-wider text-[10px] mb-0.5">{{ $t('Recipient (Assignee)') }}</span>
             <strong class="text-text-main line-clamp-1" v-if="assigneeName">{{ assigneeName }}</strong>
-            <span class="text-status-needs-fix-fg font-semibold" v-else>Unassigned (Cannot Alert)</span>
+            <span class="text-status-needs-fix-fg font-semibold" v-else>{{ $t('Unassigned (Cannot Alert)') }}</span>
           </div>
           <div>
-            <span class="text-text-muted block font-semibold uppercase tracking-wider text-[10px] mb-0.5">Priority</span>
+            <span class="text-text-muted block font-semibold uppercase tracking-wider text-[10px] mb-0.5">{{ $t('Priority') }}</span>
             <span class="badge" :class="`badge--${alertPriority.toLowerCase()}`">{{ alertPriority }}</span>
           </div>
           <div>
-            <span class="text-text-muted block font-semibold uppercase tracking-wider text-[10px] mb-0.5">Alert Type</span>
+            <span class="text-text-muted block font-semibold uppercase tracking-wider text-[10px] mb-0.5">{{ $t('Alert Type') }}</span>
             <strong class="text-text-main">{{ alertType }}</strong>
           </div>
         </div>
 
         <!-- Message/Reminder Input -->
         <div class="form-group">
-          <label class="label mb-1 font-semibold text-xs text-text-muted">CUSTOM REMINDER MESSAGE (OPTIONAL)</label>
+          <label class="label mb-1 font-semibold text-xs text-text-muted">{{ $t('CUSTOM REMINDER MESSAGE (OPTIONAL)') }}</label>
           <textarea
             v-model="form.message"
             class="input min-h-[80px] text-sm"
-            placeholder="e.g. Please review and complete this task before the end of the day."
+            :placeholder="$t('e.g. Please review and complete this task before the end of the day.')"
           />
         </div>
 
         <!-- Require Got It checkbox -->
         <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-text-main select-none">
           <input type="checkbox" v-model="form.requireAck" class="checkbox-input" />
-          <span>Require "Got It" acknowledgement</span>
+          <span>{{ $t('Require "Got It" acknowledgement') }}</span>
         </label>
 
         <div v-if="errorMsg" class="text-status-needs-fix-fg text-xs font-semibold">
@@ -50,7 +50,7 @@
 
         <!-- Action buttons -->
         <div class="flex justify-end gap-3 border-t border-border/60 pt-4 mt-1">
-          <button class="btn-secondary px-4 text-xs h-9" type="button" @click="close">Cancel</button>
+          <button class="btn-secondary px-4 text-xs h-9" type="button" @click="close">{{ $t('Cancel') }}</button>
           <button
             class="btn-primary px-5 text-xs h-9"
             type="button"

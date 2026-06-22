@@ -1,13 +1,13 @@
 <template>
   <div class="reports-layout-page flex flex-col gap-5">
     <!-- Header -->
-    <PageHeader title="Reports & Accountability" subtitle="Monitor task completion, workflow compliance, alerts, and team discipline.">
+    <PageHeader :title="$t('Reports & Accountability')" subtitle="Monitor task completion, workflow compliance, alerts, and team discipline.">
       <template #actions>
         <button type="button" class="btn-primary" @click="saveSnap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
           </svg>
-          Save Snapshot
+          {{ $t('Save Snapshot') }}
         </button>
       </template>
     </PageHeader>
@@ -16,23 +16,23 @@
     <div class="card card-pad flex flex-wrap items-center gap-4 bg-card shadow-sm border border-border">
       <!-- Date Range -->
       <div class="filter-group flex flex-col gap-1">
-        <label class="eyebrow text-text-muted">Start Date</label>
+        <label class="eyebrow text-text-muted">{{ $t('Start Date') }}</label>
         <input type="date" v-model="filters.startDate" class="input py-1.5 px-3 max-w-[150px]" />
       </div>
       <div class="filter-group flex flex-col gap-1">
-        <label class="eyebrow text-text-muted">End Date</label>
+        <label class="eyebrow text-text-muted">{{ $t('End Date') }}</label>
         <input type="date" v-model="filters.endDate" class="input py-1.5 px-3 max-w-[150px]" />
       </div>
 
       <!-- Member Filter (Locked for standard member) -->
       <div class="filter-group flex flex-col gap-1">
-        <label class="eyebrow text-text-muted">Member</label>
+        <label class="eyebrow text-text-muted">{{ $t('Member') }}</label>
         <select
           v-model="filters.memberId"
           :disabled="isMemberLocked"
           class="input py-1.5 px-3 min-w-[150px]"
         >
-          <option value="">All Members</option>
+          <option value="">{{ $t('All Members') }}</option>
           <option v-for="m in filteredMembers" :key="m.id" :value="m.id">
             {{ m.fullName || m.email }}
           </option>
@@ -41,18 +41,18 @@
 
       <!-- Project Filter -->
       <div class="filter-group flex flex-col gap-1">
-        <label class="eyebrow text-text-muted">Project</label>
+        <label class="eyebrow text-text-muted">{{ $t('Project') }}</label>
         <select v-model="filters.projectId" class="input py-1.5 px-3 min-w-[150px]">
-          <option value="">All Projects</option>
+          <option value="">{{ $t('All Projects') }}</option>
           <option v-for="p in data.projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
       </div>
 
       <!-- Department (derived from positions) -->
       <div class="filter-group flex flex-col gap-1">
-        <label class="eyebrow text-text-muted">Department</label>
+        <label class="eyebrow text-text-muted">{{ $t('Department') }}</label>
         <select v-model="filters.department" class="input py-1.5 px-3 min-w-[150px]">
-          <option value="">All Departments</option>
+          <option value="">{{ $t('All Departments') }}</option>
           <option v-for="dept in departments" :key="dept" :value="dept">{{ dept }}</option>
         </select>
       </div>

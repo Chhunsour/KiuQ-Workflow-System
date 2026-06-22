@@ -6,8 +6,8 @@
         <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
       </svg>
     </div>
-    <h1 class="text-xl font-bold text-text-main">Access Denied</h1>
-    <p class="text-sm text-text-muted mt-2 max-w-sm">Quality Checkers do not have access to the Team Media Library.</p>
+    <h1 class="text-xl font-bold text-text-main">{{ $t('mediaLibrary.accessDenied') }}</h1>
+    <p class="text-sm text-text-muted mt-2 max-w-sm">{{ $t('mediaLibrary.qualityCheckerMediaDenied') }}</p>
   </div>
 
   <div v-else class="img-dashboard flex flex-col gap-4">
@@ -20,9 +20,9 @@
               <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" />
             </svg>
           </span>
-          Team Media Library
+          {{ $t('mediaLibrary.title') }}
         </h1>
-        <p class="text-xs text-text-muted mt-1">A shared workspace for storing, organizing, and accessing team images.</p>
+        <p class="text-xs text-text-muted mt-1">{{ $t('mediaLibrary.sharedWorkspaceSubtitle') }}</p>
       </div>
 
       <div class="flex items-center gap-4">
@@ -36,7 +36,7 @@
               </svg>
             </span>
             <div class="min-w-0">
-              <div class="text-[9px] uppercase font-bold tracking-wider text-text-soft leading-none">Images</div>
+              <div class="text-[9px] uppercase font-bold tracking-wider text-text-soft leading-none">{{ $t('mediaLibrary.images') }}</div>
               <div class="text-xs font-extrabold text-text-main mt-0.5 leading-none">{{ library.length }}</div>
             </div>
           </div>
@@ -49,7 +49,7 @@
               </svg>
             </span>
             <div class="min-w-0">
-              <div class="text-[9px] uppercase font-bold tracking-wider text-text-soft leading-none">Folders</div>
+              <div class="text-[9px] uppercase font-bold tracking-wider text-text-soft leading-none">{{ $t('mediaLibrary.folders') }}</div>
               <div class="text-xs font-extrabold text-text-main mt-0.5 leading-none">{{ customFolders.length }}</div>
             </div>
           </div>
@@ -66,11 +66,11 @@
             </span>
             <div class="min-w-0">
               <div class="flex items-center gap-1">
-                <div class="text-[9px] uppercase font-bold tracking-wider text-text-soft leading-none">Storage</div>
+                <div class="text-[9px] uppercase font-bold tracking-wider text-text-soft leading-none">{{ $t('mediaLibrary.storage') }}</div>
                 <span 
                   v-if="(libraryStats?.unknown_size_count ?? 0) > 0"
                   class="text-[9px] text-text-muted hover:text-warning cursor-help leading-none flex items-center"
-                  title="Some older files may not include size metadata."
+                  :title="$t('Some older files may not include size metadata.')"
                 >
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
@@ -82,9 +82,9 @@
               </div>
               <div class="text-[8px] text-text-muted mt-0.5 leading-none">
                 <span v-if="isFiltered">
-                  {{ isFolderOnlyFilter ? 'Folder' : 'Filtered' }}: {{ formatTotalStorage(filteredStorageUsed) }}
+                  {{ isFolderOnlyFilter ? $t('mediaLibrary.folder') : $t('mediaLibrary.filtered') }}: {{ formatTotalStorage(filteredStorageUsed) }}
                 </span>
-                <span v-else>All images</span>
+                <span v-else>{{ $t('mediaLibrary.allLibrary') }}</span>
               </div>
             </div>
           </div>
@@ -103,19 +103,19 @@
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-            Export CSV
+            {{ $t('mediaLibrary.exportCsvFile') }}
           </button>
           <button type="button" class="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1.5" @click="uploaderExpanded = !uploaderExpanded">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
             </svg>
-            {{ uploaderExpanded ? 'Hide Upload' : 'Upload Images' }}
+            {{ uploaderExpanded ? $t('mediaLibrary.hideUpload') : $t('mediaLibrary.uploadImages') }}
           </button>
           <button type="button" class="btn-primary py-1.5 px-3 text-xs flex items-center gap-1" @click="onAddFolderClick">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            New Folder
+            {{ $t('mediaLibrary.newFolder') }}
           </button>
         </div>
       </div>
@@ -146,9 +146,9 @@
           
           <div class="text-center">
             <span class="text-xs font-bold text-text-main block">
-              {{ uploadStatusMsg || 'Drop, paste (Ctrl+V / Cmd+V), or click to upload images.' }}
+              {{ uploadStatusMsg || $t('mediaLibrary.uploadStatusMsg') }}
             </span>
-            <span class="text-[10px] text-text-muted block mt-1">PNG · JPG · WebP · GIF · SVG  ·  Up to 20MB</span>
+            <span class="text-[10px] text-text-muted block mt-1">{{ $t('mediaLibrary.uploaderLimit') }}</span>
           </div>
         </div>
       </section>
@@ -160,9 +160,9 @@
       <aside class="card p-3 shrink-0 w-full md:w-[280px] md:max-h-[700px] flex flex-col gap-3">
         <!-- Desktop sidebar header: hidden on mobile -->
         <div class="hidden md:flex items-center justify-between border-b border-border pb-2">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-text-soft">Folders</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-text-soft">{{ $t('mediaLibrary.folders') }}</h3>
           <button type="button" class="text-xs text-primary font-bold flex items-center gap-0.5 hover:underline" @click="onAddFolderClick">
-            + New
+            + {{ $t('mediaLibrary.new') }}
           </button>
         </div>
 
@@ -171,7 +171,7 @@
           <input
             v-model="folderSearchQuery"
             type="text"
-            placeholder="Search folders..."
+            :placeholder="$t('mediaLibrary.searchFolders')"
             class="w-full bg-soft text-xs border border-border/80 rounded px-2.5 py-1.5 focus:outline-none focus:border-primary placeholder:text-text-soft"
           />
         </div>
@@ -182,14 +182,14 @@
             ref="newFolderInputRef"
             v-model="newFolderName"
             type="text"
-            placeholder="Folder name..."
+            :placeholder="$t('mediaLibrary.folderName')"
             class="w-full bg-card border border-border text-xs rounded px-2 py-1 focus:outline-none focus:border-primary"
             @keyup.enter="createFolder"
             @keyup.esc="showNewFolderInput = false"
           />
           <div class="flex justify-end gap-1.5">
-            <button type="button" class="btn-secondary py-1 px-2 h-6 text-[10px]" @click="showNewFolderInput = false">Cancel</button>
-            <button type="button" class="btn-primary py-1 px-2.5 h-6 text-[10px]" @click="createFolder">Create</button>
+            <button type="button" class="btn-secondary py-1 px-2 h-6 text-[10px]" @click="showNewFolderInput = false">{{ $t('mediaLibrary.cancel') }}</button>
+            <button type="button" class="btn-primary py-1 px-2.5 h-6 text-[10px]" @click="createFolder">{{ $t('mediaLibrary.create') }}</button>
           </div>
         </div>
 
@@ -200,7 +200,7 @@
             class="md:hidden inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer border border-dashed border-border text-text-muted bg-soft/30 hover:bg-soft shrink-0"
             @click="onAddFolderClick"
           >
-            + New Folder
+            + {{ $t('mediaLibrary.newFolder') }}
           </li>
 
           <!-- Inline Folder Creator on Mobile (as a chip) -->
@@ -209,13 +209,13 @@
               ref="newFolderInputRef"
               v-model="newFolderName"
               type="text"
-              placeholder="Folder name..."
+              :placeholder="$t('mediaLibrary.folderName')"
               class="bg-transparent text-xs outline-none text-text-main w-24"
               @keyup.enter="createFolder"
               @keyup.esc="showNewFolderInput = false"
             />
             <button type="button" class="text-text-muted hover:text-text-main text-[10px] font-bold" @click="showNewFolderInput = false">✕</button>
-            <button type="button" class="text-primary hover:text-primary-hover text-[10px] font-bold" @click="createFolder">Save</button>
+            <button type="button" class="text-primary hover:text-primary-hover text-[10px] font-bold" @click="createFolder">{{ $t('common.save') }}</button>
           </li>
 
           <!-- All Library -->
@@ -225,7 +225,7 @@
             @click="currentFolder = 'all'"
           >
             <span class="folder-icon" v-html="ICON_SVG.folderOpen" />
-            <span class="folder-name truncate">All Library</span>
+            <span class="folder-name truncate">{{ $t('mediaLibrary.allLibrary') }}</span>
             <span class="folder-count">{{ library.length }}</span>
             <div class="w-[16px] h-5 hidden md:block"></div>
           </li>
@@ -241,7 +241,7 @@
             @drop="onImageDrop($event, null)"
           >
             <span class="folder-icon" v-html="ICON_SVG.folder" />
-            <span class="folder-name truncate">Uncategorized</span>
+            <span class="folder-name truncate">{{ $t('mediaLibrary.uncategorized') }}</span>
             <span class="folder-count">{{ uncategorizedCount }}</span>
             <div class="w-[16px] h-5 hidden md:block"></div>
           </li>
@@ -306,7 +306,7 @@
                   class="w-full text-left px-3 py-1.5 text-xs text-text-main hover:bg-soft flex items-center gap-1.5"
                   @click.stop="startFolderRename(folder)"
                 >
-                  Rename
+                  {{ $t('mediaLibrary.rename') }}
                 </button>
                 <button
                   v-if="canManageFolder(folder)"
@@ -314,14 +314,14 @@
                   class="w-full text-left px-3 py-1.5 text-xs text-status-needs-fix-fg hover:bg-soft flex items-center gap-1.5"
                   @click.stop="deleteFolder(folder.id)"
                 >
-                  Delete Folder
+                  {{ $t('mediaLibrary.deleteFolder') }}
                 </button>
                 <button
                   type="button"
                   class="w-full text-left px-3 py-1.5 text-xs text-text-main hover:bg-soft flex items-center gap-1.5"
                   @click.stop="copyFolderLink(folder.id)"
                 >
-                  Copy Link
+                  {{ $t('mediaLibrary.copyLink') }}
                 </button>
                 <button
                   v-if="selectedImageKeys.length > 0"
@@ -329,7 +329,7 @@
                   class="w-full text-left px-3 py-1.5 text-xs text-primary hover:bg-soft flex items-center gap-1.5 font-bold border-t border-border/40 mt-1"
                   @click.stop="bulkMoveToFolder(folder.id)"
                 >
-                  Move Selected Here
+                  {{ $t('mediaLibrary.moveSelectedHere') }}
                 </button>
               </div>
 
@@ -357,7 +357,7 @@
               <input
                 v-model="search"
                 type="search"
-                placeholder="Search images..."
+                :placeholder="$t('mediaLibrary.searchImages')"
                 class="w-full bg-input text-xs border border-border rounded-btn pl-8 pr-3 h-9 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 placeholder:text-text-soft text-text-main transition-all"
               />
               <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-soft">
@@ -373,7 +373,7 @@
                 v-model="filterUploadedBy"
                 class="appearance-none w-full bg-input text-xs border border-border rounded-btn pl-3 pr-8 h-9 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 cursor-pointer transition-all"
               >
-                <option value="all">All Uploaders</option>
+                <option value="all">{{ $t('mediaLibrary.allUploaders') }}</option>
                 <option v-for="user in uniqueUploaders" :key="user.id" :value="user.id">{{ user.name }}</option>
               </select>
               <span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-soft">
@@ -389,12 +389,12 @@
                 v-model="filterFileType"
                 class="appearance-none w-full bg-input text-xs border border-border rounded-btn pl-3 pr-8 h-9 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 cursor-pointer transition-all"
               >
-                <option value="all">All File Types</option>
-                <option value="webp">WebP</option>
-                <option value="png">PNG</option>
-                <option value="jpeg">JPG / JPEG</option>
-                <option value="gif">GIF</option>
-                <option value="svg">SVG</option>
+                <option value="all">{{ $t('mediaLibrary.allFileTypes') }}</option>
+                <option value="webp">{{ $t('WebP') }}</option>
+                <option value="png">{{ $t('PNG') }}</option>
+                <option value="jpeg">{{ $t('JPG / JPEG') }}</option>
+                <option value="gif">{{ $t('GIF') }}</option>
+                <option value="svg">{{ $t('SVG') }}</option>
               </select>
               <span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-soft">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -409,13 +409,13 @@
                 v-model="sortBy"
                 class="appearance-none w-full bg-input text-xs border border-border rounded-btn pl-3 pr-8 h-9 text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 cursor-pointer transition-all"
               >
-                <option v-if="currentFolder !== 'all' && currentFolder !== 'uncategorized'" value="custom">Arranged Order</option>
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="alphabetical">Name A-Z</option>
-                <option value="alphabetical-desc">Name Z-A</option>
-                <option value="largest-size">Largest Size</option>
-                <option value="smallest-size">Smallest Size</option>
+                <option v-if="currentFolder !== 'all' && currentFolder !== 'uncategorized'" value="custom">{{ $t('mediaLibrary.arrangedOrder') }}</option>
+                <option value="newest">{{ $t('mediaLibrary.newestFirst') }}</option>
+                <option value="oldest">{{ $t('mediaLibrary.oldestFirst') }}</option>
+                <option value="alphabetical">{{ $t('mediaLibrary.nameAZ') }}</option>
+                <option value="alphabetical-desc">{{ $t('mediaLibrary.nameZA') }}</option>
+                <option value="largest-size">{{ $t('mediaLibrary.largestSize') }}</option>
+                <option value="smallest-size">{{ $t('mediaLibrary.smallestSize') }}</option>
               </select>
               <span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-soft">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -434,18 +434,18 @@
                 class="px-2.5 lg:px-3 py-1 text-xs font-semibold transition-all duration-200 rounded-[8px] h-7 flex items-center justify-center whitespace-nowrap"
                 :class="objectFit === 'cover' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main'"
                 @click="objectFit = 'cover'"
-                title="Fill aspect ratio"
+                :title="$t('mediaLibrary.cover')"
               >
-                Cover
+                {{ $t('mediaLibrary.cover') }}
               </button>
               <button
                 type="button"
                 class="px-2.5 lg:px-3 py-1 text-xs font-semibold transition-all duration-200 rounded-[8px] h-7 flex items-center justify-center whitespace-nowrap"
                 :class="objectFit === 'contain' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main'"
                 @click="objectFit = 'contain'"
-                title="Contain logo / SVG"
+                :title="$t('mediaLibrary.contain')"
               >
-                Contain
+                {{ $t('mediaLibrary.contain') }}
               </button>
             </div>
 
@@ -456,27 +456,27 @@
                 class="px-2.5 lg:px-3 py-1 text-xs font-semibold transition-all duration-200 rounded-[8px] h-7 flex items-center justify-center whitespace-nowrap"
                 :class="viewMode === 'comfortable' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main'"
                 @click="viewMode = 'comfortable'"
-                title="Comfortable Grid"
+                :title="$t('mediaLibrary.comfort')"
               >
-                Comfort
+                {{ $t('mediaLibrary.comfort') }}
               </button>
               <button
                 type="button"
                 class="px-2.5 lg:px-3 py-1 text-xs font-semibold transition-all duration-200 rounded-[8px] h-7 flex items-center justify-center whitespace-nowrap"
                 :class="viewMode === 'compact' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main'"
                 @click="viewMode = 'compact'"
-                title="Compact Grid"
+                :title="$t('mediaLibrary.compact')"
               >
-                Compact
+                {{ $t('mediaLibrary.compact') }}
               </button>
               <button
                 type="button"
                 class="px-2.5 lg:px-3 py-1 text-xs font-semibold transition-all duration-200 rounded-[8px] h-7 flex items-center justify-center whitespace-nowrap"
                 :class="viewMode === 'list' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main'"
                 @click="viewMode = 'list'"
-                title="List Tabular View"
+                :title="$t('mediaLibrary.list')"
               >
-                List
+                {{ $t('mediaLibrary.list') }}
               </button>
             </div>
           </div>
@@ -487,7 +487,7 @@
           <div class="flex items-center gap-1.5 flex-wrap">
             <span class="font-bold text-text-main shrink-0 capitalize">{{ currentFolderTitle }}</span>
             <span class="text-text-muted shrink-0">·</span>
-            <span class="text-text-muted font-medium shrink-0">{{ filteredLibrary.length }} result{{ filteredLibrary.length === 1 ? '' : 's' }}</span>
+            <span class="text-text-muted font-medium shrink-0">{{ $t('mediaLibrary.resultsCount', { count: filteredLibrary.length }) }}</span>
             
             <button
               v-if="currentFolder !== 'all' && currentFolder !== 'uncategorized' && canOrganize"
@@ -500,7 +500,7 @@
                 <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
                 <line x1="12" y1="22.08" x2="12" y2="12" />
               </svg>
-              Arrange Images
+              {{ $t('mediaLibrary.arrangeImages') }}
             </button>
 
             <button
@@ -509,18 +509,18 @@
               class="text-primary hover:underline font-semibold text-[11px] ml-2 shrink-0"
               @click="resetAllFilters"
             >
-              Reset Filters
+              {{ $t('mediaLibrary.resetFilters') }}
             </button>
           </div>
 
           <div class="flex items-center gap-2">
             <label class="flex items-center gap-1.5 cursor-pointer text-text-muted font-semibold">
               <input type="checkbox" v-model="filterMyUploads" class="rounded border-border text-primary focus:ring-primary/20" />
-              My Uploads
+              {{ $t('mediaLibrary.myUploads') }}
             </label>
             <span class="text-text-muted">·</span>
             <button type="button" class="text-text-muted hover:text-text-main font-semibold" @click="toggleSelectAll">
-              {{ selectedImageKeys.length === filteredLibrary.length && filteredLibrary.length > 0 ? 'Deselect All' : 'Select All' }}
+              {{ selectedImageKeys.length === filteredLibrary.length && filteredLibrary.length > 0 ? $t('mediaLibrary.deselectAll') : $t('mediaLibrary.selectAll') }}
             </button>
           </div>
         </div>
@@ -533,10 +533,10 @@
           <div class="flex items-center justify-between border-b border-border pb-3 flex-wrap gap-3">
             <div>
               <h3 class="text-sm font-bold text-text-main flex items-center gap-1.5">
-                Arrange Images in "{{ currentFolderTitle }}"
+                {{ $t('mediaLibrary.arrangeImagesIn', { name: currentFolderTitle }) }}
               </h3>
               <p class="text-xs text-text-muted mt-0.5">
-                Drag images to set gallery order, choose one feature image, and save changes.
+                {{ $t('mediaLibrary.dragImagesInstruction') }}
               </p>
             </div>
             <div class="flex items-center gap-2">
@@ -545,21 +545,21 @@
                 class="btn-secondary py-1.5 px-3 text-xs font-semibold h-8 rounded-btn"
                 @click="cancelOrganize"
               >
-                Cancel
+                {{ $t('mediaLibrary.cancel') }}
               </button>
               <button
                 type="button"
                 class="btn-primary py-1.5 px-4 text-xs font-semibold h-8 rounded-btn flex items-center gap-1 shadow-sm"
                 @click="saveOrganizeOrder"
               >
-                Save Order
+                {{ $t('mediaLibrary.saveOrder') }}
               </button>
             </div>
           </div>
 
           <!-- 2. Feature Image Selection Zone -->
           <div class="space-y-2">
-            <h4 class="text-xs font-bold text-text-main uppercase tracking-wider">Feature Image</h4>
+            <h4 class="text-xs font-bold text-text-main uppercase tracking-wider">{{ $t('mediaLibrary.featureImage') }}</h4>
             
             <!-- Dropzone for Feature Image -->
             <div
@@ -580,7 +580,7 @@
                 <div class="relative w-40 h-40 shrink-0 rounded-btn border-2 border-primary overflow-hidden bg-soft shadow-md scale-[1.02]">
                   <img :src="getFeatureImage()?.url" class="w-full h-full object-cover" />
                   <span class="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[8px] font-bold bg-primary text-white uppercase tracking-wider shadow-sm">
-                    FEATURE IMAGE
+                    {{ $t('mediaLibrary.featureImageBadge') }}
                   </span>
                 </div>
                 <div class="flex-1 space-y-2 text-xs">
@@ -591,21 +591,21 @@
                       class="btn-secondary py-1 px-2.5 text-[11px] rounded"
                       @click="previewImage(getFeatureImage())"
                     >
-                      Preview
+                      {{ $t('mediaLibrary.preview') }}
                     </button>
                     <button
                       type="button"
                       class="btn-secondary py-1 px-2.5 text-[11px] rounded"
                       @click="copyUrl(getFeatureImage()!)"
                     >
-                      Copy URL
+                      {{ $t('mediaLibrary.copyUrl') }}
                     </button>
                     <button
                       type="button"
                       class="btn-danger py-1 px-2.5 text-[11px] rounded font-semibold text-status-rejected-fg bg-status-rejected-bg/20 border border-status-rejected-fg/30 hover:bg-status-rejected-bg/40"
                       @click="removeFeature"
                     >
-                      Remove Feature
+                      {{ $t('mediaLibrary.removeFeature') }}
                     </button>
                   </div>
                 </div>
@@ -618,9 +618,9 @@
                   <polyline points="2 17 12 22 22 17" />
                   <polyline points="2 12 12 17 22 12" />
                 </svg>
-                <p class="font-bold text-xs text-text-main">No feature image selected.</p>
+                <p class="font-bold text-xs text-text-main">{{ $t('mediaLibrary.noFeatureSelected') }}</p>
                 <p class="text-[11px] text-text-muted mt-1">
-                  Drag a gallery image here, or click "Set Feature" on any image card below.
+                  {{ $t('mediaLibrary.dragGalleryImageInstruction') }}
                 </p>
               </div>
             </div>
@@ -628,10 +628,10 @@
 
           <!-- 3. Gallery Ordering Zone -->
           <div class="space-y-2">
-            <h4 class="text-xs font-bold text-text-main uppercase tracking-wider">Gallery Images</h4>
+            <h4 class="text-xs font-bold text-text-main uppercase tracking-wider">{{ $t('mediaLibrary.galleryImages') }}</h4>
             
             <div v-if="!organizeImages.length" class="text-center p-8 border border-border border-dashed rounded-btn text-text-muted italic bg-soft/5">
-              No gallery images remaining in this folder.
+              {{ $t('mediaLibrary.noGalleryImagesRemaining') }}
             </div>
             
             <div
@@ -664,7 +664,7 @@
                   <!-- Drag Handle -->
                   <div 
                     class="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white cursor-grab hover:bg-black/80 shadow-sm border border-border/20 active:cursor-grabbing shrink-0 flex items-center justify-center"
-                    title="Drag to reorder"
+                    :title="$t('Drag to reorder')"
                   >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                       <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
@@ -685,7 +685,7 @@
                         class="btn-secondary p-1 rounded hover:bg-soft text-text-muted hover:text-text-main h-6 w-6 flex items-center justify-center shrink-0 disabled:opacity-20 disabled:pointer-events-none"
                         :disabled="index === 0"
                         @click="moveItem(index, -1)"
-                        title="Move Up"
+                        :title="$t('Move Up')"
                       >
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                           <polyline points="18 15 12 9 6 15" />
@@ -696,7 +696,7 @@
                         class="btn-secondary p-1 rounded hover:bg-soft text-text-muted hover:text-text-main h-6 w-6 flex items-center justify-center shrink-0 disabled:opacity-20 disabled:pointer-events-none"
                         :disabled="index === organizeImages.length - 1"
                         @click="moveItem(index, 1)"
-                        title="Move Down"
+                        :title="$t('Move Down')"
                       >
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                           <polyline points="6 9 12 15 18 9" />
@@ -709,14 +709,14 @@
                         class="btn-secondary py-0.5 px-1.5 text-[10px] rounded h-6"
                         @click="previewImage(img)"
                       >
-                        Preview
+                        {{ $t('mediaLibrary.preview') }}
                       </button>
                       <button
                         type="button"
                         class="btn-secondary py-0.5 px-1.5 text-[10px] rounded h-6 font-semibold"
                         @click="setAsFeature(img.key)"
                       >
-                        Set Feature
+                        {{ $t('mediaLibrary.setAsFeature') }}
                       </button>
                     </div>
                   </div>
@@ -734,14 +734,14 @@
               <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" />
             </svg>
           </div>
-          <p class="font-bold text-sm text-text-main">No images in your library yet.</p>
-          <p class="text-xs text-text-muted mt-1 max-w-sm">Use the expandable dropzone above to drag, paste, or select your first files!</p>
+          <p class="font-bold text-sm text-text-main">{{ $t('mediaLibrary.noImagesInLibrary') }}</p>
+          <p class="text-xs text-text-muted mt-1 max-w-sm">{{ $t('mediaLibrary.useDropzoneInstruction') }}</p>
         </div>
 
-        <div v-else-if="!filteredLibrary.length" class="p-10 text-center text-text-muted italic flex flex-col items-center justify-center min-h-[300px]">
-          <p class="font-bold text-sm text-text-main">No images found matching these filters.</p>
-          <p class="text-xs text-text-muted mt-1">Try relaxing your search terms or folder selections.</p>
-          <button type="button" class="btn-secondary mt-3 py-1 px-3 text-xs" @click="resetAllFilters">Reset Filters</button>
+        <div v-if="!filteredLibrary.length" class="p-10 text-center text-text-muted italic flex flex-col items-center justify-center min-h-[300px]">
+          <p class="font-bold text-sm text-text-main">{{ $t('mediaLibrary.noImagesFoundFilters') }}</p>
+          <p class="text-xs text-text-muted mt-1">{{ $t('mediaLibrary.tryRelaxingFilters') }}</p>
+          <button type="button" class="btn-secondary mt-3 py-1 px-3 text-xs" @click="resetAllFilters">{{ $t('mediaLibrary.resetFilters') }}</button>
         </div>
 
         <!-- ── GRID: COMFORTABLE VIEW ── -->
@@ -766,7 +766,7 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span class="text-[9px] font-bold text-white uppercase tracking-wider">{{ item.status }}...</span>
+                <span class="text-[9px] font-bold text-white uppercase tracking-wider">{{ $t('mediaLibrary.' + item.status) }}...</span>
               </div>
 
               <!-- Failed Overlay -->
@@ -774,7 +774,7 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" class="mb-1">
                   <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
-                <span class="text-[9px] font-bold text-status-needs-fix-fg uppercase tracking-wider">Upload Failed</span>
+                <span class="text-[9px] font-bold text-status-needs-fix-fg uppercase tracking-wider">{{ $t('mediaLibrary.uploadFailed') }}</span>
               </div>
             </div>
 
@@ -784,7 +784,7 @@
                 {{ item.name }}
               </div>
               <div class="flex items-center justify-between text-[10px] text-text-muted font-medium">
-                <span class="truncate">Saving to folder...</span>
+                <span class="truncate">{{ $t('mediaLibrary.savingToFolder') }}</span>
               </div>
 
               <div class="w-full bg-soft rounded-full h-1 overflow-hidden">
@@ -797,14 +797,14 @@
 
               <div v-if="item.status === 'failed'" class="flex gap-1.5 mt-1" @click.stop>
                 <button type="button" class="btn-primary py-1 px-2 text-[10px] h-6 flex-1 flex items-center justify-center" @click="retryUploadItem(item)">
-                  Retry
+                  {{ $t('mediaLibrary.retry') }}
                 </button>
                 <button type="button" class="btn-secondary py-1 px-2 text-[10px] h-6 flex-1 flex items-center justify-center" @click="removeUploadItem(item.id)">
-                  Remove
+                  {{ $t('mediaLibrary.remove') }}
                 </button>
               </div>
               <div v-else class="h-6 mt-1 opacity-20 pointer-events-none flex gap-1.5">
-                <div class="btn-secondary py-1 px-2 text-[10px] h-6 flex-1 text-center">Processing...</div>
+                <div class="btn-secondary py-1 px-2 text-[10px] h-6 flex-1 text-center">{{ $t('mediaLibrary.processing') }}...</div>
               </div>
             </div>
           </div>
@@ -847,10 +847,10 @@
               <!-- Badge overlay -->
               <div v-if="currentFolder !== 'all' && currentFolder !== 'uncategorized'" class="absolute bottom-2 left-2 z-10 pointer-events-none">
                 <span v-if="img.isFeatureImage" class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-primary text-white uppercase tracking-wider shadow-sm border border-primary/20">
-                  FEATURE IMAGE
+                  {{ $t('mediaLibrary.featureImageBadge') }}
                 </span>
                 <span v-else-if="img.sortOrder > 0 && img.sortOrder !== 9999" class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-zinc-800 text-white shadow-sm border border-border/50">
-                  Gallery #{{ img.sortOrder }}
+                  #{{ img.sortOrder }}
                 </span>
               </div>
             </div>
@@ -888,7 +888,7 @@
                   @change="(e) => moveImage(img.key, (e.target as HTMLSelectElement).value || null)"
                   class="w-full border-0 bg-transparent p-0 text-[10px] text-text-muted outline-none font-semibold cursor-pointer"
                 >
-                  <option value="">Uncategorized</option>
+                  <option value="">{{ $t('mediaLibrary.uncategorized') }}</option>
                   <option v-for="f in customFolders" :key="f.id" :value="f.id">{{ f.name }}</option>
                 </select>
               </div>
@@ -896,7 +896,7 @@
 
             <!-- Overlay Actions (Hover only) -->
             <div class="absolute right-2 top-2 z-10 opacity-0 group-hover:opacity-100 transition flex gap-1 bg-card/90 border border-border p-1 rounded shadow-md" @click.stop>
-              <button type="button" class="p-1 hover:text-primary text-text-muted rounded" @click="copyUrl(img)" title="Copy URL">
+              <button type="button" class="p-1 hover:text-primary text-text-muted rounded" @click="copyUrl(img)" :title="$t('mediaLibrary.copyUrl')">
                 <span v-html="ICON_SVG.copy" />
               </button>
               <button
@@ -904,7 +904,7 @@
                 type="button"
                 class="p-1 hover:text-status-needs-fix-fg text-text-muted rounded"
                 @click="deleteImage(img)"
-                title="Delete Image"
+                :title="$t('mediaLibrary.deleteImage')"
               >
                 <span v-html="ICON_SVG.trash" />
               </button>
@@ -929,12 +929,12 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span class="text-[8px] font-bold text-white uppercase tracking-wider mt-1 truncate max-w-full px-1">{{ item.status }}</span>
+                <span class="text-[8px] font-bold text-white uppercase tracking-wider mt-1 truncate max-w-full px-1">{{ $t('mediaLibrary.' + item.status) }}</span>
               </div>
-              <div v-else class="absolute inset-0 bg-status-needs-fix-bg/85 flex flex-col items-center justify-center text-center p-1" @click.stop>
-                <span class="text-[8px] font-bold text-status-needs-fix-fg uppercase tracking-wider block">Failed</span>
+              <div class="absolute inset-0 bg-status-needs-fix-bg/85 flex flex-col items-center justify-center text-center p-1" v-else @click.stop>
+                <span class="text-[8px] font-bold text-status-needs-fix-fg uppercase tracking-wider block">{{ $t('mediaLibrary.failed') }}</span>
                 <div class="flex gap-1 mt-1">
-                  <button type="button" class="bg-primary text-white text-[8px] font-bold px-1 rounded hover:bg-primary-hover" @click="retryUploadItem(item)">Retry</button>
+                  <button type="button" class="bg-primary text-white text-[8px] font-bold px-1 rounded hover:bg-primary-hover" @click="retryUploadItem(item)">{{ $t('mediaLibrary.retry') }}</button>
                   <button type="button" class="bg-card text-text-main border border-border text-[8px] font-bold px-1 rounded" @click="removeUploadItem(item.id)">✕</button>
                 </div>
               </div>
@@ -979,7 +979,7 @@
               <!-- Badge overlay -->
               <div v-if="currentFolder !== 'all' && currentFolder !== 'uncategorized'" class="absolute bottom-1.5 left-1.5 z-10 pointer-events-none scale-90 origin-bottom-left">
                 <span v-if="img.isFeatureImage" class="px-1 py-0.5 rounded text-[8px] font-bold bg-primary text-white uppercase tracking-wider shadow-sm border border-primary/20 animate-pulse">
-                  FEATURE
+                  {{ $t('mediaLibrary.cover') }}
                 </span>
                 <span v-else-if="img.sortOrder > 0 && img.sortOrder !== 9999" class="px-1 py-0.5 rounded text-[8px] font-bold bg-zinc-800 text-white shadow-sm border border-border/50">
                   #{{ img.sortOrder }}
@@ -994,7 +994,7 @@
 
             <!-- Actions (Hover only) -->
             <div class="absolute right-1 top-1 z-10 opacity-0 group-hover:opacity-100 transition flex gap-0.5 bg-card/90 border border-border p-0.5 rounded shadow" @click.stop>
-              <button type="button" class="p-0.5 hover:text-primary text-text-muted rounded scale-90" @click="copyUrl(img)" title="Copy URL">
+              <button type="button" class="p-0.5 hover:text-primary text-text-muted rounded scale-90" @click="copyUrl(img)" :title="$t('mediaLibrary.copyUrl')">
                 <span v-html="ICON_SVG.copy" />
               </button>
               <button
@@ -1002,7 +1002,7 @@
                 type="button"
                 class="p-0.5 hover:text-status-needs-fix-fg text-text-muted rounded scale-90"
                 @click="deleteImage(img)"
-                title="Delete Image"
+                :title="$t('mediaLibrary.deleteImage')"
               >
                 <span v-html="ICON_SVG.trash" />
               </button>
@@ -1015,14 +1015,14 @@
           <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="border-b border-border bg-soft/50">
-                <th class="px-4 py-2.5 w-8 table-head">Select</th>
-                <th class="px-4 py-2.5 w-12 table-head">Preview</th>
-                <th class="px-4 py-2.5 table-head">Name</th>
-                <th class="px-4 py-2.5 table-head">Folder</th>
-                <th class="px-4 py-2.5 table-head">Uploaded By</th>
-                <th class="px-4 py-2.5 table-head">Date</th>
-                <th class="px-4 py-2.5 table-head">Size</th>
-                <th class="px-4 py-2.5 table-head text-right">Actions</th>
+                <th class="px-4 py-2.5 w-8 table-head">{{ $t('mediaLibrary.selectHeader') }}</th>
+                <th class="px-4 py-2.5 w-12 table-head">{{ $t('mediaLibrary.previewHeader') }}</th>
+                <th class="px-4 py-2.5 table-head">{{ $t('mediaLibrary.nameHeader') }}</th>
+                <th class="px-4 py-2.5 table-head">{{ $t('mediaLibrary.folderHeader') }}</th>
+                <th class="px-4 py-2.5 table-head">{{ $t('mediaLibrary.uploaderHeader') }}</th>
+                <th class="px-4 py-2.5 table-head">{{ $t('mediaLibrary.dateHeader') }}</th>
+                <th class="px-4 py-2.5 table-head">{{ $t('mediaLibrary.sizeHeader') }}</th>
+                <th class="px-4 py-2.5 table-head text-right">{{ $t('mediaLibrary.actionsHeader') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -1044,22 +1044,22 @@
                 </td>
                 <td class="px-4 py-2 font-semibold text-text-main max-w-xs truncate">
                   {{ item.name }}
-                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary ml-2 uppercase font-bold tracking-wider animate-pulse inline-block">{{ item.status }}</span>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary ml-2 uppercase font-bold tracking-wider animate-pulse inline-block">{{ $t('mediaLibrary.' + item.status) }}</span>
                 </td>
                 <td class="px-4 py-2 text-text-soft font-light">{{ currentFolderTitle }}</td>
-                <td class="px-4 py-2 text-text-muted truncate">Uploading...</td>
+                <td class="px-4 py-2 text-text-muted truncate">{{ $t('mediaLibrary.uploading') }}...</td>
                 <td class="px-4 py-2 text-text-soft font-light">-</td>
                 <td class="px-4 py-2 text-text-soft font-light">{{ item.file.size ? fmt(item.file.size) : '-' }}</td>
                 <td class="px-4 py-2 text-right">
                   <div v-if="item.status === 'failed'" class="flex items-center justify-end gap-1.5">
                     <button type="button" class="btn-primary py-0.5 px-2 text-[10px] h-6 flex items-center" @click="retryUploadItem(item)">
-                      Retry
+                      {{ $t('mediaLibrary.retry') }}
                     </button>
                     <button type="button" class="btn-secondary py-0.5 px-1 h-6 text-status-needs-fix-fg flex items-center" @click="removeUploadItem(item.id)">
-                      Remove
+                      {{ $t('mediaLibrary.remove') }}
                     </button>
                   </div>
-                  <span v-else class="text-[10px] text-text-soft italic">Pending...</span>
+                  <span v-else class="text-[10px] text-text-soft italic">{{ $t('mediaLibrary.processing') }}...</span>
                 </td>
               </tr>
 
@@ -1099,7 +1099,7 @@
                     <span class="align-middle" @click.stop="startRenameImage(img)">{{ img.displayName }}</span>
                     <!-- Badges for list view -->
                     <span v-if="currentFolder !== 'all' && currentFolder !== 'uncategorized' && img.isFeatureImage" class="ml-2 px-1.5 py-0.5 rounded text-[8px] font-bold bg-primary text-white uppercase tracking-wider shadow-sm align-middle">
-                      FEATURE IMAGE
+                      {{ $t('FEATURE IMAGE') }}
                     </span>
                     <span v-else-if="currentFolder !== 'all' && currentFolder !== 'uncategorized' && img.sortOrder > 0 && img.sortOrder !== 9999" class="ml-2 px-1.5 py-0.5 rounded text-[8px] font-bold bg-zinc-800 text-white shadow-sm border border-border/50 align-middle">
                       #{{ img.sortOrder }}
@@ -1114,7 +1114,7 @@
                     @change="(e) => moveImage(img.key, (e.target as HTMLSelectElement).value || null)"
                     class="bg-soft border border-border/40 text-[11px] rounded px-1.5 py-0.5 text-text-muted focus:outline-none"
                   >
-                    <option value="">Uncategorized</option>
+                    <option value="">{{ $t('mediaLibrary.uncategorized') }}</option>
                     <option v-for="f in customFolders" :key="f.id" :value="f.id">{{ f.name }}</option>
                   </select>
                 </td>
@@ -1132,16 +1132,16 @@
                 <td class="px-4 py-2 text-right">
                   <div class="flex items-center justify-end gap-1.5">
                     <button type="button" class="btn-secondary p-1 h-7 text-[10px] flex items-center gap-1" @click="copyUrl(img)">
-                      Copy URL
+                      {{ $t('mediaLibrary.copyUrl') }}
                     </button>
                     <button
                       v-if="canManageImage(img)"
                       type="button"
                       class="btn-secondary p-1 h-7 text-status-needs-fix-fg hover:bg-status-needs-fix-bg/10 border-status-needs-fix-bg/60"
                       @click="deleteImage(img)"
-                      title="Delete Image"
+                      :title="$t('mediaLibrary.deleteImage')"
                     >
-                      Delete
+                      {{ $t('mediaLibrary.delete') }}
                     </button>
                   </div>
                 </td>
@@ -1157,7 +1157,7 @@
           class="img-loadmore text-xs uppercase"
           @click="visibleCount += 24"
         >
-          Load More ({{ filteredLibrary.length - visibleCount }} items remaining)
+          {{ $t('mediaLibrary.loadMore', { count: filteredLibrary.length - visibleCount }) }}
         </button>
 
         <!-- Folder Info Preview Card -->
@@ -1170,16 +1170,16 @@
             <div class="space-y-1 min-w-0 flex-1">
               <h2 class="text-sm font-extrabold text-text-main leading-tight flex items-center gap-2">
                 <span>{{ activeFolderObj.name }}</span>
-                <span class="text-text-soft font-light text-xs">Folder Info</span>
+                <span class="text-text-soft font-light text-xs">{{ $t('mediaLibrary.folderInfoCol') }}</span>
               </h2>
               <div class="flex items-center gap-2 text-xs text-text-muted">
-                <span>{{ activeFolderObjStats.imageCount }} images</span>
+                <span>{{ $t('mediaLibrary.imagesCount', { count: activeFolderObjStats.imageCount }) }}</span>
                 <span class="text-text-muted/40">•</span>
                 <span :class="activeFolderObjStats.hasFeature ? 'text-primary font-bold' : 'text-status-needs-fix-fg font-semibold'">
-                  {{ activeFolderObjStats.hasFeature ? 'Feature selected' : 'No feature image' }}
+                  {{ activeFolderObjStats.hasFeature ? $t('mediaLibrary.featureSelected') : $t('mediaLibrary.noFeatureImage') }}
                 </span>
                 <span class="text-text-muted/40">•</span>
-                <span>{{ activeFolderObjStats.orderedCount }} ordered</span>
+                <span>{{ $t('mediaLibrary.orderedCount', { count: activeFolderObjStats.orderedCount }) }}</span>
               </div>
             </div>
 
@@ -1193,7 +1193,7 @@
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
               </svg>
-              {{ hasFolderContent(activeFolderObj) ? 'Edit Folder Info' : 'Add Folder Info' }}
+              {{ hasFolderContent(activeFolderObj) ? $t('mediaLibrary.editFolderInfo') : $t('mediaLibrary.addFolderInfo') }}
             </button>
           </div>
 
@@ -1201,7 +1201,7 @@
           <div v-if="hasFolderContent(activeFolderObj)" class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-border/40 pt-3 text-xs">
             <div class="md:col-span-2 space-y-3.5">
               <div v-if="activeFolderObj.short_description">
-                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">Short Description</span>
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.shortDescription') }}</span>
                 <p class="text-text-main font-medium leading-relaxed">
                   {{ activeFolderObj.short_description }}
                 </p>
@@ -1209,14 +1209,14 @@
 
               <!-- Full description View option (renders HTML from rich editor) -->
               <div v-if="activeFolderObj.description">
-                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">Full Description</span>
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.fullDescription') }}</span>
                 <div class="fde-preview text-text-main font-light leading-relaxed max-h-40 overflow-y-auto text-xs" v-html="activeFolderObj.description"></div>
               </div>
             </div>
 
             <div class="space-y-3 md:border-l md:border-border/40 md:pl-4">
               <div>
-                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">Button URL</span>
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.buttonUrl') }}</span>
                 <div v-if="activeFolderObj.button_url" class="flex items-center gap-1.5">
                   <a
                     :href="activeFolderObj.button_url"
@@ -1224,24 +1224,24 @@
                     rel="noopener noreferrer"
                     class="text-primary hover:underline font-bold break-all flex items-center gap-1"
                   >
-                    <span>Open Link</span>
+                    <span>{{ $t('mediaLibrary.openLink') }}</span>
                     <svg class="w-3 h-3 inline shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                     </svg>
                   </a>
                 </div>
-                <span v-else class="text-text-muted italic">No link added</span>
+                <span v-else class="text-text-muted italic">{{ $t('mediaLibrary.noLinkAdded') }}</span>
               </div>
 
               <div v-if="activeFolderObj.updated_at">
-                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">Last Updated</span>
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.lastUpdated') }}</span>
                 <span class="text-text-muted font-mono font-medium">{{ fmtDateFull(activeFolderObj.updated_at) }}</span>
               </div>
             </div>
           </div>
           
           <div v-else class="text-xs text-text-muted italic flex items-center justify-between border-t border-border/40 pt-3">
-            <span>No folder description added yet.</span>
+            <span>{{ $t('mediaLibrary.noFolderDescriptionAdded') }}</span>
           </div>
         </div>
         </template>
@@ -1261,17 +1261,17 @@
     >
       <!-- Drawer Header -->
       <div class="flex items-center justify-between border-b border-border px-5 py-4 shrink-0">
-        <h3 class="text-sm font-bold text-text-main">Image Details</h3>
+        <h3 class="text-sm font-bold text-text-main">{{ $t('mediaLibrary.imageDetails') }}</h3>
         <div class="flex items-center gap-2">
           <!-- Keyboard navigation indicator / arrows -->
           <div class="flex border border-border/80 rounded overflow-hidden mr-2 bg-soft/40">
-            <button type="button" class="p-1.5 hover:bg-soft text-text-muted" @click="selectPreviousImage" title="Previous Image (Left Arrow)">
+            <button type="button" class="p-1.5 hover:bg-soft text-text-muted" @click="selectPreviousImage" :title="$t('Previous Image (Left Arrow)')">
               <span v-html="ICON_SVG.arrowLeft" />
             </button>
             <span class="px-2.5 py-1 text-[11px] font-bold text-text-muted flex items-center justify-center bg-soft/10">
               {{ activeImageIndex + 1 }} / {{ filteredLibrary.length }}
             </span>
-            <button type="button" class="p-1.5 hover:bg-soft text-text-muted" @click="selectNextImage" title="Next Image (Right Arrow)">
+            <button type="button" class="p-1.5 hover:bg-soft text-text-muted" @click="selectNextImage" :title="$t('Next Image (Right Arrow)')">
               <span v-html="ICON_SVG.arrowRight" />
             </button>
           </div>
@@ -1290,14 +1290,14 @@
             :alt="selectedImage.displayName"
             class="max-w-full max-h-[280px] rounded object-contain select-none cursor-pointer"
             @click="openUrlInNewTab(selectedImage.url)"
-            title="Click to view full screen"
+            :title="$t('Click to view full screen')"
           />
         </div>
 
         <!-- Image Info -->
         <div class="space-y-4">
           <div>
-            <label class="text-[10px] font-bold uppercase tracking-wider text-text-soft">Image Title</label>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-text-soft">{{ $t('mediaLibrary.imageTitle') }}</label>
             <input
               v-if="canManageImage(selectedImage)"
               v-model="renameImageInput"
@@ -1312,43 +1312,43 @@
           <!-- Metadata table -->
           <div class="grid grid-cols-2 gap-3 text-xs bg-soft/50 rounded-btn p-3">
             <div>
-              <span class="text-text-muted">Folder</span>
+              <span class="text-text-muted">{{ $t('mediaLibrary.folder') }}</span>
               <div class="mt-1 font-semibold text-text-main" @click.stop>
                 <select
                   :value="selectedImage.folderId || ''"
                   @change="(e) => moveImage(selectedImage!.key, (e.target as HTMLSelectElement).value || null)"
                   class="bg-transparent border-0 p-0 text-xs font-semibold text-text-main focus:outline-none cursor-pointer"
                 >
-                  <option value="">Uncategorized</option>
+                  <option value="">{{ $t('mediaLibrary.uncategorized') }}</option>
                   <option v-for="f in customFolders" :key="f.id" :value="f.id">{{ f.name }}</option>
                 </select>
               </div>
             </div>
             <div>
-              <span class="text-text-muted">Uploaded By</span>
+              <span class="text-text-muted">{{ $t('mediaLibrary.uploaderHeader') }}</span>
               <div class="mt-1 font-semibold text-text-main">{{ selectedImage.uploaderName }}</div>
             </div>
             <div>
-              <span class="text-text-muted">Upload Date</span>
+              <span class="text-text-muted">{{ $t('mediaLibrary.uploadDate') }}</span>
               <div class="mt-1 font-semibold text-text-main">{{ fmtDateFull(selectedImage.createdAt) }}</div>
             </div>
             <div>
-              <span class="text-text-muted">Dimensions</span>
+              <span class="text-text-muted">{{ $t('mediaLibrary.dimensions') }}</span>
               <div class="mt-1 font-semibold text-text-main font-mono text-[11px]">{{ imageDimensions }}</div>
             </div>
             <div>
-              <span class="text-text-muted">File Type</span>
+              <span class="text-text-muted">{{ $t('mediaLibrary.fileType') }}</span>
               <div class="mt-1 font-semibold text-text-main">{{ selectedImage.fileType }}</div>
             </div>
             <div>
-              <span class="text-text-muted">File Size</span>
+              <span class="text-text-muted">{{ $t('mediaLibrary.fileSize') }}</span>
               <div class="mt-1 font-semibold text-text-main">{{ fmt(selectedImage.fileSize) }}</div>
             </div>
           </div>
 
           <!-- URL bar -->
           <div>
-            <label class="text-[10px] font-bold uppercase tracking-wider text-text-soft">Image URL</label>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-text-soft">{{ $t('mediaLibrary.imageUrl') }}</label>
             <div class="flex gap-2 mt-1">
               <input
                 type="text"
@@ -1358,7 +1358,7 @@
                 @click="(e) => (e.target as HTMLInputElement).select()"
               />
               <button type="button" class="btn-secondary h-8 py-1.5 px-3 text-xs" @click="copyUrl(selectedImage)">
-                Copy
+                {{ $t('mediaLibrary.copy') }}
               </button>
             </div>
           </div>
@@ -1367,14 +1367,14 @@
 
       <!-- Drawer Footer (Quick Actions) -->
       <div v-if="selectedImage" class="border-t border-border bg-soft/40 px-5 py-4 shrink-0 flex flex-col gap-2">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-text-soft mb-1">Actions</div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-text-soft mb-1">{{ $t('mediaLibrary.actionsHeader') }}</div>
         <div class="grid grid-cols-2 gap-2">
           <a :href="selectedImage.url" target="_blank" rel="noopener" class="btn-secondary py-2 text-xs flex justify-center items-center">
-            Open Original
+            {{ $t('mediaLibrary.openOriginal') }}
           </a>
           <button type="button" class="btn-secondary py-2 text-xs flex justify-center items-center gap-1.5" @click="downloadSingleImage(selectedImage)">
             <span v-html="ICON_SVG.download" />
-            Download
+            {{ $t('mediaLibrary.download') }}
           </button>
           <button
             v-if="canManageImage(selectedImage)"
@@ -1382,7 +1382,7 @@
             class="btn-danger py-2 text-xs col-span-2 flex justify-center items-center"
             @click="deleteImage(selectedImage)"
           >
-            Delete Permanently
+            {{ $t('mediaLibrary.deletePermanently') }}
           </button>
         </div>
       </div>
@@ -1397,7 +1397,7 @@
         <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold">
           {{ selectedImageKeys.length }}
         </span>
-        <span class="text-xs font-bold text-text-main">selected</span>
+        <span class="text-xs font-bold text-text-main">{{ $t('mediaLibrary.selected') }}</span>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
@@ -1409,26 +1409,26 @@
             @change="(e) => bulkMoveToFolder((e.target as HTMLSelectElement).value || null)"
             value=""
           >
-            <option value="" disabled selected>Move to...</option>
-            <option value="">Uncategorized</option>
+            <option value="" disabled selected>{{ $t('mediaLibrary.moveTo') }}</option>
+            <option value="">{{ $t('mediaLibrary.uncategorized') }}</option>
             <option v-for="f in customFolders" :key="f.id" :value="f.id">{{ f.name }}</option>
           </select>
         </div>
 
         <button type="button" class="btn-secondary h-8 py-1.5 px-3 text-xs" @click="bulkCopyUrls">
-          Copy URLs
+          {{ $t('mediaLibrary.copyUrls') }}
         </button>
         
-        <button type="button" class="btn-secondary h-8 py-1.5 px-3 text-xs" @click="bulkDownloadSelected" title="Download as files">
-          Download
+        <button type="button" class="btn-secondary h-8 py-1.5 px-3 text-xs" @click="bulkDownloadSelected" :title="$t('mediaLibrary.download')">
+          {{ $t('mediaLibrary.download') }}
         </button>
 
         <button type="button" class="btn-danger h-8 py-1.5 px-3 text-xs" @click="bulkDeleteSelected">
-          Delete
+          {{ $t('mediaLibrary.delete') }}
         </button>
         
         <button type="button" class="btn-ghost h-8 px-2 text-xs font-bold text-text-muted hover:text-text-main" @click="clearSelection">
-          Cancel
+          {{ $t('mediaLibrary.cancel') }}
         </button>
       </div>
     </div>
@@ -1454,7 +1454,7 @@
         @click.stop
       >
         <div class="flex items-center justify-between border-b border-border pb-2">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">Folder: {{ mobileFolderMenuFolder.name }}</h4>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">{{ $t('mediaLibrary.folder') }}: {{ mobileFolderMenuFolder.name }}</h4>
           <button class="text-text-muted hover:text-text-main p-1 font-bold text-xs" @click="mobileFolderMenuFolder = null">✕</button>
         </div>
         <div class="flex flex-col gap-2">
@@ -1464,7 +1464,7 @@
             class="w-full text-left py-2.5 px-3 text-xs font-semibold text-text-main hover:bg-soft rounded-btn"
             @click="startMobileFolderRename"
           >
-            Rename Folder
+            {{ $t('mediaLibrary.renameFolder') }}
           </button>
           <button
             v-if="canManageFolder(mobileFolderMenuFolder)"
@@ -1472,14 +1472,14 @@
             class="w-full text-left py-2.5 px-3 text-xs font-semibold text-status-needs-fix-fg hover:bg-soft rounded-btn"
             @click="deleteFolder(mobileFolderMenuFolder.id); mobileFolderMenuFolder = null"
           >
-            Delete Folder
+            {{ $t('mediaLibrary.deleteFolder') }}
           </button>
           <button
             type="button"
             class="w-full text-left py-2.5 px-3 text-xs font-semibold text-text-main hover:bg-soft rounded-btn"
             @click="copyFolderLink(mobileFolderMenuFolder.id); mobileFolderMenuFolder = null"
           >
-            Copy Link
+            {{ $t('mediaLibrary.copyLink') }}
           </button>
           <button
             v-if="selectedImageKeys.length > 0"
@@ -1487,7 +1487,7 @@
             class="w-full text-left py-2.5 px-3 text-xs font-bold text-primary hover:bg-soft rounded-btn border-t border-border/40 mt-1"
             @click="bulkMoveToFolder(mobileFolderMenuFolder.id); mobileFolderMenuFolder = null"
           >
-            Move Selected Images Here
+            {{ $t('mediaLibrary.moveSelectedHere') }}
           </button>
         </div>
       </div>
@@ -1496,8 +1496,8 @@
     <!-- ════════ CSV EXPORT MODAL ════════ -->
     <Modal
       :open="showExportModal"
-      title="Export Folders to CSV"
-      subtitle="Select folders and configure settings to export image URL orders."
+      :title="$t('mediaLibrary.exportFoldersTitle')"
+      :subtitle="$t('mediaLibrary.exportFoldersSubtitle')"
       size="xl"
       @close="showExportModal = false"
     >
@@ -1509,9 +1509,9 @@
           <!-- LEFT SIDE: Folders Selection List (Takes 7 columns of 12) -->
           <div class="lg:col-span-7 flex flex-col gap-2.5 min-w-0">
             <div class="flex items-center justify-between border-b border-border/40 pb-1.5">
-              <h3 class="text-[11px] font-bold text-text-soft uppercase tracking-wider">Select Folders</h3>
+              <h3 class="text-[11px] font-bold text-text-soft uppercase tracking-wider">{{ $t('mediaLibrary.selectFolders') }}</h3>
               <span class="text-text-muted font-mono text-[9px]">
-                Showing {{ filteredExportFolders.length }} of {{ exportFoldersList.length }} folders
+                {{ $t('mediaLibrary.showingFoldersCount', { count: filteredExportFolders.length, total: exportFoldersList.length }) }}
               </span>
             </div>
 
@@ -1527,7 +1527,7 @@
                 <input
                   type="text"
                   v-model="exportSearchQuery"
-                  placeholder="Search folders by name..."
+                  :placeholder="$t('mediaLibrary.searchFoldersByName')"
                   class="w-full pl-8 pr-7 py-1.5 bg-soft/20 border border-border rounded-xl text-[11px] text-text-main focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 placeholder-text-muted/65 transition-colors"
                 />
                 <button
@@ -1548,7 +1548,7 @@
                 class="btn-secondary h-8 px-3 text-[11px] font-semibold rounded-lg flex items-center gap-1 shrink-0 transition-all"
                 @click="clearExportSelection"
               >
-                Clear Selection
+                {{ $t('mediaLibrary.clearSelection') }}
               </button>
             </div>
 
@@ -1561,7 +1561,7 @@
                     v-model="isAllSelected"
                     class="rounded border-border text-primary focus:ring-primary/20 accent-primary cursor-pointer h-3 w-3"
                   />
-                  <span class="font-semibold">Select All</span>
+                  <span class="font-semibold">{{ $t('mediaLibrary.selectAll') }}</span>
                 </label>
                 
                 <label class="flex items-center gap-1.5 cursor-pointer select-none text-text-main hover:text-text-main/80 transition-colors">
@@ -1570,12 +1570,12 @@
                     v-model="exportImagesOnlyFilter"
                     class="rounded border-border text-primary focus:ring-primary/20 accent-primary cursor-pointer h-3 w-3"
                   />
-                  <span class="font-semibold">With images only</span>
+                  <span class="font-semibold">{{ $t('mediaLibrary.withImagesOnly') }}</span>
                 </label>
               </div>
 
               <span class="text-primary font-bold text-[9px] uppercase tracking-wider bg-primary/10 px-1.5 py-0.25 rounded border border-primary/20">
-                {{ selectedExportFolderIds.length }} Selected
+                {{ $t('mediaLibrary.selectedBadge', { count: selectedExportFolderIds.length }) }}
               </span>
             </div>
 
@@ -1605,11 +1605,11 @@
                       </span>
                     </div>
                     <div class="mt-0.5 text-[9px] text-text-muted flex items-center gap-1.5 flex-wrap">
-                      <span>{{ folder.imageCount }} images</span>
+                      <span>{{ $t('mediaLibrary.imagesCount', { count: folder.imageCount }) }}</span>
                       <span class="text-text-muted/40">•</span>
-                      <span>{{ folder.isVirtual ? 'N/A' : (folder.hasFeature ? 'Feature selected' : 'Feature missing') }}</span>
+                      <span>{{ folder.isVirtual ? 'N/A' : (folder.hasFeature ? $t('mediaLibrary.featureSelected') : $t('mediaLibrary.missingFeatureImage')) }}</span>
                       <span class="text-text-muted/40">•</span>
-                      <span>{{ folder.orderedCount }} ordered</span>
+                      <span>{{ $t('mediaLibrary.orderedCount', { count: folder.orderedCount }) }}</span>
                     </div>
                   </div>
 
@@ -1619,19 +1619,19 @@
                       v-if="folder.imageCount === 0"
                       class="px-1.5 py-0.25 rounded text-[7.5px] bg-status-needs-fix-bg/10 text-status-needs-fix-fg border border-status-needs-fix-bg/20 font-bold uppercase tracking-wide"
                     >
-                      Empty
+                      {{ $t('mediaLibrary.empty') }}
                     </span>
                     <span
                       v-else-if="!folder.isVirtual && !folder.hasFeature"
                       class="px-1.5 py-0.25 rounded text-[7.5px] bg-amber-500/10 text-amber-500 border border-amber-500/20 font-bold uppercase tracking-wide font-medium"
                     >
-                      Missing feature image
+                      {{ $t('mediaLibrary.missingFeatureImage') }}
                     </span>
                     <span
                       v-else
                       class="px-1.5 py-0.25 rounded text-[7.5px] bg-primary/10 text-primary border border-primary/20 font-bold uppercase tracking-wide"
                     >
-                      Ready
+                      {{ $t('mediaLibrary.ready') }}
                     </span>
                   </div>
                 </label>
@@ -1640,7 +1640,7 @@
                   <svg class="w-7 h-7 text-text-muted/30 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                   </svg>
-                  No folders match search or filters.
+                  {{ $t('mediaLibrary.noFoldersMatchSearch') }}
                 </div>
               </div>
             </div>
@@ -1652,7 +1652,7 @@
             <!-- Summary Section -->
             <div class="border border-border rounded-xl p-2 bg-soft/10 space-y-1.5">
               <h4 class="font-bold text-[8.5px] text-text-soft uppercase tracking-wider flex items-center justify-between">
-                <span>Export Summary</span>
+                <span>{{ $t('mediaLibrary.exportSummary') }}</span>
                 <span class="w-1 h-1 rounded-full bg-primary"></span>
               </h4>
               
@@ -1660,24 +1660,24 @@
               <div class="grid grid-cols-2 gap-1">
                 <!-- Selected Folders -->
                 <div class="bg-card/40 border border-border/50 rounded-lg p-1.5 flex flex-col justify-between">
-                  <span class="text-[7.5px] text-text-muted uppercase tracking-wider font-semibold">Selected folders</span>
+                  <span class="text-[7.5px] text-text-muted uppercase tracking-wider font-semibold">{{ $t('mediaLibrary.selectedFolders') }}</span>
                   <span class="text-xs font-extrabold text-text-main mt-0.5 leading-none">{{ selectedFoldersStats.count }}</span>
                 </div>
                 <!-- Ready Folders -->
                 <div class="bg-card/40 border border-border/50 rounded-lg p-1.5 flex flex-col justify-between">
-                  <span class="text-[7.5px] text-text-muted uppercase tracking-wider font-semibold">Ready folders</span>
+                  <span class="text-[7.5px] text-text-muted uppercase tracking-wider font-semibold">{{ $t('mediaLibrary.readyFolders') }}</span>
                   <span class="text-xs font-extrabold text-primary mt-0.5 leading-none">{{ selectedFoldersStats.readyFoldersCount }}</span>
                 </div>
                 <!-- Empty Folders Skipped -->
                 <div class="bg-card/40 border border-border/50 rounded-lg p-1.5 flex flex-col justify-between">
-                  <span class="text-[7.5px] text-text-muted uppercase tracking-wider font-semibold">Empty skipped</span>
+                  <span class="text-[7.5px] text-text-muted uppercase tracking-wider font-semibold">{{ $t('mediaLibrary.emptySkipped') }}</span>
                   <span class="text-xs font-extrabold mt-0.5 leading-none" :class="selectedFoldersStats.skippedEmpty > 0 ? 'text-status-needs-fix-fg font-black' : 'text-text-muted'">
                     {{ selectedFoldersStats.skippedEmpty }}
                   </span>
                 </div>
                 <!-- Missing Feature -->
                 <div class="bg-card/40 border border-border/50 rounded-lg p-1.5 flex flex-col justify-between">
-                  <span class="text-[7.5px] text-text-muted uppercase tracking-wider font-semibold">Missing feature</span>
+                  <span class="text-[7.5px] text-text-muted uppercase tracking-wider font-semibold">{{ $t('mediaLibrary.missingFeature') }}</span>
                   <span class="text-xs font-extrabold mt-0.5 leading-none" :class="selectedFoldersStats.missingFeature > 0 ? 'text-amber-500 font-black' : 'text-text-muted'">
                     {{ selectedFoldersStats.missingFeature }}
                   </span>
@@ -1687,8 +1687,8 @@
               <!-- Total Image URLs (Full Width Highlight) -->
               <div class="bg-primary/5 border border-primary/20 rounded-lg p-1.5 flex items-center justify-between">
                 <div class="flex flex-col">
-                  <span class="text-[7.5px] text-primary uppercase tracking-wider font-bold">Total Image URLs</span>
-                  <span class="text-[8.5px] text-text-muted mt-0.5">URLs included in CSV</span>
+                  <span class="text-[7.5px] text-primary uppercase tracking-wider font-bold">{{ $t('mediaLibrary.totalImageUrls') }}</span>
+                  <span class="text-[8.5px] text-text-muted mt-0.5">{{ $t('mediaLibrary.urlsIncludedInCsv') }}</span>
                 </div>
                 <span class="text-sm font-black text-primary font-mono leading-none">{{ selectedFoldersStats.totalUrls }}</span>
               </div>
@@ -1697,7 +1697,7 @@
             <!-- Options Section -->
             <div class="border border-border rounded-xl p-2 bg-soft/10 space-y-2 flex-1 flex flex-col justify-between">
               <div class="space-y-2">
-                <h4 class="font-bold text-[8.5px] text-text-soft uppercase tracking-wider">Export Options</h4>
+                <h4 class="font-bold text-[8.5px] text-text-soft uppercase tracking-wider">{{ $t('mediaLibrary.exportOptions') }}</h4>
                 
                 <div class="space-y-2">
                   <!-- Option: Skip Empty -->
@@ -1708,8 +1708,8 @@
                       class="rounded border-border text-primary focus:ring-primary/20 accent-primary mt-0.5 h-3 w-3 transition-colors animate-none"
                     />
                     <div>
-                      <span class="font-semibold text-text-main text-[10px] block leading-tight group-hover:text-primary transition-colors">Skip empty folders</span>
-                      <span class="text-[8.5px] text-text-muted block mt-0.25 leading-tight">Exclude folders with 0 images from CSV row generation.</span>
+                      <span class="font-semibold text-text-main text-[10px] block leading-tight group-hover:text-primary transition-colors">{{ $t('mediaLibrary.skipEmptyFolders') }}</span>
+                      <span class="text-[8.5px] text-text-muted block mt-0.25 leading-tight">{{ $t('mediaLibrary.skipEmptyFoldersDesc') }}</span>
                     </div>
                   </label>
                   
@@ -1721,8 +1721,8 @@
                       class="rounded border-border text-primary focus:ring-primary/20 accent-primary mt-0.5 h-3 w-3 transition-colors animate-none"
                     />
                     <div>
-                      <span class="font-semibold text-text-main text-[10px] block leading-tight group-hover:text-primary transition-colors">Include folders without feature image</span>
-                      <span class="text-[8.5px] text-text-muted block mt-0.25 leading-tight font-normal">Keep folders in export even if feature image is missing.</span>
+                      <span class="font-semibold text-text-main text-[10px] block leading-tight group-hover:text-primary transition-colors">{{ $t('mediaLibrary.includeNoFeatureFolders') }}</span>
+                      <span class="text-[8.5px] text-text-muted block mt-0.25 leading-tight font-normal">{{ $t('mediaLibrary.includeNoFeatureFoldersDesc') }}</span>
                     </div>
                   </label>
 
@@ -1734,8 +1734,8 @@
                       class="rounded border-border text-primary focus:ring-primary/20 accent-primary mt-0.5 h-3 w-3 transition-colors animate-none"
                     />
                     <div>
-                      <span class="font-semibold text-text-main text-[10px] block leading-tight group-hover:text-primary transition-colors">Include folder content fields</span>
-                      <span class="text-[8.5px] text-text-muted block mt-0.25 leading-tight">Export short description, description, and button URL.</span>
+                      <span class="font-semibold text-text-main text-[10px] block leading-tight group-hover:text-primary transition-colors">{{ $t('mediaLibrary.includeFolderContentFields') }}</span>
+                      <span class="text-[8.5px] text-text-muted block mt-0.25 leading-tight">{{ $t('mediaLibrary.includeFolderContentFieldsDesc') }}</span>
                     </div>
                   </label>
 
@@ -1747,16 +1747,16 @@
                       <svg class="w-2.5 h-2.5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
-                      Locked Preset Configurations
+                      {{ $t('mediaLibrary.lockedPresetConfigs') }}
                     </div>
                     
                     <div class="flex items-center justify-between text-[8.5px] text-text-muted">
-                      <span class="font-medium">Use feature image first</span>
-                      <span class="bg-primary/10 text-primary border border-primary/20 font-bold uppercase text-[7px] tracking-wider px-1 py-0.25 rounded">Always On</span>
+                      <span class="font-medium">{{ $t('mediaLibrary.useFeatureImageFirst') }}</span>
+                      <span class="bg-primary/10 text-primary border border-primary/20 font-bold uppercase text-[7px] tracking-wider px-1 py-0.25 rounded">{{ $t('mediaLibrary.alwaysOn') }}</span>
                     </div>
                     <div class="flex items-center justify-between text-[8.5px] text-text-muted">
-                      <span class="font-medium">Use saved gallery order</span>
-                      <span class="bg-primary/10 text-primary border border-primary/20 font-bold uppercase text-[7px] tracking-wider px-1 py-0.25 rounded">Always On</span>
+                      <span class="font-medium">{{ $t('mediaLibrary.useSavedGalleryOrder') }}</span>
+                      <span class="bg-primary/10 text-primary border border-primary/20 font-bold uppercase text-[7px] tracking-wider px-1 py-0.25 rounded">{{ $t('mediaLibrary.alwaysOn') }}</span>
                     </div>
                   </div>
                 </div>
@@ -1767,32 +1767,28 @@
 
         <!-- Warnings (Slim alert design) -->
         <div v-if="(selectedFoldersStats.missingFeature > 0 && includeNoFeatureFolders) || (selectedFoldersStats.emptyFolders > 0 && !skipEmptyFolders)" class="bg-status-needs-fix-bg/10 border border-status-needs-fix-bg/25 rounded-lg p-2 text-status-needs-fix-fg flex items-start gap-1.5 text-[10px]">
-          <span class="text-xs leading-none mt-0.5">⚠️</span>
+          <span class="text-xs leading-none mt-0.5">{{ $t('⚠️') }}</span>
           <div class="flex-1 space-y-0.5">
-            <div v-if="selectedFoldersStats.missingFeature > 0 && includeNoFeatureFolders">
-              <strong>Missing feature image:</strong> {{ selectedFoldersStats.missingFeature }} folder(s) will be exported with the regular gallery image order first.
-            </div>
-            <div v-if="selectedFoldersStats.emptyFolders > 0 && !skipEmptyFolders">
-              <strong>Empty folders included:</strong> {{ selectedFoldersStats.emptyFolders }} empty folder(s) will be exported with blank image lists.
-            </div>
+            <div v-if="selectedFoldersStats.missingFeature > 0 && includeNoFeatureFolders" v-html="$t('mediaLibrary.warningMissingFeature', { count: selectedFoldersStats.missingFeature })"></div>
+            <div v-if="selectedFoldersStats.emptyFolders > 0 && !skipEmptyFolders" v-html="$t('mediaLibrary.warningEmptyFolders', { count: selectedFoldersStats.emptyFolders })"></div>
           </div>
         </div>
 
         <!-- Export Preview (Compact box, first 5 rows) -->
         <div v-if="selectedExportFolderIds.length > 0" class="space-y-1 border-t border-border/40 pt-2.5">
           <div class="flex items-center justify-between">
-            <h4 class="font-bold text-[8.5px] text-text-soft uppercase tracking-wider">Export Preview (First 5 selected rows)</h4>
-            <span class="text-[9px] text-text-muted">Interactive preview of compiled rows</span>
+            <h4 class="font-bold text-[8.5px] text-text-soft uppercase tracking-wider">{{ $t('mediaLibrary.exportPreviewTitle') }}</h4>
+            <span class="text-[9px] text-text-muted">{{ $t('mediaLibrary.exportPreviewDesc') }}</span>
           </div>
           <div class="border border-border/60 rounded-xl bg-soft/5 overflow-hidden">
             <div class="max-h-[110px] overflow-y-auto">
               <table class="w-full text-[9.5px] text-left border-collapse">
                 <thead>
                   <tr class="bg-soft/40 border-b border-border/80 font-bold text-text-soft sticky top-0 z-10">
-                    <th class="p-1.5 pl-2.5">Folder Name</th>
-                    <th class="p-1.5 text-center">Images</th>
-                    <th class="p-1.5 text-center">Feature Image</th>
-                    <th class="p-1.5 text-center">Export Status</th>
+                    <th class="p-1.5 pl-2.5">{{ $t('mediaLibrary.folderNameHeader') }}</th>
+                    <th class="p-1.5 text-center">{{ $t('mediaLibrary.images') }}</th>
+                    <th class="p-1.5 text-center">{{ $t('mediaLibrary.featureImage') }}</th>
+                    <th class="p-1.5 text-center">{{ $t('mediaLibrary.exportStatusHeader') }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-border/40">
@@ -1809,7 +1805,7 @@
                     <td class="p-1.5 text-center">
                       <span
                         class="px-1.5 py-0.25 rounded text-[9px] font-bold"
-                        :class="row.status === 'Ready' || row.status === 'Ready (Empty)' ? 'bg-primary/10 text-primary' : row.status === 'Skipped' ? 'bg-soft text-text-muted' : 'bg-status-needs-fix-bg/10 text-status-needs-fix-fg'"
+                        :class="row.statusCode === 'ready' || row.statusCode === 'readyEmpty' ? 'bg-primary/10 text-primary' : row.statusCode === 'skipped' ? 'bg-soft text-text-muted' : 'bg-status-needs-fix-bg/10 text-status-needs-fix-fg'"
                       >
                         {{ row.status }}
                       </span>
@@ -1828,14 +1824,12 @@
           <!-- Warnings / Helper text for disabled state -->
           <div class="text-[10px] shrink-0 select-none">
             <span v-if="selectedExportFolderIds.length === 0" class="text-status-needs-fix-fg font-semibold flex items-center gap-1.5">
-              ⚠️ Select at least one folder to export.
+              ⚠️ {{ $t('mediaLibrary.toast.exportSelectFolder') }}
             </span>
             <span v-else-if="selectedFoldersStats.readyFoldersCount === 0" class="text-status-needs-fix-fg font-semibold flex items-center gap-1.5">
-              ⚠️ No folders qualify for export under current filters.
+              ⚠️ {{ $t('mediaLibrary.toast.exportNoValidFolders') }}
             </span>
-            <span v-else class="text-text-muted">
-              Ready to export <strong class="text-text-main font-semibold">{{ selectedFoldersStats.readyFoldersCount }}</strong> folder(s) ({{ selectedFoldersStats.totalUrls }} URLs total).
-            </span>
+            <span v-else class="text-text-muted" v-html="$t('mediaLibrary.readyToExport', { count: selectedFoldersStats.readyFoldersCount, total: selectedFoldersStats.totalUrls })"></span>
           </div>
 
           <div class="flex items-center gap-2 ml-auto">
@@ -1845,7 +1839,7 @@
               @click="showExportModal = false"
               :disabled="exportingCsv"
             >
-              Cancel
+              {{ $t('mediaLibrary.cancel') }}
             </button>
             
             <button
@@ -1858,7 +1852,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {{ exportingCsv ? 'Exporting...' : 'Export Selected CSV' }}
+              {{ exportingCsv ? $t('mediaLibrary.exporting') : $t('mediaLibrary.exportSelectedCsv') }}
             </button>
           </div>
         </div>
@@ -1868,25 +1862,25 @@
     <!-- ════════ EDIT FOLDER INFO MODAL ════════ -->
     <Modal
       :open="showEditFolderInfoModal"
-      title="Edit Folder Info"
-      subtitle="Modify folder name and configure product description details."
+      :title="$t('mediaLibrary.editFolderInfo')"
+      :subtitle="$t('mediaLibrary.editFolderSubtitle')"
       size="lg"
       @close="showEditFolderInfoModal = false"
     >
       <div class="space-y-4 text-xs">
         <!-- Error Message -->
         <div v-if="editFolderError" class="p-2.5 bg-status-needs-fix-bg/15 border border-status-needs-fix-bg/50 rounded-xl text-status-needs-fix-fg font-semibold flex items-center gap-1.5">
-          <span>⚠️</span>
+          <span>{{ $t('⚠️') }}</span>
           <span>{{ editFolderError }}</span>
         </div>
 
         <!-- Folder Name -->
         <div class="space-y-1">
-          <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">Folder Name</label>
+          <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">{{ $t('mediaLibrary.folderNameHeader') }}</label>
           <input
             type="text"
             v-model="editFolderName"
-            placeholder="Folder Name"
+            :placeholder="$t('mediaLibrary.renameFolder')"
             class="w-full px-3 py-2 bg-soft/20 border border-border rounded-xl text-xs text-text-main focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
           />
         </div>
@@ -1894,12 +1888,12 @@
         <!-- Short Description -->
         <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">Short Description</label>
-            <span class="text-[10px] text-text-muted font-mono font-medium">{{ editFolderShortDescription.length }} characters (limit: 160–300)</span>
+            <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">{{ $t('mediaLibrary.shortDescription') }}</label>
+            <span class="text-[10px] text-text-muted font-mono font-medium">{{ editFolderShortDescription.length }} {{ $t('mediaLibrary.charactersLimit') }}</span>
           </div>
           <textarea
             v-model="editFolderShortDescription"
-            placeholder="Compact mini excavator built for tight job sites..."
+            :placeholder="$t('Compact mini excavator built for tight job sites...')"
             rows="3"
             class="w-full px-3 py-2 bg-soft/20 border border-border rounded-xl text-xs text-text-main focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors resize-none"
           ></textarea>
@@ -1907,20 +1901,20 @@
 
         <!-- Description (Rich Text Editor) -->
         <div class="space-y-1">
-          <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">Description</label>
+          <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">{{ $t('mediaLibrary.fullDescription') }}</label>
           <FolderDescriptionEditor v-model="editFolderDescription" />
         </div>
 
         <!-- Button URL -->
         <div class="space-y-1">
-          <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">Button URL</label>
+          <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">{{ $t('mediaLibrary.buttonUrl') }}</label>
           <input
             type="text"
             v-model="editFolderButtonUrl"
             placeholder="https://example.com/product-page"
             class="w-full px-3 py-2 bg-soft/20 border border-border rounded-xl text-xs text-text-main focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
           />
-          <span class="text-[10px] text-text-muted block mt-0.5 font-normal">Optional. Will automatically format missing protocol to https://</span>
+          <span class="text-[10px] text-text-muted block mt-0.5 font-normal">{{ $t('mediaLibrary.urlOptionalHint') }}</span>
         </div>
       </div>
 
@@ -1932,7 +1926,7 @@
             @click="showEditFolderInfoModal = false"
             :disabled="savingFolderInfo"
           >
-            Cancel
+            {{ $t('mediaLibrary.cancel') }}
           </button>
           
           <button
@@ -1945,7 +1939,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{ savingFolderInfo ? 'Saving...' : 'Save Folder Info' }}
+            {{ savingFolderInfo ? $t('mediaLibrary.saving') : $t('common.save') }}
           </button>
         </div>
       </template>
@@ -1957,7 +1951,7 @@
       <div class="bg-soft/80 border-b border-border px-3 py-2 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="inline-flex h-2.5 w-2.5 rounded-full bg-primary animate-pulse"></span>
-          <span class="text-xs font-bold text-text-main">Upload Queue ({{ uploadingItems.filter(i => i.status !== 'success').length }})</span>
+          <span class="text-xs font-bold text-text-main">{{ $t('mediaLibrary.uploadQueue', { count: uploadingItems.filter(i => i.status !== 'success').length }) }}</span>
         </div>
         <div class="flex items-center gap-1.5">
           <button 
@@ -1965,7 +1959,7 @@
             class="text-[10px] text-text-muted hover:text-text-main font-semibold"
             @click="clearCompletedQueue"
           >
-            Clear Done
+            {{ $t('mediaLibrary.clearDone') }}
           </button>
           <button 
             type="button" 
@@ -1992,14 +1986,14 @@
             </div>
             <div class="min-w-0 flex-1">
               <div class="text-[11px] font-semibold text-text-main truncate" :title="item.name">{{ item.name }}</div>
-              <div class="text-[9px] text-text-soft font-bold capitalize leading-none mt-0.5">{{ item.status }}</div>
+              <div class="text-[9px] text-text-soft font-bold capitalize leading-none mt-0.5">{{ $t('mediaLibrary.' + item.status) }}</div>
             </div>
           </div>
           
           <div class="shrink-0 flex items-center gap-1.5">
             <span v-if="item.status === 'success'" class="text-primary font-bold">✓</span>
             <div v-else-if="item.status === 'failed'" class="flex gap-1">
-              <button type="button" class="text-[10px] text-primary font-bold hover:underline" @click="retryUploadItem(item)">Retry</button>
+              <button type="button" class="text-[10px] text-primary font-bold hover:underline" @click="retryUploadItem(item)">{{ $t('mediaLibrary.retry') }}</button>
               <button type="button" class="text-[10px] text-status-needs-fix-fg font-bold hover:underline" @click="removeUploadItem(item.id)">✕</button>
             </div>
             <svg v-else class="animate-spin text-primary" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -2016,6 +2010,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, nextTick, watch } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import { supabase, supabaseConfigured } from '@/lib/supabase';
 import { debounceRealtime } from '@/services/realtimeService';
@@ -2025,6 +2020,7 @@ import FolderDescriptionEditor from '@/components/ui/FolderDescriptionEditor.vue
 
 const auth = useAuthStore();
 const route = useRoute();
+const { t } = useI18n();
 
 const canUpload = computed(() => !auth.isViewer && !auth.isQualityChecker);
 const canView = computed(() => !auth.isQualityChecker);
@@ -2341,11 +2337,11 @@ const saveFolderInfo = async () => {
       };
     }
     
-    showToast('Folder info saved.');
+    showToast(t('mediaLibrary.toast.folderInfoSaved'));
     showEditFolderInfoModal.value = false;
   } catch (err) {
     console.error('[save-folder-info] Failed to save folder info:', err);
-    showToast('Could not save folder info. Please try again.');
+    showToast(t('mediaLibrary.toast.folderInfoSaveFailed'));
   } finally {
     savingFolderInfo.value = false;
   }
@@ -2472,29 +2468,33 @@ const selectedFoldersStats = computed(() => {
 const previewRows = computed(() => {
   const selected = exportFoldersList.value.filter(f => selectedExportFolderIds.value.includes(f.id));
   return selected.slice(0, 5).map(f => {
-    let status = 'Ready';
+    let status = t('mediaLibrary.ready');
+    let statusCode = 'ready';
     if (f.imageCount === 0) {
-      status = skipEmptyFolders.value ? 'Skipped' : 'Ready (Empty)';
+      status = skipEmptyFolders.value ? t('mediaLibrary.skipped') : t('mediaLibrary.readyEmpty');
+      statusCode = skipEmptyFolders.value ? 'skipped' : 'readyEmpty';
     } else if (!f.isVirtual && !f.hasFeature) {
-      status = includeNoFeatureFolders.value ? 'Warning (No Feature)' : 'Skipped';
+      status = includeNoFeatureFolders.value ? t('mediaLibrary.warningNoFeature') : t('mediaLibrary.skipped');
+      statusCode = includeNoFeatureFolders.value ? 'warningNoFeature' : 'skipped';
     }
     return {
       name: f.name,
       imageCount: f.imageCount,
-      featureStatus: f.isVirtual ? 'N/A' : (f.hasFeature ? '✓ Yes' : '❌ Missing'),
-      status
+      featureStatus: f.isVirtual ? 'N/A' : (f.hasFeature ? `✓ ${t('common.yes')}` : `❌ ${t('mediaLibrary.missingFeature')}`),
+      status,
+      statusCode
     };
   });
 });
 
 const getRowStatusText = (folder: any) => {
   if (folder.imageCount === 0) {
-    return skipEmptyFolders.value ? 'Will be skipped' : 'Ready';
+    return skipEmptyFolders.value ? t('mediaLibrary.willBeSkipped') : t('mediaLibrary.ready');
   }
   if (!folder.isVirtual && !folder.hasFeature) {
-    return includeNoFeatureFolders.value ? 'Ready' : 'Will be skipped';
+    return includeNoFeatureFolders.value ? t('mediaLibrary.ready') : t('mediaLibrary.willBeSkipped');
   }
-  return 'Ready';
+  return t('mediaLibrary.ready');
 };
 
 const getRowStatusClass = (folder: any) => {
@@ -2574,18 +2574,18 @@ const getExportFilename = () => {
 
 const triggerCsvExport = async () => {
   if (selectedExportFolderIds.value.length === 0) {
-    showToast('Select at least one folder to export.');
+    showToast(t('mediaLibrary.toast.exportSelectFolder'));
     return;
   }
   
   // Calculate if there are valid folders after skip rules
   if (selectedFoldersStats.value.readyFoldersCount === 0) {
-    showToast('No valid folders to export after applying skip rules.');
+    showToast(t('mediaLibrary.toast.exportNoValidFolders'));
     return;
   }
   
   exportingCsv.value = true;
-  showToast('Preparing CSV export…');
+  showToast(t('mediaLibrary.toast.preparingExport'));
   
   try {
     const realFolderIds = selectedExportFolderIds.value.filter(id => id !== 'uncategorized');
@@ -2622,7 +2622,7 @@ const triggerCsvExport = async () => {
     });
     
     if (hasMissingUrls) {
-      showToast('Some images were skipped because they are missing URLs.');
+      showToast(t('mediaLibrary.toast.exportSkippedMissingUrl'));
     }
     
     const csvRows: {
@@ -2643,7 +2643,7 @@ const triggerCsvExport = async () => {
       let btnUrl = '';
       
       if (folderId === 'uncategorized') {
-        folderName = 'Uncategorized';
+        folderName = t('mediaLibrary.uncategorized');
         imgs = validImgs.filter(img => !img.folder_id);
         isVirtualFolder = true;
       } else {
@@ -2692,7 +2692,7 @@ const triggerCsvExport = async () => {
     });
     
     if (csvRows.length === 0) {
-      showToast('No valid images found for selected folders.');
+      showToast(t('mediaLibrary.toast.exportNoImages'));
       exportingCsv.value = false;
       return;
     }
@@ -2721,11 +2721,11 @@ const triggerCsvExport = async () => {
     link.click();
     document.body.removeChild(link);
     
-    showToast('CSV exported successfully.');
+    showToast(t('mediaLibrary.toast.exportSuccess'));
     showExportModal.value = false;
   } catch (err) {
     console.error('[csv-export] Export failed:', err);
-    showToast('CSV export failed. Please try again.');
+    showToast(t('mediaLibrary.toast.exportFailed'));
   } finally {
     exportingCsv.value = false;
   }
@@ -2852,7 +2852,7 @@ const previewImage = (img: LibImage | null) => {
     activeImageIndex.value = idx;
     drawerOpen.value = true;
   } else {
-    showToast('Cannot preview this image.');
+    showToast(t('mediaLibrary.toast.cannotPreview'));
   }
 };
 
@@ -2860,12 +2860,12 @@ const previewImage = (img: LibImage | null) => {
 const saveOrganizeOrder = async () => {
   const allFolderImgs = library.value.filter(img => img.folderId === currentFolder.value);
   if (allFolderImgs.length === 0) {
-    showToast('Folder must have at least one image.');
+    showToast(t('mediaLibrary.toast.orderMinImages'));
     return;
   }
   
   if (!featureImageId.value) {
-    showToast('Please select a feature image first.');
+    showToast(t('mediaLibrary.toast.orderSelectFeature'));
     return;
   }
 
@@ -2878,15 +2878,15 @@ const saveOrganizeOrder = async () => {
 
     if (error) {
       console.error('[images] failed to save folder order:', error);
-      showToast('Failed to save image order.');
+      showToast(t('mediaLibrary.toast.orderSaveFailed'));
     } else {
-      showToast('Image order saved.');
+      showToast(t('mediaLibrary.toast.orderSaved'));
       isOrganizeMode.value = false;
       await loadLibraryFromDB();
     }
   } catch (err) {
     console.error('[images] save order error:', err);
-    showToast('Failed to save image order.');
+    showToast(t('mediaLibrary.toast.orderSaveFailed'));
   }
 };
 
@@ -3166,8 +3166,8 @@ const pagedLibrary = computed(() => {
 });
 
 const currentFolderTitle = computed(() => {
-  if (currentFolder.value === 'all') return 'All Library';
-  if (currentFolder.value === 'uncategorized') return 'Uncategorized';
+  if (currentFolder.value === 'all') return t('mediaLibrary.allLibrary');
+  if (currentFolder.value === 'uncategorized') return t('mediaLibrary.uncategorized');
   const folder = customFolders.value.find((f) => f.id === currentFolder.value);
   return folder ? folder.name : 'Library';
 });
@@ -3200,14 +3200,14 @@ const createFolder = async () => {
     .single();
 
   if (error) {
-    showToast('Failed to create folder');
+    showToast(t('mediaLibrary.toast.createFolderFailed'));
     console.error(error);
   } else {
     newFolderName.value = '';
     showNewFolderInput.value = false;
     if (data) {
       currentFolder.value = data.id;
-      showToast(`Folder "${name}" created`);
+      showToast(t('mediaLibrary.toast.createFolderSuccess', { name }));
     }
     loadLibraryFromDB();
   }
@@ -3235,10 +3235,10 @@ const saveFolderRename = async (folderId: string) => {
     .eq('id', folderId);
 
   if (error) {
-    showToast('Failed to rename folder');
+    showToast(t('mediaLibrary.toast.renameFolderFailed'));
     console.error(error);
   } else {
-    showToast('Folder renamed');
+    showToast(t('mediaLibrary.toast.renameFolderSuccess'));
     loadLibraryFromDB();
   }
   editingFolderId.value = null;
@@ -3249,24 +3249,24 @@ const deleteFolder = async (folderId: string) => {
   const targetFolder = customFolders.value.find(f => f.id === folderId);
   if (!targetFolder) return;
   if (!canManageFolder(targetFolder)) {
-    showToast('You do not have permission to delete this folder');
+    showToast(t('mediaLibrary.toast.deleteFolderPermission'));
     return;
   }
 
-  if (confirm(`Delete folder "${targetFolder.name}"? Organized images will be returned to "Uncategorized".`)) {
+  if (confirm(t('mediaLibrary.confirm.deleteFolder', { name: targetFolder.name }))) {
     const { error } = await supabase
       .from('team_folders')
       .delete()
       .eq('id', folderId);
 
     if (error) {
-      showToast('Failed to delete folder');
+      showToast(t('mediaLibrary.toast.deleteFolderFailed'));
       console.error(error);
     } else {
       if (currentFolder.value === folderId) {
         currentFolder.value = 'all';
       }
-      showToast('Folder deleted');
+      showToast(t('mediaLibrary.toast.deleteFolderSuccess'));
       loadLibraryFromDB();
     }
   }
@@ -3276,7 +3276,7 @@ const deleteFolder = async (folderId: string) => {
 const copyFolderLink = (folderId: string) => {
   const link = `${window.location.origin}${window.location.pathname}?folder=${folderId}`;
   navigator.clipboard.writeText(link).then(() => {
-    showToast('Folder filter link copied');
+    showToast(t('mediaLibrary.toast.linkCopied'));
   });
   closeFolderMenu();
 };
@@ -3317,20 +3317,20 @@ const moveImage = async (imageKey: string, folderId: string | null) => {
   if (error) {
     // Revert optimistic update
     if (imgIdx !== -1) dbImages.value[imgIdx].folder_id = oldFolderId;
-    showToast('Failed to move image');
+    showToast(t('mediaLibrary.toast.moveImageFailed'));
     console.error(error);
   } else {
     const targetName = folderId
       ? customFolders.value.find((f) => f.id === folderId)?.name || 'Folder'
-      : 'Uncategorized';
-    showToast(`Moved to ${targetName}`);
+      : t('mediaLibrary.uncategorized');
+    showToast(t('mediaLibrary.toast.moveImageSuccess', { name: targetName }));
     loadLibraryFromDB();
   }
 };
 
 const startRenameImage = async (img: LibImage) => {
   if (!canManageImage(img)) {
-    showToast('You do not have permission to rename this image');
+    showToast(t('mediaLibrary.toast.renameImagePermission'));
     return;
   }
   renamingImageKey.value = img.key;
@@ -3364,10 +3364,10 @@ const saveImageRename = async (imageKey: string) => {
   if (error) {
     // Revert
     if (imgIdx !== -1) dbImages.value[imgIdx].name = oldName;
-    showToast('Failed to rename image');
+    showToast(t('mediaLibrary.toast.renameImageFailed'));
     console.error(error);
   } else {
-    showToast('Image renamed');
+    showToast(t('mediaLibrary.toast.renameImageSuccess'));
     loadLibraryFromDB();
   }
   renamingImageKey.value = null;
@@ -3376,11 +3376,11 @@ const saveImageRename = async (imageKey: string) => {
 const deleteImage = async (img: LibImage) => {
   if (!supabaseConfigured) return;
   if (!canManageImage(img)) {
-    showToast('You do not have permission to delete this image');
+    showToast(t('mediaLibrary.toast.deleteImagePermission'));
     return;
   }
 
-  if (confirm(`Are you sure you want to permanently delete "${img.displayName}"?`)) {
+  if (confirm(t('mediaLibrary.confirm.deleteImage', { name: img.displayName }))) {
     // Save current stats for rollback
     const origStats = libraryStats.value ? { ...libraryStats.value } : null;
 
@@ -3408,7 +3408,7 @@ const deleteImage = async (img: LibImage) => {
       if (dbErr) {
         dbImages.value = origImages;
         libraryStats.value = origStats;
-        showToast('Failed to delete image');
+        showToast(t('mediaLibrary.toast.deleteImageFailed'));
         console.error(dbErr);
         return;
       }
@@ -3421,14 +3421,14 @@ const deleteImage = async (img: LibImage) => {
         await supabase.storage.from('team-images').remove([storagePath]);
       }
 
-      showToast('Image deleted');
+      showToast(t('mediaLibrary.toast.deleteImageSuccess'));
       selectedImageKeys.value = selectedImageKeys.value.filter(k => k !== img.key);
       loadLibraryFromDB();
     } catch (e) {
       dbImages.value = origImages;
       libraryStats.value = origStats;
       console.error('[images] delete image failed', e);
-      showToast('Error deleting image');
+      showToast(t('mediaLibrary.toast.deleteImageError'));
     }
   }
 };
@@ -3436,9 +3436,9 @@ const deleteImage = async (img: LibImage) => {
 const copyUrl = async (img: LibImage) => {
   try {
     await navigator.clipboard.writeText(img.url);
-    showToast('URL copied to clipboard');
+    showToast(t('mediaLibrary.toast.urlCopied'));
   } catch {
-    showToast('Could not copy');
+    showToast(t('mediaLibrary.toast.copyFailed'));
   }
 };
 
@@ -3491,11 +3491,11 @@ watch(
 
 const downloadSingleImage = async (img: LibImage) => {
   try {
-    showToast('Downloading...');
+    showToast(t('mediaLibrary.toast.downloading'));
     await downloadImageBlob(img.url, `${img.displayName}.${img.fileType.split('/')[1] || 'png'}`);
   } catch (err) {
     console.error('Download failed:', err);
-    showToast('Download failed');
+    showToast(t('mediaLibrary.toast.downloadFailed'));
   }
 };
 
@@ -3581,20 +3581,20 @@ const uploadImagesToCurrentFolder = async (
 ) => {
   if (!files.length || !supabaseConfigured) return;
   if (!canUpload.value) {
-    showToast("You don't have permission to upload images");
+    showToast(t('mediaLibrary.toast.uploadPermission'));
     return;
   }
 
   // If pasting and no folder is selected (currentFolder.value is 'all')
   if (source === 'pasted_clipboard' && currentFolder.value === 'all') {
-    showToast('Open a folder first before pasting images.');
+    showToast(t('mediaLibrary.toast.uploadSelectFolder'));
     return;
   }
 
   // Validate files are images
   const invalidFiles = files.filter(f => !f.type.startsWith('image/'));
   if (invalidFiles.length > 0) {
-    showToast('Only image files can be uploaded.');
+    showToast(t('mediaLibrary.toast.uploadOnlyImages'));
     return;
   }
 
@@ -3611,10 +3611,10 @@ const uploadImagesToCurrentFolder = async (
     const file = files[i];
     let displayName = file.name;
     if (source === 'pasted_clipboard') {
-      displayName = `Pasted image`;
-      showToast('Pasted image detected. Processing…');
+      displayName = t('mediaLibrary.toast.pastedImage');
+      showToast(t('mediaLibrary.toast.uploadPastedDetected'));
     } else {
-      showToast(`Uploading ${files.length === 1 ? 'image' : `${files.length} images`}...`);
+      showToast(files.length === 1 ? t('mediaLibrary.toast.uploadingSingle') : t('mediaLibrary.toast.uploadingCount', { count: files.length }));
     }
     
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -3647,7 +3647,7 @@ const performUploadProcess = async (item: UploadingItem, stampInput?: string) =>
   if (!uid) {
     item.status = 'failed';
     item.errorMessage = 'User not signed in';
-    showToast('Please sign in to upload images');
+    showToast(t('mediaLibrary.toast.pleaseSignIn'));
     return;
   }
 
@@ -3769,7 +3769,7 @@ const performUploadProcess = async (item: UploadingItem, stampInput?: string) =>
       // Sync stats from DB in parallel
       loadLibraryStats();
       
-      showToast('Image added to folder.');
+      showToast(t('mediaLibrary.toast.imageAdded'));
       
       // Clean up object URL since we are done and now using the real URL from Supabase
       if (item.previewUrl.startsWith('blob:')) {
@@ -3788,7 +3788,7 @@ const performUploadProcess = async (item: UploadingItem, stampInput?: string) =>
     console.error('[images] Upload process error:', err);
     item.status = 'failed';
     item.errorMessage = err.message || 'Unknown error occurred';
-    showToast('Image upload failed. Please try again.');
+    showToast(t('mediaLibrary.toast.uploadFailedRetry'));
   }
 };
 
@@ -3886,7 +3886,7 @@ const bulkMoveToFolder = async (folderId: string | null) => {
   });
 
   if (manageableKeys.length === 0) {
-    showToast('You do not have permission to move the selected images');
+    showToast(t('mediaLibrary.toast.moveSelectedPermission'));
     return;
   }
 
@@ -3902,11 +3902,11 @@ const bulkMoveToFolder = async (folderId: string | null) => {
     .in('id', manageableKeys);
 
   if (error) {
-    showToast('Bulk move failed');
+    showToast(t('mediaLibrary.toast.bulkMoveFailed'));
     console.error(error);
   } else {
-    const folderName = folderId ? customFolders.value.find(f => f.id === folderId)?.name || 'Folder' : 'Uncategorized';
-    showToast(`Moved ${manageableKeys.length} images to "${folderName}"`);
+    const folderName = folderId ? customFolders.value.find(f => f.id === folderId)?.name || 'Folder' : t('mediaLibrary.uncategorized');
+    showToast(t('mediaLibrary.toast.bulkMoveSuccess', { count: manageableKeys.length, folderName }));
     clearSelection();
     loadLibraryFromDB();
   }
@@ -3920,7 +3920,7 @@ const bulkCopyUrls = () => {
 
   if (urls) {
     navigator.clipboard.writeText(urls).then(() => {
-      showToast(`${selectedImageKeys.value.length} URLs copied to clipboard`);
+      showToast(t('mediaLibrary.toast.bulkUrlCopied', { count: selectedImageKeys.value.length }));
       clearSelection();
     });
   }
@@ -3928,7 +3928,7 @@ const bulkCopyUrls = () => {
 
 const bulkDownloadSelected = async () => {
   if (selectedImageKeys.value.length === 0) return;
-  showToast(`Starting parallel download of ${selectedImageKeys.value.length} files...`);
+  showToast(t('mediaLibrary.toast.bulkDownloadStart', { count: selectedImageKeys.value.length }));
   
   const promises = selectedImageKeys.value.map(async (key) => {
     const img = library.value.find(i => i.key === key);
@@ -3942,7 +3942,7 @@ const bulkDownloadSelected = async () => {
   });
 
   await Promise.allSettled(promises);
-  showToast('Download batch finished.');
+  showToast(t('mediaLibrary.toast.bulkDownloadFinished'));
   clearSelection();
 };
 
@@ -3955,11 +3955,11 @@ const bulkDeleteSelected = async () => {
   });
 
   if (manageableKeys.length === 0) {
-    showToast('You do not have permission to delete any of the selected images');
+    showToast(t('mediaLibrary.toast.deleteImagePermission'));
     return;
   }
 
-  if (confirm(`Permanently delete ${manageableKeys.length} selected images? (Skipping ${selectedImageKeys.value.length - manageableKeys.length} unowned images)`)) {
+  if (confirm(t('mediaLibrary.confirm.bulkDelete', { count: manageableKeys.length, skipped: selectedImageKeys.value.length - manageableKeys.length }))) {
     // Save current stats for rollback
     const origStats = libraryStats.value ? { ...libraryStats.value } : null;
 
@@ -3991,7 +3991,7 @@ const bulkDeleteSelected = async () => {
     if (dbErr) {
       dbImages.value = origImages;
       libraryStats.value = origStats;
-      showToast('Bulk delete failed');
+      showToast(t('mediaLibrary.toast.bulkDeleteFailed'));
       console.error(dbErr);
       return;
     }
@@ -4014,7 +4014,7 @@ const bulkDeleteSelected = async () => {
       await supabase.storage.from('team-images').remove(pathsToRemove);
     }
 
-    showToast(`Deleted ${manageableKeys.length} images.`);
+    showToast(t('mediaLibrary.toast.bulkDeleteSuccess', { count: manageableKeys.length }));
     clearSelection();
     loadLibraryFromDB();
   }
@@ -4152,7 +4152,7 @@ onUnmounted(() => {
   gap: 0.4rem;
   padding: 0.5rem 1rem;
   background: #16a34a;
-  color: #fff;
+  color: #f8fbff;
   font-family: 'Jost Numbers', 'Google Sans', sans-serif;
   font-size: 0.78rem;
   font-weight: 700;

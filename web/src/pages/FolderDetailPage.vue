@@ -1,8 +1,8 @@
 <template>
   <div>
     <!-- Breadcrumb -->
-    <nav class="mb-3 flex items-center gap-2 text-sm text-text-muted" aria-label="Breadcrumb">
-      <RouterLink to="/folders" class="hover:text-text-main">Folders</RouterLink>
+    <nav class="mb-3 flex items-center gap-2 text-sm text-text-muted" aria-:label="$t('Breadcrumb')">
+      <RouterLink to="/folders" class="hover:text-text-main">{{ $t('Folders') }}</RouterLink>
       <span aria-hidden="true">›</span>
       <span class="ui-font font-medium text-text-main truncate">{{ folder?.name ?? '...' }}</span>
     </nav>
@@ -17,19 +17,19 @@
             <path d="m12 19-7-7 7-7" />
             <path d="M19 12H5" />
           </svg>
-          Back to Folders
+          {{ $t('Back to Folders') }}
         </RouterLink>
         <button v-if="auth.isAdmin" class="btn-secondary" type="button" @click="openAddPrompts">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          Add Prompts
+          {{ $t('Add Prompts') }}
         </button>
         <button class="btn-primary" type="button" @click="openCreateResource">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          Add Resource
+          {{ $t('Add Resource') }}
         </button>
       </template>
     </PageHeader>
@@ -43,7 +43,7 @@
         v-model="search"
         class="input max-w-sm"
         type="search"
-        placeholder="Search items..."
+        :placeholder="$t('Search items...')"
       />
       <FormSelect
         v-model="kindFilter"
@@ -64,12 +64,12 @@
       :retry="reload"
     >
       <div v-if="folderMissing" class="card card-pad text-center">
-        <h3 class="ui-font text-base font-semibold text-text-main">Folder not found</h3>
+        <h3 class="ui-font text-base font-semibold text-text-main">{{ $t('Folder not found') }}</h3>
         <p class="mt-1 text-sm text-text-muted">
-          It may have been deleted, or you don't have access to it.
+          {{ $t('It may have been deleted, or you don\'t have access to it.') }}
         </p>
         <div class="mt-4">
-          <RouterLink to="/folders" class="btn-primary">Back to Folders</RouterLink>
+          <RouterLink to="/folders" class="btn-primary">{{ $t('Back to Folders') }}</RouterLink>
         </div>
       </div>
 
@@ -116,13 +116,13 @@
               </div>
 
               <div class="mt-2 flex items-center gap-2 text-xs text-text-muted">
-                <span>Created by Admin</span>
+                <span>{{ $t('Created by Admin') }}</span>
                 <span aria-hidden="true">·</span>
                 <span>Updated {{ item.data.updatedAt || item.data.createdAt || '—' }}</span>
               </div>
 
               <div class="mt-auto flex flex-wrap items-center gap-2 pt-4">
-                <button class="btn-secondary" type="button" @click="openView(item.data)">View</button>
+                <button class="btn-secondary" type="button" @click="openView(item.data)">{{ $t('View') }}</button>
                 <button class="btn-primary" type="button" @click="copyPrompt(item.data)">
                   {{ copiedId === item.data.id ? 'Copied!' : 'Copy Prompt' }}
                 </button>
@@ -133,7 +133,7 @@
                   :disabled="busy"
                   @click="confirmRemoveFromFolder(item.data)"
                 >
-                  Remove
+                  {{ $t('Remove') }}
                 </button>
               </div>
             </article>
@@ -161,19 +161,19 @@
                     {{ item.data.title }}
                   </h3>
                 </div>
-                <span class="ui-font rounded-full bg-soft px-2.5 py-1 text-xs font-medium text-primary">Note</span>
+                <span class="ui-font rounded-full bg-soft px-2.5 py-1 text-xs font-medium text-primary">{{ $t('Note') }}</span>
               </div>
               <p class="mt-3 line-clamp-4 whitespace-pre-line text-sm text-text-muted">
                 {{ item.data.content || '(empty note)' }}
               </p>
               <div class="mt-3 flex items-center gap-2 text-xs text-text-muted">
-                <span>Created by Admin</span>
+                <span>{{ $t('Created by Admin') }}</span>
                 <span aria-hidden="true">·</span>
                 <span>Updated {{ item.data.updatedAt || item.data.createdAt || '—' }}</span>
               </div>
               <div class="mt-auto flex flex-wrap items-center gap-2 pt-4">
                 <button class="btn-secondary" type="button" @click="openTextView('Note', item.data.title, item.data.content, item.data.updatedAt)">
-                  View
+                  {{ $t('View') }}
                 </button>
               </div>
             </article>
@@ -204,7 +204,7 @@
               </div>
               <div class="mt-auto flex flex-wrap items-center gap-2 pt-4">
                 <button class="btn-secondary" type="button" @click="openTextView('Doc', item.data.title, item.data.content, item.data.updatedAt)">
-                  View
+                  {{ $t('View') }}
                 </button>
               </div>
             </article>
@@ -228,7 +228,7 @@
                     </h3>
                   </div>
                 </div>
-                <span class="ui-font rounded-full bg-soft px-2.5 py-1 text-xs font-medium text-primary">File</span>
+                <span class="ui-font rounded-full bg-soft px-2.5 py-1 text-xs font-medium text-primary">{{ $t('File') }}</span>
               </div>
               <p class="mt-3 line-clamp-3 text-sm text-text-muted">
                 {{ item.data.description || item.data.url || '(no description)' }}
@@ -240,7 +240,7 @@
               </div>
               <div class="mt-auto flex flex-wrap items-center gap-2 pt-4">
                 <button class="btn-secondary" type="button" @click="openTextView(fileTypeMeta(item.data.type).label, item.data.title, item.data.description || item.data.url, item.data.updatedAt, safeOpenUrl(item.data.url))">
-                  View
+                  {{ $t('View') }}
                 </button>
                 <a
                   v-if="safeOpenUrl(item.data.url)"
@@ -249,7 +249,7 @@
                   rel="noopener"
                   class="btn-primary"
                 >
-                  Open Link
+                  {{ $t('Open Link') }}
                 </a>
               </div>
             </article>
@@ -258,16 +258,16 @@
 
         <EmptyState
           v-else-if="!hasItemsAtAll"
-          title="This folder is empty."
+          :title="$t('This folder is empty.')"
           description="Add prompts, docs, files, or links to this folder to keep work organized."
         >
           <template #action>
             <div class="flex gap-2">
               <button v-if="auth.isAdmin" class="btn-secondary" type="button" @click="openAddPrompts">
-                Add Prompts
+                {{ $t('Add Prompts') }}
               </button>
               <button class="btn-primary" type="button" @click="openCreateResource">
-                Add Resource
+                {{ $t('Add Resource') }}
               </button>
             </div>
           </template>
@@ -275,7 +275,7 @@
 
         <EmptyState
           v-else
-          title="No items match your filters"
+          :title="$t('No items match your filters')"
           description="Try a different search term or item type."
         />
       </template>
@@ -301,12 +301,12 @@
         </div>
 
         <div v-if="viewItem.lockedRules">
-          <div class="ui-font mb-1.5 text-sm font-semibold text-text-main">Locked admin rules</div>
+          <div class="ui-font mb-1.5 text-sm font-semibold text-text-main">{{ $t('Locked admin rules') }}</div>
           <pre class="whitespace-pre-wrap break-words rounded-card border border-border bg-soft p-4 text-sm text-text-main">{{ viewItem.lockedRules }}</pre>
         </div>
 
         <div v-if="viewItem.editableFields.length">
-          <div class="ui-font mb-1.5 text-sm font-semibold text-text-main">Editable fields</div>
+          <div class="ui-font mb-1.5 text-sm font-semibold text-text-main">{{ $t('Editable fields') }}</div>
           <ul class="space-y-1.5 text-sm">
             <li
               v-for="f in viewItem.editableFields"
@@ -322,18 +322,18 @@
         </div>
 
         <div>
-          <div class="ui-font mb-1.5 text-sm font-semibold text-text-main">Template</div>
+          <div class="ui-font mb-1.5 text-sm font-semibold text-text-main">{{ $t('Template') }}</div>
           <pre class="whitespace-pre-wrap break-words rounded-card border border-border bg-soft p-4 text-sm text-text-main">{{ viewItem.templateContent || '(empty template)' }}</pre>
         </div>
 
         <div v-if="viewItem.notes">
-          <div class="ui-font mb-1.5 text-sm font-semibold text-text-main">Notes</div>
+          <div class="ui-font mb-1.5 text-sm font-semibold text-text-main">{{ $t('Notes') }}</div>
           <p class="whitespace-pre-line text-sm text-text-muted">{{ viewItem.notes }}</p>
         </div>
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="viewOpen = false">Close</button>
-        <RouterLink v-if="auth.isAdmin" to="/library" class="btn-secondary">Open in Library</RouterLink>
+        <button class="btn-ghost" type="button" @click="viewOpen = false">{{ $t('Close') }}</button>
+        <RouterLink v-if="auth.isAdmin" to="/library" class="btn-secondary">{{ $t('Open in Library') }}</RouterLink>
         <button class="btn-primary" type="button" @click="copyPromptFromView">
           {{ viewItem && copiedId === viewItem.id ? 'Copied!' : 'Copy Prompt' }}
         </button>
@@ -351,7 +351,7 @@
         <pre class="max-h-[520px] overflow-auto whitespace-pre-wrap break-words rounded-card border border-border bg-soft p-4 text-sm text-text-main">{{ textView.body || '(empty)' }}</pre>
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="textViewOpen = false">Close</button>
+        <button class="btn-ghost" type="button" @click="textViewOpen = false">{{ $t('Close') }}</button>
         <a
           v-if="textView.href"
           :href="textView.href"
@@ -359,7 +359,7 @@
           rel="noopener"
           class="btn-primary"
         >
-          Open Link
+          {{ $t('Open Link') }}
         </a>
       </template>
     </Modal>
@@ -367,7 +367,7 @@
     <!-- Add prompts modal (admin only) -->
     <Modal
       :open="addOpen"
-      title="Add prompts to folder"
+      :title="$t('Add prompts to folder')"
       subtitle="Pick prompts from your library. They'll be moved into this folder."
       size="lg"
       @close="addOpen = false"
@@ -377,13 +377,13 @@
           v-model="addSearch"
           class="input"
           type="search"
-          placeholder="Search by title or category..."
+          :placeholder="$t('Search by title or category...')"
         />
         <div
           v-if="availablePrompts.length === 0"
           class="rounded-card border border-dashed border-border bg-soft/40 px-4 py-6 text-center text-sm text-text-muted"
         >
-          No prompts available — they're all already in a folder.
+          {{ $t('No prompts available — they\'re all already in a folder.') }}
         </div>
         <div v-else class="max-h-[420px] overflow-y-auto rounded-card border border-border">
           <label
@@ -413,7 +413,7 @@
         {{ data.errors.prompts }}
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="addOpen = false">Cancel</button>
+        <button class="btn-ghost" type="button" @click="addOpen = false">{{ $t('Cancel') }}</button>
         <button
           class="btn-primary"
           type="button"
@@ -446,7 +446,7 @@
           type="button"
           :disabled="resourceSaving || resourceUploading"
           @click="resourceFormOpen = false"
-        >Cancel</button>
+        >{{ $t('Cancel') }}</button>
         <button
           class="btn-primary"
           type="button"

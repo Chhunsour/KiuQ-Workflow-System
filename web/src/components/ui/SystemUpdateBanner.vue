@@ -4,7 +4,7 @@
       <!-- Glow effect backdrop -->
       <div class="sub-glow" />
 
-      <button class="sub-close" type="button" aria-label="Close" @click="onClose">
+      <button class="sub-close" type="button" aria-:label="$t('Close')" @click="onClose">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
 
@@ -18,7 +18,7 @@
               <span class="sub-badge" :class="`sub-badge--${activeUpdate.type}`">
                 {{ activeUpdate.type }}
               </span>
-              <span v-if="isTesting" class="sub-test-badge pulse">Testing Preview</span>
+              <span v-if="isTesting" class="sub-test-badge pulse">{{ $t('Testing Preview') }}</span>
             </div>
             <span class="sub-date">{{ formattedDate(activeUpdate.createdAt) }}</span>
           </div>
@@ -38,11 +38,11 @@
             class="sub-btn-readmore"
             @click="onReadMore"
           >
-            Read details
+            {{ $t('Read details') }}
             <svg class="sub-btn-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </a>
           <button class="sub-btn-dismiss" :class="`sub-btn-dismiss--${activeUpdate.type}`" type="button" @click="onDismiss">
-            Got it
+            {{ $t('Got it') }}
           </button>
         </div>
       </div>

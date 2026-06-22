@@ -193,7 +193,7 @@
           <div class="flex items-center justify-between gap-6">
             <span class="text-[10px] font-sans flex items-center gap-1.5 text-text-muted">
               <span class="w-1.5 h-1.5 rounded-full bg-text-muted" />
-              Previous
+              {{ $t('Previous') }}
             </span>
             <span class="text-[11px] font-number font-bold text-text-muted">
               {{ formatMetricValue(tooltipCompareData.value) }}

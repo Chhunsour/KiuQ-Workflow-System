@@ -19,7 +19,7 @@
             </svg>
           </div>
           <div>
-            <div class="kpi-label">Completed Today</div>
+            <div class="kpi-label">{{ $t('Completed Today') }}</div>
             <div class="kpi-value text-blue-500">{{ stats.completedToday }}</div>
           </div>
         </div>
@@ -31,7 +31,7 @@
             </svg>
           </div>
           <div>
-            <div class="kpi-label">Tasks In Progress</div>
+            <div class="kpi-label">{{ $t('Tasks In Progress') }}</div>
             <div class="kpi-value text-amber-500">{{ stats.inProgress }}</div>
           </div>
         </div>
@@ -43,7 +43,7 @@
             </svg>
           </div>
           <div>
-            <div class="kpi-label">Overdue Tasks</div>
+            <div class="kpi-label">{{ $t('Overdue Tasks') }}</div>
             <div class="kpi-value text-rose-500">{{ stats.overdue }}</div>
           </div>
         </div>
@@ -55,7 +55,7 @@
             </svg>
           </div>
           <div>
-            <div class="kpi-label">Avg Compliance</div>
+            <div class="kpi-label">{{ $t('Avg Compliance') }}</div>
             <div class="kpi-value text-emerald-500">{{ stats.avgWorkflowCompliance }}%</div>
           </div>
         </div>
@@ -67,14 +67,14 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
-          Management Attention Alerts
+          {{ $t('Management Attention Alerts') }}
         </h3>
         
         <div v-if="alerts.length === 0" class="text-sm text-text-muted py-4 flex flex-col items-center gap-2">
           <svg class="text-emerald-500" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
           </svg>
-          <span class="font-medium">All clear. No workflow violations or overdue tasks active.</span>
+          <span class="font-medium">{{ $t('All clear. No workflow violations or overdue tasks active.') }}</span>
         </div>
 
         <div v-else class="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -105,21 +105,21 @@
       <!-- ── Team Accountability Rankings ── -->
       <div class="card p-5">
         <h3 class="section-title mb-4 flex items-center justify-between">
-          <span>Team Accountability Rankings</span>
-          <span class="text-xs text-text-muted font-normal">Ranked by Accountability Score</span>
+          <span>{{ $t('Team Accountability Rankings') }}</span>
+          <span class="text-xs text-text-muted font-normal">{{ $t('Ranked by Accountability Score') }}</span>
         </h3>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead>
               <tr class="border-b border-border text-text-muted text-xs font-semibold uppercase">
-                <th class="py-3 px-4 w-12 text-center">Rank</th>
-                <th class="py-3 px-4">Team Member</th>
-                <th class="py-3 px-4 text-center">Accountability Score</th>
-                <th class="py-3 px-4 text-center">Tasks Completed</th>
-                <th class="py-3 px-4 text-center">In Progress</th>
-                <th class="py-3 px-4 text-center">Overdue</th>
-                <th class="py-3 px-4 text-center">Compliance Score</th>
-                <th class="py-3 px-4 pr-6">Current Task Card</th>
+                <th class="py-3 px-4 w-12 text-center">{{ $t('Rank') }}</th>
+                <th class="py-3 px-4">{{ $t('Team Member') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Accountability Score') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Tasks Completed') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('In Progress') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Overdue') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Compliance Score') }}</th>
+                <th class="py-3 px-4 pr-6">{{ $t('Current Task Card') }}</th>
               </tr>
             </thead>
             <tbody>

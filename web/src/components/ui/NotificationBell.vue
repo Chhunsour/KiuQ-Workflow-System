@@ -4,7 +4,7 @@
     <button
       class="nb-bell"
       type="button"
-      aria-label="Notifications"
+      aria-:label="$t('Notifications')"
       :aria-expanded="open"
       @click="toggleOpen"
     >
@@ -21,10 +21,10 @@
 
     <!-- Dropdown panel -->
     <Transition name="nb-drop">
-      <div v-if="open" class="nb-panel" role="dialog" aria-label="Notifications panel">
+      <div v-if="open" class="nb-panel" role="dialog" aria-:label="$t('Notifications panel')">
         <!-- Panel header -->
         <div class="nb-panel-header">
-          <span class="nb-panel-title">Notifications</span>
+          <span class="nb-panel-title">{{ $t('Notifications') }}</span>
           <div class="nb-panel-actions">
             <!-- Inline sound toggle -->
             <button
@@ -50,7 +50,7 @@
               type="button"
               @click="markAllRead"
             >
-              Mark all read
+              {{ $t('Mark all read') }}
             </button>
             <button
               v-if="showAdminTestButton"
@@ -58,10 +58,10 @@
               type="button"
               @click="createTestNotification"
             >
-              Test
+              {{ $t('Test') }}
             </button>
             <RouterLink to="/notifications" class="nb-action-btn nb-action-link" @click="open = false">
-              View all
+              {{ $t('View all') }}
             </RouterLink>
           </div>
         </div>
@@ -96,8 +96,8 @@
                 <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
               </svg>
             </div>
-            <p class="nb-empty-title">You're all caught up.</p>
-            <p class="nb-empty-desc">No new notifications right now.</p>
+            <p class="nb-empty-title">{{ $t('You\'re all caught up.') }}</p>
+            <p class="nb-empty-desc">{{ $t('No new notifications right now.') }}</p>
           </div>
 
           <template v-else v-for="group in groupedRecent" :key="group.key">
@@ -172,7 +172,7 @@
                                 type="button"
                                 @click.stop="notifs.markRead(subNotif.id)"
                               >
-                                Mark Read
+                                {{ $t('Mark Read') }}
                               </button>
                               <button
                                 v-if="hasAction(subNotif)"
@@ -229,7 +229,7 @@
                             type="button"
                             @click.stop="notifs.markRead(groupItem.id)"
                           >
-                            Mark Read
+                            {{ $t('Mark Read') }}
                           </button>
                           <button
                             v-if="hasAction(groupItem)"

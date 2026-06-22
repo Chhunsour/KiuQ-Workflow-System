@@ -6,14 +6,14 @@
         v-model="memberSearch"
         class="input fmg-search"
         type="search"
-        placeholder="Search member…"
+        :placeholder="$t('Search member…')"
       />
       <input
         v-if="kind !== 'ebay'"
         v-model="websiteSearch"
         class="input fmg-search"
         type="search"
-        placeholder="Search website…"
+        :placeholder="$t('Search website…')"
       />
       <div class="fmg-statusfilter">
         <button
@@ -204,13 +204,13 @@
                   :disabled="isPastWeek || d.state === 'done' || isSaving(`${ws.website.id}:${d.date}`)"
                   @click="markBlogDay(ws.website.id, d.date, d.dow)"
                 >
-                  <span v-if="isSaving(`${ws.website.id}:${d.date}`)">Saving…</span>
+                  <span v-if="isSaving(`${ws.website.id}:${d.date}`)">{{ $t('Saving…') }}</span>
                   <span v-else-if="d.state === 'done'">✓ {{ d.label }} Done</span>
                   <span v-else-if="d.state === 'missed'">Missed {{ d.label }}</span>
                   <span v-else>Mark {{ d.label }}</span>
                 </button>
                 <span v-if="ws.blogDays.length === 0" class="fmg-no-days">
-                  Nothing scheduled this week
+                  {{ $t('Nothing scheduled this week') }}
                 </span>
               </div>
 
@@ -226,10 +226,10 @@
                   :disabled="isPastWeek || ws.statusKind === 'done' || isSaving(`${ws.website.id}:plugin`)"
                   @click="markPluginWeek(ws.website.id)"
                 >
-                  <span v-if="isSaving(`${ws.website.id}:plugin`)">Saving…</span>
-                  <span v-else-if="ws.statusKind === 'done'">✓ Done this week</span>
-                  <span v-else-if="ws.statusKind === 'missed'">Missed</span>
-                  <span v-else>Mark done</span>
+                  <span v-if="isSaving(`${ws.website.id}:plugin`)">{{ $t('Saving…') }}</span>
+                  <span v-else-if="ws.statusKind === 'done'">{{ $t('✓ Done this week') }}</span>
+                  <span v-else-if="ws.statusKind === 'missed'">{{ $t('Missed') }}</span>
+                  <span v-else>{{ $t('Mark done') }}</span>
                 </button>
               </div>
             </div>
@@ -796,7 +796,7 @@ const isSaving = (key: string) => saving.value === key;
 .fmg-statusbtn:last-child { border-right: none; }
 .fmg-statusbtn--active {
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 
 .fmg-empty,

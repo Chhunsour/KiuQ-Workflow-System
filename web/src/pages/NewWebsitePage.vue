@@ -2,17 +2,17 @@
   <div class="nw-page">
     <!-- Header -->
     <PageHeader
-      :title="isEdit ? 'Edit Website Profile' : (mode === 'existing' ? 'Add Existing Website' : 'New Website Profile')"
-      :subtitle="isEdit ? 'Update this website\'s saved details.' : (mode === 'existing' ? 'Quickly add an existing website so it appears in Prompt Library, Work Board, Followup, and Blog/Plugin trackers.' : 'Fill in website details once — reuse everywhere in prompts, sections, and followup.')"
+      :title="isEdit ? $t('websites.editWebsiteTitle') : (mode === 'existing' ? $t('websites.addNewWebsite') : $t('websites.newWebsiteTitle'))"
+      :subtitle="isEdit ? $t('websites.updateSavedDetails') : (mode === 'existing' ? $t('websites.addExistingDesc') : $t('websites.newDesc'))"
     >
       <template #actions>
-        <RouterLink :to="isEdit ? '/websites/my' : (auth.isAdmin ? '/websites/my' : '/my-dashboard')" class="btn-secondary">Cancel</RouterLink>
+        <RouterLink :to="isEdit ? '/websites/my' : (auth.isAdmin ? '/websites/my' : '/my-dashboard')" class="btn-secondary">{{ $t('common.cancel') }}</RouterLink>
       </template>
     </PageHeader>
 
     <!-- Read-only Alert Banner -->
     <div v-if="auth.isViewer" class="rounded-card border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
-      <strong>View-only Mode:</strong> You do not have permissions to edit or create website profiles.
+      <strong>{{ $t('websites.viewOnlyMode') }}</strong> {{ $t('websites.viewOnlyModeDesc') }}
     </div>
 
     <!-- Mode switcher (only on create, not edit) -->
@@ -24,7 +24,7 @@
         @click="mode = 'new'"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-        New Website
+        {{ $t('websites.newWebsiteTitle') }}
       </button>
       <button
         class="nw-mode-tab"
@@ -33,7 +33,7 @@
         @click="mode = 'existing'"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>
-        Existing Website
+        {{ $t('websites.existingWebsite') }}
       </button>
     </div>
 
@@ -47,18 +47,18 @@
         <div class="nw-ex-card">
           <div class="nw-ex-card-label">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>
-            Website Details
+            {{ $t('websites.websiteDetails') }}
           </div>
 
           <div class="nw-ex-fields">
             <!-- Name -->
             <div class="nw-field" :class="{ 'nw-field--error': exErrors.name }">
-              <label class="nw-label">Website Name <span class="nw-req">*</span></label>
+              <label class="nw-label">{{ $t('websites.websiteName') }} <span class="nw-req">*</span></label>
               <input
                 v-model="exModel.name"
                 class="input"
                 type="text"
-                placeholder="Acme Store"
+                :placeholder="$t('websites.websiteNamePlaceholder')"
                 @input="delete exErrors.name"
               />
               <span v-if="exErrors.name" class="nw-error-msg">{{ exErrors.name }}</span>
@@ -66,25 +66,25 @@
 
             <!-- Domain -->
             <div class="nw-field" :class="{ 'nw-field--error': exErrors.domain }">
-              <label class="nw-label">Domain URL <span class="nw-req">*</span></label>
+              <label class="nw-label">{{ $t('websites.domainUrl') }} <span class="nw-req">*</span></label>
               <input
                 v-model="exModel.domain"
                 class="input"
                 type="text"
-                placeholder="https://acme.com"
+                :placeholder="$t('websites.domainUrlPlaceholder')"
                 @input="onExDomainInput"
               />
               <span v-if="exErrors.domain" class="nw-error-msg">{{ exErrors.domain }}</span>
             </div>
             <!-- Platform selection dropdown -->
             <div class="nw-field">
-              <label class="nw-label">Website Platform</label>
+              <label class="nw-label">{{ $t('websites.platformLabel') }}</label>
               <select v-model="exModel.platformType" class="input">
-                <option value="wordpress">WordPress Website</option>
-                <option value="framework">Framework Website</option>
-                <option value="unknown">Not sure / Unknown</option>
+                <option value="wordpress">{{ $t('websites.wordpress') }}</option>
+                <option value="framework">{{ $t('websites.framework') }}</option>
+                <option value="unknown">{{ $t('performance.unknown') }}</option>
               </select>
-              <p class="nw-hint">Choose how this website is built so reports and dashboard counts stay accurate.</p>
+              <p class="nw-hint">{{ $t('websites.choosePlatformDesc') }}</p>
             </div>
           </div>
         </div>
@@ -93,8 +93,8 @@
         <div class="nw-ex-card nw-ex-card--favicon">
           <div class="nw-ex-card-label">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h4"/></svg>
-            Favicon
-            <span class="nw-optional-pill">Optional</span>
+            {{ $t('Favicon') }}
+            <span class="nw-optional-pill">{{ $t('common.optional') }}</span>
           </div>
           <FaviconPicker v-model="exModel.faviconUrl" :domain="exModel.domain" />
         </div>
@@ -102,19 +102,19 @@
         <!-- Info notice -->
         <div class="nw-ex-notice">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-          <span>Default design values will be applied automatically. You can edit them anytime from the Website Profile page.</span>
+          <span>{{ $t('websites.defaultDesignDesc') }}</span>
         </div>
       </fieldset>
 
       <!-- Actions -->
       <div class="nw-footer">
         <div class="nw-footer-left">
-          <RouterLink :to="auth.isAdmin ? '/websites/my' : '/my-dashboard'" class="btn-secondary">Cancel</RouterLink>
+          <RouterLink :to="auth.isAdmin ? '/websites/my' : '/my-dashboard'" class="btn-secondary">{{ $t('common.cancel') }}</RouterLink>
         </div>
         <div class="nw-footer-right">
           <button class="btn-primary nw-submit-btn" type="button" :disabled="!!exSaving || auth.isViewer" @click="submitExisting">
             <svg v-if="!exSaving" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            {{ exSaving ? 'Saving…' : 'Save Website' }}
+            {{ exSaving ? $t('websites.saving') : $t('websites.saveWebsite') }}
           </button>
         </div>
       </div>
@@ -165,84 +165,84 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>
             </div>
             <div>
-              <h2 class="nw-section-title">Basic Website Info</h2>
-              <p class="nw-section-sub">Identify and describe this website.</p>
+              <h2 class="nw-section-title">{{ $t('websites.basicInfo') }}</h2>
+              <p class="nw-section-sub">{{ $t('websites.basicInfoDesc') }}</p>
             </div>
           </div>
 
           <div class="nw-grid-2">
             <div class="nw-field" :class="{ 'nw-field--error': errors.name }">
-              <label class="nw-label">Website Name <span class="nw-req">*</span></label>
-              <input v-model="model.name" class="input" type="text" placeholder="Acme Store" @input="clearError('name')" />
+              <label class="nw-label">{{ $t('websites.websiteName') }} <span class="nw-req">*</span></label>
+              <input v-model="model.name" class="input" type="text" :placeholder="$t('websites.websiteNamePlaceholder')" @input="clearError('name')" />
               <span v-if="errors.name" class="nw-error-msg">{{ errors.name }}</span>
             </div>
             <div class="nw-field" :class="{ 'nw-field--error': errors.domain }">
-              <label class="nw-label">Domain <span class="nw-req">*</span></label>
-              <input v-model="model.domain" class="input" type="text" placeholder="acme.example.com" @input="onNwDomainInput" />
+              <label class="nw-label">{{ $t('websites.domainUrl') }} <span class="nw-req">*</span></label>
+              <input v-model="model.domain" class="input" type="text" :placeholder="$t('websites.domainUrlPlaceholder')" @input="onNwDomainInput" />
               <span v-if="errors.domain" class="nw-error-msg">{{ errors.domain }}</span>
             </div>
             <div class="nw-field" :class="{ 'nw-field--error': errors.websiteType }">
-              <label class="nw-label">Website Type <span class="nw-req">*</span></label>
+              <label class="nw-label">{{ $t('websites.type') }} <span class="nw-req">*</span></label>
               <select v-model="model.websiteType" class="input" @change="clearError('websiteType')">
-                <option value="">— Select type —</option>
-                <option value="ecommerce">Normal E-commerce Website</option>
-                <option value="landing">Product Landing Website</option>
-                <option value="catalog">Catalog Website</option>
-                <option value="blog">Blog / Guide Website</option>
-                <option value="service">Service Website</option>
-                <option value="brand">Brand Website</option>
+                <option value="">— {{ $t('websites.platformPlaceholder') }} —</option>
+                <option value="ecommerce">{{ $t('websites.normalEcommerce') }}</option>
+                <option value="landing">{{ $t('websites.productLanding') }}</option>
+                <option value="catalog">{{ $t('websites.catalogWebsite') }}</option>
+                <option value="blog">{{ $t('websites.blogGuide') }}</option>
+                <option value="service">{{ $t('websites.serviceWebsite') }}</option>
+                <option value="brand">{{ $t('websites.brandWebsite') }}</option>
               </select>
               <span v-if="errors.websiteType" class="nw-error-msg">{{ errors.websiteType }}</span>
             </div>
             <div class="nw-field">
-              <label class="nw-label">Industry / Niche</label>
-              <input v-model="model.industry" class="input" type="text" placeholder="Machinery, Fashion, Tech…" />
-              <p class="nw-hint">Defaults to 'Machinery'. Helps the AI understand the business context.</p>
+              <label class="nw-label">{{ $t('websites.industry') }}</label>
+              <input v-model="model.industry" class="input" type="text" :placeholder="$t('Machinery, Fashion, Tech…')" />
+              <p class="nw-hint">{{ $t('websites.industryDesc') }}</p>
             </div>
           </div>
 
           <div class="nw-field nw-field--full">
-            <label class="nw-label">Target Audience</label>
-            <input v-model="model.targetAudience" class="input" type="text" placeholder="Young professionals aged 25–40 looking for…" />
-            <p class="nw-hint">Describe who visits and buys from this site.</p>
+            <label class="nw-label">{{ $t('websites.targetAudience') }}</label>
+            <input v-model="model.targetAudience" class="input" type="text" :placeholder="$t('Young professionals aged 25–40 looking for…')" />
+            <p class="nw-hint">{{ $t('websites.targetAudienceDesc') }}</p>
           </div>
 
           <div class="nw-field nw-field--full">
-            <label class="nw-label">Website Goal</label>
-            <textarea v-model="model.websiteGoal" class="input" rows="3" placeholder="The goal of this website is to sell premium skincare products directly to consumers via a clean, fast online store." />
-            <p class="nw-hint">What should visitors do or understand when they land here?</p>
+            <label class="nw-label">{{ $t('websites.websiteGoal') }}</label>
+            <textarea v-model="model.websiteGoal" class="input" rows="3" :placeholder="$t('The goal of this website is to sell premium skincare products directly to consumers via a clean, fast online store.')" />
+            <p class="nw-hint">{{ $t('websites.websiteGoalDesc') }}</p>
           </div>
 
           <div class="nw-grid-2">
             <div class="nw-field">
-              <label class="nw-label">Status</label>
+              <label class="nw-label">{{ $t('common.status') }}</label>
               <select v-model="model.status" class="input">
-                <option value="in_development">In Development</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="in_development">{{ $t('common.statuses.in_development') }}</option>
+                <option value="active">{{ $t('common.statuses.active') }}</option>
+                <option value="inactive">{{ $t('common.statuses.inactive') }}</option>
               </select>
             </div>
             <div class="nw-field">
-              <label class="nw-label">Website Platform</label>
+              <label class="nw-label">{{ $t('websites.platformLabel') }}</label>
               <select v-model="model.platformType" class="input" @change="model.isFramework = model.platformType === 'framework'">
-                <option value="wordpress">WordPress Website</option>
-                <option value="framework">Framework Website</option>
-                <option value="unknown">Not sure / Unknown</option>
+                <option value="wordpress">{{ $t('websites.wordpress') }}</option>
+                <option value="framework">{{ $t('websites.framework') }}</option>
+                <option value="unknown">{{ $t('performance.unknown') }}</option>
               </select>
-              <p class="nw-hint">Choose how this website is built so reports and dashboard counts stay accurate.</p>
+              <p class="nw-hint">{{ $t('websites.choosePlatformDesc') }}</p>
             </div>
             <div v-if="auth.isAdmin" class="nw-field">
-              <label class="nw-label">Assigned Member</label>
+              <label class="nw-label">{{ $t('websites.assignedMember') }}</label>
               <select v-model="model.createdBy" class="input">
-                <option value="">— Unassigned / No member —</option>
+                <option value="">— {{ $t('qualityCheck.unassigned') }} —</option>
                 <option v-for="m in data.members" :key="m.id" :value="m.id">{{ m.fullName || m.email }}</option>
               </select>
-              <p class="nw-hint">Assign this website to a team member who is responsible for it.</p>
+              <p class="nw-hint">{{ $t('websites.assigneeDesc') }}</p>
             </div>
           </div>
 
           <div class="nw-field nw-field--full">
-            <label class="nw-label">Favicon <span class="nw-optional-tag">Optional</span></label>
+            <label class="nw-label">{{ $t('Favicon') }} <span class="nw-optional-tag">{{ $t('common.optional') }}</span></label>
             <FaviconPicker v-model="model.faviconUrl" :domain="model.domain" />
           </div>
         </div>
@@ -254,32 +254,32 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="13" r="2.5"/><circle cx="6.5" cy="13" r="2.5"/><circle cx="13.5" cy="19.5" r="2.5"/><path d="M13.5 9v2M11 7.5l1.5 1.5M16 7.5l-1.5 1.5M19 10.5l-1.5 2M13.5 17v-2M11 15.5l1.5-1.5M16 15.5l-1.5-1.5M8.5 10.5l1.5 2"/></svg>
             </div>
             <div>
-              <h2 class="nw-section-title">Brand &amp; Design</h2>
-              <p class="nw-section-sub">Colors, fonts, and layout settings used in all prompts.</p>
+              <h2 class="nw-section-title">{{ $t('websites.design') }}</h2>
+              <p class="nw-section-sub">{{ $t('websites.designDesc') }}</p>
             </div>
           </div>
 
           <div class="nw-color-grid">
             <div class="nw-colorfield" :class="{ 'nw-field--error': errors.primaryColor }">
-              <label class="nw-label">Primary Color <span class="nw-req">*</span></label>
+              <label class="nw-label">{{ $t('websites.primaryColor') }} <span class="nw-req">*</span></label>
               <div class="nw-color-row">
                 <input v-model="model.primaryColor" class="nw-color-picker" type="color" @input="clearError('primaryColor')" />
-                <input v-model="model.primaryColor" class="input nw-color-text" type="text" placeholder="#15D6C2" @input="clearError('primaryColor')" />
+                <input v-model="model.primaryColor" class="input nw-color-text" type="text" :placeholder="$t('#15D6C2')" @input="clearError('primaryColor')" />
               </div>
               <span v-if="errors.primaryColor" class="nw-error-msg">{{ errors.primaryColor }}</span>
             </div>
             <div class="nw-colorfield">
-              <label class="nw-label">Secondary Color</label>
+              <label class="nw-label">{{ $t('websites.secondaryColor') }}</label>
               <div class="nw-color-row">
                 <input v-model="model.secondaryColor" class="nw-color-picker" type="color" />
-                <input v-model="model.secondaryColor" class="input nw-color-text" type="text" placeholder="#0f172a" />
+                <input v-model="model.secondaryColor" class="input nw-color-text" type="text" :placeholder="$t('#0f172a')" />
               </div>
             </div>
             <div class="nw-colorfield">
-              <label class="nw-label">Background Color</label>
+              <label class="nw-label">{{ $t('websites.backgroundColor') }}</label>
               <div class="nw-color-row">
                 <input v-model="model.backgroundColor" class="nw-color-picker" type="color" />
-                <input v-model="model.backgroundColor" class="input nw-color-text" type="text" placeholder="#ffffff" />
+                <input v-model="model.backgroundColor" class="input nw-color-text" type="text" :placeholder="$t('#fbfbfb')" />
               </div>
             </div>
           </div>
@@ -288,33 +288,33 @@
 
           <div class="nw-grid-2">
             <div class="nw-field" :class="{ 'nw-field--error': errors.fontFamily }">
-              <label class="nw-label">Font Family <span class="nw-req">*</span></label>
-              <input v-model="model.fontFamily" class="input" type="text" placeholder="Inter" @input="clearError('fontFamily')" />
-              <p class="nw-hint">Main body font used across the website.</p>
+              <label class="nw-label">{{ $t('websites.fontFamily') }} <span class="nw-req">*</span></label>
+              <input v-model="model.fontFamily" class="input" type="text" :placeholder="$t('Inter')" @input="clearError('fontFamily')" />
+              <p class="nw-hint">{{ $t('websites.fontFamilyDesc') }}</p>
               <span v-if="errors.fontFamily" class="nw-error-msg">{{ errors.fontFamily }}</span>
             </div>
             <div class="nw-field">
-              <label class="nw-label">Button Font Family</label>
-              <input v-model="model.buttonFontFamily" class="input" type="text" placeholder="Inter" />
-              <p class="nw-hint">Font used specifically for buttons. Leave same as above if identical.</p>
+              <label class="nw-label">{{ $t('websites.buttonFontFamily') }}</label>
+              <input v-model="model.buttonFontFamily" class="input" type="text" :placeholder="$t('Inter')" />
+              <p class="nw-hint">{{ $t('websites.buttonFontFamilyDesc') }}</p>
             </div>
             <div class="nw-field" :class="{ 'nw-field--error': errors.maxWidth }">
-              <label class="nw-label">Max Width <span class="nw-req">*</span></label>
-              <input v-model="model.maxWidth" class="input" type="text" placeholder="1200px" @input="clearError('maxWidth')" />
-              <p class="nw-hint">Maximum container width (e.g. 1200px, 1440px).</p>
+              <label class="nw-label">{{ $t('websites.maxWidth') }} <span class="nw-req">*</span></label>
+              <input v-model="model.maxWidth" class="input" type="text" :placeholder="$t('1200px')" @input="clearError('maxWidth')" />
+              <p class="nw-hint">{{ $t('websites.maxWidthDesc') }}</p>
               <span v-if="errors.maxWidth" class="nw-error-msg">{{ errors.maxWidth }}</span>
             </div>
             <div class="nw-field">
-              <label class="nw-label">Border Radius</label>
-              <input v-model="model.borderRadius" class="input" type="text" placeholder="12px" />
-              <p class="nw-hint">Default corner rounding (e.g. 8px, 16px, 0px).</p>
+              <label class="nw-label">{{ $t('websites.borderRadius') }}</label>
+              <input v-model="model.borderRadius" class="input" type="text" :placeholder="$t('12px')" />
+              <p class="nw-hint">{{ $t('websites.borderRadiusDesc') }}</p>
             </div>
           </div>
 
           <div class="nw-field nw-field--full">
-            <label class="nw-label">Design Style Notes</label>
-            <textarea v-model="model.designStyleNotes" class="input" rows="3" placeholder="Clean, minimal, modern. Uses soft shadows. No heavy gradients." />
-            <p class="nw-hint">Describe the visual personality: modern, editorial, playful, luxury…</p>
+            <label class="nw-label">{{ $t('websites.designStyleNotes') }}</label>
+            <textarea v-model="model.designStyleNotes" class="input" rows="3" :placeholder="$t('Clean, minimal, modern. Uses soft shadows. No heavy gradients.')" />
+            <p class="nw-hint">{{ $t('websites.designStyleNotesDesc') }}</p>
           </div>
         </div>
 
@@ -325,53 +325,53 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.39 2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg>
             </div>
             <div>
-              <h2 class="nw-section-title">Contact Info</h2>
-              <p class="nw-section-sub">Contact details and social media links for this website.</p>
+              <h2 class="nw-section-title">{{ $t('websites.contact') }}</h2>
+              <p class="nw-section-sub">{{ $t('websites.contactDesc') }}</p>
             </div>
           </div>
 
           <div class="nw-grid-2">
             <div class="nw-field">
-              <label class="nw-label">Phone Number</label>
+              <label class="nw-label">{{ $t('websites.phoneNumber') }}</label>
               <input v-model="model.phoneNumber" class="input" type="text" placeholder="+1 555 123 4567" />
             </div>
             <div class="nw-field">
-              <label class="nw-label">Email Address</label>
+              <label class="nw-label">{{ $t('settings.email') }}</label>
               <input v-model="model.email" class="input" type="email" placeholder="hello@acme.com" />
             </div>
           </div>
 
           <div class="nw-field nw-field--full">
-            <label class="nw-label">Business Address</label>
-            <textarea v-model="model.businessAddress" class="input" rows="2" placeholder="123 Main Street, New York, NY 10001" />
+            <label class="nw-label">{{ $t('websites.businessAddress') }}</label>
+            <textarea v-model="model.businessAddress" class="input" rows="2" :placeholder="$t('123 Main Street, New York, NY 10001')" />
           </div>
 
           <div class="nw-divider" />
-          <p class="nw-subsection-title">Social Media</p>
+          <p class="nw-subsection-title">{{ $t('Social Media') }}</p>
 
           <div class="nw-grid-2">
             <div class="nw-field">
-              <label class="nw-label">WhatsApp Link</label>
+              <label class="nw-label">{{ $t('websites.whatsappLink') }}</label>
               <input v-model="model.whatsappLink" class="input" type="url" placeholder="https://wa.me/1234567890" />
             </div>
             <div class="nw-field">
-              <label class="nw-label">Facebook</label>
+              <label class="nw-label">{{ $t('Facebook') }}</label>
               <input v-model="model.facebookLink" class="input" type="url" placeholder="https://facebook.com/acme" />
             </div>
             <div class="nw-field">
-              <label class="nw-label">Instagram</label>
+              <label class="nw-label">{{ $t('Instagram') }}</label>
               <input v-model="model.instagramLink" class="input" type="url" placeholder="https://instagram.com/acme" />
             </div>
             <div class="nw-field">
-              <label class="nw-label">YouTube</label>
+              <label class="nw-label">{{ $t('YouTube') }}</label>
               <input v-model="model.youtubeLink" class="input" type="url" placeholder="https://youtube.com/@acme" />
             </div>
           </div>
 
           <div class="nw-field nw-field--full">
-            <label class="nw-label">Other Social / Links</label>
+            <label class="nw-label">{{ $t('websites.otherSocialLinks') }}</label>
             <textarea v-model="model.otherSocialLinks" class="input" rows="3" placeholder="TikTok: https://tiktok.com/@acme&#10;LinkedIn: https://linkedin.com/company/acme" />
-            <p class="nw-hint">One per line. Include the platform name.</p>
+            <p class="nw-hint">{{ $t('websites.otherSocialLinksDesc') }}</p>
           </div>
         </div>
 
@@ -382,8 +382,8 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             </div>
             <div>
-              <h2 class="nw-section-title">Product Detail Docs <span class="nw-optional-tag">Optional</span></h2>
-              <p class="nw-section-sub">Link product detail documents from Docs Drive. Used in Prompt Builder for product landing page prompts.</p>
+              <h2 class="nw-section-title">{{ $t('websites.productDocs') }} <span class="nw-optional-tag">{{ $t('common.optional') }}</span></h2>
+              <p class="nw-section-sub">{{ $t('websites.productDocsDesc') }}</p>
             </div>
           </div>
 
@@ -395,18 +395,18 @@
                 v-model="docsSearch"
                 class="nw-docs-search"
                 type="text"
-                placeholder="Search docs by title…"
+                :placeholder="$t('websites.searchDocsPlaceholder')"
               />
             </div>
             <select v-model="docsFilterFolder" class="nw-docs-folder-filter">
-              <option value="">All folders</option>
+              <option value="">{{ $t('websites.allFolders') }}</option>
               <option v-for="f in data.docsFolders" :key="f.id" :value="f.id">{{ f.name }}</option>
             </select>
           </div>
 
           <!-- Selected docs chips -->
           <div v-if="selectedDocIds.length > 0" class="nw-docs-selected">
-            <span class="nw-docs-selected-label">Selected ({{ selectedDocIds.length }}):</span>
+            <span class="nw-docs-selected-label">{{ $t('websites.selectedDocs', { count: selectedDocIds.length }) }}</span>
             <div class="nw-docs-chips">
               <div
                 v-for="docId in selectedDocIds"
@@ -448,7 +448,7 @@
 
           <div v-else class="nw-docs-empty">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <p>{{ docsSearch || docsFilterFolder ? 'No docs match your search.' : 'No docs found. Add documents in Docs Drive first.' }}</p>
+            <p>{{ docsSearch || docsFilterFolder ? $t('websites.noDocsMatchSearch') : $t('websites.noDocsFoundDesc') }}</p>
           </div>
         </div>
 
@@ -459,64 +459,64 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             </div>
             <div>
-              <h2 class="nw-section-title">Review &amp; Submit</h2>
-              <p class="nw-section-sub">Review what you've entered before creating the website profile.</p>
+              <h2 class="nw-section-title">{{ $t('websites.reviewSubmit') }}</h2>
+              <p class="nw-section-sub">{{ $t('websites.reviewSubmitDesc') }}</p>
             </div>
           </div>
 
           <!-- Review cards -->
           <div class="nw-review-grid">
             <div class="nw-review-card">
-              <div class="nw-review-card-title">Basic Info</div>
-              <div class="nw-review-row"><span>Name</span><strong>{{ model.name || '—' }}</strong></div>
-              <div class="nw-review-row"><span>Domain</span><strong>{{ model.domain || '—' }}</strong></div>
-              <div class="nw-review-row"><span>Type</span><strong>{{ websiteTypeLabel(model.websiteType) || '—' }}</strong></div>
-              <div class="nw-review-row"><span>Platform</span><strong>{{ model.platformType === 'wordpress' ? 'WordPress' : (model.platformType === 'framework' ? 'Framework' : 'Unknown') }}</strong></div>
-              <div class="nw-review-row"><span>Assigned Member</span><strong>{{ creatorName(model) || '—' }}</strong></div>
-              <div class="nw-review-row"><span>Industry</span><strong>{{ model.industry || '—' }}</strong></div>
-              <div class="nw-review-row"><span>Status</span><strong>{{ model.status }}</strong></div>
+              <div class="nw-review-card-title">{{ $t('websites.basicInfo') }}</div>
+              <div class="nw-review-row"><span>{{ $t('websites.websiteName') }}</span><strong>{{ model.name || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('Domain') }}</span><strong>{{ model.domain || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('websites.type') }}</span><strong>{{ websiteTypeLabel(model.websiteType) || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('websites.platform') }}</span><strong>{{ model.platformType === 'wordpress' ? 'WordPress' : (model.platformType === 'framework' ? 'Framework' : 'Unknown') }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('websites.assignedMember') }}</span><strong>{{ creatorName(model) || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('websites.industry') }}</span><strong>{{ model.industry || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('websites.status') }}</span><strong>{{ model.status }}</strong></div>
             </div>
 
             <div class="nw-review-card">
-              <div class="nw-review-card-title">Brand &amp; Design</div>
+              <div class="nw-review-card-title">{{ $t('websites.design') }}</div>
               <div class="nw-review-row">
-                <span>Primary</span>
+                <span>{{ $t('websites.primaryColor') }}</span>
                 <strong class="nw-review-color">
                   <span class="nw-color-swatch" :style="{ background: model.primaryColor }" />
                   {{ model.primaryColor }}
                 </strong>
               </div>
               <div class="nw-review-row">
-                <span>Secondary</span>
+                <span>{{ $t('websites.secondaryColor') }}</span>
                 <strong class="nw-review-color">
                   <span class="nw-color-swatch" :style="{ background: model.secondaryColor }" />
                   {{ model.secondaryColor }}
                 </strong>
               </div>
               <div class="nw-review-row">
-                <span>Background</span>
+                <span>{{ $t('websites.backgroundColor') }}</span>
                 <strong class="nw-review-color">
                   <span class="nw-color-swatch" :style="{ background: model.backgroundColor }" />
                   {{ model.backgroundColor }}
                 </strong>
               </div>
-              <div class="nw-review-row"><span>Font</span><strong>{{ model.fontFamily || '—' }}</strong></div>
-              <div class="nw-review-row"><span>Max Width</span><strong>{{ model.maxWidth || '—' }}</strong></div>
-              <div class="nw-review-row"><span>Border Radius</span><strong>{{ model.borderRadius || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('websites.fontFamily') }}</span><strong>{{ model.fontFamily || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('websites.maxWidth') }}</span><strong>{{ model.maxWidth || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('websites.borderRadius') }}</span><strong>{{ model.borderRadius || '—' }}</strong></div>
             </div>
 
             <div class="nw-review-card">
-              <div class="nw-review-card-title">Contact</div>
-              <div class="nw-review-row"><span>Phone</span><strong>{{ model.phoneNumber || '—' }}</strong></div>
-              <div class="nw-review-row"><span>Email</span><strong>{{ model.email || '—' }}</strong></div>
-              <div class="nw-review-row"><span>WhatsApp</span><strong>{{ model.whatsappLink || '—' }}</strong></div>
-              <div class="nw-review-row"><span>Facebook</span><strong>{{ model.facebookLink || '—' }}</strong></div>
-              <div class="nw-review-row"><span>Instagram</span><strong>{{ model.instagramLink || '—' }}</strong></div>
+              <div class="nw-review-card-title">{{ $t('websites.contact') }}</div>
+              <div class="nw-review-row"><span>{{ $t('websites.phoneNumber') }}</span><strong>{{ model.phoneNumber || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('settings.email') }}</span><strong>{{ model.email || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('WhatsApp') }}</span><strong>{{ model.whatsappLink || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('Facebook') }}</span><strong>{{ model.facebookLink || '—' }}</strong></div>
+              <div class="nw-review-row"><span>{{ $t('Instagram') }}</span><strong>{{ model.instagramLink || '—' }}</strong></div>
             </div>
 
             <div class="nw-review-card nw-review-card--products">
-              <div class="nw-review-card-title">Product Detail Docs</div>
-              <div v-if="selectedDocIds.length === 0" class="nw-review-none">No docs linked</div>
+              <div class="nw-review-card-title">{{ $t('websites.productDocs') }}</div>
+              <div v-if="selectedDocIds.length === 0" class="nw-review-none">{{ $t('websites.noDocsMatchSearch') }}</div>
               <div v-else>
                 <div v-for="docId in selectedDocIds" :key="docId" class="nw-review-product">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -531,7 +531,7 @@
           <div v-if="Object.keys(errors).length > 0" class="nw-validation-summary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             <div>
-              <p class="nw-validation-title">Please fix these issues:</p>
+              <p class="nw-validation-title">{{ $t('websites.pleaseFixIssues') }}</p>
               <ul>
                 <li v-for="(msg, field) in errors" :key="field">{{ msg }}</li>
               </ul>
@@ -545,20 +545,20 @@
         <div class="nw-footer-left">
           <button v-if="currentStep > 0" class="btn-secondary" type="button" @click="prevStep">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-            Back
+            {{ $t('websites.back') }}
           </button>
         </div>
         <div class="nw-footer-right">
           <button class="btn-secondary" type="button" :disabled="!!saving || auth.isViewer" @click="saveDraft">
-            {{ saving === 'draft' ? 'Saving…' : 'Save Draft' }}
+            {{ saving === 'draft' ? $t('websites.saving') : $t('settings.saveDraft') }}
           </button>
           <button v-if="currentStep < steps.length - 1" class="btn-primary" type="button" @click="nextStep">
-            Next
+            {{ $t('pageIndexing.next') }}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
           <button v-else class="btn-primary nw-submit-btn" type="button" :disabled="!!saving || auth.isViewer" @click="submit">
             <svg v-if="!saving" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            {{ saving === 'submit' ? 'Creating…' : (isEdit ? 'Save Changes' : 'Create Website') }}
+            {{ saving === 'submit' ? $t('websites.creating') : (isEdit ? $t('websites.saveChanges') : $t('websites.createWebsite')) }}
           </button>
         </div>
       </div>
@@ -583,12 +583,14 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import { useDataStore, type Website, type DocsFileType } from '@/stores/data';
 import { useAuthStore } from '@/stores/auth';
 import FaviconPicker from '@/components/ui/FaviconPicker.vue';
 
+const { t } = useI18n();
 const data   = useDataStore();
 const auth   = useAuthStore();
 const route  = useRoute();
@@ -614,9 +616,9 @@ const validateDomain = (val: string) => {
 
 const validateExisting = (): boolean => {
   Object.keys(exErrors).forEach((k) => delete exErrors[k]);
-  if (!exModel.name.trim())        exErrors.name   = 'Website name is required.';
-  if (!exModel.domain.trim())      exErrors.domain = 'Domain URL is required.';
-  else if (!validateDomain(exModel.domain)) exErrors.domain = 'Please enter a valid domain or URL.';
+  if (!exModel.name.trim())        exErrors.name   = t('websites.errors.nameRequired');
+  if (!exModel.domain.trim())      exErrors.domain = t('websites.errors.domainRequired');
+  else if (!validateDomain(exModel.domain)) exErrors.domain = t('websites.errors.domainInvalid');
   return Object.keys(exErrors).length === 0;
 };
 
@@ -640,7 +642,7 @@ const submitExisting = async () => {
     secondaryColor: '#0f172a',
     accentColor: '#15D6C2',
     textColor: '#0f172a',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fbfbfb',
     fontFamily: 'Raleway',
     buttonFontFamily: 'Google Sans',
     maxWidth: '1200px',
@@ -679,7 +681,7 @@ const submitExisting = async () => {
   const savedId = await data.upsertWebsite(website);
   exSaving.value = false;
   if (savedId) {
-    showToastMsg('Existing website saved successfully.');
+    showToastMsg(t('websites.existingSaved'));
     setTimeout(() => {
       router.push(auth.isAdmin ? '/websites/my' : '/websites/my');
     }, 1000);
@@ -692,13 +694,13 @@ const currentStep     = ref(0);
 const showToast       = ref(false);
 const toastMsg        = ref('');
 
-const steps = [
-  { key: 'basic',   label: 'Basic Info' },
-  { key: 'design',  label: 'Design' },
-  { key: 'contact', label: 'Contact' },
-  { key: 'docs',    label: 'Product Docs' },
-  { key: 'review',  label: 'Review' },
-];
+const steps = computed(() => [
+  { key: 'basic',   label: t('websites.basicInfo') },
+  { key: 'design',  label: t('websites.design') },
+  { key: 'contact', label: t('websites.contact') },
+  { key: 'docs',    label: t('websites.productDocs') },
+  { key: 'review',  label: t('websites.review') },
+]);
 
 // ── Model ─────────────────────────────────────────────────────────────────────
 const blank = (): Website => ({
@@ -712,7 +714,7 @@ const blank = (): Website => ({
   secondaryColor: '#0f172a',
   accentColor: '#15D6C2',
   textColor: '#0f172a',
-  backgroundColor: '#ffffff',
+  backgroundColor: '#fbfbfb',
   fontFamily: 'Inter',
   buttonFontFamily: 'Inter',
   maxWidth: '1200px',
@@ -796,12 +798,12 @@ const clearError = (field: string) => { delete errors[field]; };
 
 const validate = (): boolean => {
   Object.keys(errors).forEach((k) => delete errors[k]);
-  if (!model.name.trim())        errors.name        = 'Website name is required.';
-  if (!model.domain.trim())      errors.domain      = 'Domain is required.';
-  if (!model.websiteType)        errors.websiteType = 'Website type is required.';
-  if (!model.primaryColor)       errors.primaryColor = 'Primary color is required.';
-  if (!model.fontFamily.trim())  errors.fontFamily  = 'Font family is required.';
-  if (!model.maxWidth.trim())    errors.maxWidth    = 'Max width is required.';
+  if (!model.name.trim())        errors.name        = t('websites.errors.nameRequired');
+  if (!model.domain.trim())      errors.domain      = t('websites.errors.domainRequired');
+  if (!model.websiteType)        errors.websiteType = t('websites.errors.typeRequired');
+  if (!model.primaryColor)       errors.primaryColor = t('websites.errors.primaryColorRequired');
+  if (!model.fontFamily.trim())  errors.fontFamily  = t('websites.errors.fontFamilyRequired');
+  if (!model.maxWidth.trim())    errors.maxWidth    = t('websites.errors.maxWidthRequired');
   return Object.keys(errors).length === 0;
 };
 
@@ -814,7 +816,7 @@ const stepHasErrors = (stepIdx: number): boolean => {
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 const goToStep = (i: number) => { currentStep.value = i; };
-const nextStep = () => { if (currentStep.value < steps.length - 1) currentStep.value++; };
+const nextStep = () => { if (currentStep.value < steps.value.length - 1) currentStep.value++; };
 const prevStep = () => { if (currentStep.value > 0) currentStep.value--; };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -877,7 +879,7 @@ const saveDraft = async () => {
   const savedId = await data.upsertWebsite({ ...model });
   if (savedId) {
     if (selectedDocIds.value.length > 0) await data.setWebsiteProductDocs(savedId, selectedDocIds.value);
-    showToastMsg('Draft saved.');
+    showToastMsg(t('websites.draftSaved'));
   }
   saving.value = false;
 };
@@ -892,7 +894,7 @@ const submit = async () => {
   const savedId = await data.upsertWebsite({ ...model });
   if (savedId) {
     await data.setWebsiteProductDocs(savedId, selectedDocIds.value);
-    showToastMsg(isEdit.value ? 'Website profile updated.' : 'Website profile created successfully.');
+    showToastMsg(isEdit.value ? t('websites.updatedMsg') : t('websites.createdMsg'));
     setTimeout(() => {
       router.push(auth.isAdmin ? '/websites/my' : '/websites/my');
     }, 1000);
@@ -961,7 +963,7 @@ const submit = async () => {
 .nw-step--active .nw-step-num {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 
 .nw-step--done .nw-step-num {
@@ -1399,7 +1401,7 @@ const submit = async () => {
   align-items: center;
   gap: 0.5rem;
   background: #16a34a;
-  color: #fff;
+  color: #f8fbff;
   border-radius: 12px;
   padding: 0.75rem 1.1rem;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
@@ -1668,7 +1670,7 @@ const submit = async () => {
 .nw-doc-card--selected .nw-doc-check {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 
 .nw-doc-type-badge {

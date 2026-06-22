@@ -55,9 +55,11 @@ serve(async (req) => {
   const { data: { user }, error: userErr } = await admin.auth.getUser(authHeader.slice(7));
   if (userErr || !user) return json({ error: 'unauthorized' }, 401);
   const { data: prof } = await admin.from('profiles').select('role, status').eq('id', user.id).single();
-  if (!['admin', 'owner', 'head', 'supervisor'].includes(String(prof?.role ?? '').toLowerCase()) || prof?.status !== 'active') {
+  const role = String(prof?.role ?? '').toLowerCase();
+  if (prof?.status !== 'active') {
     return json({ error: 'forbidden' }, 403);
   }
+  const isManagement = ['admin', 'owner', 'head', 'supervisor'].includes(role);
 
   if (!CLIENT_ID || !CLIENT_SECRET) return json({ error: 'not_configured' }, 200);
 
@@ -65,6 +67,13 @@ serve(async (req) => {
   try { body = await req.json(); } catch { /* default */ }
   const websiteId = body.website_id;
   if (!websiteId) return json({ error: 'missing_website_id' }, 200);
+
+  if (!isManagement) {
+    const { data: web } = await admin.from('websites').select('created_by').eq('id', websiteId).maybeSingle();
+    if (!web || web.created_by !== user.id) {
+      return json({ error: 'forbidden', message: 'You do not have permission to inspect URLs for this website.' }, 403);
+    }
+  }
   const mode = body.mode ?? 'new';
   const limit = Math.min(Math.max(Number(body.limit) || 25, 1), MAX_BATCH);
 
@@ -72,8 +81,20 @@ serve(async (req) => {
   if (!conn?.gsc_property_url) return json({ error: 'not_mapped', message: 'No Search Console property is mapped to this website.' }, 200);
   const siteUrl = normalizeProperty(conn.gsc_property_url);
 
-  const { data: acct } = await admin.from('gsc_oauth_accounts').select('refresh_token').limit(1).maybeSingle();
-  if (!acct?.refresh_token) return json({ error: 'not_connected' }, 200);
+  let refreshToken = '';
+  // 1. Try to find the token in user_google_connections for the calling user
+  const { data: userConn } = await admin.from('user_google_connections').select('refresh_token').eq('user_id', user.id).maybeSingle();
+  if (userConn?.refresh_token) {
+    refreshToken = userConn.refresh_token;
+  } else {
+    // 2. Fall back to gsc_oauth_accounts (legacy)
+    const { data: acct } = await admin.from('gsc_oauth_accounts').select('refresh_token').limit(1).maybeSingle();
+    if (acct?.refresh_token) {
+      refreshToken = acct.refresh_token;
+    }
+  }
+
+  if (!refreshToken) return json({ error: 'not_connected' }, 200);
 
   // Pick which URLs to inspect.
   let urlRows: UrlRow[] = [];
@@ -136,7 +157,7 @@ serve(async (req) => {
   if (urlRows.length === 0) return json({ success: true, website_id: websiteId, inspected_count: 0, indexed_count: 0, not_indexed_count: 0, warning_count: 0, failed_count: 0, message: 'no_urls_to_inspect' }, 200);
 
   let accessToken: string;
-  try { accessToken = await getAccessToken(acct.refresh_token); }
+  try { accessToken = await getAccessToken(refreshToken); }
   catch (e) { console.error('[gsc-inspect-urls] token refresh failed', String(e)); return json({ error: 'auth_failed' }, 200); }
 
   const { data: log } = await admin.from('website_indexing_sync_logs')

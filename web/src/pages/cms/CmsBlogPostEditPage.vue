@@ -7,7 +7,7 @@
       <header class="be-top">
         <RouterLink to="/cms/blog" class="be-back">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-          All Posts
+          {{ $t('All Posts') }}
         </RouterLink>
         <div class="be-top-right">
           <span class="be-saved" :class="{ 'be-saved--dirty': isDirty }">
@@ -20,8 +20,8 @@
         </div>
       </header>
 
-      <div v-if="loading" class="be-loading">Loading post…</div>
-      <div v-else-if="!post" class="be-loading">Post not found.</div>
+      <div v-if="loading" class="be-loading">{{ $t('Loading post…') }}</div>
+      <div v-else-if="!post" class="be-loading">{{ $t('Post not found.') }}</div>
 
       <template v-else>
         <div class="be-grid">
@@ -33,22 +33,22 @@
                 v-model="form.title"
                 class="be-title-input"
                 type="text"
-                placeholder="Post title…"
+                :placeholder="$t('Post title…')"
                 @blur="onTitleBlur"
               />
 
               <div class="be-slug">
-                <span class="be-slug-prefix">/blog/</span>
-                <input v-model="form.slug" class="be-slug-input" type="text" placeholder="post-url" @blur="onSlugBlur" />
+                <span class="be-slug-prefix">{{ $t('/blog/') }}</span>
+                <input v-model="form.slug" class="be-slug-input" type="text" :placeholder="$t('post-url')" @blur="onSlugBlur" />
               </div>
 
-              <label class="be-label">Excerpt</label>
+              <label class="be-label">{{ $t('Excerpt') }}</label>
               <textarea
                 v-model="form.excerpt"
                 class="be-input be-textarea"
                 rows="2"
                 maxlength="220"
-                placeholder="A short summary shown on blog cards and previews."
+                :placeholder="$t('A short summary shown on blog cards and previews.')"
               />
               <div class="be-counter">{{ form.excerpt.length }}/220</div>
             </section>
@@ -57,30 +57,30 @@
             <section class="be-card be-editor">
               <div class="be-editor-bar">
                 <div class="be-tools" :class="{ 'be-tools--hidden': mode === 'preview' }">
-                  <button type="button" class="be-tool" title="Bold (wrap **text**)" @click="wrap('**')"><b>B</b></button>
-                  <button type="button" class="be-tool" title="Italic (wrap *text*)" @click="wrap('*')"><i>I</i></button>
+                  <button type="button" class="be-tool" :title="$t('Bold (wrap **text**)')" @click="wrap('**')"><b>B</b></button>
+                  <button type="button" class="be-tool" :title="$t('Italic (wrap *text*)')" @click="wrap('*')"><i>I</i></button>
                   <span class="be-tool-sep" />
-                  <button type="button" class="be-tool" title="Heading" @click="linePrefix('## ')">H2</button>
-                  <button type="button" class="be-tool" title="Subheading" @click="linePrefix('### ')">H3</button>
+                  <button type="button" class="be-tool" :title="$t('Heading')" @click="linePrefix('## ')">{{ $t('H2') }}</button>
+                  <button type="button" class="be-tool" :title="$t('Subheading')" @click="linePrefix('### ')">{{ $t('H3') }}</button>
                   <span class="be-tool-sep" />
-                  <button type="button" class="be-tool" title="Bullet list" @click="linePrefix('- ')">
+                  <button type="button" class="be-tool" :title="$t('Bullet list')" @click="linePrefix('- ')">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                   </button>
-                  <button type="button" class="be-tool" title="Quote" @click="linePrefix('> ')">
+                  <button type="button" class="be-tool" :title="$t('Quote')" @click="linePrefix('> ')">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
                   </button>
-                  <button type="button" class="be-tool" title="Insert link" @click="wrap('[', '](https://)')">
+                  <button type="button" class="be-tool" :title="$t('Insert link')" @click="wrap('[', '](https://)')">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                   </button>
-                  <button type="button" class="be-tool" title="Insert image" :disabled="insertingImage" @click="pickInlineImage">
+                  <button type="button" class="be-tool" :title="$t('Insert image')" :disabled="insertingImage" @click="pickInlineImage">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
                   </button>
                   <input ref="inlineImageInput" type="file" accept="image/*" class="be-hidden-file" @change="onInlineImageChange" />
                 </div>
 
                 <div class="be-segmented">
-                  <button type="button" class="be-seg" :class="{ 'be-seg--active': mode === 'write' }" @click="mode = 'write'">Write</button>
-                  <button type="button" class="be-seg" :class="{ 'be-seg--active': mode === 'preview' }" @click="mode = 'preview'">Preview</button>
+                  <button type="button" class="be-seg" :class="{ 'be-seg--active': mode === 'write' }" @click="mode = 'write'">{{ $t('Write') }}</button>
+                  <button type="button" class="be-seg" :class="{ 'be-seg--active': mode === 'preview' }" @click="mode = 'preview'">{{ $t('Preview') }}</button>
                 </div>
               </div>
 
@@ -94,14 +94,14 @@
               />
               <div v-show="mode === 'preview'" class="be-preview cms-prose">
                 <div v-if="form.content.trim()" v-html="renderedContent" />
-                <p v-else class="be-preview-empty">Nothing to preview yet — switch to Write and start typing.</p>
+                <p v-else class="be-preview-empty">{{ $t('Nothing to preview yet — switch to Write and start typing.') }}</p>
               </div>
 
               <div class="be-editor-foot">
                 <span>{{ wordCount }} {{ wordCount === 1 ? 'word' : 'words' }}</span>
                 <span v-if="wordCount > 0" class="be-dot-sep">·</span>
                 <span v-if="wordCount > 0">~{{ readingTime }} min read</span>
-                <span class="be-foot-hint">Markdown supported</span>
+                <span class="be-foot-hint">{{ $t('Markdown supported') }}</span>
               </div>
             </section>
           </div>
@@ -110,8 +110,8 @@
           <aside class="be-side">
             <!-- Website — which site this post publishes to -->
             <section class="be-card be-side-card be-website-card">
-              <h3 class="be-side-title">Website</h3>
-              <p class="be-website-help">Tap the site this post belongs to.</p>
+              <h3 class="be-side-title">{{ $t('Website') }}</h3>
+              <p class="be-website-help">{{ $t('Tap the site this post belongs to.') }}</p>
               <div class="be-site-tiles">
                 <button
                   v-for="w in websites"
@@ -127,21 +127,21 @@
                   <span class="be-site-tile-name">{{ w.name || w.domain }}</span>
                 </button>
               </div>
-              <p v-if="!websites.length && !auth.isAdmin" class="be-website-warn">You haven't created any websites yet — add one under Websites first.</p>
-              <p v-else-if="!form.websiteId" class="be-website-warn">Assign a website so it publishes to the right place.</p>
+              <p v-if="!websites.length && !auth.isAdmin" class="be-website-warn">{{ $t('You haven\'t created any websites yet — add one under Websites first.') }}</p>
+              <p v-else-if="!form.websiteId" class="be-website-warn">{{ $t('Assign a website so it publishes to the right place.') }}</p>
             </section>
 
             <!-- Publish status -->
             <section class="be-card be-side-card">
-              <h3 class="be-side-title">Publishing</h3>
+              <h3 class="be-side-title">{{ $t('Publishing') }}</h3>
               <div class="be-publish-row">
-                <span class="be-publish-label">Status</span>
+                <span class="be-publish-label">{{ $t('Status') }}</span>
                 <span class="be-status-pill" :class="`be-status-pill--${form.status}`">
                   <span class="be-status-dot" />{{ form.status === 'published' ? 'Published' : 'Draft' }}
                 </span>
               </div>
               <div class="be-publish-row">
-                <span class="be-publish-label">Publish date</span>
+                <span class="be-publish-label">{{ $t('Publish date') }}</span>
                 <input v-model="form.publishDate" type="date" class="be-date" />
               </div>
               <div class="be-public-link">
@@ -156,7 +156,7 @@
             <!-- Pre-publish checklist -->
             <section class="be-card be-side-card">
               <div class="be-check-head">
-                <h3 class="be-side-title">Ready to publish?</h3>
+                <h3 class="be-side-title">{{ $t('Ready to publish?') }}</h3>
                 <span class="be-check-score" :class="{ 'be-check-score--done': allReady }">{{ readyCount }}/{{ checklist.length }}</span>
               </div>
               <ul class="be-check-list">
@@ -180,7 +180,7 @@
               @drop.prevent="onDrop"
             >
               <div class="be-side-head">
-                <h3 class="be-side-title">Featured image</h3>
+                <h3 class="be-side-title">{{ $t('Featured image') }}</h3>
                 <label class="be-mini-btn" :class="{ 'be-mini-btn--off': uploading }">
                   <input type="file" accept="image/*" :disabled="uploading" class="be-hidden-file" @change="onFileChange" />
                   {{ uploading ? 'Uploading…' : 'Upload' }}
@@ -190,9 +190,9 @@
               <template v-if="form.featuredImage">
                 <div class="be-img-wrap">
                   <img :src="form.featuredImage" :alt="form.featuredImageAlt" />
-                  <button type="button" class="be-img-x" title="Remove" @click="form.featuredImage = ''">×</button>
+                  <button type="button" class="be-img-x" :title="$t('Remove')" @click="form.featuredImage = ''">×</button>
                 </div>
-                <input v-model="form.featuredImageAlt" class="be-input be-input--sm" type="text" placeholder="Describe the image (alt text)" />
+                <input v-model="form.featuredImageAlt" class="be-input be-input--sm" type="text" :placeholder="$t('Describe the image (alt text)')" />
               </template>
               <div v-else class="be-img-drop">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
@@ -202,28 +202,28 @@
 
             <!-- Organize -->
             <section class="be-card be-side-card">
-              <h3 class="be-side-title">Organize</h3>
-              <label class="be-label">Category</label>
+              <h3 class="be-side-title">{{ $t('Organize') }}</h3>
+              <label class="be-label">{{ $t('Category') }}</label>
               <select v-model="form.category" class="be-input">
-                <option value="">— Select category —</option>
+                <option value="">{{ $t('— Select category —') }}</option>
                 <option v-for="c in CATEGORIES" :key="c" :value="c">{{ c }}</option>
               </select>
-              <label class="be-label">Author</label>
-              <input v-model="form.author" class="be-input" type="text" placeholder="e.g. TYPHON Team" />
+              <label class="be-label">{{ $t('Author') }}</label>
+              <input v-model="form.author" class="be-input" type="text" :placeholder="$t('e.g. TYPHON Team')" />
             </section>
 
             <!-- SEO -->
             <section class="be-card be-side-card">
-              <h3 class="be-side-title">Search appearance</h3>
+              <h3 class="be-side-title">{{ $t('Search appearance') }}</h3>
               <div class="be-seo-preview">
                 <span class="be-seo-url">your-site.com › blog › {{ form.slug || 'post' }}</span>
                 <span class="be-seo-title">{{ form.seoTitle || form.title || 'Post title' }}</span>
                 <span class="be-seo-desc">{{ form.seoDescription || form.excerpt || 'Add an SEO description to control how this appears in Google.' }}</span>
               </div>
-              <label class="be-label">SEO title</label>
+              <label class="be-label">{{ $t('SEO title') }}</label>
               <input v-model="form.seoTitle" class="be-input be-input--sm" type="text" maxlength="70" :placeholder="form.title || 'Defaults to the post title'" />
               <div class="be-counter">{{ form.seoTitle.length }}/70</div>
-              <label class="be-label">SEO description</label>
+              <label class="be-label">{{ $t('SEO description') }}</label>
               <textarea v-model="form.seoDescription" class="be-input be-textarea be-input--sm" rows="3" maxlength="180" :placeholder="form.excerpt || 'Defaults to the excerpt'" />
               <div class="be-counter">{{ form.seoDescription.length }}/180</div>
             </section>
@@ -235,7 +235,7 @@
           <div class="be-actionbar-left">
             <button v-if="store.canDelete()" type="button" class="btn-ghost be-del" :disabled="saving" @click="onDelete">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              Delete
+              {{ $t('Delete') }}
             </button>
             <span class="be-actionbar-status">
               <span class="be-saved-dot" :class="{ 'be-saved-dot--dirty': isDirty }" />
@@ -257,15 +257,15 @@
                 @click="save('published')"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg>
-                Publish
+                {{ $t('Publish') }}
               </button>
-              <span v-else class="be-publish-note">A Head or Supervisor can publish this.</span>
+              <span v-else class="be-publish-note">{{ $t('A Head or Supervisor can publish this.') }}</span>
             </template>
 
             <!-- Published state -->
             <template v-else>
               <button v-if="store.canPublish()" type="button" class="btn-secondary" :disabled="saving" @click="save('draft')">
-                Unpublish
+                {{ $t('Unpublish') }}
               </button>
               <button type="button" class="btn-primary" :disabled="saving || !isDirty" @click="save('published')">
                 {{ saving ? 'Saving…' : (isDirty ? 'Update Post' : 'Saved') }}
@@ -791,7 +791,7 @@ const onDelete = async () => {
 .be-check-mark {
   display: inline-flex; align-items: center; justify-content: center;
   width: 1.05rem; height: 1.05rem; border-radius: 50%; flex-shrink: 0;
-  border: 1.5px solid var(--border-strong); background: var(--card-bg); color: #fff;
+  border: 1.5px solid var(--border-strong); background: var(--card-bg); color: #f8fbff;
   transition: background 140ms, border-color 140ms;
 }
 .be-check--ok { color: var(--text-main); }
@@ -803,7 +803,7 @@ const onDelete = async () => {
 .be-img-wrap img { width: 100%; height: 9rem; object-fit: cover; display: block; }
 .be-img-x {
   position: absolute; top: 0.4rem; right: 0.4rem; width: 1.7rem; height: 1.7rem; border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.4); background: rgba(0,0,0,0.55); color: #fff; font-size: 1rem; cursor: pointer;
+  border: 1px solid rgba(248,251,255,0.4); background: rgba(0,0,0,0.55); color: #f8fbff; font-size: 1rem; cursor: pointer;
   display: flex; align-items: center; justify-content: center; transition: background 120ms;
 }
 .be-img-x:hover { background: rgba(220,38,38,0.85); }

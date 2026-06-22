@@ -1,6 +1,6 @@
 <template>
   <div v-if="loading && !timedOut && !error" class="card card-pad flex flex-col items-center justify-center py-16 text-center min-h-[300px]">
-    <div class="mb-6 ui-font text-lg font-bold text-text-main tracking-tight">KiuQ Website System</div>
+    <div class="mb-6 ui-font text-lg font-bold text-text-main tracking-tight">{{ $t('KiuQ Website System') }}</div>
     
     <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-soft/50 text-3xl shadow-sm border border-border">
       <span class="animate-pulse">{{ currentMessage.emoji }}</span>
@@ -19,27 +19,27 @@
   </div>
 
   <div v-else-if="timedOut && !error" class="card card-pad flex flex-col items-center justify-center py-12 text-center">
-    <div class="mb-4 text-4xl">😅</div>
-    <div class="ui-font text-lg font-bold text-status-needs-fix-fg mb-2">This is taking longer than expected</div>
-    <div class="text-sm text-text-muted max-w-md mx-auto mb-6">The data is taking too long to load. Try again before we blame the cloud.</div>
+    <div class="mb-4 text-4xl">{{ $t('😅') }}</div>
+    <div class="ui-font text-lg font-bold text-status-needs-fix-fg mb-2">{{ $t('This is taking longer than expected') }}</div>
+    <div class="text-sm text-text-muted max-w-md mx-auto mb-6">{{ $t('The data is taking too long to load. Try again before we blame the cloud.') }}</div>
     <div class="flex gap-3 justify-center">
       <button v-if="retry" class="btn-primary px-4" type="button" @click="onRetry">
-        Retry
+        {{ $t('Retry') }}
       </button>
       <RouterLink to="/" class="btn-secondary px-4">
-        Go Dashboard
+        {{ $t('Go Dashboard') }}
       </RouterLink>
     </div>
   </div>
 
   <div v-else-if="error" class="card card-pad flex flex-col items-center justify-center py-12 text-center">
-    <div class="mb-4 text-4xl">😵</div>
-    <div class="ui-font text-lg font-bold text-status-needs-fix-fg mb-2">Could not load data</div>
-    <div class="text-sm text-text-muted max-w-md mx-auto mb-6">Something went wrong while loading this page. Please try again.</div>
+    <div class="mb-4 text-4xl">{{ $t('😵') }}</div>
+    <div class="ui-font text-lg font-bold text-status-needs-fix-fg mb-2">{{ $t('Could not load data') }}</div>
+    <div class="text-sm text-text-muted max-w-md mx-auto mb-6">{{ $t('Something went wrong while loading this page. Please try again.') }}</div>
     <p v-if="error !== true" class="text-xs text-text-muted/70 mb-6 bg-soft/50 p-2 rounded max-w-sm mx-auto overflow-hidden text-ellipsis whitespace-nowrap">{{ error }}</p>
     <div class="flex gap-3 justify-center">
       <button v-if="retry" class="btn-primary px-4" type="button" @click="onRetry">
-        Retry
+        {{ $t('Retry') }}
       </button>
     </div>
   </div>

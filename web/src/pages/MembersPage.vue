@@ -1,23 +1,22 @@
 <template>
   <div>
-    <PageHeader title="Members" subtitle="People who can be assigned prompts and projects.">
+    <PageHeader :title="$t('Members')" subtitle="People who can be assigned prompts and projects.">
       <template #actions>
-        <a class="btn-secondary" href="/register" target="_blank" rel="noopener">Invite link</a>
+        <a class="btn-secondary" href="/register" target="_blank" rel="noopener">{{ $t('Invite link') }}</a>
         <button v-if="auth.isAdmin" class="btn-primary" type="button" @click="openCreateUser">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          Create User
+          {{ $t('Create User') }}
         </button>
       </template>
     </PageHeader>
 
     <div class="mb-5 rounded-card border border-border bg-soft/40 px-4 py-3 text-sm text-text-muted">
-      New teammates sign up themselves at
-      <code class="rounded bg-card px-1 py-0.5 text-text-main">/register</code>.
-      Once they have an account they appear below — edit their role and status here.
+      {{ $t('New teammates sign up themselves at') }}
+      <code class="rounded bg-card px-1 py-0.5 text-text-main">{{ $t('/register') }}</code>{{ $t('. Once they have an account they appear below — edit their role and status here.') }}
     </div>
 
     <div class="mb-5 flex flex-wrap items-center gap-3">
-      <input v-model="search" class="input max-w-sm" type="search" placeholder="Search members..." />
+      <input v-model="search" class="input max-w-sm" type="search" :placeholder="$t('Search members...')" />
       <div class="flex items-center gap-1 rounded-card border border-border bg-soft/40 p-1">
         <button
           v-for="opt in statusFilterOptions"
@@ -35,18 +34,18 @@
         <div class="card overflow-hidden">
           <div class="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
             <div>
-              <h3 class="section-title">Team profiles</h3>
-              <p class="mt-1 text-xs text-text-muted">Click a row to preview profile details without leaving this page.</p>
+              <h3 class="section-title">{{ $t('Team profiles') }}</h3>
+              <p class="mt-1 text-xs text-text-muted">{{ $t('Click a row to preview profile details without leaving this page.') }}</p>
             </div>
             <div class="ui-font text-xs text-text-muted">{{ filtered.length }} profile{{ filtered.length === 1 ? '' : 's' }}</div>
           </div>
 
           <div class="hidden grid-cols-[minmax(220px,1fr)_120px_110px_110px_140px] gap-4 border-b border-border bg-soft px-5 py-3 text-xs uppercase tracking-wide text-text-muted md:grid">
-            <span class="ui-font font-medium">Member</span>
-            <span class="ui-font font-medium">Role</span>
-            <span class="ui-font font-medium">Status</span>
-            <span class="ui-font font-medium">Last Active</span>
-            <span class="ui-font font-medium">Push</span>
+            <span class="ui-font font-medium">{{ $t('Member') }}</span>
+            <span class="ui-font font-medium">{{ $t('Role') }}</span>
+            <span class="ui-font font-medium">{{ $t('Status') }}</span>
+            <span class="ui-font font-medium">{{ $t('Last Active') }}</span>
+            <span class="ui-font font-medium">{{ $t('Push') }}</span>
           </div>
 
           <div class="divide-y divide-border">
@@ -101,7 +100,7 @@
                 <template v-if="pushStatus(member.id)">
                   <span class="ui-font inline-flex items-center gap-1 rounded-full bg-status-approved-bg px-2.5 py-1 text-xs font-medium text-status-approved-fg">
                     <span class="h-1.5 w-1.5 rounded-full bg-status-approved-fg"></span>
-                    Enabled
+                    {{ $t('Enabled') }}
                   </span>
                   <div class="mt-1 text-xs text-text-muted">
                     {{ pushStatus(member.id)!.count }} device{{ pushStatus(member.id)!.count === 1 ? '' : 's' }}
@@ -109,7 +108,7 @@
                   </div>
                 </template>
                 <span v-else class="ui-font inline-flex rounded-full bg-soft px-2.5 py-1 text-xs font-medium text-text-muted">
-                  Not enabled
+                  {{ $t('Not enabled') }}
                 </span>
               </div>
             </div>
@@ -164,7 +163,7 @@
           </div>
 
           <div class="mt-5">
-            <h4 class="ui-font text-sm font-semibold text-text-main">Recent activity</h4>
+            <h4 class="ui-font text-sm font-semibold text-text-main">{{ $t('Recent activity') }}</h4>
             <div v-if="memberLogs(selectedMember.id).length > 0" class="mt-3 divide-y divide-border rounded-card border border-border">
               <div v-for="log in memberLogs(selectedMember.id).slice(0, 4)" :key="log.id" class="px-3 py-2">
                 <div class="ui-font text-xs font-medium text-text-main">{{ log.message }}</div>
@@ -172,13 +171,13 @@
               </div>
             </div>
             <div v-else class="mt-3 rounded-card border border-border px-3 py-6 text-center text-xs text-text-muted">
-              No activity recorded yet.
+              {{ $t('No activity recorded yet.') }}
             </div>
           </div>
 
           <div class="mt-5 flex flex-wrap gap-2">
-            <RouterLink :to="`/profiles/${selectedMember.id}`" class="btn-secondary h-9 px-3 text-xs">View Full</RouterLink>
-            <button class="btn-secondary h-9 px-3 text-xs" type="button" @click="openEdit(selectedMember)">Edit Role</button>
+            <RouterLink :to="`/profiles/${selectedMember.id}`" class="btn-secondary h-9 px-3 text-xs">{{ $t('View Full') }}</RouterLink>
+            <button class="btn-secondary h-9 px-3 text-xs" type="button" @click="openEdit(selectedMember)">{{ $t('Edit Role') }}</button>
             <button
               v-if="selectedMember.status === 'deactivated'"
               class="btn-secondary h-9 px-3 text-xs"
@@ -191,26 +190,26 @@
               class="h-9 rounded-card border border-amber-500/30 bg-amber-500/10 px-3 text-xs font-medium text-amber-600 transition hover:bg-amber-500/20 ui-font"
               type="button"
               @click="openDeactivateModal(selectedMember)"
-            >Deactivate</button>
+            >{{ $t('Deactivate') }}</button>
             <button
               v-if="selectedMember.id !== auth.profile?.id"
               class="h-9 rounded-card border border-red-500/30 bg-red-500/10 px-3 text-xs font-medium text-red-600 transition hover:bg-red-500/20 ui-font"
               type="button"
               @click="openDeleteModal(selectedMember)"
-            >Delete</button>
+            >{{ $t('Delete') }}</button>
           </div>
         </aside>
       </div>
       <EmptyState
         v-else
-        title="No members found"
+        :title="$t('No members found')"
         description="Try a different search, or send the invite link to add a teammate."
       />
     </LoadingBlock>
 
     <Modal
       :open="modalOpen"
-      title="Edit member"
+      :title="$t('Edit member')"
       subtitle="Change role, status, or notes."
       size="md"
       @close="closeModal"
@@ -220,7 +219,7 @@
         {{ data.errors.members }}
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="closeModal">Cancel</button>
+        <button class="btn-ghost" type="button" @click="closeModal">{{ $t('Cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="saving" @click="save(formRef?.model)">
           {{ saving ? 'Saving...' : 'Save' }}
         </button>
@@ -230,16 +229,16 @@
 
     <!-- Deactivate Confirmation -->
     <!-- Deactivate Confirmation -->
-    <Modal :open="deactivateOpen" title="Deactivate user?" subtitle="This user will lose access but data stays intact." size="md" @close="deactivateOpen = false">
+    <Modal :open="deactivateOpen" :title="$t('Deactivate user?')" subtitle="This user will lose access but data stays intact." size="md" @close="deactivateOpen = false">
       <div v-if="deactivateTarget" class="space-y-4">
         <div class="rounded-card border border-border bg-soft/40 p-4">
           <div class="ui-font font-semibold text-text-main">{{ deactivateTarget.fullName || deactivateTarget.email }}</div>
           <div class="mt-1 text-xs text-text-muted">{{ deactivateTarget.email }} · {{ roleLabel(deactivateTarget.role) }}</div>
         </div>
-        <p class="text-sm text-text-muted">The user will not be able to log in or use the system. Tasks, submissions, and activity history remain intact. You can restore them later.</p>
+        <p class="text-sm text-text-muted">{{ $t('The user will not be able to log in or use the system. Tasks, submissions, and activity history remain intact. You can restore them later.') }}</p>
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="deactivateOpen = false">Cancel</button>
+        <button class="btn-ghost" type="button" @click="deactivateOpen = false">{{ $t('Cancel') }}</button>
         <button class="h-9 rounded-card bg-amber-500 px-4 text-sm font-medium text-white transition hover:bg-amber-600 ui-font disabled:opacity-40" type="button" :disabled="deactivating" @click="confirmDeactivate">
           {{ deactivating ? 'Deactivating...' : 'Deactivate User' }}
         </button>
@@ -247,27 +246,27 @@
     </Modal>
 
     <!-- Delete Confirmation -->
-    <Modal :open="deleteOpen" title="Delete user?" subtitle="This action cannot be easily undone." size="md" @close="closeDeleteModal">
+    <Modal :open="deleteOpen" :title="$t('Delete user?')" subtitle="This action cannot be easily undone." size="md" @close="closeDeleteModal">
       <div v-if="deleteTarget" class="space-y-4">
         <div class="rounded-card border border-red-500/20 bg-red-500/5 p-4">
-          <p class="text-sm font-medium text-red-600 dark:text-red-400">This will permanently delete this user from the system. Their profile, assignments, submissions, reports, and activity history will be removed. This action cannot be undone.</p>
+          <p class="text-sm font-medium text-red-600 dark:text-red-400">{{ $t('This will permanently delete this user from the system. Their profile, assignments, submissions, reports, and activity history will be removed. This action cannot be undone.') }}</p>
         </div>
         <div class="rounded-card border border-border bg-soft/40 p-4 space-y-2 text-sm">
-          <div class="flex justify-between"><span class="text-text-muted">Name</span><span class="ui-font font-semibold text-text-main">{{ deleteTarget.fullName || 'Unnamed' }}</span></div>
-          <div class="flex justify-between"><span class="text-text-muted">Email</span><span class="ui-font font-semibold text-text-main">{{ deleteTarget.email }}</span></div>
-          <div class="flex justify-between"><span class="text-text-muted">Role</span><span class="ui-font font-semibold text-text-main">{{ roleLabel(deleteTarget.role) }}</span></div>
-          <div class="flex justify-between"><span class="text-text-muted">Status</span><span class="ui-font font-semibold text-text-main">{{ deleteTarget.status }}</span></div>
-          <div class="flex justify-between"><span class="text-text-muted">Assigned tasks</span><span class="ui-font font-semibold text-text-main">{{ assignedTaskCount(deleteTarget.id) }}</span></div>
-          <div class="flex justify-between"><span class="text-text-muted">Pending submissions</span><span class="ui-font font-semibold text-text-main">{{ pendingSubmissionCount(deleteTarget.id) }}</span></div>
+          <div class="flex justify-between"><span class="text-text-muted">{{ $t('Name') }}</span><span class="ui-font font-semibold text-text-main">{{ deleteTarget.fullName || 'Unnamed' }}</span></div>
+          <div class="flex justify-between"><span class="text-text-muted">{{ $t('Email') }}</span><span class="ui-font font-semibold text-text-main">{{ deleteTarget.email }}</span></div>
+          <div class="flex justify-between"><span class="text-text-muted">{{ $t('Role') }}</span><span class="ui-font font-semibold text-text-main">{{ roleLabel(deleteTarget.role) }}</span></div>
+          <div class="flex justify-between"><span class="text-text-muted">{{ $t('Status') }}</span><span class="ui-font font-semibold text-text-main">{{ deleteTarget.status }}</span></div>
+          <div class="flex justify-between"><span class="text-text-muted">{{ $t('Assigned tasks') }}</span><span class="ui-font font-semibold text-text-main">{{ assignedTaskCount(deleteTarget.id) }}</span></div>
+          <div class="flex justify-between"><span class="text-text-muted">{{ $t('Pending submissions') }}</span><span class="ui-font font-semibold text-text-main">{{ pendingSubmissionCount(deleteTarget.id) }}</span></div>
         </div>
-        <div v-if="deleteTargetHasActiveTasks" class="rounded-card border border-amber-500/20 bg-amber-500/5 p-3 text-sm text-amber-600 dark:text-amber-400">⚠ This user has active tasks. Reassign tasks before deleting or deactivate the user instead.</div>
+        <div v-if="deleteTargetHasActiveTasks" class="rounded-card border border-amber-500/20 bg-amber-500/5 p-3 text-sm text-amber-600 dark:text-amber-400">{{ $t('⚠ This user has active tasks. Reassign tasks before deleting or deactivate the user instead.') }}</div>
         <div>
-          <label class="text-sm font-medium text-text-main">Type <strong>DELETE</strong> to confirm</label>
-          <input v-model="deleteConfirmText" class="input mt-2 w-full" type="text" placeholder="DELETE" autocomplete="off" />
+          <label class="text-sm font-medium text-text-main">{{ $t('Type') }} <strong>{{ $t('DELETE') }}</strong> {{ $t('to confirm') }}</label>
+          <input v-model="deleteConfirmText" class="input mt-2 w-full" type="text" :placeholder="$t('DELETE')" autocomplete="off" />
         </div>
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="closeDeleteModal">Cancel</button>
+        <button class="btn-ghost" type="button" @click="closeDeleteModal">{{ $t('Cancel') }}</button>
         <button class="h-9 rounded-card bg-red-600 px-4 text-sm font-medium text-white transition hover:bg-red-700 ui-font disabled:opacity-40 disabled:cursor-not-allowed" type="button" :disabled="deleteConfirmText !== 'DELETE' || deleting" @click="confirmDelete">
           {{ deleting ? 'Deleting...' : 'Delete User' }}
         </button>
@@ -277,7 +276,7 @@
     <!-- Create User Modal -->
     <Modal
       :open="createUserOpen"
-      title="Create user"
+      :title="$t('Create user')"
       subtitle="Add a new team member account directly."
       size="md"
       @close="closeCreateUser"
@@ -285,51 +284,51 @@
       <div class="space-y-4">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label class="label">Full Name <span class="text-red-500">*</span></label>
-            <input v-model="createForm.fullName" class="input" type="text" placeholder="Jane Smith" autocomplete="off" />
+            <label class="label">{{ $t('Full Name') }} <span class="text-red-500">*</span></label>
+            <input v-model="createForm.fullName" class="input" type="text" :placeholder="$t('Jane Smith')" autocomplete="off" />
           </div>
           <div>
-            <label class="label">Email <span class="text-red-500">*</span></label>
+            <label class="label">{{ $t('Email') }} <span class="text-red-500">*</span></label>
             <input v-model="createForm.email" class="input" type="email" placeholder="jane@example.com" autocomplete="off" />
           </div>
           <div>
-            <label class="label">Role <span class="text-red-500">*</span></label>
+            <label class="label">{{ $t('Role') }} <span class="text-red-500">*</span></label>
             <select v-model="createForm.role" class="input">
-              <option value="head">Head</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="assistant_head">Assistant Head</option>
-              <option value="team_member">Team Member</option>
-              <option value="quality_checker">Quality Checker</option>
-              <option value="viewer">Viewer</option>
+              <option value="head">{{ $t('Head') }}</option>
+              <option value="supervisor">{{ $t('Supervisor') }}</option>
+              <option value="assistant_head">{{ $t('Assistant Head') }}</option>
+              <option value="team_member">{{ $t('Team Member') }}</option>
+              <option value="quality_checker">{{ $t('Quality Checker') }}</option>
+              <option value="viewer">{{ $t('Viewer') }}</option>
             </select>
           </div>
           <div>
-            <label class="label">Temporary Password <span class="text-red-500">*</span></label>
-            <input v-model="createForm.password" class="input" type="text" placeholder="Min 8 characters" autocomplete="new-password" />
+            <label class="label">{{ $t('Temporary Password') }} <span class="text-red-500">*</span></label>
+            <input v-model="createForm.password" class="input" type="text" :placeholder="$t('Min 8 characters')" autocomplete="new-password" />
           </div>
           <div>
-            <label class="label">Username <span class="helper ml-1 inline">(optional)</span></label>
+            <label class="label">{{ $t('Username') }} <span class="helper ml-1 inline">{{ $t('(optional)') }}</span></label>
             <input v-model="createForm.username" class="input" type="text" placeholder="@janesmith" autocomplete="off" />
           </div>
           <div>
-            <label class="label">Position <span class="helper ml-1 inline">(optional)</span></label>
-            <input v-model="createForm.position" class="input" type="text" placeholder="e.g. Designer" autocomplete="off" />
+            <label class="label">{{ $t('Position') }} <span class="helper ml-1 inline">{{ $t('(optional)') }}</span></label>
+            <input v-model="createForm.position" class="input" type="text" :placeholder="$t('e.g. Designer')" autocomplete="off" />
           </div>
           <div>
-            <label class="label">Phone <span class="helper ml-1 inline">(optional)</span></label>
+            <label class="label">{{ $t('Phone') }} <span class="helper ml-1 inline">{{ $t('(optional)') }}</span></label>
             <input v-model="createForm.phone" class="input" type="tel" placeholder="+1 555 000 0000" autocomplete="off" />
           </div>
         </div>
         <div>
-          <label class="label">Notes <span class="helper ml-1 inline">(optional)</span></label>
-          <textarea v-model="createForm.notes" class="input" rows="2" placeholder="Any notes about this member…" />
+          <label class="label">{{ $t('Notes') }} <span class="helper ml-1 inline">{{ $t('(optional)') }}</span></label>
+          <textarea v-model="createForm.notes" class="input" rows="2" :placeholder="$t('Any notes about this member…')" />
         </div>
         <div v-if="createError" class="rounded-card border border-red-500/30 bg-red-50 px-4 py-2.5 text-sm text-red-700">
           {{ createError }}
         </div>
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="closeCreateUser">Cancel</button>
+        <button class="btn-ghost" type="button" @click="closeCreateUser">{{ $t('Cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="creating" @click="submitCreateUser">
           {{ creating ? 'Creating...' : 'Create User' }}
         </button>

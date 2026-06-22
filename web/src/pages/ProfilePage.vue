@@ -5,9 +5,9 @@
       subtitle="Manage account details, identity, and personal settings."
     >
       <template #actions>
-        <RouterLink v-if="auth.isAdmin && !viewingOwn" class="btn-secondary" to="/members">Back to Members</RouterLink>
+        <RouterLink v-if="auth.isAdmin && !viewingOwn" class="btn-secondary" to="/members">{{ $t('Back to Members') }}</RouterLink>
         <RouterLink v-if="targetProfile && !auth.isQualityChecker" class="btn-primary" :to="`/profiles/${targetProfile.id}`">
-          View Full
+          {{ $t('View Full') }}
         </RouterLink>
       </template>
     </PageHeader>
@@ -73,11 +73,11 @@
           </div>
 
           <div class="card card-pad">
-            <h3 class="section-title">Preferences</h3>
-            <p class="helper mb-4">Personal display settings for this account.</p>
+            <h3 class="section-title">{{ $t('Preferences') }}</h3>
+            <p class="helper mb-4">{{ $t('Personal display settings for this account.') }}</p>
             <FormSelect
               v-model="form.preferredTheme"
-              label="Theme"
+              :label="$t('Theme')"
               :options="[
                 { value: 'light', label: 'Light Mode' },
                 { value: 'dark-gray', label: 'Dark Gray Mode' }
@@ -90,8 +90,8 @@
           <div class="card card-pad">
             <div class="mb-5 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h3 class="section-title">Profile Details</h3>
-                <p class="helper">This information helps the team know who owns each piece of work.</p>
+                <h3 class="section-title">{{ $t('Profile Details') }}</h3>
+                <p class="helper">{{ $t('This information helps the team know who owns each piece of work.') }}</p>
               </div>
               <span class="ui-font text-xs text-text-muted">
                 {{ viewingOwn ? 'Your account' : 'Admin view' }}
@@ -101,13 +101,13 @@
             <form class="space-y-5" @submit.prevent="saveProfile">
               <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <FormInput v-model="form.fullName" label="Full name" placeholder="Jane Smith" />
+                  <FormInput v-model="form.fullName" :label="$t('Full name')" :placeholder="$t('Jane Smith')" />
                   <p v-if="fieldErrors.fullName" class="mt-1.5 text-xs text-status-needs-fix-fg">
                     {{ fieldErrors.fullName }}
                   </p>
                 </div>
                 <div>
-                  <FormInput v-model="form.email" label="Email address" type="email" placeholder="jane@team.io" />
+                  <FormInput v-model="form.email" :label="$t('Email address')" type="email" placeholder="jane@team.io" />
                   <p v-if="fieldErrors.email" class="mt-1.5 text-xs text-status-needs-fix-fg">
                     {{ fieldErrors.email }}
                   </p>
@@ -115,17 +115,17 @@
               </div>
 
               <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormInput v-model="form.username" label="Username" placeholder="e.g. john_doe" />
-                <FormInput v-model="form.position" label="Role or position" placeholder="Content Builder" />
+                <FormInput v-model="form.username" :label="$t('Username')" :placeholder="$t('e.g. john_doe')" />
+                <FormInput v-model="form.position" :label="$t('Role or position')" :placeholder="$t('Content Builder')" />
               </div>
               <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormInput v-model="form.phone" label="Phone number" placeholder="Optional" />
+                <FormInput v-model="form.phone" :label="$t('Phone number')" :placeholder="$t('Optional')" />
               </div>
 
               <div v-if="auth.isAdmin" class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormSelect
                   v-model="form.role"
-                  label="System role"
+                  :label="$t('System role')"
                   :options="[
                     { value: 'admin', label: 'Admin' },
                     { value: 'member', label: 'Team Member' },
@@ -134,7 +134,7 @@
                 />
                 <FormSelect
                   v-model="form.status"
-                  label="Account status"
+                  :label="$t('Account status')"
                   :options="[
                     { value: 'active', label: 'Active' },
                     { value: 'inactive', label: 'Inactive' }
@@ -144,13 +144,13 @@
 
               <FormTextarea
                 v-model="form.bio"
-                label="Short bio"
-                placeholder="A short note about your work, strengths, or responsibilities."
+                :label="$t('Short bio')"
+                :placeholder="$t('A short note about your work, strengths, or responsibilities.')"
                 :rows="5"
               />
 
               <div class="flex flex-col-reverse gap-3 border-t border-border pt-5 sm:flex-row sm:justify-end">
-                <button class="btn-ghost" type="button" @click="resetForm">Cancel</button>
+                <button class="btn-ghost" type="button" @click="resetForm">{{ $t('Cancel') }}</button>
                 <button class="btn-primary" type="submit" :disabled="saving">
                   {{ saving ? 'Saving...' : 'Save profile' }}
                 </button>
@@ -159,24 +159,24 @@
           </div>
 
           <div v-if="viewingOwn" class="card card-pad">
-            <h3 class="section-title">Password</h3>
-            <p class="helper mb-5">Change your login password for this account.</p>
+            <h3 class="section-title">{{ $t('Password') }}</h3>
+            <p class="helper mb-5">{{ $t('Change your login password for this account.') }}</p>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormInput
                 v-model="password.newPassword"
-                label="New password"
+                :label="$t('New password')"
                 type="password"
-                placeholder="At least 6 characters"
+                :placeholder="$t('At least 6 characters')"
               />
               <FormInput
                 v-model="password.confirmPassword"
-                label="Confirm password"
+                :label="$t('Confirm password')"
                 type="password"
-                placeholder="Repeat password"
+                :placeholder="$t('Repeat password')"
               />
             </div>
             <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p class="text-xs text-text-muted">Leave this alone unless you want to change your password.</p>
+              <p class="text-xs text-text-muted">{{ $t('Leave this alone unless you want to change your password.') }}</p>
               <button class="btn-secondary" type="button" :disabled="savingPassword" @click="savePassword">
                 {{ savingPassword ? 'Updating...' : 'Update password' }}
               </button>
@@ -186,9 +186,9 @@
       </div>
 
       <div v-else class="card card-pad text-center">
-        <h3 class="section-title">Profile not found</h3>
-        <p class="helper mt-1">This profile does not exist or you do not have permission to view it.</p>
-        <RouterLink class="btn-primary mt-5" to="/profile">Open My Profile</RouterLink>
+        <h3 class="section-title">{{ $t('Profile not found') }}</h3>
+        <p class="helper mt-1">{{ $t('This profile does not exist or you do not have permission to view it.') }}</p>
+        <RouterLink class="btn-primary mt-5" to="/profile">{{ $t('Open My Profile') }}</RouterLink>
       </div>
     </LoadingBlock>
   </div>

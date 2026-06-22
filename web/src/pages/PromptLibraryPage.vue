@@ -1,19 +1,19 @@
 <template>
   <div>
     <PageHeader
-      title="Prompt Library"
+      :title="$t('Prompt Library')"
       :subtitle="activeWebsite ? `You are working on ${activeWebsite.name}.` : 'Select a website to open its prompt library.'"
     >
       <template #actions>
-        <RouterLink v-if="activeWebsite" to="/prompt-library" class="btn-secondary">Change Website</RouterLink>
+        <RouterLink v-if="activeWebsite" to="/prompt-library" class="btn-secondary">{{ $t('Change Website') }}</RouterLink>
         <RouterLink v-if="activeWebsite && activeGroup" :to="websiteLibraryLink(activeWebsite.id)" class="btn-secondary">
-          All Page Groups
+          {{ $t('All Page Groups') }}
         </RouterLink>
         <button v-if="auth.isAdmin" class="btn-primary" type="button" @click="openCreate">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          New Prompt
+          {{ $t('New Prompt') }}
         </button>
       </template>
     </PageHeader>
@@ -21,17 +21,17 @@
     <LoadingBlock :loading="pageLoading" :error="combinedError" :retry="loadPageData">
       <template v-if="routeWebsiteId && !activeWebsite">
         <div class="card card-pad text-center">
-          <h2 class="section-title">Website not available</h2>
+          <h2 class="section-title">{{ $t('Website not available') }}</h2>
           <p class="mt-2 text-sm text-text-muted">
-            This website is not assigned to your account, or it no longer exists.
+            {{ $t('This website is not assigned to your account, or it no longer exists.') }}
           </p>
-          <RouterLink to="/prompt-library" class="btn-primary mt-5">Change Website</RouterLink>
+          <RouterLink to="/prompt-library" class="btn-primary mt-5">{{ $t('Change Website') }}</RouterLink>
         </div>
       </template>
 
       <template v-else-if="activeWebsite && activePrompt">
-        <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-text-muted" aria-label="Breadcrumb">
-          <RouterLink to="/prompt-library" class="hover:text-text-main">Prompt Library</RouterLink>
+        <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-text-muted" aria-:label="$t('Breadcrumb')">
+          <RouterLink to="/prompt-library" class="hover:text-text-main">{{ $t('Prompt Library') }}</RouterLink>
           <span aria-hidden="true">›</span>
           <RouterLink :to="websiteLibraryLink(activeWebsite.id)" class="hover:text-text-main">
             {{ activeWebsite.name }}
@@ -60,11 +60,11 @@
             </div>
 
             <div class="mt-5 grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
-              <InfoTile label="Website" :value="activeWebsite.name" highlight />
-              <InfoTile label="Section type" :value="activePrompt.sectionType || '—'" />
-              <InfoTile label="Prompt mode" :value="promptModeLabel(activePrompt.promptMode)" />
-              <InfoTile label="Output" :value="outputTypeLabel(activePrompt.outputType)" />
-              <InfoTile label="Version" :value="`v${activePrompt.version}`" />
+              <InfoTile :label="$t('Website')" :value="activeWebsite.name" highlight />
+              <InfoTile :label="$t('Section type')" :value="activePrompt.sectionType || '—'" />
+              <InfoTile :label="$t('Prompt mode')" :value="promptModeLabel(activePrompt.promptMode)" />
+              <InfoTile :label="$t('Output')" :value="outputTypeLabel(activePrompt.outputType)" />
+              <InfoTile :label="$t('Version')" :value="`v${activePrompt.version}`" />
             </div>
 
             <div v-if="activePrompt.topicType" class="mt-4">
@@ -75,30 +75,30 @@
 
             <div class="mt-6 space-y-5">
               <div>
-                <h3 class="section-title">Locked Rules</h3>
+                <h3 class="section-title">{{ $t('Locked Rules') }}</h3>
                 <pre class="mt-2 whitespace-pre-wrap break-words rounded-card border border-border bg-soft p-4 text-sm text-text-main">{{ activePrompt.lockedRules || 'No locked rules.' }}</pre>
               </div>
               <div>
-                <h3 class="section-title">Editable Fields</h3>
+                <h3 class="section-title">{{ $t('Editable Fields') }}</h3>
                 <div v-if="activePrompt.editableFields.length" class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <div v-for="field in activePrompt.editableFields" :key="field.id" class="rounded-card border border-border bg-soft/40 p-3">
                     <div class="ui-font text-sm font-semibold text-text-main">{{ field.label || field.key }}</div>
                     <div class="mt-1 text-xs text-text-muted">{{ field.key }} · {{ field.type }}</div>
                   </div>
                 </div>
-                <p v-else class="mt-2 text-sm text-text-muted">No editable fields.</p>
+                <p v-else class="mt-2 text-sm text-text-muted">{{ $t('No editable fields.') }}</p>
               </div>
               <div v-if="activePrompt.requiredWebsiteFields.length || activePrompt.requiredProductFields.length">
-                <h3 class="section-title">Required Data</h3>
+                <h3 class="section-title">{{ $t('Required Data') }}</h3>
                 <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div class="rounded-card border border-border bg-soft/40 p-3">
-                    <div class="ui-font text-sm font-semibold text-text-main">Website fields</div>
+                    <div class="ui-font text-sm font-semibold text-text-main">{{ $t('Website fields') }}</div>
                     <p class="mt-1 text-xs text-text-muted">
                       {{ activePrompt.requiredWebsiteFields.length ? activePrompt.requiredWebsiteFields.join(', ') : 'None' }}
                     </p>
                   </div>
                   <div class="rounded-card border border-border bg-soft/40 p-3">
-                    <div class="ui-font text-sm font-semibold text-text-main">Product fields</div>
+                    <div class="ui-font text-sm font-semibold text-text-main">{{ $t('Product fields') }}</div>
                     <p class="mt-1 text-xs text-text-muted">
                       {{ activePrompt.requiredProductFields.length ? activePrompt.requiredProductFields.join(', ') : 'None' }}
                     </p>
@@ -106,7 +106,7 @@
                 </div>
               </div>
               <div>
-                <h3 class="section-title">Template Body</h3>
+                <h3 class="section-title">{{ $t('Template Body') }}</h3>
                 <pre class="mt-2 max-h-[420px] overflow-auto whitespace-pre-wrap break-words rounded-card border border-border bg-soft p-4 text-sm text-text-main">{{ activePrompt.templateContent || 'No template body.' }}</pre>
               </div>
             </div>
@@ -114,12 +114,12 @@
 
           <aside class="space-y-4">
             <div class="card card-pad">
-              <h3 class="section-title">Use This Prompt</h3>
+              <h3 class="section-title">{{ $t('Use This Prompt') }}</h3>
               <p class="mt-1 text-sm text-text-muted">
-                The selected website profile will load automatically in Prompt Builder.
+                {{ $t('The selected website profile will load automatically in Prompt Builder.') }}
               </p>
               <RouterLink :to="usePromptLink(activePrompt)" class="btn-primary mt-4 w-full justify-center">
-                Use Prompt
+                {{ $t('Use Prompt') }}
               </RouterLink>
               <button
                 v-if="auth.isAdmin"
@@ -132,37 +132,37 @@
             </div>
 
             <div class="card card-pad">
-              <h3 class="section-title">Selected Website Profile</h3>
+              <h3 class="section-title">{{ $t('Selected Website Profile') }}</h3>
               <div class="mt-4 space-y-2 text-sm">
-                <DetailRow label="Domain" :value="activeWebsite.domain || '—'" />
-                <DetailRow label="Type" :value="websiteTypeLabel(activeWebsite.websiteType)" />
-                <DetailRow label="Industry" :value="activeWebsite.industry || '—'" />
-                <DetailRow label="Goal" :value="activeWebsite.websiteGoal || '—'" />
-                <DetailRow label="Main keyword" :value="activeWebsite.mainKeyword || '—'" />
-                <DetailRow label="Primary color" :value="activeWebsite.primaryColor || '—'" />
-                <DetailRow label="Font" :value="activeWebsite.fontFamily || '—'" />
-                <DetailRow label="Max width" :value="activeWebsite.maxWidth || '—'" />
-                <DetailRow label="Phone" :value="activeWebsite.phoneNumber || '—'" />
-                <DetailRow label="Email" :value="activeWebsite.email || '—'" />
-                <DetailRow label="Country" :value="activeWebsite.targetCountry || '—'" />
+                <DetailRow :label="$t('Domain')" :value="activeWebsite.domain || '—'" />
+                <DetailRow :label="$t('Type')" :value="websiteTypeLabel(activeWebsite.websiteType)" />
+                <DetailRow :label="$t('Industry')" :value="activeWebsite.industry || '—'" />
+                <DetailRow :label="$t('Goal')" :value="activeWebsite.websiteGoal || '—'" />
+                <DetailRow :label="$t('Main keyword')" :value="activeWebsite.mainKeyword || '—'" />
+                <DetailRow :label="$t('Primary color')" :value="activeWebsite.primaryColor || '—'" />
+                <DetailRow :label="$t('Font')" :value="activeWebsite.fontFamily || '—'" />
+                <DetailRow :label="$t('Max width')" :value="activeWebsite.maxWidth || '—'" />
+                <DetailRow :label="$t('Phone')" :value="activeWebsite.phoneNumber || '—'" />
+                <DetailRow :label="$t('Email')" :value="activeWebsite.email || '—'" />
+                <DetailRow :label="$t('Country')" :value="activeWebsite.targetCountry || '—'" />
               </div>
             </div>
 
             <div v-if="auth.isAdmin" class="card card-pad">
-              <h3 class="section-title">Admin Tools</h3>
+              <h3 class="section-title">{{ $t('Admin Tools') }}</h3>
               <div class="mt-4 flex flex-col gap-2">
-                <button class="btn-secondary justify-center" type="button" @click="openEdit(activePrompt)">Edit Prompt</button>
-                <button class="btn-secondary justify-center" type="button" @click="openAssign(activePrompt)">Assign to Team</button>
-                <button class="btn-secondary justify-center" type="button" @click="duplicatePrompt(activePrompt)">Duplicate New Version</button>
+                <button class="btn-secondary justify-center" type="button" @click="openEdit(activePrompt)">{{ $t('Edit Prompt') }}</button>
+                <button class="btn-secondary justify-center" type="button" @click="openAssign(activePrompt)">{{ $t('Assign to Team') }}</button>
+                <button class="btn-secondary justify-center" type="button" @click="duplicatePrompt(activePrompt)">{{ $t('Duplicate New Version') }}</button>
                 <button
                   v-if="activePrompt.qualityStatus !== 'archived'"
                   class="btn-secondary justify-center"
                   type="button"
                   @click="archivePrompt(activePrompt)"
                 >
-                  Archive Prompt
+                  {{ $t('Archive Prompt') }}
                 </button>
-                <button class="btn-danger justify-center" type="button" @click="confirmDelete(activePrompt)">Delete Prompt</button>
+                <button class="btn-danger justify-center" type="button" @click="confirmDelete(activePrompt)">{{ $t('Delete Prompt') }}</button>
               </div>
             </div>
           </aside>
@@ -170,8 +170,8 @@
       </template>
 
       <template v-else-if="activeWebsite && activeGroup">
-        <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-text-muted" aria-label="Breadcrumb">
-          <RouterLink to="/prompt-library" class="hover:text-text-main">Prompt Library</RouterLink>
+        <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-text-muted" aria-:label="$t('Breadcrumb')">
+          <RouterLink to="/prompt-library" class="hover:text-text-main">{{ $t('Prompt Library') }}</RouterLink>
           <span aria-hidden="true">›</span>
           <RouterLink :to="websiteLibraryLink(activeWebsite.id)" class="hover:text-text-main">
             {{ activeWebsite.name }}
@@ -195,7 +195,7 @@
         </div>
 
         <div class="mb-5 flex flex-wrap items-center gap-3">
-          <input v-model="search" class="input max-w-sm" type="search" placeholder="Search prompts..." />
+          <input v-model="search" class="input max-w-sm" type="search" :placeholder="$t('Search prompts...')" />
           <FormSelect
             v-model="promptModeFilter"
             :options="[{ value: '', label: 'Section + Full Page' }, ...promptModeOptions]"
@@ -229,11 +229,11 @@
 
         <EmptyState
           v-else
-          title="No prompts found"
+          :title="$t('No prompts found')"
           description="Try another search or filter. Admins can add prompts for this page group."
         >
           <template v-if="auth.isAdmin" #action>
-            <button class="btn-primary" type="button" @click="openCreate">New Prompt</button>
+            <button class="btn-primary" type="button" @click="openCreate">{{ $t('New Prompt') }}</button>
           </template>
         </EmptyState>
       </template>
@@ -258,7 +258,7 @@
             </div>
             <div class="mt-auto pt-5">
               <RouterLink :to="websiteGroupLink(activeWebsite.id, group.slug)" class="btn-primary w-full justify-center">
-                Open
+                {{ $t('Open') }}
               </RouterLink>
             </div>
           </article>
@@ -267,9 +267,9 @@
 
       <template v-else>
         <div class="mb-5 card card-pad">
-          <h2 class="text-2xl font-bold text-text-main">Select a website to open its prompt library.</h2>
+          <h2 class="text-2xl font-bold text-text-main">{{ $t('Select a website to open its prompt library.') }}</h2>
           <p class="mt-2 text-sm text-text-muted">
-            Choose the website you are working on first. The final prompt will automatically use that website profile.
+            {{ $t('Choose the website you are working on first. The final prompt will automatically use that website profile.') }}
           </p>
         </div>
 
@@ -288,14 +288,14 @@
               <span class="h-8 w-8 rounded-full border border-border" :style="{ backgroundColor: website.primaryColor || '#15D6C2' }" />
             </div>
             <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <DetailRow label="Website type" :value="websiteTypeLabel(website.websiteType)" compact />
-              <DetailRow label="Font family" :value="website.fontFamily || '—'" compact />
-              <DetailRow label="Prompts" :value="`${promptCountForWebsite(website)} available`" compact />
-              <DetailRow label="Primary" :value="website.primaryColor || '—'" compact />
+              <DetailRow :label="$t('Website type')" :value="websiteTypeLabel(website.websiteType)" compact />
+              <DetailRow :label="$t('Font family')" :value="website.fontFamily || '—'" compact />
+              <DetailRow :label="$t('Prompts')" :value="`${promptCountForWebsite(website)} available`" compact />
+              <DetailRow :label="$t('Primary')" :value="website.primaryColor || '—'" compact />
             </div>
             <div class="mt-auto pt-5">
               <RouterLink :to="websiteLibraryLink(website.id)" class="btn-primary w-full justify-center">
-                Open Prompt Library
+                {{ $t('Open Prompt Library') }}
               </RouterLink>
             </div>
           </article>
@@ -303,11 +303,11 @@
 
         <EmptyState
           v-else
-          title="No websites available"
+          :title="$t('No websites available')"
           description="Ask admin to assign a website or create a website profile first."
         >
           <template v-if="auth.isAdmin" #action>
-            <RouterLink to="/websites/new" class="btn-primary">New Website</RouterLink>
+            <RouterLink to="/websites/new" class="btn-primary">{{ $t('New Website') }}</RouterLink>
           </template>
         </EmptyState>
       </template>
@@ -325,7 +325,7 @@
         {{ data.errors.prompts }}
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="closeEditor">Cancel</button>
+        <button class="btn-ghost" type="button" @click="closeEditor">{{ $t('Cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="saving" @click="savePrompt">
           {{ saving ? 'Saving...' : 'Save' }}
         </button>
@@ -340,20 +340,20 @@
       @close="assignOpen = false"
     >
       <div class="space-y-4">
-        <FormSelect v-model="assignForm.assignedMemberId" label="Assign to" placeholder="Pick a member" :options="memberOptions" />
-        <FormSelect v-model="projectValue" label="Project (optional)" placeholder="None" :options="projectOptions" />
-        <FormSelect v-model="websiteValue" label="Website (optional)" placeholder="None" :options="websiteOptions" />
+        <FormSelect v-model="assignForm.assignedMemberId" :label="$t('Assign to')" :placeholder="$t('Pick a member')" :options="memberOptions" />
+        <FormSelect v-model="projectValue" :label="$t('Project (optional)')" :placeholder="$t('None')" :options="projectOptions" />
+        <FormSelect v-model="websiteValue" :label="$t('Website (optional)')" :placeholder="$t('None')" :options="websiteOptions" />
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <FormInput v-model="assignForm.dueDate" label="Due date" type="date" />
-          <FormSelect v-model="assignForm.priority" label="Priority" :options="priorityOptions" />
+          <FormInput v-model="assignForm.dueDate" :label="$t('Due date')" type="date" />
+          <FormSelect v-model="assignForm.priority" :label="$t('Priority')" :options="priorityOptions" />
         </div>
-        <FormTextarea v-model="assignForm.adminNote" label="Admin note" :rows="3" />
+        <FormTextarea v-model="assignForm.adminNote" :label="$t('Admin note')" :rows="3" />
       </div>
       <div v-if="data.errors.assignments" class="mt-3 text-sm text-status-needs-fix-fg">
         {{ data.errors.assignments }}
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="assignOpen = false">Cancel</button>
+        <button class="btn-ghost" type="button" @click="assignOpen = false">{{ $t('Cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="!assignForm.assignedMemberId || sendingAssignment" @click="saveAssignment">
           {{ sendingAssignment ? 'Sending...' : 'Send Assignment' }}
         </button>

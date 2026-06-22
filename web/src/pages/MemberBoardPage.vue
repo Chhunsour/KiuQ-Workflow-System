@@ -8,22 +8,22 @@
             <span v-else>{{ initials(selectedMember.fullName, selectedMember.email) }}</span>
           </span>
           <div>
-            <div class="header-kicker">Member Work Board</div>
+            <div class="header-kicker">{{ $t('memberBoard.kicker') }}</div>
             <h1 class="page-title">{{ selectedMember.fullName || selectedMember.email }}</h1>
-            <p class="page-subtitle">Manage this member’s assigned cards, deadlines, files, links, and review progress.</p>
+            <p class="page-subtitle">{{ $t('memberBoard.desc') }}</p>
             <div class="member-chip-row">
               <span class="role-chip">{{ roleLabel(selectedMember.role) }}</span>
               <span class="presence-chip" :class="selectedMember.currentStatus">{{ presenceLabel(selectedMember) }}</span>
-              <span class="last-chip">Last active {{ relativeTime(selectedMember.lastActiveAt) }}</span>
+              <span class="last-chip">{{ $t('memberBoard.lastActive', { time: relativeTime(selectedMember.lastActiveAt) }) }}</span>
             </div>
           </div>
         </div>
         <div class="header-right">
           <MonthSelector v-model="boardMonth" />
           <div class="header-actions">
-            <RouterLink to="/work-board/members" class="btn-secondary">Back to Members</RouterLink>
-            <RouterLink :to="`/profiles/${selectedMember.id}`" class="btn-secondary">View Full Profile</RouterLink>
-            <button v-if="auth.isAdmin" class="btn-primary" type="button" @click="openAssignForSelected">Assign New Task</button>
+            <RouterLink to="/work-board/members" class="btn-secondary">{{ $t('memberBoard.backToMembers') }}</RouterLink>
+            <RouterLink :to="`/profiles/${selectedMember.id}`" class="btn-secondary">{{ $t('memberBoard.viewFullProfile') }}</RouterLink>
+            <button v-if="auth.isAdmin" class="btn-primary" type="button" @click="openAssignForSelected">{{ $t('memberBoard.assignNewTask') }}</button>
           </div>
         </div>
       </section>
@@ -49,21 +49,21 @@
     <template v-else>
       <section class="admin-board-hero card">
         <div>
-          <div class="header-kicker">{{ auth.isAdmin ? 'Admin control center' : 'Team transparency' }}</div>
-          <h1 class="page-title">Member Board</h1>
-          <p class="page-subtitle">View team member boards, tasks, and progress.</p>
+          <div class="header-kicker">{{ auth.isAdmin ? $t('memberBoard.adminControlCenter') : $t('memberBoard.teamTransparency') }}</div>
+          <h1 class="page-title">{{ $t('memberBoard.title') }}</h1>
+          <p class="page-subtitle">{{ $t('memberBoard.subtitle') }}</p>
         </div>
         <div class="header-right">
           <MonthSelector v-model="boardMonth" />
           <div class="header-actions">
-            <button v-if="auth.isAdmin" class="btn-primary" type="button" @click="workBoardRef?.openAddTask('to_do')">Assign Task</button>
+            <button v-if="auth.isAdmin" class="btn-primary" type="button" @click="workBoardRef?.openAddTask('to_do')">{{ $t('memberBoard.assign') }}</button>
           </div>
         </div>
       </section>
 
       <div class="mb-board-section-label">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 8h3M8 12h5M16 8h1M16 12h1M8 16h2"/></svg>
-        Task Board
+        {{ $t('memberBoard.taskBoard') }}
       </div>
       <TodaysWorkPage
         ref="workBoardRef"
@@ -76,30 +76,30 @@
 
       <section class="member-toolbar card">
         <label class="member-search">
-          <span class="sr-only">Search members</span>
+          <span class="sr-only">{{ $t('Search members') }}</span>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
-          <input v-model="searchQuery" type="search" placeholder="Search team members..." />
+          <input v-model="searchQuery" type="search" :placeholder="$t('memberBoard.searchTeamMembers')" />
         </label>
-        <select v-model="statusFilter" class="filter-select" aria-label="Filter by online status">
-          <option value="">All status</option>
-          <option value="online">Online</option>
-          <option value="away">Away</option>
-          <option value="offline">Offline</option>
+        <select v-model="statusFilter" class="filter-select" aria-:label="$t('Filter by online status')">
+          <option value="">{{ $t('memberBoard.allStatus') }}</option>
+          <option value="online">{{ $t('memberBoard.online') }}</option>
+          <option value="away">{{ $t('memberBoard.away') }}</option>
+          <option value="offline">{{ $t('memberBoard.offline') }}</option>
         </select>
-        <select v-model="workloadFilter" class="filter-select" aria-label="Filter by workload">
-          <option value="">All workload</option>
-          <option value="active">Has active tasks</option>
-          <option value="needs_fix">Needs fix</option>
-          <option value="blocked">Blocked</option>
-          <option value="none">No tasks</option>
+        <select v-model="workloadFilter" class="filter-select" aria-:label="$t('Filter by workload')">
+          <option value="">{{ $t('memberBoard.allWorkload') }}</option>
+          <option value="active">{{ $t('memberBoard.hasActiveTasks') }}</option>
+          <option value="needs_fix">{{ $t('memberBoard.needsFix') }}</option>
+          <option value="blocked">{{ $t('memberBoard.blocked') }}</option>
+          <option value="none">{{ $t('memberBoard.noTasks') }}</option>
         </select>
-        <select v-model="roleFilter" class="filter-select" aria-label="Filter by role">
-          <option value="">All roles</option>
-          <option value="member">Team Member</option>
-          <option value="reviewer">Reviewer</option>
-          <option value="admin">Admin</option>
+        <select v-model="roleFilter" class="filter-select" aria-:label="$t('Filter by role')">
+          <option value="">{{ $t('memberBoard.allRoles') }}</option>
+          <option value="member">{{ $t('memberBoard.teamMember') }}</option>
+          <option value="reviewer">{{ $t('memberBoard.reviewer') }}</option>
+          <option value="admin">{{ $t('memberBoard.admin') }}</option>
         </select>
       </section>
 
@@ -108,10 +108,10 @@
         class="card card-pad flex flex-col gap-3 text-sm md:flex-row md:items-center md:justify-between"
       >
         <div>
-          <div class="ui-font font-semibold text-status-needs-fix-fg">Could not load Work Board.</div>
+          <div class="ui-font font-semibold text-status-needs-fix-fg">{{ $t('memberBoard.couldNotLoad') }}</div>
           <p class="mt-1 text-text-muted">{{ pageError }}</p>
         </div>
-        <button class="btn-primary w-fit" type="button" @click="loadPageData">Retry</button>
+        <button class="btn-primary w-fit" type="button" @click="loadPageData">{{ $t('Retry') }}</button>
       </div>
 
       <section v-else-if="loading" class="member-grid">
@@ -124,14 +124,14 @@
 
       <EmptyState
         v-else-if="filteredMembers.length === 0"
-        title="No matching team members."
-        description="Clear filters or add members before assigning work."
+        :title="$t('memberBoard.noMatchingMembers')"
+        :description="$t('memberBoard.noMatchingMembersSub')"
       />
 
       <template v-else>
         <div class="mb-board-section-label">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Team Members
+          {{ $t('memberBoard.teamMembersSection') }}
         </div>
         <section class="member-grid">
         <article v-for="member in filteredMembers" :key="member.id" class="member-card">
@@ -155,44 +155,44 @@
 
           <div class="member-stats-grid">
             <div class="stats-total">
-              <span>Total tasks</span>
+              <span>{{ $t('memberBoard.totalTasks') }}</span>
               <strong>{{ memberStats(member).total }}</strong>
             </div>
             <div>
-              <span>To Do</span>
+              <span>{{ $t('memberBoard.toDo') }}</span>
               <strong>{{ memberStats(member).todo }}</strong>
             </div>
             <div>
-              <span>In progress</span>
+              <span>{{ $t('memberBoard.inProgress') }}</span>
               <strong>{{ memberStats(member).inProgress }}</strong>
             </div>
             <div>
-              <span>Postpone</span>
+              <span>{{ $t('memberBoard.postpone') }}</span>
               <strong>{{ memberStats(member).postpone }}</strong>
             </div>
             <div>
-              <span>Review</span>
+              <span>{{ $t('memberBoard.review') }}</span>
               <strong>{{ memberStats(member).waitingReview }}</strong>
             </div>
             <div>
-              <span>Needs fix</span>
+              <span>{{ $t('memberBoard.needsFix') }}</span>
               <strong>{{ memberStats(member).needsFix }}</strong>
             </div>
             <div>
-              <span>Completed</span>
+              <span>{{ $t('memberBoard.completed') }}</span>
               <strong>{{ memberStats(member).completed }}</strong>
             </div>
           </div>
 
           <div class="member-card-actions">
             <RouterLink class="btn-primary h-9 px-3 text-xs" :to="`/work-board/members/${member.id}`">
-              View Board
+              {{ $t('memberBoard.viewBoard') }}
             </RouterLink>
             <RouterLink class="btn-secondary h-9 px-3 text-xs" :to="`/profiles/${member.id}`">
-              Profile
+              {{ $t('memberBoard.profile') }}
             </RouterLink>
             <RouterLink v-if="auth.isAdmin" class="btn-secondary h-9 px-3 text-xs" :to="`/work-board/members/${member.id}?assign=1`">
-              Assign
+              {{ $t('memberBoard.assign') }}
             </RouterLink>
           </div>
         </article>

@@ -1,18 +1,18 @@
 <template>
   <div>
-    <PageHeader title="Projects" subtitle="Website-building work assigned to your team.">
+    <PageHeader :title="$t('Projects')" subtitle="Website-building work assigned to your team.">
       <template #actions>
         <button class="btn-primary" type="button" @click="openCreate">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          Create Project
+          {{ $t('Create Project') }}
         </button>
       </template>
     </PageHeader>
 
     <div class="mb-5 flex flex-wrap items-center gap-3">
-      <input v-model="search" class="input max-w-sm" type="search" placeholder="Search projects..." />
+      <input v-model="search" class="input max-w-sm" type="search" :placeholder="$t('Search projects...')" />
       <FormSelect
         v-model="statusFilter"
         :options="[
@@ -51,7 +51,7 @@
               +{{ row.assignedMemberIds.length - 3 }}
             </span>
             <span v-if="row.assignedMemberIds.length === 0" class="text-xs text-text-muted">
-              Not assigned
+              {{ $t('Not assigned') }}
             </span>
           </div>
         </template>
@@ -62,8 +62,8 @@
           <span class="text-text-muted">{{ row.deadline || '—' }}</span>
         </template>
         <template #actions="{ row }">
-          <button class="btn-secondary h-8 px-3 text-xs" @click="openEdit(row)">Edit</button>
-          <button class="btn-danger h-8 px-3 text-xs" @click="confirmDelete(row)">Delete</button>
+          <button class="btn-secondary h-8 px-3 text-xs" @click="openEdit(row)">{{ $t('Edit') }}</button>
+          <button class="btn-danger h-8 px-3 text-xs" @click="confirmDelete(row)">{{ $t('Delete') }}</button>
         </template>
       </DataTable>
     </LoadingBlock>
@@ -79,7 +79,7 @@
         {{ data.errors.projects }}
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="closeModal">Cancel</button>
+        <button class="btn-ghost" type="button" @click="closeModal">{{ $t('Cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="saving" @click="save(formRef?.model)">
           {{ saving ? 'Saving...' : 'Save' }}
         </button>

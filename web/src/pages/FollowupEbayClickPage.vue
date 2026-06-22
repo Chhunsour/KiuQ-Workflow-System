@@ -1,7 +1,7 @@
 <template>
   <div>
     <PageHeader
-      title="eBay Click Followup"
+      :title="$t('eBay Click Followup')"
       subtitle="Daily checkbox tracker — complete your eBay click followup Monday through Saturday."
     >
       <template #actions>
@@ -11,7 +11,7 @@
           class="btn-secondary ecf-auto-fill-btn"
           @click="openAutoFillModal"
         >
-          Auto Fill All
+          {{ $t('Auto Fill All') }}
         </button>
         <a
           href="https://www.ebay.com/sch/i.html?_nkw=mini+excavator&_sacat=0&_from=R40&_trksid=p4624852.m570.l1312"
@@ -20,11 +20,11 @@
           class="btn-primary"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Open eBay
+          {{ $t('Open eBay') }}
         </a>
         <RouterLink to="/followup" class="btn-secondary">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-          Back
+          {{ $t('Back') }}
         </RouterLink>
       </template>
     </PageHeader>
@@ -44,7 +44,7 @@
             </div>
             <div class="ecf-summary-body">
               <div class="ecf-summary-num">{{ completedToday }}</div>
-              <div class="ecf-summary-label">Completed Today</div>
+              <div class="ecf-summary-label">{{ $t('Completed Today') }}</div>
             </div>
           </div>
           <div class="ecf-summary-card">
@@ -53,7 +53,7 @@
             </div>
             <div class="ecf-summary-body">
               <div class="ecf-summary-num">{{ pendingToday }}</div>
-              <div class="ecf-summary-label">Pending Today</div>
+              <div class="ecf-summary-label">{{ $t('Pending Today') }}</div>
             </div>
           </div>
           <div class="ecf-summary-card">
@@ -62,7 +62,7 @@
             </div>
             <div class="ecf-summary-body">
               <div class="ecf-summary-num">{{ missedThisWeek }}</div>
-              <div class="ecf-summary-label">Missed This Week</div>
+              <div class="ecf-summary-label">{{ $t('Missed This Week') }}</div>
             </div>
           </div>
           <div class="ecf-summary-card">
@@ -71,7 +71,7 @@
             </div>
             <div class="ecf-summary-body">
               <div class="ecf-summary-num">{{ teamWeekDone }}/{{ teamWeekRequired }}</div>
-              <div class="ecf-summary-label">Team This Week</div>
+              <div class="ecf-summary-label">{{ $t('Team This Week') }}</div>
             </div>
           </div>
         </div>
@@ -89,7 +89,7 @@
         <div v-if="auth.isAdmin && viewingMemberId" class="ecf-calendar-topbar">
           <button class="btn-ghost ecf-back-btn" type="button" @click="viewingMemberId = null">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-            All Members
+            {{ $t('All Members') }}
           </button>
           <div class="ecf-viewing-member">
             <div class="ecf-member-avatar ecf-member-avatar--sm">
@@ -111,15 +111,15 @@
         <div v-if="!auth.isAdmin" class="ecf-self-stats">
           <div class="ecf-self-stat">
             <span class="ecf-self-num">{{ selfWeekDone }}/{{ memberWeekRequired }}</span>
-            <span class="ecf-self-label">This Week</span>
+            <span class="ecf-self-label">{{ $t('This Week') }}</span>
           </div>
           <div class="ecf-self-stat">
             <span class="ecf-self-num">{{ selfMonthDone }}/{{ memberMonthRequired }}</span>
-            <span class="ecf-self-label">This Month</span>
+            <span class="ecf-self-label">{{ $t('This Month') }}</span>
           </div>
           <div class="ecf-self-stat">
             <span class="ecf-self-num ecf-self-num--missed">{{ selfMissedWeek }}</span>
-            <span class="ecf-self-label">Missed This Week</span>
+            <span class="ecf-self-label">{{ $t('Missed This Week') }}</span>
           </div>
         </div>
 
@@ -130,13 +130,13 @@
             :class="calendarView === 'week' ? 'ecf-toggle-btn--active' : ''"
             type="button"
             @click="calendarView = 'week'"
-          >This Week</button>
+          >{{ $t('This Week') }}</button>
           <button
             class="ecf-toggle-btn"
             :class="calendarView === 'month' ? 'ecf-toggle-btn--active' : ''"
             type="button"
             @click="calendarView = 'month'"
-          >This Month</button>
+          >{{ $t('This Month') }}</button>
         </div>
 
         <!-- ── Calendar grid ── -->
@@ -161,7 +161,7 @@
             <!-- Sunday — no work day -->
             <div v-if="day.isSunday" class="ecf-day-nowork">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
-              No Work Day
+              {{ $t('No Work Day') }}
             </div>
 
             <!-- Required day -->
@@ -176,7 +176,7 @@
               <!-- Future: not yet actionable -->
               <div v-if="day.isFuture" class="ecf-day-upcoming">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                Upcoming
+                {{ $t('Upcoming') }}
               </div>
 
               <!-- Editable (today, or admin correcting a past day): checkbox -->
@@ -215,51 +215,51 @@
 
     <Modal
       :open="autoFillOpen"
-      title="Auto fill eBay Click for all members?"
+      :title="$t('Auto fill eBay Click for all members?')"
       subtitle="This will mark today’s eBay Click followup for all active team members as handled by Head/Admin. Use this only when eBay Click is not required today."
       size="md"
       @close="closeAutoFillModal"
     >
       <div class="ecf-auto-modal">
         <label class="ecf-field">
-          <span>Date</span>
+          <span>{{ $t('Date') }}</span>
           <input v-model="autoFillForm.date" type="date" class="ecf-input" required :disabled="autoFillSaving" />
         </label>
 
         <label class="ecf-field">
-          <span>Action type</span>
+          <span>{{ $t('Action type') }}</span>
           <select v-model="autoFillForm.actionType" class="ecf-input" :disabled="autoFillSaving">
-            <option value="admin_auto_fill">Admin Auto Completed</option>
-            <option value="not_required_today">Not Required Today</option>
+            <option value="admin_auto_fill">{{ $t('Admin Auto Completed') }}</option>
+            <option value="not_required_today">{{ $t('Not Required Today') }}</option>
           </select>
         </label>
 
         <label class="ecf-field">
-          <span>Reason <em>optional</em></span>
+          <span>{{ $t('Reason') }} <em>{{ $t('optional') }}</em></span>
           <textarea
             v-model="autoFillForm.reason"
             rows="3"
             class="ecf-input ecf-textarea"
-            placeholder="e.g. eBay Click not required today"
+            :placeholder="$t('e.g. eBay Click not required today')"
             :disabled="autoFillSaving"
           ></textarea>
         </label>
 
         <div v-if="autoFillIsSunday" class="ecf-warning">
-          <p>Sunday is normally a non-working day. Are you sure you want to auto fill this date?</p>
+          <p>{{ $t('Sunday is normally a non-working day. Are you sure you want to auto fill this date?') }}</p>
           <label>
             <input v-model="autoFillSundayConfirmed" type="checkbox" :disabled="autoFillSaving" />
-            <span>Yes, auto fill this Sunday date</span>
+            <span>{{ $t('Yes, auto fill this Sunday date') }}</span>
           </label>
         </div>
 
         <div class="ecf-member-picker">
           <div class="ecf-member-picker-head">
-            <strong>Members</strong>
+            <strong>{{ $t('Members') }}</strong>
             <span>{{ selectedAutoFillMembers.length }}/{{ activeMembers.length }} selected</span>
           </div>
           <div v-if="activeMembers.length === 0" class="ecf-member-picker-empty">
-            No active members found for eBay Click followup.
+            {{ $t('No active members found for eBay Click followup.') }}
           </div>
           <div v-else class="ecf-member-checks">
             <label v-for="member in activeMembers" :key="member.id" class="ecf-member-check">
@@ -277,7 +277,7 @@
 
       <template #footer>
         <button type="button" class="btn-secondary" :disabled="autoFillSaving" @click="closeAutoFillModal">
-          Cancel
+          {{ $t('Cancel') }}
         </button>
         <button
           type="button"
@@ -1064,7 +1064,7 @@ const initials = (name: string) =>
 
 .ecf-toggle-btn--active {
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 
 /* ── Calendar day cards ──────────────────────────────────────── */

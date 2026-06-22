@@ -1,18 +1,18 @@
 <template>
   <div>
-    <PageHeader title="Notes" subtitle="Quick notes about websites, projects, prompts, or the team.">
+    <PageHeader :title="$t('Notes')" subtitle="Quick notes about websites, projects, prompts, or the team.">
       <template #actions>
         <button class="btn-primary" type="button" @click="openCreate">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          New Note
+          {{ $t('New Note') }}
         </button>
       </template>
     </PageHeader>
 
     <div class="mb-5 flex flex-wrap items-center gap-3">
-      <input v-model="search" class="input max-w-sm" type="search" placeholder="Search notes..." />
+      <input v-model="search" class="input max-w-sm" type="search" :placeholder="$t('Search notes...')" />
     </div>
 
     <LoadingBlock :loading="data.loading.notes" :error="data.errors.notes" :retry="data.fetchNotes">
@@ -27,19 +27,19 @@
           <h3 class="mt-3 ui-font text-base font-semibold text-text-main">{{ note.title }}</h3>
           <p class="mt-2 flex-1 whitespace-pre-line text-sm text-text-main">{{ note.content }}</p>
           <div class="mt-4 flex justify-end gap-2">
-            <button class="btn-secondary h-8 px-3 text-xs" @click="openEdit(note)">Edit</button>
-            <button class="btn-danger h-8 px-3 text-xs" @click="confirmDelete(note)">Delete</button>
+            <button class="btn-secondary h-8 px-3 text-xs" @click="openEdit(note)">{{ $t('Edit') }}</button>
+            <button class="btn-danger h-8 px-3 text-xs" @click="confirmDelete(note)">{{ $t('Delete') }}</button>
           </div>
         </div>
       </div>
 
       <EmptyState
         v-if="filtered.length === 0"
-        title="No notes yet"
+        :title="$t('No notes yet')"
         description="Use notes for brand voice reminders, sprint priorities, or reviewer checklists."
       >
         <template #action>
-          <button class="btn-primary" @click="openCreate">New Note</button>
+          <button class="btn-primary" @click="openCreate">{{ $t('New Note') }}</button>
         </template>
       </EmptyState>
     </LoadingBlock>
@@ -51,17 +51,17 @@
       @close="closeModal"
     >
       <form class="space-y-4" @submit.prevent="save(form)">
-        <FormInput v-model="form.title" label="Title" />
+        <FormInput v-model="form.title" :label="$t('Title')" />
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormSelect
             v-model="folderIdValue"
-            label="Folder"
-            placeholder="No folder"
+            :label="$t('Folder')"
+            :placeholder="$t('No folder')"
             :options="folderOptions"
           />
           <FormSelect
             v-model="form.relatedType"
-            label="Related to"
+            :label="$t('Related to')"
             :options="[
               { value: 'none', label: 'None' },
               { value: 'project', label: 'Project' },
@@ -73,18 +73,18 @@
           <FormSelect
             v-if="form.relatedType !== 'none' && form.relatedType !== 'team'"
             v-model="relatedIdValue"
-            label="Pick item"
-            placeholder="Choose..."
+            :label="$t('Pick item')"
+            :placeholder="$t('Choose...')"
             :options="relatedOptions"
           />
         </div>
-        <FormTextarea v-model="form.content" label="Note content" :rows="6" />
+        <FormTextarea v-model="form.content" :label="$t('Note content')" :rows="6" />
       </form>
       <div v-if="data.errors.notes" class="mt-3 text-sm text-status-needs-fix-fg">
         {{ data.errors.notes }}
       </div>
       <template #footer>
-        <button class="btn-ghost" type="button" @click="closeModal">Cancel</button>
+        <button class="btn-ghost" type="button" @click="closeModal">{{ $t('Cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="saving" @click="save(form)">
           {{ saving ? 'Saving...' : 'Save' }}
         </button>

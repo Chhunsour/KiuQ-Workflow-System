@@ -1,9 +1,9 @@
 <template>
   <div>
-    <PageHeader title="My Assigned Prompts" subtitle="Only prompt templates assigned to you are shown here." />
+    <PageHeader :title="$t('My Assigned Prompts')" subtitle="Only prompt templates assigned to you are shown here." />
 
     <div class="mb-5 flex flex-wrap items-center gap-3">
-      <input v-model="search" class="input max-w-sm" type="search" placeholder="Search assigned prompts..." />
+      <input v-model="search" class="input max-w-sm" type="search" :placeholder="$t('Search assigned prompts...')" />
       <FormSelect
         v-model="statusFilter"
         class="max-w-[200px]"
@@ -35,9 +35,9 @@
             v-if="assignment.status === 'needs_resubmission'"
             class="mt-3 rounded-btn border border-status-needs-fix-bg bg-status-needs-fix-bg/30 px-3 py-2 text-xs text-status-needs-fix-fg"
           >
-            <div class="ui-font font-semibold">Admin replaced the prompt.</div>
+            <div class="ui-font font-semibold">{{ $t('Admin replaced the prompt.') }}</div>
             <div class="mt-0.5">
-              Please use the new prompt and resubmit.
+              {{ $t('Please use the new prompt and resubmit.') }}
               <span v-if="latestReplacementFor(assignment.id)?.adminNote">
                 — “{{ latestReplacementFor(assignment.id)?.adminNote }}”
               </span>
@@ -46,29 +46,29 @@
 
           <dl class="mt-4 space-y-1.5 text-sm">
             <div class="flex justify-between gap-2">
-              <dt class="text-text-muted">Website</dt>
+              <dt class="text-text-muted">{{ $t('Website') }}</dt>
               <dd class="ui-font text-text-main">{{ websiteName(assignment.websiteId) }}</dd>
             </div>
             <div class="flex justify-between gap-2">
-              <dt class="text-text-muted">Assigned</dt>
+              <dt class="text-text-muted">{{ $t('Assigned') }}</dt>
               <dd class="ui-font text-text-main">{{ assignment.assignedAt || '—' }}</dd>
             </div>
           </dl>
 
           <div class="mt-4 flex justify-end">
             <RouterLink :to="`/prompt-builder/${assignment.id}`" class="btn-primary h-9 px-3 text-xs">
-              Open Prompt
+              {{ $t('Open Prompt') }}
             </RouterLink>
           </div>
         </div>
       </div>
       <EmptyState
         v-else
-        title="No assigned prompts"
+        :title="$t('No assigned prompts')"
         description="Your admin has not assigned work yet."
       >
         <template #action>
-          <RouterLink to="/docs" class="btn-primary">Open Docs</RouterLink>
+          <RouterLink to="/docs" class="btn-primary">{{ $t('Open Docs') }}</RouterLink>
         </template>
       </EmptyState>
     </LoadingBlock>

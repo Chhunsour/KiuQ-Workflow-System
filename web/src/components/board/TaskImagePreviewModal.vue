@@ -3,7 +3,7 @@
     <div v-if="isOpen" class="image-preview-overlay" @click.self="onClose" @keydown.esc="onClose" tabindex="-1">
       <div class="image-preview-container">
         <!-- Close button (Absolute top-right of the whole container) -->
-        <button class="close-modal-btn" @click="onClose" aria-label="Close preview">
+        <button class="close-modal-btn" @click="onClose" aria-:label="$t('Close preview')">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -19,11 +19,11 @@
             <div class="image-actions">
               <a :href="imageUrl" target="_blank" rel="noopener" class="btn-action">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                Open Original
+                {{ $t('Open Original') }}
               </a>
               <button @click="downloadImage" class="btn-action">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                Download
+                {{ $t('Download') }}
               </button>
             </div>
           </div>
@@ -39,25 +39,25 @@
               </div>
               <h2 class="preview-title">{{ taskTitle }}</h2>
               <div v-if="assignedMember" class="assigned-row">
-                <span class="label">Assigned to:</span>
+                <span class="label">{{ $t('Assigned to:') }}</span>
                 <span class="value">{{ assignedMember }}</span>
               </div>
               <div v-if="createdBy" class="assigned-row">
-                <span class="label">Created by:</span>
+                <span class="label">{{ $t('Created by:') }}</span>
                 <span class="value">{{ createdBy }}</span>
               </div>
             </div>
 
             <div class="info-body scrollbar-custom">
-              <h3 class="section-label">Task Description</h3>
+              <h3 class="section-label">{{ $t('Task Description') }}</h3>
               <div class="preview-description">
                 <p v-if="description">{{ description }}</p>
-                <p v-else class="text-muted italic">No description provided for this task.</p>
+                <p v-else class="text-muted italic">{{ $t('No description provided for this task.') }}</p>
               </div>
             </div>
 
             <div class="info-footer">
-              <button class="btn-primary w-full" @click="onClose">Got it</button>
+              <button class="btn-primary w-full" @click="onClose">{{ $t('Got it') }}</button>
             </div>
           </div>
         </div>
@@ -187,17 +187,17 @@ onUnmounted(() => {
   gap: 0.5rem;
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
-  background: rgba(255,255,255,0.1);
-  color: white;
+  background: rgba(248,251,255,0.1);
+  color: #f8fbff;
   font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s ease;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(248,251,255,0.1);
 }
 
 .btn-action:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(248,251,255,0.2);
   transform: translateY(-1px);
 }
 
@@ -296,7 +296,7 @@ onUnmounted(() => {
 
 .btn-primary {
   background: var(--primary);
-  color: white;
+  color: #f8fbff;
   padding: 0.75rem;
   border-radius: 12px;
   font-weight: 700;
@@ -322,8 +322,8 @@ onUnmounted(() => {
   border-radius: 999px;
   background: rgba(0,0,0,0.5);
   backdrop-filter: blur(4px);
-  color: white;
-  border: 1px solid rgba(255,255,255,0.2);
+  color: #f8fbff;
+  border: 1px solid rgba(248,251,255,0.2);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,9 +1,9 @@
 <template>
   <div>
-    <PageHeader title="Member Activity" subtitle="Recent task, review, blocker, and report activity." />
+    <PageHeader :title="$t('Member Activity')" subtitle="Recent task, review, blocker, and report activity." />
 
     <div class="mb-5 flex flex-wrap items-center gap-3">
-      <input v-model="search" class="input max-w-sm" type="search" placeholder="Search activity..." />
+      <input v-model="search" class="input max-w-sm" type="search" :placeholder="$t('Search activity...')" />
       <FormSelect
         v-model="memberFilter"
         class="max-w-[240px]"
@@ -23,7 +23,7 @@
           </div>
         </div>
       </div>
-      <EmptyState v-else title="No activity" description="Member activity will appear as the team works." />
+      <EmptyState v-else :title="$t('No activity')" description="Member activity will appear as the team works." />
     </LoadingBlock>
   </div>
 </template>

@@ -1,16 +1,16 @@
 <template>
   <form class="space-y-4" @submit.prevent="$emit('submit', model)">
-    <FormInput v-model="model.name" label="Project name" placeholder="Acme — Launch sprint" />
+    <FormInput v-model="model.name" :label="$t('Project name')" :placeholder="$t('Acme — Launch sprint')" />
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <FormSelect
         v-model="websiteValue"
-        label="Related website"
-        placeholder="None"
+        :label="$t('Related website')"
+        :placeholder="$t('None')"
         :options="websiteOptions"
       />
       <FormSelect
         v-model="model.status"
-        label="Status"
+        :label="$t('Status')"
         :options="[
           { value: 'not_started', label: 'Not Started' },
           { value: 'in_progress', label: 'In Progress' },
@@ -20,10 +20,10 @@
         ]"
       />
     </div>
-    <FormInput v-model="model.deadline" label="Deadline" type="date" />
+    <FormInput v-model="model.deadline" :label="$t('Deadline')" type="date" />
     <div>
-      <label class="label">Assigned members</label>
-      <p class="helper -mt-1 mb-2">Pick one or more team members.</p>
+      <label class="label">{{ $t('Assigned members') }}</label>
+      <p class="helper -mt-1 mb-2">{{ $t('Pick one or more team members.') }}</p>
       <div class="flex flex-wrap gap-2">
         <button
           v-for="m in members"
@@ -41,7 +41,7 @@
         </button>
       </div>
     </div>
-    <FormTextarea v-model="model.notes" label="Notes" />
+    <FormTextarea v-model="model.notes" :label="$t('Notes')" />
   </form>
 </template>
 

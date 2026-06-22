@@ -13,25 +13,25 @@
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Total Completed Tasks</div>
+            <div class="kpi-label text-text-muted">{{ $t('Total Completed Tasks') }}</div>
             <div class="kpi-value text-emerald-500">{{ totalCompleted }}</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Total Postponed Tasks</div>
+            <div class="kpi-label text-text-muted">{{ $t('Total Postponed Tasks') }}</div>
             <div class="kpi-value text-amber-500">{{ totalPostponed }}</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Workflow Violations</div>
+            <div class="kpi-label text-text-muted">{{ $t('Workflow Violations') }}</div>
             <div class="kpi-value text-rose-500 font-bold">{{ totalViolations }}</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Follow-Up Rate</div>
+            <div class="kpi-label text-text-muted">{{ $t('Follow-Up Rate') }}</div>
             <div class="kpi-value text-indigo-500 font-bold">{{ stats.avgFollowupCompletion }}%</div>
           </div>
         </div>
@@ -43,12 +43,12 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
-          Weekly Insights & Performance Auditing
+          {{ $t('Weekly Insights & Performance Auditing') }}
         </h3>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <div class="rounded-btn border border-border p-4 bg-soft/10">
-            <div class="text-xs font-semibold uppercase tracking-wider text-emerald-500">Most Consistent Member</div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-emerald-500">{{ $t('Most Consistent Member') }}</div>
             <div v-if="mostConsistent" class="mt-2 flex items-center gap-3">
               <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
                 <img v-if="mostConsistent.avatarUrl" :src="mostConsistent.avatarUrl" class="w-full h-full object-cover" />
@@ -59,11 +59,11 @@
                 <div class="text-xs text-text-muted">Workflow compliance: {{ mostConsistent.workflowComplianceScore }}%</div>
               </div>
             </div>
-            <div v-else class="mt-2 text-text-muted text-xs italic">No members available.</div>
+            <div v-else class="mt-2 text-text-muted text-xs italic">{{ $t('No members available.') }}</div>
           </div>
 
           <div class="rounded-btn border border-border p-4 bg-soft/10">
-            <div class="text-xs font-semibold uppercase tracking-wider text-blue-500">Most Productive Member</div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-blue-500">{{ $t('Most Productive Member') }}</div>
             <div v-if="mostProductive" class="mt-2 flex items-center gap-3">
               <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
                 <img v-if="mostProductive.avatarUrl" :src="mostProductive.avatarUrl" class="w-full h-full object-cover" />
@@ -74,11 +74,11 @@
                 <div class="text-xs text-text-muted">Completed {{ mostProductive.tasksCompleted }} tasks this week</div>
               </div>
             </div>
-            <div v-else class="mt-2 text-text-muted text-xs italic">No members available.</div>
+            <div v-else class="mt-2 text-text-muted text-xs italic">{{ $t('No members available.') }}</div>
           </div>
 
           <div class="rounded-btn border border-border p-4 bg-soft/10">
-            <div class="text-xs font-semibold uppercase tracking-wider text-amber-500">Most Delayed / Postponed Tasks</div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-amber-500">{{ $t('Most Delayed / Postponed Tasks') }}</div>
             <div v-if="mostPostponed && mostPostponed.tasksPostponed > 0" class="mt-2 flex items-center gap-3">
               <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
                 <img v-if="mostPostponed.avatarUrl" :src="mostPostponed.avatarUrl" class="w-full h-full object-cover" />
@@ -94,8 +94,8 @@
                 ✓
               </div>
               <div>
-                <div class="font-bold text-text-main text-sm">No Task Delays</div>
-                <div class="text-xs text-text-muted">No postponed cards recorded.</div>
+                <div class="font-bold text-text-main text-sm">{{ $t('No Task Delays') }}</div>
+                <div class="text-xs text-text-muted">{{ $t('No postponed cards recorded.') }}</div>
               </div>
             </div>
           </div>
@@ -107,7 +107,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
-            Projects Neglected (No task updates in the last 7 days):
+            {{ $t('Projects Neglected (No task updates in the last 7 days):') }}
           </div>
           <div class="flex flex-wrap gap-2 mt-2">
             <span v-for="p in neglectedProjects" :key="p.id" class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 text-xs font-semibold">
@@ -119,19 +119,19 @@
 
       <!-- ── Weekly Performance Rankings ── -->
       <div class="card p-5">
-        <h3 class="section-title mb-4">Weekly Accountability Leaderboard</h3>
+        <h3 class="section-title mb-4">{{ $t('Weekly Accountability Leaderboard') }}</h3>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="border-b border-border text-text-muted text-xs font-semibold uppercase">
-                <th class="py-3 px-4 w-12 text-center">Rank</th>
-                <th class="py-3 px-4">Team Member</th>
-                <th class="py-3 px-4 text-center">Completed Tasks</th>
-                <th class="py-3 px-4 text-center">Postponed Tasks</th>
-                <th class="py-3 px-4 text-center">Violations</th>
-                <th class="py-3 px-4 text-center">Compliance Score</th>
-                <th class="py-3 px-4 text-center">Follow-up Completion</th>
-                <th class="py-3 px-4 text-center pr-6">Weekly Score</th>
+                <th class="py-3 px-4 w-12 text-center">{{ $t('Rank') }}</th>
+                <th class="py-3 px-4">{{ $t('Team Member') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Completed Tasks') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Postponed Tasks') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Violations') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Compliance Score') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Follow-up Completion') }}</th>
+                <th class="py-3 px-4 text-center pr-6">{{ $t('Weekly Score') }}</th>
               </tr>
             </thead>
             <tbody>

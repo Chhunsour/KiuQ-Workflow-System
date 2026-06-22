@@ -15,10 +15,10 @@
           v-if="!alert.requireAck"
           class="alert-close-btn"
           type="button"
-          aria-label="Dismiss alert"
+          aria-:label="$t('Dismiss alert')"
           @click="handleDismiss(alert)"
         >
-          &times;
+          {{ $t('&times;') }}
         </button>
 
         <div class="alert-header">
@@ -35,7 +35,7 @@
 
         <div class="alert-footer-info">
           <span class="alert-author">
-            Assigned by <strong>{{ authorName(alert.createdBy) }}</strong>
+            {{ $t('Assigned by') }} <strong>{{ authorName(alert.createdBy) }}</strong>
           </span>
           <span class="alert-time">{{ timeAgo(alert.createdAt) }}</span>
         </div>
@@ -48,10 +48,10 @@
             type="button"
             @click="handleOpenTask(alert)"
           >
-            Open Task
+            {{ $t('Open Task') }}
           </button>
           <button class="btn-got-it" type="button" @click="handleGotIt(alert)">
-            Got It
+            {{ $t('Got It') }}
           </button>
           <button
             v-if="!alert.requireAck"
@@ -59,7 +59,7 @@
             type="button"
             @click="handleDismiss(alert)"
           >
-            Dismiss
+            {{ $t('Dismiss') }}
           </button>
         </div>
       </div>

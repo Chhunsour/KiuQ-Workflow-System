@@ -13,37 +13,37 @@
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Completed Today</div>
+            <div class="kpi-label text-text-muted">{{ $t('Completed Today') }}</div>
             <div class="kpi-value text-emerald-500">{{ stats.completedToday }}</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Added Today</div>
+            <div class="kpi-label text-text-muted">{{ $t('Added Today') }}</div>
             <div class="kpi-value text-primary">{{ stats.newCreated || stats.completedToday + stats.inProgress }}</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Postponed Today</div>
+            <div class="kpi-label text-text-muted">{{ $t('Postponed Today') }}</div>
             <div class="kpi-value text-amber-500">{{ dailyPostponedCount }}</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Reopened Today</div>
+            <div class="kpi-label text-text-muted">{{ $t('Reopened Today') }}</div>
             <div class="kpi-value text-rose-500">{{ dailyReopenedCount }}</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Workflow Violations</div>
+            <div class="kpi-label text-text-muted">{{ $t('Workflow Violations') }}</div>
             <div class="kpi-value text-rose-600 font-black">{{ stats.overdue + dailyViolationsCount }}</div>
           </div>
         </div>
         <div class="kpi card card-pad">
           <div>
-            <div class="kpi-label text-text-muted">Follow-Ups Completed</div>
+            <div class="kpi-label text-text-muted">{{ $t('Follow-Ups Completed') }}</div>
             <div class="kpi-value text-indigo-500">{{ stats.avgFollowupCompletion }}%</div>
           </div>
         </div>
@@ -56,12 +56,12 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
             </svg>
-            Manager View: Accomplishments Summary
+            {{ $t('Manager View: Accomplishments Summary') }}
           </h3>
           
           <div class="flex flex-col gap-4 text-sm">
             <div>
-              <span class="font-bold text-text-main block">Who completed work today:</span>
+              <span class="font-bold text-text-main block">{{ $t('Who completed work today:') }}</span>
               <div class="mt-1 flex flex-wrap gap-2">
                 <span
                   v-for="m in completedTodayMembers"
@@ -71,12 +71,12 @@
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   {{ m.name }}
                 </span>
-                <span v-if="completedTodayMembers.length === 0" class="text-text-muted italic text-xs">No member completed tasks today yet.</span>
+                <span v-if="completedTodayMembers.length === 0" class="text-text-muted italic text-xs">{{ $t('No member completed tasks today yet.') }}</span>
               </div>
             </div>
 
             <div>
-              <span class="font-bold text-text-main block">Who made active progress today:</span>
+              <span class="font-bold text-text-main block">{{ $t('Who made active progress today:') }}</span>
               <div class="mt-1 flex flex-wrap gap-2">
                 <span
                   v-for="m in activeTodayMembers"
@@ -86,7 +86,7 @@
                   <span class="w-1.5 h-1.5 rounded-full bg-blue-400" />
                   {{ m.name }}
                 </span>
-                <span v-if="activeTodayMembers.length === 0" class="text-text-muted italic text-xs">No active progress recorded.</span>
+                <span v-if="activeTodayMembers.length === 0" class="text-text-muted italic text-xs">{{ $t('No active progress recorded.') }}</span>
               </div>
             </div>
           </div>
@@ -97,12 +97,12 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
-            Manager View: Action & Coaching Needed
+            {{ $t('Manager View: Action & Coaching Needed') }}
           </h3>
 
           <div class="flex flex-col gap-4 text-sm">
             <div>
-              <span class="font-bold text-text-main block">Who has unfinished / active work:</span>
+              <span class="font-bold text-text-main block">{{ $t('Who has unfinished / active work:') }}</span>
               <div class="mt-1 flex flex-wrap gap-2">
                 <span
                   v-for="m in unfinishedMembers"
@@ -112,12 +112,12 @@
                   <span class="w-1.5 h-1.5 rounded-full bg-amber-400" />
                   {{ m.name }} ({{ m.tasksInProgress }} in prog)
                 </span>
-                <span v-if="unfinishedMembers.length === 0" class="text-text-muted italic text-xs">No active/unfinished tasks left.</span>
+                <span v-if="unfinishedMembers.length === 0" class="text-text-muted italic text-xs">{{ $t('No active/unfinished tasks left.') }}</span>
               </div>
             </div>
 
             <div>
-              <span class="font-bold text-text-main block text-rose-400">Who requires coaching or rule follow-up:</span>
+              <span class="font-bold text-text-main block text-rose-400">{{ $t('Who requires coaching or rule follow-up:') }}</span>
               <div class="mt-1 flex flex-wrap gap-2">
                 <span
                   v-for="m in coachingRequiredMembers"
@@ -127,7 +127,7 @@
                   <span class="w-1.5 h-1.5 rounded-full bg-rose-500" />
                   {{ m.name }}
                 </span>
-                <span v-if="coachingRequiredMembers.length === 0" class="text-text-muted italic text-xs">All members in full compliance.</span>
+                <span v-if="coachingRequiredMembers.length === 0" class="text-text-muted italic text-xs">{{ $t('All members in full compliance.') }}</span>
               </div>
             </div>
           </div>
@@ -136,18 +136,18 @@
 
       <!-- ── Daily Team Summary Table ── -->
       <div class="card p-5">
-        <h3 class="section-title mb-4">Daily Team Accountability Summary</h3>
+        <h3 class="section-title mb-4">{{ $t('Daily Team Accountability Summary') }}</h3>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="border-b border-border text-text-muted text-xs font-semibold uppercase">
-                <th class="py-3 px-4">Team Member</th>
-                <th class="py-3 px-4 text-center">Completed</th>
-                <th class="py-3 px-4 text-center">Postponed</th>
-                <th class="py-3 px-4 text-center">Workflow Violations</th>
-                <th class="py-3 px-4 text-center">Compliance</th>
-                <th class="py-3 px-4">Active Task Card</th>
-                <th class="py-3 px-4 pr-6">Follow-up Checklists</th>
+                <th class="py-3 px-4">{{ $t('Team Member') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Completed') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Postponed') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Workflow Violations') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Compliance') }}</th>
+                <th class="py-3 px-4">{{ $t('Active Task Card') }}</th>
+                <th class="py-3 px-4 pr-6">{{ $t('Follow-up Checklists') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -186,7 +186,7 @@
                 </td>
               </tr>
               <tr v-if="summaries.length === 0">
-                <td colspan="7" class="py-8 text-center text-text-muted text-sm">No member summaries available.</td>
+                <td colspan="7" class="py-8 text-center text-text-muted text-sm">{{ $t('No member summaries available.') }}</td>
               </tr>
             </tbody>
           </table>

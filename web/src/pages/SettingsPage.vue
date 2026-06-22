@@ -1,8 +1,8 @@
 <template>
   <div>
     <PageHeader
-      :title="auth.isQualityChecker ? 'Account Settings' : 'Settings'"
-      :subtitle="auth.isQualityChecker ? 'Manage your profile, password, notifications, and display settings.' : 'Manage your account and workspace.'"
+      :title="auth.isQualityChecker ? $t('nav.accountSettings') : $t('nav.settings')"
+      :subtitle="auth.isQualityChecker ? $t('settings.qcSubtitle') : $t('settings.adminSubtitle')"
     />
 
     <div
@@ -20,51 +20,51 @@
 
     <div class="space-y-6">
       <div class="card card-pad">
-        <h3 class="section-title mb-1">Profile</h3>
-        <p class="helper mb-5">How your name appears across the workspace.</p>
+        <h3 class="section-title mb-1">{{ $t('settings.profile') }}</h3>
+        <p class="helper mb-5">{{ $t('settings.profileHint') }}</p>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label class="label">Display name</label>
+            <label class="label">{{ $t('settings.displayName') }}</label>
             <input v-model="displayName" class="input" />
           </div>
           <div>
-            <label class="label">Email</label>
+            <label class="label">{{ $t('settings.email') }}</label>
             <input class="input" :value="auth.user?.email ?? ''" disabled />
           </div>
         </div>
         <div class="mt-5 flex justify-end">
           <RouterLink v-if="auth.isQualityChecker" class="btn-secondary mr-2" to="/profile">
-            Edit Full Profile
+            {{ $t('settings.editFullProfile') }}
           </RouterLink>
           <button class="btn-primary" type="button" :disabled="saving" @click="saveProfile">
-            {{ saving ? 'Saving...' : 'Save Changes' }}
+            {{ saving ? $t('settings.saving') : $t('settings.saveChanges') }}
           </button>
         </div>
       </div>
 
       <div class="card card-pad">
-        <h3 class="section-title mb-1">Password</h3>
-        <p class="helper mb-5">Change your login password for this account.</p>
+        <h3 class="section-title mb-1">{{ $t('settings.password') }}</h3>
+        <p class="helper mb-5">{{ $t('settings.passwordHint') }}</p>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label class="label">New password</label>
-            <input v-model="password.newPassword" class="input" type="password" placeholder="At least 6 characters" />
+            <label class="label">{{ $t('settings.newPassword') }}</label>
+            <input v-model="password.newPassword" class="input" type="password" :placeholder="$t('settings.placeholderNewPassword')" />
           </div>
           <div>
-            <label class="label">Confirm password</label>
-            <input v-model="password.confirmPassword" class="input" type="password" placeholder="Repeat password" />
+            <label class="label">{{ $t('settings.confirmPassword') }}</label>
+            <input v-model="password.confirmPassword" class="input" type="password" :placeholder="$t('settings.placeholderConfirmPassword')" />
           </div>
         </div>
         <div class="mt-5 flex justify-end">
           <button class="btn-secondary" type="button" :disabled="savingPassword" @click="savePassword">
-            {{ savingPassword ? 'Updating...' : 'Update Password' }}
+            {{ savingPassword ? $t('settings.updating') : $t('settings.updatePassword') }}
           </button>
         </div>
       </div>
 
       <div v-if="auth.isAdmin" class="card card-pad">
-        <h3 class="section-title mb-1">Notifications</h3>
-        <p class="helper mb-5">Decide when we email you.</p>
+        <h3 class="section-title mb-1">{{ $t('settings.notifications') }}</h3>
+        <p class="helper mb-5">{{ $t('settings.notificationsHint') }}</p>
         <div class="space-y-3">
           <label v-for="opt in notifyOptions" :key="opt.id" class="flex items-start gap-3">
             <input
@@ -82,15 +82,15 @@
 
       <!-- Alert Preferences -->
       <div class="card card-pad">
-        <h3 class="section-title mb-1">Alert Preferences</h3>
-        <p class="helper mb-5">Choose which notifications you want to receive and how.</p>
+        <h3 class="section-title mb-1">{{ $t('settings.alertPreferences') }}</h3>
+        <p class="helper mb-5">{{ $t('settings.alertPreferencesHint') }}</p>
         
         <div class="space-y-4">
           <!-- Task Alerts -->
           <div class="flex items-center justify-between gap-4">
             <div>
-              <div class="ui-font text-sm font-medium text-text-main">Task Alerts</div>
-              <div class="text-xs text-text-muted">Receive alerts when a new task is assigned to you.</div>
+              <div class="ui-font text-sm font-medium text-text-main">{{ $t('settings.taskAlerts') }}</div>
+              <div class="text-xs text-text-muted">{{ $t('settings.taskAlertsHint') }}</div>
             </div>
             <button
               type="button"
@@ -101,7 +101,7 @@
               @click="togglePref('taskAlertsEnabled')"
             >
               <span
-                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-card-elevated shadow ring-0 transition"
                 :class="prefs.taskAlertsEnabled ? 'translate-x-5' : 'translate-x-0'"
               />
             </button>
@@ -110,8 +110,8 @@
           <!-- Follow-Up Alerts -->
           <div class="flex items-center justify-between gap-4">
             <div>
-              <div class="ui-font text-sm font-medium text-text-main">Follow-Up Alerts</div>
-              <div class="text-xs text-text-muted">Receive reminders for daily slot check-ins and follow-ups.</div>
+              <div class="ui-font text-sm font-medium text-text-main">{{ $t('settings.followupAlerts') }}</div>
+              <div class="text-xs text-text-muted">{{ $t('settings.followupAlertsHint') }}</div>
             </div>
             <button
               type="button"
@@ -122,7 +122,7 @@
               @click="togglePref('followupAlertsEnabled')"
             >
               <span
-                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-card-elevated shadow ring-0 transition"
                 :class="prefs.followupAlertsEnabled ? 'translate-x-5' : 'translate-x-0'"
               />
             </button>
@@ -131,8 +131,8 @@
           <!-- Quality Check Alerts -->
           <div class="flex items-center justify-between gap-4">
             <div>
-              <div class="ui-font text-sm font-medium text-text-main">Quality Check Alerts</div>
-              <div class="text-xs text-text-muted">Receive alerts when quality check issues are reported or updated.</div>
+              <div class="ui-font text-sm font-medium text-text-main">{{ $t('settings.qualityAlerts') }}</div>
+              <div class="text-xs text-text-muted">{{ $t('settings.qualityAlertsHint') }}</div>
             </div>
             <button
               type="button"
@@ -143,7 +143,7 @@
               @click="togglePref('qualityAlertsEnabled')"
             >
               <span
-                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-card-elevated shadow ring-0 transition"
                 :class="prefs.qualityAlertsEnabled ? 'translate-x-5' : 'translate-x-0'"
               />
             </button>
@@ -152,8 +152,8 @@
           <!-- Desktop Notifications -->
           <div class="flex items-center justify-between gap-4">
             <div>
-              <div class="ui-font text-sm font-medium text-text-main">Desktop Notifications</div>
-              <div class="text-xs text-text-muted">Enable browser push notifications on this device.</div>
+              <div class="ui-font text-sm font-medium text-text-main">{{ $t('settings.desktopNotifications') }}</div>
+              <div class="text-xs text-text-muted">{{ $t('settings.desktopNotificationsHint') }}</div>
             </div>
             <button
               type="button"
@@ -164,7 +164,7 @@
               @click="togglePref('desktopEnabled')"
             >
               <span
-                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-card-elevated shadow ring-0 transition"
                 :class="prefs.desktopEnabled ? 'translate-x-5' : 'translate-x-0'"
               />
             </button>
@@ -176,14 +176,14 @@
 
       <!-- Sound notifications -->
       <div class="card card-pad">
-        <h3 class="section-title mb-1">Sound Notifications</h3>
-        <p class="helper mb-4">Play a sound when a notification arrives while the app is open.</p>
+        <h3 class="section-title mb-1">{{ $t('settings.soundNotifications') }}</h3>
+        <p class="helper mb-4">{{ $t('settings.soundNotificationsHint') }}</p>
 
         <div class="flex items-center justify-between gap-4">
           <div>
-            <div class="ui-font text-sm font-medium text-text-main">In-app notification sound</div>
+            <div class="ui-font text-sm font-medium text-text-main">{{ $t('settings.inAppSound') }}</div>
             <div class="mt-0.5 text-xs text-text-muted">
-              Plays when you receive a task, comment, or update while KiuQ is open.
+              {{ $t('settings.inAppSoundHint') }}
             </div>
           </div>
           <button
@@ -195,7 +195,7 @@
             @click="toggleSound"
           >
             <span
-              class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition"
+              class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-card-elevated shadow ring-0 transition"
               :class="soundEnabled ? 'translate-x-5' : 'translate-x-0'"
             />
           </button>
@@ -203,46 +203,46 @@
 
         <div class="mt-4 flex items-center gap-3">
           <button class="btn-secondary text-sm" type="button" :disabled="testingSound" @click="testSound">
-            {{ testingSound ? 'Playing…' : 'Test Sound' }}
+            {{ testingSound ? $t('settings.playing') : $t('settings.testSound') }}
           </button>
           <span class="text-xs text-text-muted">
-            For sound in background, enable notification sound in macOS / browser settings.
+            {{ $t('settings.soundSettingsHint') }}
           </span>
         </div>
       </div>
 
       <!-- System Updates Management (Admin only) -->
       <div v-if="auth.isAdmin" class="card card-pad">
-        <h3 class="section-title mb-1">System Updates & Announcements</h3>
-        <p class="helper mb-5">Manage and post system updates, fixes, improvements, or announcements. You can preview updates before publishing them to the team.</p>
+        <h3 class="section-title mb-1">{{ $t('settings.systemUpdates') }}</h3>
+        <p class="helper mb-5">{{ $t('settings.systemUpdatesHint') }}</p>
 
         <!-- New Update Form -->
         <div class="border-b border-border pb-5 mb-5">
-          <h4 class="text-sm font-semibold text-text-main mb-3">Create System Update</h4>
+          <h4 class="text-sm font-semibold text-text-main mb-3">{{ $t('settings.createUpdate') }}</h4>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label class="label">Update ID (unique identifier slug)</label>
-              <input v-model="newUpdate.updateId" class="input" placeholder="e.g. feature-work-board-v2" />
+              <label class="label">{{ $t('settings.updateId') }}</label>
+              <input v-model="newUpdate.updateId" class="input" :placeholder="$t('e.g. feature-work-board-v2')" />
             </div>
             <div>
-              <label class="label">Type</label>
+              <label class="label">{{ $t('settings.type') }}</label>
               <select v-model="newUpdate.type" class="input">
-                <option value="feature">Feature</option>
-                <option value="fix">Fix</option>
-                <option value="improvement">Improvement</option>
-                <option value="announcement">Announcement</option>
+                <option value="feature">{{ $t('Feature') }}</option>
+                <option value="fix">{{ $t('Fix') }}</option>
+                <option value="improvement">{{ $t('Improvement') }}</option>
+                <option value="announcement">{{ $t('Announcement') }}</option>
               </select>
             </div>
             <div class="sm:col-span-2">
-              <label class="label">Title</label>
-              <input v-model="newUpdate.title" class="input" placeholder="e.g. New Work Board UI Released" />
+              <label class="label">{{ $t('settings.title') }}</label>
+              <input v-model="newUpdate.title" class="input" :placeholder="$t('e.g. New Work Board UI Released')" />
             </div>
             <div class="sm:col-span-2">
-              <label class="label">Message / Description</label>
-              <textarea v-model="newUpdate.message" rows="3" class="input py-2" placeholder="e.g. We have upgraded the work board with drag and drop support and cleaner layouts..."></textarea>
+              <label class="label">{{ $t('settings.message') }}</label>
+              <textarea v-model="newUpdate.message" rows="3" class="input py-2" :placeholder="$t('e.g. We have upgraded the work board with drag and drop support and cleaner layouts...')"></textarea>
             </div>
             <div class="sm:col-span-2">
-              <label class="label">Read More URL (Optional)</label>
+              <label class="label">{{ $t('settings.readMoreUrl') }}</label>
               <input v-model="newUpdate.readMoreUrl" class="input" placeholder="e.g. https://kiuq.kiuq.net/docs/work-board" />
             </div>
           </div>
@@ -253,7 +253,7 @@
               type="button"
               @click="triggerLocalPreview(newUpdate)"
             >
-              Test Preview (Local Banner)
+              {{ $t('settings.testPreview') }}
             </button>
             <div class="flex gap-2">
               <button
@@ -262,7 +262,7 @@
                 :disabled="savingUpdate"
                 @click="saveUpdate(false)"
               >
-                Save as Draft
+                {{ $t('settings.saveDraft') }}
               </button>
               <button
                 class="btn-primary text-sm"
@@ -270,7 +270,7 @@
                 :disabled="savingUpdate"
                 @click="saveUpdate(true)"
               >
-                Publish Official
+                {{ $t('settings.publishOfficial') }}
               </button>
             </div>
           </div>
@@ -278,9 +278,9 @@
 
         <!-- Updates List -->
         <div>
-          <h4 class="text-sm font-semibold text-text-main mb-3">Past Updates</h4>
-          <div v-if="loadingUpdates" class="text-sm text-text-muted">Loading updates...</div>
-          <div v-else-if="updates.length === 0" class="text-sm text-text-muted">No updates created yet.</div>
+          <h4 class="text-sm font-semibold text-text-main mb-3">{{ $t('settings.pastUpdates') }}</h4>
+          <div v-if="loadingUpdates" class="text-sm text-text-muted">{{ $t('settings.loadingUpdates') }}</div>
+          <div v-else-if="updates.length === 0" class="text-sm text-text-muted">{{ $t('settings.noUpdates') }}</div>
           <div v-else class="space-y-3">
             <div
               v-for="item in updates"
@@ -327,7 +327,7 @@
                     type="button"
                     @click="toggleReceipts(item.update_id)"
                   >
-                    <span>Receipts</span>
+                    <span>{{ $t('Receipts') }}</span>
                     <svg
                       width="12"
                       height="12"
@@ -348,7 +348,7 @@
                     type="button"
                     @click="triggerLocalPreview(item)"
                   >
-                    Preview
+                    {{ $t('Preview') }}
                   </button>
                   <button
                     v-if="!item.is_official"
@@ -356,23 +356,23 @@
                     type="button"
                     @click="publishUpdate(item.id)"
                   >
-                    Publish
+                    {{ $t('Publish') }}
                   </button>
                   <button
                     v-if="item.is_official"
                     class="btn-secondary text-[11px] py-1 px-2.5 text-primary border-primary/20 hover:bg-primary/5"
                     type="button"
                     @click="repushUpdate(item.update_id)"
-                    title="Force show this update again to all teammates who already dismissed it"
+                    :title="$t('Force show this update again to all teammates who already dismissed it')"
                   >
-                    Repush
+                    {{ $t('Repush') }}
                   </button>
                   <button
                     class="btn-ghost text-[11px] py-1 px-2.5 text-status-needs-fix-fg hover:bg-status-needs-fix-bg"
                     type="button"
                     @click="deleteUpdate(item.id)"
                   >
-                    Delete
+                    {{ $t('Delete') }}
                   </button>
                 </div>
               </div>
@@ -388,7 +388,7 @@
                         Acknowledged ({{ getSeenStats(item.update_id).acknowledged.length }})
                       </div>
                       <div v-if="getSeenStats(item.update_id).acknowledged.length === 0" class="text-[11px] text-text-muted italic py-1 pl-3">
-                        No one has acknowledged yet.
+                        {{ $t('No one has acknowledged yet.') }}
                       </div>
                       <div v-else class="space-y-1.5">
                         <div
@@ -413,7 +413,7 @@
                           </div>
                           <span class="text-[9px] text-status-approved-fg font-semibold bg-status-approved-bg/10 px-1.5 py-0.5 rounded border border-status-approved-bg/20 flex items-center gap-1">
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            Got it
+                            {{ $t('Got it') }}
                           </span>
                         </div>
                       </div>
@@ -426,7 +426,7 @@
                         Pending ({{ getSeenStats(item.update_id).pending.length }})
                       </div>
                       <div v-if="getSeenStats(item.update_id).pending.length === 0" class="text-[11px] text-text-muted italic py-1 pl-3">
-                        All active teammates have received this update.
+                        {{ $t('All active teammates have received this update.') }}
                       </div>
                       <div v-else class="space-y-1.5">
                         <div
@@ -450,7 +450,7 @@
                             </div>
                           </div>
                           <span class="text-[9px] text-text-muted font-medium bg-border/50 px-1.5 py-0.5 rounded border border-border">
-                            Pending
+                            {{ $t('Pending') }}
                           </span>
                         </div>
                       </div>
@@ -464,19 +464,38 @@
       </div>
 
       <div v-if="auth.isAdmin" class="card card-pad">
-        <h3 class="section-title mb-1">Workspace</h3>
-        <p class="helper mb-5">Settings that apply to everyone in your team.</p>
+        <h3 class="section-title mb-1">{{ $t('settings.workspace') }}</h3>
+        <p class="helper mb-5">{{ $t('settings.workspaceHint') }}</p>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label class="label">Workspace name</label>
+            <label class="label">{{ $t('settings.workspaceName') }}</label>
             <input class="input" value="WordPress Prompt Team" />
           </div>
           <div>
-            <label class="label">Default reviewer</label>
+            <label class="label">{{ $t('settings.defaultReviewer') }}</label>
             <select class="input">
               <option v-for="member in data.members" :key="member.id">{{ member.fullName || member.email }}</option>
             </select>
           </div>
+        </div>
+      </div>
+
+      <!-- Language Translation Review (Admin only) -->
+      <div v-if="auth.isAdmin" class="card card-pad">
+        <h3 class="section-title mb-1">{{ $t('translationReview.cardTitle') }}</h3>
+        <p class="helper mb-4">{{ $t('translationReview.cardHint') }}</p>
+        <div class="flex items-center justify-between gap-4 border border-border/40 p-4 rounded-xl bg-soft-bg/10">
+          <div>
+            <div class="ui-font text-sm font-medium text-text-main">
+              {{ $t('translationReview.cardTitle') }}
+            </div>
+            <div class="text-xs text-text-muted mt-0.5">
+              {{ $t('translationReview.cardLabel') }}
+            </div>
+          </div>
+          <RouterLink class="btn-primary text-xs px-3 h-8 flex items-center" to="/settings/translations">
+            {{ $t('translationReview.cardBtn') }}
+          </RouterLink>
         </div>
       </div>
 

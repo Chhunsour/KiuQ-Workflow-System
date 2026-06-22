@@ -6,18 +6,18 @@
         <input
           v-model="localFilters.search"
           type="search"
-          placeholder="Search audit message..."
+          :placeholder="$t('Search audit message...')"
           class="input py-2 px-3 text-xs max-w-[280px]"
           @input="loadTimeline"
         />
 
         <!-- Action module filter -->
         <select v-model="localFilters.module" class="input py-2 px-3 text-xs max-w-[150px]" @change="loadTimeline">
-          <option value="">All Modules</option>
-          <option value="system">System</option>
-          <option value="page">Page navigation</option>
-          <option value="assignment">Task Assignment</option>
-          <option value="resource">Docs & Resources</option>
+          <option value="">{{ $t('All Modules') }}</option>
+          <option value="system">{{ $t('System') }}</option>
+          <option value="page">{{ $t('Page navigation') }}</option>
+          <option value="assignment">{{ $t('Task Assignment') }}</option>
+          <option value="resource">{{ $t('Docs & Resources') }}</option>
         </select>
       </div>
 
@@ -26,24 +26,24 @@
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
-        Export CSV
+        {{ $t('Export CSV') }}
       </button>
     </div>
 
     <!-- Auditing Table -->
     <div class="card overflow-hidden">
-      <div v-if="loading" class="p-8 text-center text-text-muted text-sm">Loading audit logs...</div>
+      <div v-if="loading" class="p-8 text-center text-text-muted text-sm">{{ $t('Loading audit logs...') }}</div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-border bg-soft/50">
-              <th class="table-head py-3 px-4">User</th>
-              <th class="table-head py-3 px-4">Action</th>
-              <th class="table-head py-3 px-4">Module</th>
-              <th class="table-head py-3 px-4">Date</th>
-              <th class="table-head py-3 px-4">Time</th>
-              <th class="table-head py-3 px-4">IP Address</th>
-              <th class="table-head py-3 px-4">Device Information</th>
+              <th class="table-head py-3 px-4">{{ $t('User') }}</th>
+              <th class="table-head py-3 px-4">{{ $t('Action') }}</th>
+              <th class="table-head py-3 px-4">{{ $t('Module') }}</th>
+              <th class="table-head py-3 px-4">{{ $t('Date') }}</th>
+              <th class="table-head py-3 px-4">{{ $t('Time') }}</th>
+              <th class="table-head py-3 px-4">{{ $t('IP Address') }}</th>
+              <th class="table-head py-3 px-4">{{ $t('Device Information') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -65,7 +65,7 @@
               </td>
             </tr>
             <tr v-if="timelineLogs.length === 0">
-              <td colspan="7" class="py-8 text-center text-text-muted text-sm">No audit logs match criteria.</td>
+              <td colspan="7" class="py-8 text-center text-text-muted text-sm">{{ $t('No audit logs match criteria.') }}</td>
             </tr>
           </tbody>
         </table>

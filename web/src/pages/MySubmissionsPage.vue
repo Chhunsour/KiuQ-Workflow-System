@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PageHeader title="My Submissions" subtitle="Work you submitted for admin review." />
+    <PageHeader :title="$t('My Submissions')" subtitle="Work you submitted for admin review." />
 
     <LoadingBlock :loading="data.loading.submissions" :error="data.errors.submissions" :retry="data.fetchSubmissions">
       <DataTable :columns="columns" :rows="rows">
@@ -20,7 +20,7 @@
             :to="`/prompt-builder/${row.assignmentId}`"
             class="btn-secondary h-8 px-3 text-xs"
           >
-            Resubmit
+            {{ $t('Resubmit') }}
           </RouterLink>
         </template>
       </DataTable>

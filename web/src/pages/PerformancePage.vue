@@ -25,14 +25,24 @@
           >
             {{ $t('performance.viewSyncLogs') }}
           </button>
-          <button
-            v-if="isManagement"
-            class="btn-primary font-sans font-semibold text-xs px-3 h-9"
-            type="button"
-            @click="onConnect"
-          >
-            {{ perf.connectionInfo.connected ? $t('performance.reconnect') : $t('performance.connectGsc') }}
-          </button>
+          <div class="flex items-center gap-2">
+            <!-- Disconnect button if connected -->
+            <button
+              v-if="perf.connectionInfo.connected"
+              class="btn-secondary text-status-needs-fix-fg hover:text-status-needs-fix-fg/80 font-sans font-semibold text-xs px-3 h-9"
+              type="button"
+              @click="onDisconnectGoogle"
+            >
+              {{ $t('performance.disconnect') }}
+            </button>
+            <button
+              class="btn-primary font-sans font-semibold text-xs px-3 h-9"
+              type="button"
+              @click="onConnect"
+            >
+              {{ perf.connectionInfo.connected ? $t('performance.reconnect') : $t('performance.connectGoogleAccountBtn') }}
+            </button>
+          </div>
         </div>
       </template>
     </PageHeader>
@@ -61,8 +71,48 @@
       <span>{{ connectMsg }}</span>
       <button class="text-xs underline cursor-pointer" type="button" @click="connectMsg = ''">{{ $t('common.cancel') }}</button>
     </div>
-    <div v-else-if="isManagement && !perf.connectionInfo.connected" class="mb-4 rounded-xl border border-border bg-soft/20 px-4 py-3 text-sm text-text-muted">
-      {{ $t('performance.searchConsoleNotConnected') }}
+    <div v-else-if="!perf.connectionInfo.connected" class="mb-4 rounded-xl border border-dashed border-primary/40 bg-primary/5 px-4 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-soft border border-border/60 flex items-center justify-center flex-shrink-0 mt-0.5 overflow-hidden">
+          <img src="https://www.google.com/s2/favicons?domain=google.com&sz=64" class="w-6 h-6 object-contain" alt="Google" />
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-text-main font-sans">{{ $t('performance.connectGscAccount') }}</h4>
+          <p class="text-xs text-text-muted mt-1 font-sans leading-relaxed">
+            {{ $t('performance.connectGscAccountSub') }}
+          </p>
+        </div>
+      </div>
+      <button class="btn-primary font-sans font-semibold text-xs px-4 h-9 flex-shrink-0" type="button" @click="onConnect">
+        {{ $t('performance.connectGoogleAccountBtn') }}
+      </button>
+    </div>
+
+    <!-- Connected status widget/card -->
+    <div v-else class="mb-4 rounded-xl border border-border bg-card px-4 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-soft border border-border/60 flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <img src="https://www.google.com/s2/favicons?domain=google.com&sz=64" class="w-5 h-5 object-contain" alt="Google" />
+        </div>
+        <div class="grid gap-0.5">
+          <div class="font-bold text-text-main flex items-center flex-wrap gap-2">
+            <span>{{ $t('performance.googleAccount') }}:</span>
+            <span class="text-primary font-mono font-medium">{{ perf.connectionInfo.google_email }}</span>
+            <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-status-approved-bg/20 text-status-approved-fg uppercase tracking-wider">{{ $t('performance.connected') }}</span>
+          </div>
+          <div class="text-[10px] text-text-muted">
+            <span>{{ $t('performance.lastConnectedTime') }}: <span class="font-mono text-text-main font-semibold">{{ fmtDateTime(perf.connectionInfo.connected_at) }}</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="btn-secondary h-8 px-3 font-semibold font-sans text-xs" type="button" @click="onConnect">
+          {{ $t('performance.reconnect') }}
+        </button>
+        <button class="btn-secondary h-8 px-3 font-semibold font-sans text-xs text-status-needs-fix-fg hover:text-status-needs-fix-fg/80" type="button" @click="onDisconnectGoogle">
+          {{ $t('performance.disconnect') }}
+        </button>
+      </div>
     </div>
 
     <!-- 2-Column layout wrapper -->
@@ -229,7 +279,7 @@
               <span class="perf-range-copy">
                 <span class="perf-range-label">{{ translateRangeOption(opt) }}</span>
                 <span v-if="opt.value === 'last_16_months'" class="perf-range-note">
-                  Maximum Search Console history
+                  {{ $t('Maximum Search Console history') }}
                 </span>
               </span>
             </button>
@@ -680,7 +730,7 @@
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold" :class="getWebsiteStatus(w.id).class">
                           {{ getWebsiteStatus(w.id).label }}
                         </span>
-                        <span v-if="getWebsiteStatus(w.id).error" class="cursor-help text-[10px] text-text-muted hover:text-text-main" :title="getWebsiteStatus(w.id).error || undefined">(?)</span>
+                        <span v-if="getWebsiteStatus(w.id).error" class="cursor-help text-[10px] text-text-muted hover:text-text-main" :title="getWebsiteStatus(w.id).error || undefined">{{ $t('(?)') }}</span>
                       </div>
                     </td>
                     <td class="text-text-muted font-sans text-xs">{{ fmtDateTime(perf.connectionByWebsite.get(w.id)?.last_synced_at) }}</td>
@@ -713,6 +763,71 @@
                   </tr>
                   <tr v-if="!visibleConnectionWebsites.length">
                     <td colspan="5" class="py-8 text-center text-sm text-text-muted font-sans">{{ $t('No websites match filters.') }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Admin View: Google Search Console Accounts -->
+          <div v-if="isManagement" class="card card-pad rounded-2xl bg-card border border-border/60 mt-6">
+            <div class="mb-4">
+              <h3 class="text-sm font-bold text-text-main font-sans tracking-wide uppercase mb-1">
+                {{ $t('performance.gscAccountsTitle') }}
+              </h3>
+              <p class="text-xs text-text-muted font-sans leading-relaxed">
+                {{ $t('performance.gscAccountsSub') }}
+              </p>
+            </div>
+            
+            <div class="overflow-x-auto">
+              <table class="perf-table perf-table--lined text-xs">
+                <thead>
+                  <tr class="bg-soft/5">
+                    <th class="font-bold">{{ $t('performance.user') }}</th>
+                    <th class="font-bold">{{ $t('performance.role') }}</th>
+                    <th class="font-bold">{{ $t('performance.connectedGmail') }}</th>
+                    <th class="font-bold">{{ $t('performance.status') }}</th>
+                    <th class="font-bold">{{ $t('performance.lastConnected') }}</th>
+                    <th class="font-bold">{{ $t('performance.assignedSites') }}</th>
+                    <th class="font-bold">{{ $t('performance.lastError') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="member in adminConnectionsOverview" :key="member.userId">
+                    <td class="font-sans">
+                      <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-[10px] overflow-hidden">
+                          <img v-if="member.avatarUrl" :src="member.avatarUrl" class="w-full h-full object-cover" />
+                          <span v-else>{{ getMemberInitials(member.displayName || member.fullName) }}</span>
+                        </div>
+                        <span class="font-semibold text-text-main font-sans">{{ member.displayName || member.fullName }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="px-2 py-0.5 rounded-full text-[9px] font-sans font-bold capitalize bg-soft text-text-muted">
+                        {{ member.role }}
+                      </span>
+                    </td>
+                    <td class="font-mono text-text-muted text-xs">
+                      {{ member.googleEmail || '—' }}
+                    </td>
+                    <td>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold" :class="member.status === 'connected' ? 'bg-status-approved-bg/15 text-status-approved-fg' : 'bg-soft text-text-muted'">
+                        {{ member.status === 'connected' ? $t('performance.connected') : $t('performance.notConnected') }}
+                      </span>
+                    </td>
+                    <td class="text-text-muted font-sans text-xs">
+                      {{ fmtDateTime(member.connectedAt) }}
+                    </td>
+                    <td class="text-text-main font-sans font-bold">
+                      {{ member.assignedWebsitesCount }}
+                    </td>
+                    <td class="text-status-needs-fix-fg font-sans text-xs">
+                      {{ member.lastError || '—' }}
+                    </td>
+                  </tr>
+                  <tr v-if="!adminConnectionsOverview.length">
+                    <td colspan="7" class="py-8 text-center text-sm text-text-muted font-sans">{{ $t('performance.noMembersFound') }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -843,7 +958,7 @@
           <!-- Page Indexing Tab -->
           <div v-else-if="detailTab === 'indexing'" class="space-y-4">
             <div class="text-xs text-text-muted">
-              Discover and check indexing logs under the Page Indexing view.
+              {{ $t('Discover and check indexing logs under the Page Indexing view.') }}
             </div>
             <div class="grid grid-cols-3 gap-3">
               <div class="bg-soft/10 p-2.5 border border-border/30 rounded-lg">
@@ -1121,6 +1236,9 @@ const fetchMemberProfiles = async () => {
       console.error('[performance] performance_team_member_profiles error:', resErr.message);
     } else {
       memberProfiles.value = resData || [];
+      if (isManagement.value) {
+        void perf.fetchTeamConnections();
+      }
     }
   } catch (err: any) {
     memberProfilesError.value = 'Could not load team members.';
@@ -2057,6 +2175,36 @@ const onConnect = async () => {
   }
 };
 
+const onDisconnectGoogle = async () => {
+  if (!confirm('Are you sure you want to disconnect your Google account from KiuQ?')) return;
+  const ok = await perf.disconnectGoogle();
+  if (ok) {
+    connectMsg.value = 'Google account disconnected successfully.';
+    connectOk.value = true;
+  } else {
+    connectMsg.value = perf.error || 'Failed to disconnect Google account.';
+    connectOk.value = false;
+  }
+};
+
+const adminConnectionsOverview = computed(() => {
+  return memberProfiles.value.map(profile => {
+    const conn = perf.teamConnections.find(c => c.user_id === profile.user_id);
+    return {
+      userId: profile.user_id,
+      displayName: profile.display_name,
+      fullName: profile.full_name,
+      avatarUrl: profile.avatar_url,
+      role: profile.role,
+      googleEmail: conn?.google_email || null,
+      status: conn ? conn.status : 'not_connected',
+      connectedAt: conn?.connected_at || null,
+      lastError: conn?.last_error || null,
+      assignedWebsitesCount: profile.assigned_website_count || 0
+    };
+  });
+});
+
 const onSyncAll = async () => {
   const ok = await perf.syncAll();
   connectMsg.value = perf.lastSyncMessage || (ok ? 'Sync completed.' : 'Sync failed.');
@@ -2075,6 +2223,9 @@ onMounted(() => {
   void data.fetchWebsites();
   void data.fetchMembers();
   void fetchMemberProfiles();
+  if (isManagement.value) {
+    void perf.fetchTeamConnections();
+  }
   loadData();
 
   const gsc = route.query.gsc;

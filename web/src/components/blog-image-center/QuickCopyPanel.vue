@@ -7,34 +7,34 @@
           <polyline points="13 2 13 9 20 9" />
         </svg>
       </span>
-      Quick Copy
+      {{ $t('Quick Copy') }}
     </h3>
-    <p class="qcp-subtitle">One-click access to everything you need.</p>
+    <p class="qcp-subtitle">{{ $t('One-click access to everything you need.') }}</p>
 
     <div class="qcp-grid">
       <!-- Primary Color -->
       <button type="button" class="qcp-btn qcp-btn--color" @click="copyColor(website.primaryColor, 'Primary')">
         <span class="qcp-btn-swatch" :style="{ background: website.primaryColor }" />
         <span class="qcp-btn-label">
-          <span class="qcp-btn-tag">Primary Color</span>
+          <span class="qcp-btn-tag">{{ $t('Primary Color') }}</span>
           <span class="qcp-btn-value">{{ website.primaryColor }}</span>
         </span>
-        <span class="qcp-btn-action">Copy</span>
+        <span class="qcp-btn-action">{{ $t('Copy') }}</span>
       </button>
 
       <!-- Secondary Color -->
       <button v-if="website.secondaryColor" type="button" class="qcp-btn qcp-btn--color" @click="copyColor(website.secondaryColor, 'Secondary')">
         <span class="qcp-btn-swatch" :style="{ background: website.secondaryColor }" />
         <span class="qcp-btn-label">
-          <span class="qcp-btn-tag">Secondary Color</span>
+          <span class="qcp-btn-tag">{{ $t('Secondary Color') }}</span>
           <span class="qcp-btn-value">{{ website.secondaryColor }}</span>
         </span>
-        <span class="qcp-btn-action">Copy</span>
+        <span class="qcp-btn-action">{{ $t('Copy') }}</span>
       </button>
 
       <!-- Prompt selector -->
       <div v-if="prompts.length" class="qcp-select-group">
-        <label class="qcp-select-label">Prompt Template</label>
+        <label class="qcp-select-label">{{ $t('Prompt Template') }}</label>
         <div class="qcp-select-row">
           <select v-model="selectedPromptIdx" class="input qcp-select">
             <option v-for="(p, i) in prompts" :key="p.id" :value="i">{{ p.templateName }}</option>
@@ -44,14 +44,14 @@
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
-            Copy
+            {{ $t('Copy') }}
           </button>
         </div>
       </div>
 
       <!-- Product image selector -->
       <div v-if="products.length" class="qcp-select-group">
-        <label class="qcp-select-label">Product Image URL</label>
+        <label class="qcp-select-label">{{ $t('Product Image URL') }}</label>
         <div class="qcp-select-row">
           <select v-model="selectedProductIdx" class="input qcp-select">
             <option v-for="(p, i) in products" :key="p.id" :value="i">{{ p.name }}</option>
@@ -61,7 +61,7 @@
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
-            Copy
+            {{ $t('Copy') }}
           </button>
         </div>
       </div>
@@ -190,7 +190,7 @@ const copyProduct = async () => {
   border: 2px solid rgba(0, 0, 0, 0.06);
 }
 :root[data-theme='dark-gray'] .qcp-btn-swatch {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(248, 251, 255, 0.1);
 }
 
 .qcp-btn-label {

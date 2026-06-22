@@ -5,46 +5,46 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
-        Export Center
+        {{ $t('Export Center') }}
       </h3>
 
       <!-- Select Report Type -->
       <div class="flex flex-col gap-2">
-        <label class="label">Select Report Template</label>
+        <label class="label">{{ $t('Select Report Template') }}</label>
         <select v-model="exportForm.reportType" class="input">
-          <option value="daily">Daily Activities Report</option>
-          <option value="weekly">Weekly Workload Summary</option>
-          <option value="monthly">Monthly Management Overview</option>
-          <option value="member">Individual Member Performance Report</option>
-          <option value="team">Team Analytics & Department Performance</option>
-          <option value="activity">Chronological Activity Audit Logs</option>
+          <option value="daily">{{ $t('Daily Activities Report') }}</option>
+          <option value="weekly">{{ $t('Weekly Workload Summary') }}</option>
+          <option value="monthly">{{ $t('Monthly Management Overview') }}</option>
+          <option value="member">{{ $t('Individual Member Performance Report') }}</option>
+          <option value="team">{{ $t('Team Analytics & Department Performance') }}</option>
+          <option value="activity">{{ $t('Chronological Activity Audit Logs') }}</option>
         </select>
       </div>
 
       <!-- Date Range Selection -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="flex flex-col gap-2">
-          <label class="label">Start Date</label>
+          <label class="label">{{ $t('Start Date') }}</label>
           <input type="date" v-model="exportForm.startDate" class="input" />
         </div>
         <div class="flex flex-col gap-2">
-          <label class="label">End Date</label>
+          <label class="label">{{ $t('End Date') }}</label>
           <input type="date" v-model="exportForm.endDate" class="input" />
         </div>
       </div>
 
       <!-- Target Selection (Dynamic: only for Member / Project Reports) -->
       <div v-if="exportForm.reportType === 'member'" class="flex flex-col gap-2">
-        <label class="label">Select Member</label>
+        <label class="label">{{ $t('Select Member') }}</label>
         <select v-model="exportForm.memberId" class="input">
-          <option value="">All Members</option>
+          <option value="">{{ $t('All Members') }}</option>
           <option v-for="m in dataStore.members" :key="m.id" :value="m.id">{{ m.fullName || m.email }}</option>
         </select>
       </div>
 
       <!-- Format Selection -->
       <div class="flex flex-col gap-2">
-        <label class="label">Choose Output Format</label>
+        <label class="label">{{ $t('Choose Output Format') }}</label>
         <div class="grid grid-cols-3 gap-3">
           <button
             type="button"
@@ -52,8 +52,8 @@
             :class="{ 'card-selected': exportForm.format === 'csv' }"
             @click="exportForm.format = 'csv'"
           >
-            <span>📄</span>
-            <strong>CSV Spreadsheet</strong>
+            <span>{{ $t('📄') }}</span>
+            <strong>{{ $t('CSV Spreadsheet') }}</strong>
           </button>
           <button
             type="button"
@@ -61,8 +61,8 @@
             :class="{ 'card-selected': exportForm.format === 'excel' }"
             @click="exportForm.format = 'excel'"
           >
-            <span>📊</span>
-            <strong>Excel Template</strong>
+            <span>{{ $t('📊') }}</span>
+            <strong>{{ $t('Excel Template') }}</strong>
           </button>
           <button
             type="button"
@@ -70,8 +70,8 @@
             :class="{ 'card-selected': exportForm.format === 'pdf' }"
             @click="exportForm.format = 'pdf'"
           >
-            <span>📕</span>
-            <strong>PDF Document</strong>
+            <span>{{ $t('📕') }}</span>
+            <strong>{{ $t('PDF Document') }}</strong>
           </button>
         </div>
       </div>
@@ -83,8 +83,8 @@
         :disabled="exporting"
         @click="triggerExport"
       >
-        <span v-if="exporting">Generating Export File...</span>
-        <span v-else>Download & Export Document</span>
+        <span v-if="exporting">{{ $t('Generating Export File...') }}</span>
+        <span v-else>{{ $t('Download & Export Document') }}</span>
       </button>
     </div>
   </div>

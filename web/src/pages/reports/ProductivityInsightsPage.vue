@@ -14,8 +14,8 @@
         </svg>
       </div>
       <div class="flex-1 min-w-0">
-        <h3 class="section-title text-text-main">AI Accountability Companion</h3>
-        <p class="text-xs text-text-muted mt-1">Automated discipline recommendations and workflow compliance diagnostics generated from system logs and task cards.</p>
+        <h3 class="section-title text-text-main">{{ $t('AI Accountability Companion') }}</h3>
+        <p class="text-xs text-text-muted mt-1">{{ $t('Automated discipline recommendations and workflow compliance diagnostics generated from system logs and task cards.') }}</p>
       </div>
       <button type="button" class="btn-primary text-xs h-9 px-3.5 flex-shrink-0" @click="generateNewInsights" :disabled="reloading">
         {{ reloading ? 'Analyzing...' : 'Re-Analyze Accountability' }}
@@ -50,9 +50,9 @@
           
           <!-- Recommended Actions list -->
           <div class="recommendation-block mt-3 bg-soft/50 p-2.5 rounded-btn border border-border">
-            <span class="eyebrow text-[9px] text-text-muted tracking-wider uppercase font-black">Recommended Action:</span>
+            <span class="eyebrow text-[9px] text-text-muted tracking-wider uppercase font-black">{{ $t('Recommended Action:') }}</span>
             <p class="text-xs text-text-main font-semibold mt-1 flex items-center gap-1.5">
-              <span class="text-primary font-bold">👉</span>
+              <span class="text-primary font-bold">{{ $t('👉') }}</span>
               {{ insight.recommendation }}
             </p>
           </div>

@@ -15,78 +15,78 @@
           <span v-for="n in TOTAL" :key="n" class="rc-dot" :class="{ 'rc-dot--on': n <= step }" />
         </div>
 
-        <button class="rc-skip" type="button" @click="skip">Skip</button>
+        <button class="rc-skip" type="button" @click="skip">{{ $t('Skip') }}</button>
 
         <!-- Slides -->
         <div class="rc-stage" @click="next">
           <Transition name="rc-slide" mode="out-in">
             <!-- 1 · Intro -->
             <div v-if="step === 1" key="1" class="rc-slide">
-              <div class="rc-emoji rc-emoji--pop">📅✨</div>
+              <div class="rc-emoji rc-emoji--pop">{{ $t('📅✨') }}</div>
               <h2 class="rc-h">{{ monthLabel }}, in review</h2>
-              <p class="rc-p">Grab a coffee ☕ — let's relive what you pulled off, <strong>{{ stats?.firstName }}</strong> 👀</p>
-              <span class="rc-hint">tap to continue →</span>
+              <p class="rc-p">{{ $t('Grab a coffee ☕ — let\'s relive what you pulled off,') }} <strong>{{ stats?.firstName }}</strong> {{ $t('👀') }}</p>
+              <span class="rc-hint">{{ $t('tap to continue →') }}</span>
             </div>
 
             <!-- 2 · Tasks -->
             <div v-else-if="step === 2" key="2" class="rc-slide">
-              <p class="rc-kicker">🗂️ Your tasks</p>
-              <h2 class="rc-h">You shipped real work</h2>
+              <p class="rc-kicker">{{ $t('🗂️ Your tasks') }}</p>
+              <h2 class="rc-h">{{ $t('You shipped real work') }}</h2>
               <div class="rc-stat-row">
                 <div class="rc-stat">
                   <span class="rc-num">{{ aApproved }}</span>
-                  <span class="rc-num-label">✅ approved</span>
+                  <span class="rc-num-label">{{ $t('✅ approved') }}</span>
                 </div>
                 <div class="rc-stat">
                   <span class="rc-num">{{ aSubmitted }}</span>
-                  <span class="rc-num-label">📤 submitted</span>
+                  <span class="rc-num-label">{{ $t('📤 submitted') }}</span>
                 </div>
               </div>
               <p class="rc-p">{{ workLine }}</p>
-              <span class="rc-hint">tap to continue →</span>
+              <span class="rc-hint">{{ $t('tap to continue →') }}</span>
             </div>
 
             <!-- 3 · Followups -->
             <div v-else-if="step === 3" key="3" class="rc-slide">
-              <p class="rc-kicker">🧰 Staying on top</p>
+              <p class="rc-kicker">{{ $t('🧰 Staying on top') }}</p>
               <div class="rc-bignum">{{ aFollowups }}</div>
-              <h2 class="rc-h">followups completed</h2>
+              <h2 class="rc-h">{{ $t('followups completed') }}</h2>
               <p class="rc-p">{{ followupLine }}</p>
-              <span class="rc-hint">tap to continue →</span>
+              <span class="rc-hint">{{ $t('tap to continue →') }}</span>
             </div>
 
             <!-- 4 · Score -->
             <div v-else-if="step === 4" key="4" class="rc-slide">
-              <p class="rc-kicker">⚡ Your score</p>
+              <p class="rc-kicker">{{ $t('⚡ Your score') }}</p>
               <div class="rc-bignum rc-bignum--glow">{{ aPoints }}</div>
-              <h2 class="rc-h">points earned</h2>
+              <h2 class="rc-h">{{ $t('points earned') }}</h2>
               <p class="rc-tier">{{ scoreTier }}</p>
               <p class="rc-trend">{{ trendLine }}</p>
               <p class="rc-rankline">{{ rankLine }}</p>
-              <span class="rc-hint">tap to continue →</span>
+              <span class="rc-hint">{{ $t('tap to continue →') }}</span>
             </div>
 
             <!-- 5 · Team total -->
             <div v-else-if="step === 5" key="5" class="rc-slide">
-              <p class="rc-kicker">🌍 Together as a team</p>
-              <h2 class="rc-h">The whole squad delivered</h2>
+              <p class="rc-kicker">{{ $t('🌍 Together as a team') }}</p>
+              <h2 class="rc-h">{{ $t('The whole squad delivered') }}</h2>
               <div class="rc-stat-row">
                 <div class="rc-stat">
                   <span class="rc-num">{{ aTeamApproved }}</span>
-                  <span class="rc-num-label">✅ tasks approved</span>
+                  <span class="rc-num-label">{{ $t('✅ tasks approved') }}</span>
                 </div>
                 <div class="rc-stat">
                   <span class="rc-num">{{ aTeamPoints }}</span>
-                  <span class="rc-num-label">⚡ team points</span>
+                  <span class="rc-num-label">{{ $t('⚡ team points') }}</span>
                 </div>
               </div>
-              <p class="rc-p">You're a real part of that total. Teamwork makes the dream work 🤝</p>
-              <span class="rc-hint">tap to continue →</span>
+              <p class="rc-p">{{ $t('You\'re a real part of that total. Teamwork makes the dream work 🤝') }}</p>
+              <span class="rc-hint">{{ $t('tap to continue →') }}</span>
             </div>
 
             <!-- 6 · Title reveal -->
             <div v-else-if="step === 6" key="6" class="rc-slide">
-              <div class="rc-sparkles" aria-hidden="true"><span>⭐</span><span>✨</span><span>🎉</span><span>💫</span></div>
+              <div class="rc-sparkles" aria-hidden="true"><span>⭐</span><span>✨</span><span>{{ $t('🎉') }}</span><span>{{ $t('💫') }}</span></div>
               <p class="rc-kicker">🏷️ Your {{ monthLabel }} title</p>
               <div class="rc-badge-emoji rc-emoji--pop">{{ badge.emoji }}</div>
               <h2 class="rc-h rc-badge-title">{{ badge.title }}</h2>
@@ -94,16 +94,16 @@
               <button class="rc-copy" type="button" @click.stop="copyTitle">
                 {{ copied ? 'Copied! ✅' : '📋 Copy my title' }}
               </button>
-              <span class="rc-hint">tap to continue →</span>
+              <span class="rc-hint">{{ $t('tap to continue →') }}</span>
             </div>
 
             <!-- 7 · Thank you -->
             <div v-else key="7" class="rc-slide">
-              <div class="rc-emoji rc-emoji--beat">🙌💙</div>
-              <h2 class="rc-h">Every task moved the team forward.</h2>
+              <div class="rc-emoji rc-emoji--beat">{{ $t('🙌💙') }}</div>
+              <h2 class="rc-h">{{ $t('Every task moved the team forward.') }}</h2>
               <p class="rc-p">Consistent, real work is how great websites get built — and how clients stay happy. Thank you for showing up, {{ stats?.firstName }}. 🚀</p>
-              <p class="rc-p rc-p--small">New month, fresh slate. Let's make it your best one yet. 🌟</p>
-              <button class="rc-cta" type="button" @click.stop="finish">See who won 🏆</button>
+              <p class="rc-p rc-p--small">{{ $t('New month, fresh slate. Let\'s make it your best one yet. 🌟') }}</p>
+              <button class="rc-cta" type="button" @click.stop="finish">{{ $t('See who won 🏆') }}</button>
             </div>
           </Transition>
         </div>
@@ -337,7 +337,7 @@ onBeforeUnmount(() => window.removeEventListener('preview-monthly-recap', onPrev
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  color: #fff;
+  color: #f8fbff;
   background-size: 220% 220%;
   animation: rc-flow 16s ease-in-out infinite;
   transition: background 600ms ease;
@@ -356,12 +356,12 @@ onBeforeUnmount(() => window.removeEventListener('preview-monthly-recap', onPrev
 .rc-blobs { position: absolute; inset: 0; pointer-events: none; }
 .rc-blobs span {
   position: absolute; border-radius: 999px; filter: blur(40px); opacity: 0.35;
-  background: rgba(255,255,255,0.6);
+  background: rgba(248,251,255,0.6);
   animation: rc-drift 9s ease-in-out infinite;
 }
 .rc-blobs span:nth-child(1) { width: 280px; height: 280px; top: -60px; left: -40px; animation-delay: 0s; }
-.rc-blobs span:nth-child(2) { width: 220px; height: 220px; bottom: -50px; right: -30px; animation-delay: 2s; background: rgba(255,255,255,0.4); }
-.rc-blobs span:nth-child(3) { width: 180px; height: 180px; top: 40%; right: 20%; animation-delay: 4s; background: rgba(255,255,255,0.3); }
+.rc-blobs span:nth-child(2) { width: 220px; height: 220px; bottom: -50px; right: -30px; animation-delay: 2s; background: rgba(248,251,255,0.4); }
+.rc-blobs span:nth-child(3) { width: 180px; height: 180px; top: 40%; right: 20%; animation-delay: 4s; background: rgba(248,251,255,0.3); }
 @keyframes rc-drift {
   0%   { transform: translate(0,0) scale(1) rotate(0deg); }
   33%  { transform: translate(28px,-32px) scale(1.16) rotate(40deg); }
@@ -396,16 +396,16 @@ onBeforeUnmount(() => window.removeEventListener('preview-monthly-recap', onPrev
 
 /* Progress dots */
 .rc-progress { position: absolute; top: 1.4rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.35rem; z-index: 3; }
-.rc-dot { width: 1.5rem; height: 0.34rem; border-radius: 999px; background: rgba(255,255,255,0.3); transition: background 300ms ease; }
-.rc-dot--on { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.75); }
+.rc-dot { width: 1.5rem; height: 0.34rem; border-radius: 999px; background: rgba(248,251,255,0.3); transition: background 300ms ease; }
+.rc-dot--on { background: #f8fbff; box-shadow: 0 0 10px rgba(248,251,255,0.75); }
 
 .rc-skip {
   position: absolute; top: 1.2rem; right: 1.3rem; z-index: 3;
-  border: none; background: rgba(255,255,255,0.18); color: #fff;
+  border: none; background: rgba(248,251,255,0.18); color: #f8fbff;
   font-size: 0.78rem; font-weight: 700; border-radius: 999px; padding: 0.35rem 0.9rem; cursor: pointer;
   backdrop-filter: blur(4px); transition: background 140ms;
 }
-.rc-skip:hover { background: rgba(255,255,255,0.3); }
+.rc-skip:hover { background: rgba(248,251,255,0.3); }
 
 /* Stage */
 .rc-stage { position: relative; z-index: 2; width: min(580px, 90vw); text-align: center; cursor: pointer; }
@@ -454,23 +454,23 @@ onBeforeUnmount(() => window.removeEventListener('preview-monthly-recap', onPrev
 .rc-num-label { margin-top: 0.2rem; font-size: 0.86rem; font-weight: 700; opacity: 0.92; }
 .rc-bignum { font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif; font-size: clamp(4rem, 17vw, 7.5rem); font-weight: 900; line-height: 1; text-shadow: 0 6px 28px rgba(0,0,0,0.25); animation: rc-pop 0.5s cubic-bezier(0.16,1,0.3,1); }
 .rc-bignum--glow {
-  text-shadow: 0 0 36px rgba(255,255,255,0.55), 0 6px 28px rgba(0,0,0,0.25);
+  text-shadow: 0 0 36px rgba(248,251,255,0.55), 0 6px 28px rgba(0,0,0,0.25);
   animation: rc-pop 0.5s cubic-bezier(0.16,1,0.3,1), rc-glow 2.4s ease-in-out 0.5s infinite;
 }
 @keyframes rc-glow {
-  0%,100% { text-shadow: 0 0 24px rgba(255,255,255,0.4), 0 6px 28px rgba(0,0,0,0.25); }
-  50%     { text-shadow: 0 0 54px rgba(255,255,255,0.82), 0 6px 28px rgba(0,0,0,0.25); }
+  0%,100% { text-shadow: 0 0 24px rgba(248,251,255,0.4), 0 6px 28px rgba(0,0,0,0.25); }
+  50%     { text-shadow: 0 0 54px rgba(248,251,255,0.82), 0 6px 28px rgba(0,0,0,0.25); }
 }
 
 /* Badge / title */
 .rc-badge-emoji { font-size: 5rem; line-height: 1; filter: drop-shadow(0 6px 18px rgba(0,0,0,0.3)); }
 .rc-badge-title { font-size: clamp(1.8rem, 6vw, 2.6rem); letter-spacing: -0.01em; }
 .rc-copy {
-  margin-top: 0.9rem; border: 1.5px solid rgba(255,255,255,0.55); cursor: pointer;
-  padding: 0.45rem 1.1rem; border-radius: 999px; background: rgba(255,255,255,0.14); color: #fff;
+  margin-top: 0.9rem; border: 1.5px solid rgba(248,251,255,0.55); cursor: pointer;
+  padding: 0.45rem 1.1rem; border-radius: 999px; background: rgba(248,251,255,0.14); color: #f8fbff;
   font-size: 0.82rem; font-weight: 800; backdrop-filter: blur(4px); transition: background 140ms, transform 140ms;
 }
-.rc-copy:hover { background: rgba(255,255,255,0.26); transform: translateY(-1px); }
+.rc-copy:hover { background: rgba(248,251,255,0.26); transform: translateY(-1px); }
 
 .rc-hint { margin-top: 1.4rem; font-size: 0.72rem; font-weight: 600; opacity: 0.7; letter-spacing: 0.03em; animation: rc-pulse 1.8s ease-in-out infinite, rc-nudge 1.4s ease-in-out infinite; }
 @keyframes rc-pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.85; } }
@@ -480,7 +480,7 @@ onBeforeUnmount(() => window.removeEventListener('preview-monthly-recap', onPrev
   position: relative; overflow: hidden;
   margin-top: 1.5rem; border: none; cursor: pointer;
   padding: 0.85rem 1.8rem; border-radius: 999px;
-  background: #fff; color: #111827;
+  background: #f8fbff; color: #111827;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif; font-size: 1rem; font-weight: 800;
   box-shadow: 0 10px 30px rgba(0,0,0,0.28);
   transition: transform 140ms ease, box-shadow 140ms ease;
@@ -488,11 +488,11 @@ onBeforeUnmount(() => window.removeEventListener('preview-monthly-recap', onPrev
 }
 .rc-cta::after {
   content: ''; position: absolute; top: 0; left: -60%; width: 45%; height: 100%;
-  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.85), transparent);
+  background: linear-gradient(100deg, transparent, rgba(248,251,255,0.85), transparent);
   transform: skewX(-20deg); animation: rc-shimmer 2.6s ease-in-out infinite;
 }
 .rc-cta:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 16px 42px rgba(0,0,0,0.34); }
-@keyframes rc-cta-pulse { 0%,100% { box-shadow: 0 10px 30px rgba(0,0,0,0.28); } 50% { box-shadow: 0 14px 42px rgba(255,255,255,0.4); } }
+@keyframes rc-cta-pulse { 0%,100% { box-shadow: 0 10px 30px rgba(0,0,0,0.28); } 50% { box-shadow: 0 14px 42px rgba(248,251,255,0.4); } }
 @keyframes rc-shimmer { 0% { left: -60%; } 55%,100% { left: 130%; } }
 
 /* Transitions */

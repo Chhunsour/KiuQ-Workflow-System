@@ -1,8 +1,8 @@
 <template>
-  <Modal :open="open" title="Blog Schedule" subtitle="Set how often this website publishes blogs." size="md" @close="close">
+  <Modal :open="open" :title="$t('Blog Schedule')" subtitle="Set how often this website publishes blogs." size="md" @close="close">
     <div class="bs-body">
       <!-- Kind tabs including Temporary Website option -->
-      <div class="bs-kind-tabs" role="tablist" aria-label="Schedule kind">
+      <div class="bs-kind-tabs" role="tablist" aria-:label="$t('Schedule kind')">
         <button
           v-for="k in KINDS"
           :key="k.value"
@@ -19,7 +19,7 @@
 
       <!-- Weekly: pick weekdays -->
       <section v-if="kind === 'weekly'" class="bs-section">
-        <p class="bs-section-label">Posting days</p>
+        <p class="bs-section-label">{{ $t('Posting days') }}</p>
         <div class="bs-weekday-row">
           <button
             v-for="d in WEEKDAYS"
@@ -34,16 +34,15 @@
           </button>
         </div>
         <p class="bs-hint">
-          Pick the weekdays this website posts on. Example:
-          <strong>Tue + Sat</strong> = twice a week.
-          Pick one day for once a week, three for three times, etc.
+          {{ $t('Pick the weekdays this website posts on. Example:') }}
+          <strong>{{ $t('Tue + Sat') }}</strong> {{ $t('= twice a week. Pick one day for once a week, three for three times, etc.') }}
         </p>
       </section>
 
       <!-- Monthly: pick day-numbers (1..31) -->
       <section v-else-if="kind === 'monthly'" class="bs-section">
-        <p class="bs-section-label">Days of every month</p>
-        <p class="bs-hint">Tap the dates you publish on every month. Example: <strong>8, 16, 27</strong>.</p>
+        <p class="bs-section-label">{{ $t('Days of every month') }}</p>
+        <p class="bs-hint">{{ $t('Tap the dates you publish on every month. Example:') }} <strong>8, 16, 27</strong>.</p>
         <div class="bs-day-grid">
           <button
             v-for="day in DAYS_OF_MONTH"
@@ -58,8 +57,7 @@
           </button>
         </div>
         <p v-if="hasShortMonthWarning" class="bs-hint bs-hint--warn">
-          Days above 28 will land on the last day of shorter months
-          (e.g. day 31 → Feb 28).
+          {{ $t('Days above 28 will land on the last day of shorter months (e.g. day 31 → Feb 28).') }}
         </p>
       </section>
 
@@ -72,16 +70,16 @@
             </svg>
           </div>
           <div>
-            <p class="bs-temp-title">Temporary Website</p>
-            <p class="bs-temp-desc">This website is marked as temporary or not live yet. No recurring blog upload schedules will be required or generated for it.</p>
+            <p class="bs-temp-title">{{ $t('Temporary Website') }}</p>
+            <p class="bs-temp-desc">{{ $t('This website is marked as temporary or not live yet. No recurring blog upload schedules will be required or generated for it.') }}</p>
           </div>
         </div>
       </section>
 
       <!-- Preview: next required dates with current settings -->
       <section class="bs-preview">
-        <p class="bs-section-label">Next required dates</p>
-        <p v-if="previewDates.length === 0" class="bs-hint">No upcoming dates with these settings.</p>
+        <p class="bs-section-label">{{ $t('Next required dates') }}</p>
+        <p v-if="previewDates.length === 0" class="bs-hint">{{ $t('No upcoming dates with these settings.') }}</p>
         <ul v-else class="bs-preview-list">
           <li v-for="iso in previewDates" :key="iso">{{ formatPreview(iso) }}</li>
         </ul>
@@ -92,7 +90,7 @@
 
     <template #footer>
       <div class="bs-footer">
-        <button class="btn-ghost" type="button" @click="close">Cancel</button>
+        <button class="btn-ghost" type="button" @click="close">{{ $t('Cancel') }}</button>
         <button class="btn-primary" type="button" :disabled="saving || !canSave" @click="save">
           {{ saving ? 'Saving…' : 'Save Schedule' }}
         </button>
@@ -338,7 +336,7 @@ const save = async () => {
 .bs-day--on {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 
 /* Day-of-month grid: 7 columns matches the visual mental model of a
@@ -371,7 +369,7 @@ const save = async () => {
 .bs-mday--on {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   transform: scale(1.02);
 }
 

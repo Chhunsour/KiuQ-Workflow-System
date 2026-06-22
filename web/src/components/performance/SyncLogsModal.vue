@@ -1,5 +1,5 @@
 <template>
-  <Modal :open="open" title="Sync Logs" subtitle="View performance syncs and indexing check history" size="lg" @close="$emit('close')">
+  <Modal :open="open" :title="$t('Sync Logs')" subtitle="View performance syncs and indexing check history" size="lg" @close="$emit('close')">
     <div class="space-y-4 font-sans text-text-main">
       <!-- Tabs -->
       <div class="flex gap-2 border-b border-border pb-2">
@@ -9,7 +9,7 @@
           :class="activeTab === 'performance' ? 'bg-primary text-on-primary' : 'text-text-muted hover:text-text-main hover:bg-soft/20'"
           @click="activeTab = 'performance'"
         >
-          Performance Sync
+          {{ $t('Performance Sync') }}
         </button>
         <button
           type="button"
@@ -17,21 +17,21 @@
           :class="activeTab === 'indexing' ? 'bg-primary text-on-primary' : 'text-text-muted hover:text-text-main hover:bg-soft/20'"
           @click="activeTab = 'indexing'"
         >
-          Indexing Checks
+          {{ $t('Indexing Checks') }}
         </button>
       </div>
 
       <!-- Filters & Stats -->
       <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
         <div class="flex items-center gap-2">
-          <span class="text-text-muted font-sans">Website:</span>
+          <span class="text-text-muted font-sans">{{ $t('Website:') }}</span>
           <select v-model="filterWebsiteId" class="input h-8 py-0 px-2 text-xs bg-input border-border text-text-main font-sans">
-            <option value="">All Websites</option>
+            <option value="">{{ $t('All Websites') }}</option>
             <option v-for="w in data.websites" :key="w.id" :value="w.id">{{ w.name || w.domain }}</option>
           </select>
         </div>
         <button type="button" class="btn-secondary h-8 py-0 px-3 text-xs" :disabled="loading" @click="fetchLogs">
-          Refresh Logs
+          {{ $t('Refresh Logs') }}
         </button>
       </div>
 
@@ -39,26 +39,26 @@
       <div v-if="loading" class="space-y-2 py-8 text-center text-xs text-text-muted">
         <div class="animate-pulse flex flex-col items-center gap-2">
           <div class="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
-          <span>Loading sync logs...</span>
+          <span>{{ $t('Loading sync logs...') }}</span>
         </div>
       </div>
       <div v-else-if="error" class="py-8 text-center text-xs text-status-needs-fix-fg">
         {{ error }}
       </div>
       <div v-else-if="logs.length === 0" class="py-12 text-center text-xs text-text-muted">
-        No logs found for this filter.
+        {{ $t('No logs found for this filter.') }}
       </div>
       <div v-else class="overflow-x-auto border border-border rounded-lg bg-card max-h-96 overflow-y-auto">
         <table class="w-full border-collapse text-left text-xs">
           <thead>
             <tr class="border-b border-border bg-soft/10 text-text-muted uppercase tracking-wider text-[10px] font-bold">
-              <th v-if="!filterWebsiteId" class="p-3 font-semibold">Website</th>
-              <th class="p-3 font-semibold">Started At</th>
-              <th class="p-3 font-semibold">Status</th>
-              <th v-if="activeTab === 'performance'" class="p-3 text-right font-semibold">Rows Synced</th>
-              <th v-if="activeTab === 'indexing'" class="p-3 font-semibold">Type</th>
-              <th v-if="activeTab === 'indexing'" class="p-3 text-right font-semibold">Progress</th>
-              <th class="p-3 max-w-xs font-semibold">Details/Error</th>
+              <th v-if="!filterWebsiteId" class="p-3 font-semibold">{{ $t('Website') }}</th>
+              <th class="p-3 font-semibold">{{ $t('Started At') }}</th>
+              <th class="p-3 font-semibold">{{ $t('Status') }}</th>
+              <th v-if="activeTab === 'performance'" class="p-3 text-right font-semibold">{{ $t('Rows Synced') }}</th>
+              <th v-if="activeTab === 'indexing'" class="p-3 font-semibold">{{ $t('Type') }}</th>
+              <th v-if="activeTab === 'indexing'" class="p-3 text-right font-semibold">{{ $t('Progress') }}</th>
+              <th class="p-3 max-w-xs font-semibold">{{ $t('Details/Error') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
@@ -100,7 +100,7 @@
       </div>
     </div>
     <template #footer>
-      <button class="btn-secondary h-9 text-xs px-4" type="button" @click="$emit('close')">Close</button>
+      <button class="btn-secondary h-9 text-xs px-4" type="button" @click="$emit('close')">{{ $t('Close') }}</button>
     </template>
   </Modal>
 </template>

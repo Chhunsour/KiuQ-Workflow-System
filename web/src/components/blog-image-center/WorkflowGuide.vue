@@ -11,14 +11,14 @@
             <polyline points="10 9 9 9 8 9" />
           </svg>
         </span>
-        <h3 class="wf-title">Blog Workflow Guide</h3>
+        <h3 class="wf-title">{{ $t('Blog Workflow Guide') }}</h3>
       </div>
       <button v-if="canEdit && !editing" type="button" class="btn-secondary wf-edit-btn" @click="startEdit">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z" />
         </svg>
-        Edit
+        {{ $t('Edit') }}
       </button>
     </div>
 
@@ -27,11 +27,11 @@
       <textarea
         v-model="draft"
         class="input wf-textarea"
-        placeholder="Enter workflow instructions…&#10;Step 1: Generate image using Prompt Template&#10;Step 2: Use Website Color #FF6B00&#10;Step 3: Export 16:9 JPG&#10;Step 4: Upload to WordPress"
+        :placeholder="$t('Enter workflow instructions…') + '\n' + $t('Step 1: Generate image using Prompt Template') + '\n' + $t('Step 2: Use Website Color #FF6B00') + '\n' + $t('Step 3: Export 16:9 JPG') + '\n' + $t('Step 4: Upload to WordPress')"
         rows="8"
       />
       <div class="wf-edit-actions">
-        <button type="button" class="btn-secondary" @click="editing = false">Cancel</button>
+        <button type="button" class="btn-secondary" @click="editing = false">{{ $t('Cancel') }}</button>
         <button type="button" class="btn-primary" :disabled="saving" @click="save">
           {{ saving ? 'Saving…' : 'Save' }}
         </button>
@@ -50,9 +50,9 @@
 
     <!-- Empty state -->
     <div v-else class="wf-empty">
-      <p class="wf-empty-text">No workflow instructions yet.</p>
+      <p class="wf-empty-text">{{ $t('No workflow instructions yet.') }}</p>
       <button v-if="canEdit" type="button" class="btn-primary" @click="startEdit">
-        Add Instructions
+        {{ $t('Add Instructions') }}
       </button>
     </div>
   </div>

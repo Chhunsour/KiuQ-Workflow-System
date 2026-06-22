@@ -1,7 +1,7 @@
 <template>
   <div>
-    <nav class="mb-3 flex items-center gap-2 text-sm text-text-muted" aria-label="Breadcrumb">
-      <RouterLink to="/resources" class="hover:text-text-main">Resources</RouterLink>
+    <nav class="mb-3 flex items-center gap-2 text-sm text-text-muted" aria-:label="$t('Breadcrumb')">
+      <RouterLink to="/resources" class="hover:text-text-main">{{ $t('Resources') }}</RouterLink>
       <span aria-hidden="true">›</span>
       <span class="ui-font font-medium text-text-main truncate">
         {{ resource?.title || resource?.fileName || '...' }}
@@ -18,7 +18,7 @@
             <path d="m12 19-7-7 7-7" />
             <path d="M19 12H5" />
           </svg>
-          Back to Resources
+          {{ $t('Back to Resources') }}
         </RouterLink>
         <button
           v-if="resource && canEdit"
@@ -26,7 +26,7 @@
           type="button"
           @click="editOpen = true"
         >
-          Edit
+          {{ $t('Edit') }}
         </button>
       </template>
     </PageHeader>
@@ -37,10 +37,10 @@
       :retry="data.fetchResources"
     >
       <div v-if="!resource && resourcesLoaded" class="card card-pad text-center">
-        <h3 class="ui-font text-base font-semibold text-text-main">Resource not found</h3>
-        <p class="mt-1 text-sm text-text-muted">It may have been deleted, or you don't have access.</p>
+        <h3 class="ui-font text-base font-semibold text-text-main">{{ $t('Resource not found') }}</h3>
+        <p class="mt-1 text-sm text-text-muted">{{ $t('It may have been deleted, or you don\'t have access.') }}</p>
         <div class="mt-4">
-          <RouterLink to="/resources" class="btn-primary">Back to Resources</RouterLink>
+          <RouterLink to="/resources" class="btn-primary">{{ $t('Back to Resources') }}</RouterLink>
         </div>
       </div>
     </LoadingBlock>
@@ -54,7 +54,7 @@
 
     <Modal
       :open="editOpen"
-      title="Edit resource"
+      :title="$t('Edit resource')"
       size="lg"
       @close="editOpen = false"
     >
@@ -64,7 +64,7 @@
       </div>
       <template #footer>
         <button class="btn-ghost" type="button" :disabled="saving || uploading" @click="editOpen = false">
-          Cancel
+          {{ $t('Cancel') }}
         </button>
         <button
           class="btn-primary"

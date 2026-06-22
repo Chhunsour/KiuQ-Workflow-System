@@ -478,7 +478,7 @@ const styles = `
   body, html {
     margin: 0;
     padding: 0;
-    background: #ffffff;
+    background: #fbfbfb;
     color: #111827;
     font-family: 'Georgia', Garamond, 'Times New Roman', serif;
     -webkit-print-color-adjust: exact;
@@ -500,7 +500,7 @@ const styles = `
     width: 210mm;
     height: 297mm;
     box-sizing: border-box;
-    background: #ffffff;
+    background: #fbfbfb;
     padding: 20mm;
     display: flex;
     flex-direction: column;
@@ -689,7 +689,7 @@ const styles = `
   /* Print Specific Rules */
   @media print {
     body, html {
-      background: #ffffff !important;
+      background: #fbfbfb !important;
     }
     .preview-wrapper {
       background: none !important;
@@ -1190,9 +1190,9 @@ export function compileReportHtml(reportData: MemberReportObject | TeamReportObj
     </head>
     <body>
       <div class="preview-wrapper no-print">
-        <div style="background: #ffffff; padding: 12px 24px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 210mm; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
+        <div style="background: #fbfbfb; padding: 12px 24px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 210mm; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
           <span style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: bold; color: #374151;">PDF Report Print Template System</span>
-          <button onclick="window.print()" style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+          <button onclick="window.print()" style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; background: #2563eb; color: #f8fbff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
             🖨️ Print / Save PDF
           </button>
         </div>
@@ -1759,7 +1759,7 @@ export function compileDailyReportHtml(dailyReport: DailyTeamReportObject): stri
         body, html {
           margin: 0;
           padding: 0;
-          background: #ffffff;
+          background: #fbfbfb;
           color: #111827;
           font-family: 'Georgia', Garamond, 'Times New Roman', serif;
           -webkit-print-color-adjust: exact;
@@ -1777,7 +1777,7 @@ export function compileDailyReportHtml(dailyReport: DailyTeamReportObject): stri
         .pdf-page {
           width: 210mm;
           box-sizing: border-box;
-          background: #ffffff;
+          background: #fbfbfb;
           padding: 20mm;
           display: flex;
           flex-direction: column;
@@ -1918,7 +1918,7 @@ export function compileDailyReportHtml(dailyReport: DailyTeamReportObject): stri
         }
         @media print {
           body, html {
-            background: #ffffff !important;
+            background: #fbfbfb !important;
           }
           .preview-wrapper {
             display: none !important;
@@ -1950,9 +1950,9 @@ export function compileDailyReportHtml(dailyReport: DailyTeamReportObject): stri
     </head>
     <body>
       <div class="preview-wrapper no-print">
-        <div style="background: #ffffff; padding: 12px 24px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 210mm; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
+        <div style="background: #fbfbfb; padding: 12px 24px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 210mm; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
           <span style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: bold; color: #374151;">Daily Team Activity Report Template</span>
-          <button onclick="window.print()" style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+          <button onclick="window.print()" style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; background: #2563eb; color: #f8fbff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
             🖨️ Print / Save PDF
           </button>
         </div>

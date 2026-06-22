@@ -12,7 +12,7 @@
             >
               {{ col.label }}
             </th>
-            <th v-if="$slots.actions" class="table-head px-4 py-2.5 text-right">Actions</th>
+            <th v-if="$slots.actions" class="table-head px-4 py-2.5 text-right">{{ $t('Actions') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border text-sm">

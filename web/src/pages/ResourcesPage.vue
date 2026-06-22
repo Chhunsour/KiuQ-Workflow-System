@@ -1,7 +1,7 @@
 <template>
   <div>
     <PageHeader
-      title="Resources"
+      :title="$t('Resources')"
       subtitle="Files, links, notes, and references for your team."
     >
       <template #actions>
@@ -9,7 +9,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          Add Resource
+          {{ $t('Add Resource') }}
         </button>
       </template>
     </PageHeader>
@@ -21,7 +21,7 @@
           v-model="search"
           class="input max-w-sm"
           type="search"
-          placeholder="Search resources and tools..."
+          :placeholder="$t('Search resources and tools...')"
         />
         <FormSelect
           v-model="typeFilter"
@@ -60,8 +60,8 @@
     <section class="mb-8">
       <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 class="section-title">Team Quick Access</h2>
-          <p class="helper mt-1">Open daily websites and tools in a new tab.</p>
+          <h2 class="section-title">{{ $t('Team Quick Access') }}</h2>
+          <p class="helper mt-1">{{ $t('Open daily websites and tools in a new tab.') }}</p>
         </div>
         <span class="ui-font rounded-full bg-soft px-3 py-1 text-xs font-medium text-text-muted">
           {{ filteredQuickAccess.length }} shortcut{{ filteredQuickAccess.length === 1 ? '' : 's' }}
@@ -116,7 +116,7 @@
               rel="noopener"
               class="btn-primary w-full justify-center"
             >
-              Open
+              {{ $t('Open') }}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M7 17 17 7" />
                 <path d="M7 7h10v10" />
@@ -128,12 +128,12 @@
 
       <EmptyState
         v-else
-        title="No quick access tools found"
+        :title="$t('No quick access tools found')"
         description="Try another search term or category."
       >
         <template #action>
           <button class="btn-primary" type="button" @click="clearQuickAccessFilters">
-            Clear filters
+            {{ $t('Clear filters') }}
           </button>
         </template>
       </EmptyState>
@@ -145,8 +145,8 @@
       :retry="data.fetchResources"
     >
       <div class="mb-3">
-        <h2 class="section-title">Saved Resources</h2>
-        <p class="helper mt-1">Files, links, notes, and references saved by the team.</p>
+        <h2 class="section-title">{{ $t('Saved Resources') }}</h2>
+        <p class="helper mt-1">{{ $t('Files, links, notes, and references saved by the team.') }}</p>
       </div>
 
       <div v-if="filtered.length" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -162,17 +162,17 @@
 
       <EmptyState
         v-else-if="!hasAnyResources"
-        title="No resources added yet."
+        :title="$t('No resources added yet.')"
         description="Upload a file, save a link, or create a note to keep your workflow organized."
       >
         <template v-if="!auth.isViewer" #action>
-          <button class="btn-primary" type="button" @click="openCreate">Add Resource</button>
+          <button class="btn-primary" type="button" @click="openCreate">{{ $t('Add Resource') }}</button>
         </template>
       </EmptyState>
 
       <EmptyState
         v-else
-        title="No resources match your filters"
+        :title="$t('No resources match your filters')"
         description="Try a different search term or clear a filter."
       />
     </LoadingBlock>
@@ -196,7 +196,7 @@
       </div>
       <template #footer>
         <button class="btn-ghost" type="button" :disabled="saving || uploading" @click="closeForm">
-          Cancel
+          {{ $t('Cancel') }}
         </button>
         <button
           class="btn-primary"

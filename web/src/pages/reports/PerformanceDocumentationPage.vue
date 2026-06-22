@@ -8,7 +8,7 @@
         :class="activeReportTab === 'performance' ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-text-main'"
         @click="activeReportTab = 'performance'"
       >
-        Performance Documentation
+        {{ $t('Performance Documentation') }}
       </button>
       <button
         type="button"
@@ -16,7 +16,7 @@
         :class="activeReportTab === 'daily-activity' ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-text-main'"
         @click="activeReportTab = 'daily-activity'"
       >
-        Team Daily Activity Report
+        {{ $t('Team Daily Activity Report') }}
       </button>
     </div>
 
@@ -27,7 +27,7 @@
       <div class="flex flex-wrap items-end gap-5">
         <!-- Period Preset -->
         <div class="flex flex-col gap-1.5">
-          <label class="label text-xs font-bold text-text-muted">Period Preset</label>
+          <label class="label text-xs font-bold text-text-muted">{{ $t('Period Preset') }}</label>
           <div class="flex gap-2">
             <button
               v-for="preset in presets"
@@ -45,29 +45,29 @@
         <!-- Custom dates picker -->
         <div class="flex gap-3" v-if="datePreset === 'custom'">
           <div class="flex flex-col gap-1.5">
-            <label class="label text-xs font-bold text-text-muted">Start Date</label>
+            <label class="label text-xs font-bold text-text-muted">{{ $t('Start Date') }}</label>
             <input type="date" v-model="localFilters.startDate" class="input py-1.5 px-3 max-w-[150px] text-xs font-semibold" @change="() => fetchData()" />
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="label text-xs font-bold text-text-muted">End Date</label>
+            <label class="label text-xs font-bold text-text-muted">{{ $t('End Date') }}</label>
             <input type="date" v-model="localFilters.endDate" class="input py-1.5 px-3 max-w-[150px] text-xs font-semibold" @change="() => fetchData()" />
           </div>
         </div>
 
         <!-- Team Selector -->
         <div class="flex flex-col gap-1.5 min-w-[160px]">
-          <label class="label text-xs font-bold text-text-muted">Team / Department</label>
+          <label class="label text-xs font-bold text-text-muted">{{ $t('Team / Department') }}</label>
           <select v-model="selectedTeam" class="input py-1.5 px-3 text-xs font-semibold" @change="handleTeamChange">
-            <option value="">All Teams</option>
+            <option value="">{{ $t('All Teams') }}</option>
             <option v-for="team in uniqueTeams" :key="team" :value="team">{{ team }}</option>
           </select>
         </div>
 
         <!-- Member Selector -->
         <div class="flex flex-col gap-1.5 min-w-[220px]">
-          <label class="label text-xs font-bold text-text-muted">Member Selector</label>
+          <label class="label text-xs font-bold text-text-muted">{{ $t('Member Selector') }}</label>
           <select v-model="selectedMemberId" class="input py-1.5 px-3 text-xs font-semibold" @change="handleMemberChange">
-            <option value="">All Members (Team Summary)</option>
+            <option value="">{{ $t('All Members (Team Summary)') }}</option>
             <option v-for="m in filteredActiveMembers" :key="m.id" :value="m.id">{{ m.fullName || m.email }}</option>
           </select>
         </div>
@@ -78,7 +78,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
             </svg>
-            Refresh
+            {{ $t('Refresh') }}
           </button>
           <button type="button" class="btn-primary flex items-center gap-2 font-bold text-xs" @click="exportToPdf">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -86,7 +86,7 @@
               <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
               <rect x="6" y="14" width="12" height="8"/>
             </svg>
-            Export PDF
+            {{ $t('Export PDF') }}
           </button>
         </div>
       </div>
@@ -95,7 +95,7 @@
     <!-- Loading screen -->
     <div v-if="loading" class="flex flex-col gap-6 items-center justify-center py-20 bg-card border border-border rounded-card shadow-sm w-full">
       <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      <p class="text-sm text-text-muted font-bold">Collecting documented work from active boards...</p>
+      <p class="text-sm text-text-muted font-bold">{{ $t('Collecting documented work from active boards...') }}</p>
     </div>
 
     <!-- Screen Preview area (Hidden on print) -->
@@ -105,45 +105,45 @@
         <!-- Team Summary KPI cards -->
         <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Total Members</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Total Members') }}</span>
             <span class="text-2xl font-black text-text-main mt-2">{{ filteredActiveMembers.length }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Total Completed</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Total Completed') }}</span>
             <span class="text-2xl font-black text-emerald-500 mt-2">{{ teamSummaryStats.tasksCompleted }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Total In Progress</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Total In Progress') }}</span>
             <span class="text-2xl font-black text-blue-500 mt-2">{{ teamSummaryStats.tasksPending }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Total Overdue</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Total Overdue') }}</span>
             <span class="text-2xl font-black text-rose-500 mt-2">{{ teamSummaryStats.tasksOverdue }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Quality Checks</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Quality Checks') }}</span>
             <span class="text-2xl font-black text-indigo-500 mt-2">{{ teamSummaryStats.qualityIssuesLogged }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Follow-Ups Completed</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Follow-Ups Completed') }}</span>
             <span class="text-2xl font-black text-indigo-400 mt-2">{{ teamSummaryStats.followupsCompleted }}</span>
           </div>
         </div>
 
         <!-- Member Breakdown Table -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-4">
-          <h3 class="text-base font-bold text-text-main">Member Breakdown</h3>
+          <h3 class="text-base font-bold text-text-main">{{ $t('Member Breakdown') }}</h3>
           <div class="overflow-x-auto border border-border rounded-btn">
             <table class="w-full text-left text-sm leading-normal border-collapse">
               <thead>
                 <tr class="bg-soft text-text-muted font-bold border-b border-border text-xs uppercase">
-                  <th class="py-3 px-4">Name</th>
-                  <th class="py-3 px-4">Position</th>
-                  <th class="py-3 px-4 text-center">Completed Tasks</th>
-                  <th class="py-3 px-4 text-center">In Progress</th>
-                  <th class="py-3 px-4 text-center">Overdue Tasks</th>
-                  <th class="py-3 px-4 text-center">Completed Follow-Ups</th>
-                  <th class="py-3 px-4 text-center">Action</th>
+                  <th class="py-3 px-4">{{ $t('Name') }}</th>
+                  <th class="py-3 px-4">{{ $t('Position') }}</th>
+                  <th class="py-3 px-4 text-center">{{ $t('Completed Tasks') }}</th>
+                  <th class="py-3 px-4 text-center">{{ $t('In Progress') }}</th>
+                  <th class="py-3 px-4 text-center">{{ $t('Overdue Tasks') }}</th>
+                  <th class="py-3 px-4 text-center">{{ $t('Completed Follow-Ups') }}</th>
+                  <th class="py-3 px-4 text-center">{{ $t('Action') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -173,12 +173,12 @@
                   <td class="py-3.5 px-4 text-center text-indigo-400 font-bold">{{ getMemberFollowupFraction(m.id) }}</td>
                   <td class="py-3.5 px-4 text-center">
                     <button type="button" class="text-xs text-primary font-extrabold hover:underline" @click="selectedMemberId = m.id">
-                      Expand & View Details
+                      {{ $t('Expand & View Details') }}
                     </button>
                   </td>
                 </tr>
                 <tr v-if="filteredActiveMembers.length === 0">
-                  <td colspan="7" class="py-8 text-center text-text-muted italic">No team members match the selected team filter.</td>
+                  <td colspan="7" class="py-8 text-center text-text-muted italic">{{ $t('No team members match the selected team filter.') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -191,15 +191,15 @@
         <!-- Member Information Card -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-wrap items-center gap-6 justify-between">
           <div class="flex flex-col gap-1">
-            <span class="text-xs text-text-muted font-bold uppercase tracking-wider">Member Information</span>
+            <span class="text-xs text-text-muted font-bold uppercase tracking-wider">{{ $t('Member Information') }}</span>
             <h2 class="text-xl font-black text-text-main mt-1">{{ getMemberName(selectedMemberId) }}</h2>
             <div class="flex gap-4 text-xs font-semibold text-text-muted mt-0.5">
-              <span><strong>Position:</strong> {{ getMemberPosition(selectedMemberId) }}</span>
-              <span><strong>Department:</strong> {{ getMemberDepartment(selectedMemberId) }}</span>
+              <span><strong>{{ $t('Position:') }}</strong> {{ getMemberPosition(selectedMemberId) }}</span>
+              <span><strong>{{ $t('Department:') }}</strong> {{ getMemberDepartment(selectedMemberId) }}</span>
             </div>
           </div>
           <div class="text-right flex flex-col gap-1">
-            <span class="text-xs text-text-muted font-bold uppercase tracking-wider">Reporting Period</span>
+            <span class="text-xs text-text-muted font-bold uppercase tracking-wider">{{ $t('Reporting Period') }}</span>
             <span class="text-sm font-bold text-text-main mt-1">{{ formattedPeriod }}</span>
           </div>
         </div>
@@ -207,7 +207,7 @@
         <!-- Work Board Section -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-4">
           <div class="flex items-center justify-between border-b border-border pb-3 flex-wrap gap-3">
-            <h3 class="text-base font-bold text-text-main">Work Board Section</h3>
+            <h3 class="text-base font-bold text-text-main">{{ $t('Work Board Section') }}</h3>
             <!-- Tabs/Filter groupings -->
             <div class="flex gap-1.5 flex-wrap">
               <button
@@ -228,14 +228,14 @@
             <table class="w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="bg-soft border-b border-border text-xs text-text-muted font-bold uppercase">
-                  <th class="py-2.5 px-3">Task Name</th>
-                  <th class="py-2.5 px-3">Description</th>
-                  <th class="py-2.5 px-3">Project</th>
-                  <th class="py-2.5 px-3 text-center">Assigned Date</th>
-                  <th class="py-2.5 px-3 text-center">Due Date</th>
-                  <th class="py-2.5 px-3 text-center">Current Status</th>
-                  <th class="py-2.5 px-3 text-center">Completion Date</th>
-                  <th class="py-2.5 px-3">Notes</th>
+                  <th class="py-2.5 px-3">{{ $t('Task Name') }}</th>
+                  <th class="py-2.5 px-3">{{ $t('Description') }}</th>
+                  <th class="py-2.5 px-3">{{ $t('Project') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Assigned Date') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Due Date') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Current Status') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Completion Date') }}</th>
+                  <th class="py-2.5 px-3">{{ $t('Notes') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -264,7 +264,7 @@
                   </td>
                 </tr>
                 <tr v-if="getMemberAssignmentsGrouped(selectedMemberId)[activeWorkTab].length === 0">
-                  <td colspan="8" class="py-8 text-center text-text-muted italic">No tasks found in this grouping.</td>
+                  <td colspan="8" class="py-8 text-center text-text-muted italic">{{ $t('No tasks found in this grouping.') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -273,17 +273,17 @@
 
         <!-- Quality Check Section -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-4">
-          <h3 class="text-base font-bold text-text-main border-b border-border pb-3">Quality Check Section</h3>
+          <h3 class="text-base font-bold text-text-main border-b border-border pb-3">{{ $t('Quality Check Section') }}</h3>
           <div class="overflow-x-auto border border-border rounded-btn">
             <table class="w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="bg-soft border-b border-border text-xs text-text-muted font-bold uppercase">
-                  <th class="py-2.5 px-3">Quality Check Item</th>
-                  <th class="py-2.5 px-3">Assigned By</th>
-                  <th class="py-2.5 px-3 text-center">Review Date</th>
-                  <th class="py-2.5 px-3 text-center">Status</th>
-                  <th class="py-2.5 px-3 text-center">Result</th>
-                  <th class="py-2.5 px-3">Notes</th>
+                  <th class="py-2.5 px-3">{{ $t('Quality Check Item') }}</th>
+                  <th class="py-2.5 px-3">{{ $t('Assigned By') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Review Date') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Status') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Result') }}</th>
+                  <th class="py-2.5 px-3">{{ $t('Notes') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -311,7 +311,7 @@
                   </td>
                 </tr>
                 <tr v-if="getMemberQualityIssues(selectedMemberId).length === 0">
-                  <td colspan="6" class="py-8 text-center text-text-muted italic">No quality checks performed during this period.</td>
+                  <td colspan="6" class="py-8 text-center text-text-muted italic">{{ $t('No quality checks performed during this period.') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -320,15 +320,15 @@
 
         <!-- Follow-Up Section -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-4">
-          <h3 class="text-base font-bold text-text-main border-b border-border pb-3">Follow-Up Section</h3>
+          <h3 class="text-base font-bold text-text-main border-b border-border pb-3">{{ $t('Follow-Up Section') }}</h3>
           <div class="overflow-x-auto border border-border rounded-btn">
             <table class="w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="bg-soft border-b border-border text-xs text-text-muted font-bold uppercase">
-                  <th class="py-2.5 px-3">Activity Name</th>
-                  <th class="py-2.5 px-3 text-center">Date</th>
-                  <th class="py-2.5 px-3 text-center">Status</th>
-                  <th class="py-2.5 px-3">Notes</th>
+                  <th class="py-2.5 px-3">{{ $t('Activity Name') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Date') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Status') }}</th>
+                  <th class="py-2.5 px-3">{{ $t('Notes') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -352,7 +352,7 @@
                   </td>
                 </tr>
                 <tr v-if="getMemberFollowupRows(selectedMemberId).length === 0">
-                  <td colspan="4" class="py-8 text-center text-text-muted italic">No follow-up check activities found.</td>
+                  <td colspan="4" class="py-8 text-center text-text-muted italic">{{ $t('No follow-up check activities found.') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -361,11 +361,11 @@
 
         <!-- Manager Observation Section -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-4">
-          <h3 class="text-base font-bold text-text-main border-b border-border pb-3">Manager Observation Section</h3>
+          <h3 class="text-base font-bold text-text-main border-b border-border pb-3">{{ $t('Manager Observation Section') }}</h3>
           
           <!-- Checklist selector -->
           <div class="flex flex-col gap-2">
-            <span class="text-xs text-text-muted font-bold uppercase tracking-wider">Factual Summary Templates (Select to append)</span>
+            <span class="text-xs text-text-muted font-bold uppercase tracking-wider">{{ $t('Factual Summary Templates (Select to append)') }}</span>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
               <label
                 v-for="obs in standardObservations"
@@ -386,11 +386,11 @@
 
           <!-- Notes text area -->
           <div class="flex flex-col gap-1.5 mt-2">
-            <label class="label">Custom Notes & Specific Remarks</label>
+            <label class="label">{{ $t('Custom Notes & Specific Remarks') }}</label>
             <textarea
               v-model="customNotes"
               class="input min-h-[90px] text-xs leading-relaxed"
-              placeholder="Enter additional factual observations, coaching plans, or operational remarks..."
+              :placeholder="$t('Enter additional factual observations, coaching plans, or operational remarks...')"
             ></textarea>
           </div>
         </div>
@@ -406,42 +406,42 @@
         <div class="pdf-page print-page flex flex-col justify-between">
           <div class="flex flex-col justify-center items-center flex-1 text-center gap-12" style="margin-top: 40mm;">
             <div class="flex flex-col items-center gap-2">
-              <span class="report-branding-text text-xs uppercase font-extrabold tracking-widest text-gray-500">KiuQ Website System</span>
+              <span class="report-branding-text text-xs uppercase font-extrabold tracking-widest text-gray-500">{{ $t('KiuQ Website System') }}</span>
             </div>
             <div class="flex flex-col gap-2 mt-8">
-              <h1 class="report-title-cover">Team Operations Documentation</h1>
-              <p class="report-subtitle-cover">Consolidated Performance & Operational Registry</p>
+              <h1 class="report-title-cover">{{ $t('Team Operations Documentation') }}</h1>
+              <p class="report-subtitle-cover">{{ $t('Consolidated Performance & Operational Registry') }}</p>
             </div>
             <div class="report-meta-box w-full max-w-md mt-16 text-left">
               <table class="report-meta-table">
                 <tbody>
                   <tr>
-                    <td class="report-meta-label">Reporting Period</td>
+                    <td class="report-meta-label">{{ $t('Reporting Period') }}</td>
                     <td class="report-meta-value">{{ formattedPeriod }}</td>
                   </tr>
                   <tr>
-                    <td class="report-meta-label">Generated Date</td>
+                    <td class="report-meta-label">{{ $t('Generated Date') }}</td>
                     <td class="report-meta-value">{{ formatDate(nowTimestamp.split('T')[0]) }}</td>
                   </tr>
                   <tr>
-                    <td class="report-meta-label">Active Staff</td>
+                    <td class="report-meta-label">{{ $t('Active Staff') }}</td>
                     <td class="report-meta-value">{{ filteredActiveMembers.length }} Members</td>
                   </tr>
                   <tr>
-                    <td class="report-meta-label">Prepared By</td>
+                    <td class="report-meta-label">{{ $t('Prepared By') }}</td>
                     <td class="report-meta-value">{{ generatorName }}</td>
                   </tr>
                   <tr>
-                    <td class="report-meta-label">Classification</td>
-                    <td class="report-meta-value">Executive Management Review Only</td>
+                    <td class="report-meta-label">{{ $t('Classification') }}</td>
+                    <td class="report-meta-value">{{ $t('Executive Management Review Only') }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
           <div class="report-footer">
-            <span>Corporate Governance Record</span>
-            <span>Cover Page</span>
+            <span>{{ $t('Corporate Governance Record') }}</span>
+            <span>{{ $t('Cover Page') }}</span>
           </div>
         </div>
 
@@ -449,55 +449,55 @@
         <div class="pdf-page print-page flex flex-col justify-between">
           <div class="flex flex-col gap-6 flex-1">
             <div class="report-header flex justify-between items-center">
-              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Team Summary</span>
+              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Team Summary') }}</span>
               <span class="text-xs font-bold">{{ formattedPeriod }}</span>
             </div>
-            <h2 class="report-section-title">1. Executive Team Summary</h2>
+            <h2 class="report-section-title">{{ $t('1. Executive Team Summary') }}</h2>
             
             <div class="report-summary-paragraph mt-4">
               <p class="report-paragraph">
-                This report represents the aggregated operational records and work activities of the website team for the reporting period from <strong>{{ formatDate(localFilters.startDate) }}</strong> to <strong>{{ formatDate(localFilters.endDate) }}</strong>. It consolidates completed deliverables, active board tasks, quality checks, and follow-up updates across all team members to serve as a high-level record for executive management.
+                {{ $t('This report represents the aggregated operational records and work activities of the website team for the reporting period from') }} <strong>{{ formatDate(localFilters.startDate) }}</strong> {{ $t('to') }} <strong>{{ formatDate(localFilters.endDate) }}</strong>{{ $t('. It consolidates completed deliverables, active board tasks, quality checks, and follow-up updates across all team members to serve as a high-level record for executive management.') }}
               </p>
             </div>
 
             <table class="report-table mt-6">
               <thead>
                 <tr>
-                  <th style="width: 70%">Operational Metric</th>
-                  <th style="width: 30%; text-align: right;">Value</th>
+                  <th style="width: 70%">{{ $t('Operational Metric') }}</th>
+                  <th style="width: 30%; text-align: right;">{{ $t('Value') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Total Active Members</td>
+                  <td>{{ $t('Total Active Members') }}</td>
                   <td style="text-align: right; font-weight: bold;">{{ filteredActiveMembers.length }}</td>
                 </tr>
                 <tr>
-                  <td>Total Tasks Completed</td>
+                  <td>{{ $t('Total Tasks Completed') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #10b981;">{{ teamSummaryStats.tasksCompleted }}</td>
                 </tr>
                 <tr>
-                  <td>Total Tasks Pending / In Progress</td>
+                  <td>{{ $t('Total Tasks Pending / In Progress') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #3b82f6;">{{ teamSummaryStats.tasksPending }}</td>
                 </tr>
                 <tr>
-                  <td>Total Tasks Overdue</td>
+                  <td>{{ $t('Total Tasks Overdue') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #ef4444;">{{ teamSummaryStats.tasksOverdue }}</td>
                 </tr>
                 <tr>
-                  <td>Total Quality Checks Approved</td>
+                  <td>{{ $t('Total Quality Checks Approved') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #4f46e5;">{{ teamSummaryStats.qualityIssuesLogged }}</td>
                 </tr>
                 <tr>
-                  <td>Total Follow-Ups Completed</td>
+                  <td>{{ $t('Total Follow-Ups Completed') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #4f46e5;">{{ teamSummaryStats.followupsCompleted }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div class="report-footer">
-            <span>Corporate Governance Record</span>
-            <span>Page 2 of Team</span>
+            <span>{{ $t('Corporate Governance Record') }}</span>
+            <span>{{ $t('Page 2 of Team') }}</span>
           </div>
         </div>
 
@@ -505,21 +505,21 @@
         <div class="pdf-page print-page flex flex-col justify-between">
           <div class="flex flex-col gap-6 flex-1">
             <div class="report-header flex justify-between items-center">
-              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Member Breakdown</span>
+              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Member Breakdown') }}</span>
               <span class="text-xs font-bold">{{ formattedPeriod }}</span>
             </div>
-            <h2 class="report-section-title">2. Team Member Breakdown</h2>
-            <p class="report-paragraph" style="margin-bottom: 12px;">Comparative matrix of tasks and checklists completed by team members during the period.</p>
+            <h2 class="report-section-title">{{ $t('2. Team Member Breakdown') }}</h2>
+            <p class="report-paragraph" style="margin-bottom: 12px;">{{ $t('Comparative matrix of tasks and checklists completed by team members during the period.') }}</p>
             
             <table class="report-table">
               <thead>
                 <tr>
-                  <th style="width: 25%">Member Name</th>
-                  <th style="width: 25%">Position / Department</th>
-                  <th style="width: 12.5%; text-align: center;">Completed</th>
-                  <th style="width: 12.5%; text-align: center;">In Progress</th>
-                  <th style="width: 12.5%; text-align: center;">Overdue</th>
-                  <th style="width: 12.5%; text-align: center;">Follow-Ups</th>
+                  <th style="width: 25%">{{ $t('Member Name') }}</th>
+                  <th style="width: 25%">{{ $t('Position / Department') }}</th>
+                  <th style="width: 12.5%; text-align: center;">{{ $t('Completed') }}</th>
+                  <th style="width: 12.5%; text-align: center;">{{ $t('In Progress') }}</th>
+                  <th style="width: 12.5%; text-align: center;">{{ $t('Overdue') }}</th>
+                  <th style="width: 12.5%; text-align: center;">{{ $t('Follow-Ups') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -532,14 +532,14 @@
                   <td style="text-align: center; font-weight: bold; color: #4f46e5;">{{ getMemberFollowupFraction(m.id) }}</td>
                 </tr>
                 <tr v-if="filteredActiveMembers.length === 0">
-                  <td colspan="6" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">No members active during this period.</td>
+                  <td colspan="6" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">{{ $t('No members active during this period.') }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div class="report-footer">
-            <span>Corporate Governance Record</span>
-            <span>Page 3 of Team</span>
+            <span>{{ $t('Corporate Governance Record') }}</span>
+            <span>{{ $t('Page 3 of Team') }}</span>
           </div>
         </div>
 
@@ -549,10 +549,10 @@
           <div class="pdf-page print-page flex flex-col justify-between">
             <div class="flex flex-col justify-center items-center flex-1 text-center gap-12" style="margin-top: 40mm;">
               <div class="flex flex-col items-center gap-2">
-                <span class="report-branding-text text-xs uppercase font-extrabold tracking-widest text-gray-500">KiuQ Website System</span>
+                <span class="report-branding-text text-xs uppercase font-extrabold tracking-widest text-gray-500">{{ $t('KiuQ Website System') }}</span>
               </div>
               <div class="flex flex-col gap-2 mt-8">
-                <h1 class="report-title-cover" style="font-size: 26px;">Section III: Individual Report</h1>
+                <h1 class="report-title-cover" style="font-size: 26px;">{{ $t('Section III: Individual Report') }}</h1>
                 <p class="report-subtitle-cover" style="font-size: 16px; font-weight: 800; color: #111827; margin-top: 10px;">{{ m.fullName || m.email }}</p>
                 <p class="text-xs text-gray-500 mt-2">{{ getMemberPosition(m.id) }} — {{ getMemberDepartment(m.id) }}</p>
               </div>
@@ -561,11 +561,11 @@
                 <table class="report-meta-table">
                   <tbody>
                     <tr>
-                      <td class="report-meta-label">Reporting Period</td>
+                      <td class="report-meta-label">{{ $t('Reporting Period') }}</td>
                       <td class="report-meta-value">{{ formattedPeriod }}</td>
                     </tr>
                     <tr>
-                      <td class="report-meta-label">Generated Date</td>
+                      <td class="report-meta-label">{{ $t('Generated Date') }}</td>
                       <td class="report-meta-value">{{ formatDate(nowTimestamp.split('T')[0]) }}</td>
                     </tr>
                   </tbody>
@@ -573,7 +573,7 @@
               </div>
             </div>
             <div class="report-footer">
-              <span>Section Divider</span>
+              <span>{{ $t('Section Divider') }}</span>
               <span>{{ m.fullName }}</span>
             </div>
           </div>
@@ -582,55 +582,55 @@
           <div class="pdf-page print-page flex flex-col justify-between">
             <div class="flex flex-col gap-6 flex-1">
               <div class="report-header flex justify-between items-center">
-                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Performance Summary</span>
+                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Performance Summary') }}</span>
                 <span class="text-xs font-bold">{{ m.fullName }}</span>
               </div>
-              <h2 class="report-section-title">1. Performance Summary</h2>
+              <h2 class="report-section-title">{{ $t('1. Performance Summary') }}</h2>
               
               <div class="report-summary-paragraph mt-4">
                 <p class="report-paragraph">
-                  This section outlines the personal metrics and work records of <strong>{{ m.fullName }}</strong>. During this reporting window from <strong>{{ formatDate(localFilters.startDate) }}</strong> to <strong>{{ formatDate(localFilters.endDate) }}</strong>, a total of <strong>{{ getMemberAssignmentsForPeriod(m.id).length }}</strong> tasks were assigned, out of which <strong>{{ getMemberAssignmentsGrouped(m.id).completed.length }}</strong> were completed. The team member maintains <strong>{{ getMemberAssignmentsGrouped(m.id).inProgress.length }}</strong> tasks in progress, and <strong>{{ getMemberAssignmentsGrouped(m.id).overdue.length }}</strong> tasks are overdue. A total of <strong>{{ getMemberQualityIssues(m.id).filter(i => i.status === 'approved').length }}</strong> quality checks passed compliance guidelines, and <strong>{{ getMemberFollowupRows(m.id).filter(s => s.status === 'done' || s.status === 'late').length }}</strong> routines were completed.
+                  {{ $t('This section outlines the personal metrics and work records of') }} <strong>{{ m.fullName }}</strong>{{ $t('. During this reporting window from') }} <strong>{{ formatDate(localFilters.startDate) }}</strong> {{ $t('to') }} <strong>{{ formatDate(localFilters.endDate) }}</strong>{{ $t(', a total of') }} <strong>{{ getMemberAssignmentsForPeriod(m.id).length }}</strong> {{ $t('tasks were assigned, out of which') }} <strong>{{ getMemberAssignmentsGrouped(m.id).completed.length }}</strong> {{ $t('were completed. The team member maintains') }} <strong>{{ getMemberAssignmentsGrouped(m.id).inProgress.length }}</strong> {{ $t('tasks in progress, and') }} <strong>{{ getMemberAssignmentsGrouped(m.id).overdue.length }}</strong> {{ $t('tasks are overdue. A total of') }} <strong>{{ getMemberQualityIssues(m.id).filter(i => i.status === 'approved').length }}</strong> {{ $t('quality checks passed compliance guidelines, and') }} <strong>{{ getMemberFollowupRows(m.id).filter(s => s.status === 'done' || s.status === 'late').length }}</strong> {{ $t('routines were completed.') }}
                 </p>
               </div>
 
               <table class="report-table mt-6">
                 <thead>
                   <tr>
-                    <th style="width: 70%">Operational Metric</th>
-                    <th style="width: 30%; text-align: right;">Value</th>
+                    <th style="width: 70%">{{ $t('Operational Metric') }}</th>
+                    <th style="width: 30%; text-align: right;">{{ $t('Value') }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Total Tasks Assigned in Period</td>
+                    <td>{{ $t('Total Tasks Assigned in Period') }}</td>
                     <td style="text-align: right; font-weight: bold;">{{ getMemberAssignmentsForPeriod(m.id).length }}</td>
                   </tr>
                   <tr>
-                    <td>Tasks Completed</td>
+                    <td>{{ $t('Tasks Completed') }}</td>
                     <td style="text-align: right; font-weight: bold; color: #10b981;">{{ getMemberAssignmentsGrouped(m.id).completed.length }}</td>
                   </tr>
                   <tr>
-                    <td>Tasks In Progress</td>
+                    <td>{{ $t('Tasks In Progress') }}</td>
                     <td style="text-align: right; font-weight: bold; color: #3b82f6;">{{ getMemberAssignmentsGrouped(m.id).inProgress.length }}</td>
                   </tr>
                   <tr>
-                    <td>Tasks Overdue</td>
+                    <td>{{ $t('Tasks Overdue') }}</td>
                     <td style="text-align: right; font-weight: bold; color: #ef4444;">{{ getMemberAssignmentsGrouped(m.id).overdue.length }}</td>
                   </tr>
                   <tr>
-                    <td>Quality Checks Completed / Approved</td>
+                    <td>{{ $t('Quality Checks Completed / Approved') }}</td>
                     <td style="text-align: right; font-weight: bold; color: #4f46e5;">{{ getMemberQualityIssues(m.id).filter(i => i.status === 'approved').length }}</td>
                   </tr>
                   <tr>
-                    <td>Follow-Ups Completed</td>
+                    <td>{{ $t('Follow-Ups Completed') }}</td>
                     <td style="text-align: right; font-weight: bold; color: #4f46e5;">{{ getMemberFollowupRows(m.id).filter(s => s.status === 'done' || s.status === 'late').length }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div class="report-footer">
-              <span>Performance Summary Booklet</span>
-              <span>Page 2 of Booklet</span>
+              <span>{{ $t('Performance Summary Booklet') }}</span>
+              <span>{{ $t('Page 2 of Booklet') }}</span>
             </div>
           </div>
 
@@ -638,20 +638,20 @@
           <div class="pdf-page print-page flex flex-col justify-between">
             <div class="flex flex-col gap-6 flex-1">
               <div class="report-header flex justify-between items-center">
-                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Work Board Activities</span>
+                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Work Board Activities') }}</span>
                 <span class="text-xs font-bold">{{ m.fullName }}</span>
               </div>
-              <h2 class="report-section-title">2. Work Board Activities</h2>
-              <p class="report-paragraph" style="margin-bottom: 12px;">Detailed table listing assignments completed or active in the period.</p>
+              <h2 class="report-section-title">{{ $t('2. Work Board Activities') }}</h2>
+              <p class="report-paragraph" style="margin-bottom: 12px;">{{ $t('Detailed table listing assignments completed or active in the period.') }}</p>
               <table class="report-table">
                 <thead>
                   <tr>
-                    <th style="width: 25%">Task Name</th>
-                    <th style="width: 30%">Description</th>
-                    <th style="width: 15%">Project</th>
-                    <th style="width: 10%; text-align: center;">Assigned</th>
-                    <th style="width: 10%; text-align: center;">Completed</th>
-                    <th style="width: 10%; text-align: center;">Status</th>
+                    <th style="width: 25%">{{ $t('Task Name') }}</th>
+                    <th style="width: 30%">{{ $t('Description') }}</th>
+                    <th style="width: 15%">{{ $t('Project') }}</th>
+                    <th style="width: 10%; text-align: center;">{{ $t('Assigned') }}</th>
+                    <th style="width: 10%; text-align: center;">{{ $t('Completed') }}</th>
+                    <th style="width: 10%; text-align: center;">{{ $t('Status') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -664,14 +664,14 @@
                     <td style="text-align: center; font-weight: bold;">{{ task.status.replace('_', ' ') }}</td>
                   </tr>
                   <tr v-if="getMemberAssignmentsForPeriod(m.id).length === 0">
-                    <td colspan="6" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">No tasks recorded for this period.</td>
+                    <td colspan="6" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">{{ $t('No tasks recorded for this period.') }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div class="report-footer">
-              <span>Performance Summary Booklet</span>
-              <span>Page 3 of Booklet</span>
+              <span>{{ $t('Performance Summary Booklet') }}</span>
+              <span>{{ $t('Page 3 of Booklet') }}</span>
             </div>
           </div>
 
@@ -679,19 +679,19 @@
           <div class="pdf-page print-page flex flex-col justify-between">
             <div class="flex flex-col gap-6 flex-1">
               <div class="report-header flex justify-between items-center">
-                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Quality Check Activities</span>
+                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Quality Check Activities') }}</span>
                 <span class="text-xs font-bold">{{ m.fullName }}</span>
               </div>
-              <h2 class="report-section-title">3. Quality Check Activities</h2>
-              <p class="report-paragraph" style="margin-bottom: 12px;">Audited link results, spacing checks, and UI review status logs.</p>
+              <h2 class="report-section-title">{{ $t('3. Quality Check Activities') }}</h2>
+              <p class="report-paragraph" style="margin-bottom: 12px;">{{ $t('Audited link results, spacing checks, and UI review status logs.') }}</p>
               <table class="report-table">
                 <thead>
                   <tr>
-                    <th style="width: 35%">Quality Item</th>
-                    <th style="width: 15%; text-align: center;">Date</th>
-                    <th style="width: 15%; text-align: center;">Result</th>
-                    <th style="width: 15%; text-align: center;">Status</th>
-                    <th style="width: 20%">Notes</th>
+                    <th style="width: 35%">{{ $t('Quality Item') }}</th>
+                    <th style="width: 15%; text-align: center;">{{ $t('Date') }}</th>
+                    <th style="width: 15%; text-align: center;">{{ $t('Result') }}</th>
+                    <th style="width: 15%; text-align: center;">{{ $t('Status') }}</th>
+                    <th style="width: 20%">{{ $t('Notes') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -708,14 +708,14 @@
                     <td>{{ issue.description || '—' }}</td>
                   </tr>
                   <tr v-if="getMemberQualityIssues(m.id).length === 0">
-                    <td colspan="5" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">No quality reviews recorded.</td>
+                    <td colspan="5" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">{{ $t('No quality reviews recorded.') }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div class="report-footer">
-              <span>Performance Summary Booklet</span>
-              <span>Page 4 of Booklet</span>
+              <span>{{ $t('Performance Summary Booklet') }}</span>
+              <span>{{ $t('Page 4 of Booklet') }}</span>
             </div>
           </div>
 
@@ -723,18 +723,18 @@
           <div class="pdf-page print-page flex flex-col justify-between">
             <div class="flex flex-col gap-6 flex-1">
               <div class="report-header flex justify-between items-center">
-                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Follow-Up Activities</span>
+                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Follow-Up Activities') }}</span>
                 <span class="text-xs font-bold">{{ m.fullName }}</span>
               </div>
-              <h2 class="report-section-title">4. Follow-Up Activities</h2>
-              <p class="report-paragraph" style="margin-bottom: 12px;">Operational records of completed and pending follow-ups.</p>
+              <h2 class="report-section-title">{{ $t('4. Follow-Up Activities') }}</h2>
+              <p class="report-paragraph" style="margin-bottom: 12px;">{{ $t('Operational records of completed and pending follow-ups.') }}</p>
               <table class="report-table">
                 <thead>
                   <tr>
-                    <th style="width: 30%">Activity Name</th>
-                    <th style="width: 20%; text-align: center;">Scheduled Date</th>
-                    <th style="width: 15%; text-align: center;">Status</th>
-                    <th style="width: 35%">Notes</th>
+                    <th style="width: 30%">{{ $t('Activity Name') }}</th>
+                    <th style="width: 20%; text-align: center;">{{ $t('Scheduled Date') }}</th>
+                    <th style="width: 15%; text-align: center;">{{ $t('Status') }}</th>
+                    <th style="width: 35%">{{ $t('Notes') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -745,14 +745,14 @@
                     <td>{{ slot.notes || '—' }}</td>
                   </tr>
                   <tr v-if="getMemberFollowupRows(m.id).length === 0">
-                    <td colspan="4" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">No follow-up activities recorded.</td>
+                    <td colspan="4" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">{{ $t('No follow-up activities recorded.') }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div class="report-footer">
-              <span>Performance Summary Booklet</span>
-              <span>Page 5 of Booklet</span>
+              <span>{{ $t('Performance Summary Booklet') }}</span>
+              <span>{{ $t('Page 5 of Booklet') }}</span>
             </div>
           </div>
 
@@ -760,34 +760,34 @@
           <div class="pdf-page print-page flex flex-col justify-between">
             <div class="flex flex-col gap-6 flex-1">
               <div class="report-header flex justify-between items-center">
-                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Management Observations</span>
+                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Management Observations') }}</span>
                 <span class="text-xs font-bold">{{ m.fullName }}</span>
               </div>
-              <h2 class="report-section-title">5. Manager Notes & Observations</h2>
+              <h2 class="report-section-title">{{ $t('5. Manager Notes & Observations') }}</h2>
               
               <div class="report-notes-container mt-6">
                 <!-- If this is the currently selected member on screen, we can print observations -->
                 <div v-if="m.id === selectedMemberId">
                   <div class="report-notes-block" v-if="selectedObservations.length > 0">
-                    <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="border-bottom: 1px dashed #d1d5db; padding-bottom: 4px;">Factual Observations</h3>
+                    <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="border-bottom: 1px dashed #d1d5db; padding-bottom: 4px;">{{ $t('Factual Observations') }}</h3>
                     <ul class="report-bullets">
                       <li v-for="obs in selectedObservations" :key="obs" style="margin-bottom: 8px; line-height: 1.4;">{{ obs }}</li>
                     </ul>
                   </div>
                   
                   <div class="report-notes-block mt-8" v-if="customNotes">
-                    <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="border-bottom: 1px dashed #d1d5db; padding-bottom: 4px;">Additional Supervisor Remarks</h3>
+                    <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="border-bottom: 1px dashed #d1d5db; padding-bottom: 4px;">{{ $t('Additional Supervisor Remarks') }}</h3>
                     <p class="report-notes-text whitespace-pre-wrap" style="line-height: 1.6; font-style: italic; color: #374151;">{{ customNotes }}</p>
                   </div>
                   
                   <div class="report-notes-block mt-8 text-gray-400 italic text-xs" v-if="selectedObservations.length === 0 && !customNotes">
-                    No additional management observations or coaching remarks were recorded for this period.
+                    {{ $t('No additional management observations or coaching remarks were recorded for this period.') }}
                   </div>
                 </div>
                 
                 <!-- If this is printed as part of a bulk team report, print empty evaluator lines -->
                 <div v-else>
-                  <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="border-bottom: 1px dashed #d1d5db; padding-bottom: 4px;">Supervisor Notes & Evaluations</h3>
+                  <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="border-bottom: 1px dashed #d1d5db; padding-bottom: 4px;">{{ $t('Supervisor Notes & Evaluations') }}</h3>
                   <div style="margin-top: 15mm;">
                     <div style="border-bottom: 1px solid #d1d5db; margin-bottom: 10mm; height: 1px;"></div>
                     <div style="border-bottom: 1px solid #d1d5db; margin-bottom: 10mm; height: 1px;"></div>
@@ -795,13 +795,13 @@
                     <div style="border-bottom: 1px solid #d1d5db; margin-bottom: 10mm; height: 1px;"></div>
                     <div style="border-bottom: 1px solid #d1d5db; margin-bottom: 10mm; height: 1px;"></div>
                   </div>
-                  <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider text-right" style="margin-top: 10mm;">Supervisor Signature: _______________________</p>
+                  <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider text-right" style="margin-top: 10mm;">{{ $t('Supervisor Signature: _______________________') }}</p>
                 </div>
               </div>
             </div>
             <div class="report-footer">
-              <span>Performance Summary Booklet</span>
-              <span>Page 6 of Booklet</span>
+              <span>{{ $t('Performance Summary Booklet') }}</span>
+              <span>{{ $t('Page 6 of Booklet') }}</span>
             </div>
           </div>
         </template>
@@ -813,37 +813,37 @@
         <div class="pdf-page print-page flex flex-col justify-between">
           <div class="flex flex-col justify-center items-center flex-1 text-center gap-12" style="margin-top: 40mm;">
             <div class="flex flex-col items-center gap-2">
-              <span class="report-branding-text text-xs uppercase font-extrabold tracking-widest text-gray-500">KiuQ Website System</span>
+              <span class="report-branding-text text-xs uppercase font-extrabold tracking-widest text-gray-500">{{ $t('KiuQ Website System') }}</span>
             </div>
             <div class="flex flex-col gap-2 mt-8">
-              <h1 class="report-title-cover">Executive Performance Report</h1>
-              <p class="report-subtitle-cover">Individual Performance & Operations Registry</p>
+              <h1 class="report-title-cover">{{ $t('Executive Performance Report') }}</h1>
+              <p class="report-subtitle-cover">{{ $t('Individual Performance & Operations Registry') }}</p>
             </div>
             <div class="report-meta-box w-full max-w-md mt-16 text-left">
               <table class="report-meta-table">
                 <tbody>
                   <tr>
-                    <td class="report-meta-label">Employee Name</td>
+                    <td class="report-meta-label">{{ $t('Employee Name') }}</td>
                     <td class="report-meta-value">{{ getMemberName(selectedMemberId) }}</td>
                   </tr>
                   <tr>
-                    <td class="report-meta-label">Position / Title</td>
+                    <td class="report-meta-label">{{ $t('Position / Title') }}</td>
                     <td class="report-meta-value">{{ getMemberPosition(selectedMemberId) }}</td>
                   </tr>
                   <tr>
-                    <td class="report-meta-label">Department</td>
+                    <td class="report-meta-label">{{ $t('Department') }}</td>
                     <td class="report-meta-value">{{ getMemberDepartment(selectedMemberId) }}</td>
                   </tr>
                   <tr>
-                    <td class="report-meta-label">Reporting Period</td>
+                    <td class="report-meta-label">{{ $t('Reporting Period') }}</td>
                     <td class="report-meta-value">{{ formattedPeriod }}</td>
                   </tr>
                   <tr>
-                    <td class="report-meta-label">Generated Date</td>
+                    <td class="report-meta-label">{{ $t('Generated Date') }}</td>
                     <td class="report-meta-value">{{ formatDate(nowTimestamp.split('T')[0]) }}</td>
                   </tr>
                   <tr>
-                    <td class="report-meta-label">Prepared By</td>
+                    <td class="report-meta-label">{{ $t('Prepared By') }}</td>
                     <td class="report-meta-value">{{ generatorName }}</td>
                   </tr>
                 </tbody>
@@ -851,8 +851,8 @@
             </div>
           </div>
           <div class="report-footer">
-            <span>Executive Accountability Registry</span>
-            <span>Cover Page</span>
+            <span>{{ $t('Executive Accountability Registry') }}</span>
+            <span>{{ $t('Cover Page') }}</span>
           </div>
         </div>
 
@@ -860,55 +860,55 @@
         <div class="pdf-page print-page flex flex-col justify-between">
           <div class="flex flex-col gap-6 flex-1">
             <div class="report-header flex justify-between items-center">
-              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Performance Summary</span>
+              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Performance Summary') }}</span>
               <span class="text-xs font-bold">{{ getMemberName(selectedMemberId) }}</span>
             </div>
-            <h2 class="report-section-title">1. Executive Performance Summary</h2>
+            <h2 class="report-section-title">{{ $t('1. Executive Performance Summary') }}</h2>
             
             <div class="report-summary-paragraph mt-4">
               <p class="report-paragraph">
-                This performance report documents the official operational activities and work records of <strong>{{ getMemberName(selectedMemberId) }}</strong> during the reporting period from <strong>{{ formatDate(localFilters.startDate) }}</strong> to <strong>{{ formatDate(localFilters.endDate) }}</strong>. Out of a total of <strong>{{ getMemberAssignmentsForPeriod(selectedMemberId).length }}</strong> assigned tasks, <strong>{{ getMemberAssignmentsGrouped(selectedMemberId).completed.length }}</strong> were successfully completed, with <strong>{{ getMemberAssignmentsGrouped(selectedMemberId).inProgress.length }}</strong> currently in progress and <strong>{{ getMemberAssignmentsGrouped(selectedMemberId).overdue.length }}</strong> overdue. A total of <strong>{{ getMemberQualityIssues(selectedMemberId).filter(i => i.status === 'approved').length }}</strong> quality audits passed verification, and <strong>{{ getMemberFollowupRows(selectedMemberId).filter(s => s.status === 'done' || s.status === 'late').length }}</strong> follow-up checks were performed. This record serves as the official accountability registry for executive management review.
+                {{ $t('This performance report documents the official operational activities and work records of') }} <strong>{{ getMemberName(selectedMemberId) }}</strong> {{ $t('during the reporting period from') }} <strong>{{ formatDate(localFilters.startDate) }}</strong> {{ $t('to') }} <strong>{{ formatDate(localFilters.endDate) }}</strong>{{ $t('. Out of a total of') }} <strong>{{ getMemberAssignmentsForPeriod(selectedMemberId).length }}</strong> {{ $t('assigned tasks,') }} <strong>{{ getMemberAssignmentsGrouped(selectedMemberId).completed.length }}</strong> {{ $t('were successfully completed, with') }} <strong>{{ getMemberAssignmentsGrouped(selectedMemberId).inProgress.length }}</strong> {{ $t('currently in progress and') }} <strong>{{ getMemberAssignmentsGrouped(selectedMemberId).overdue.length }}</strong> {{ $t('overdue. A total of') }} <strong>{{ getMemberQualityIssues(selectedMemberId).filter(i => i.status === 'approved').length }}</strong> {{ $t('quality audits passed verification, and') }} <strong>{{ getMemberFollowupRows(selectedMemberId).filter(s => s.status === 'done' || s.status === 'late').length }}</strong> {{ $t('follow-up checks were performed. This record serves as the official accountability registry for executive management review.') }}
               </p>
             </div>
 
             <table class="report-table mt-6">
               <thead>
                 <tr>
-                  <th style="width: 70%">Operational Metric</th>
-                  <th style="width: 30%; text-align: right;">Value</th>
+                  <th style="width: 70%">{{ $t('Operational Metric') }}</th>
+                  <th style="width: 30%; text-align: right;">{{ $t('Value') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Total Tasks Assigned in Period</td>
+                  <td>{{ $t('Total Tasks Assigned in Period') }}</td>
                   <td style="text-align: right; font-weight: bold;">{{ getMemberAssignmentsForPeriod(selectedMemberId).length }}</td>
                 </tr>
                 <tr>
-                  <td>Tasks Completed</td>
+                  <td>{{ $t('Tasks Completed') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #10b981;">{{ getMemberAssignmentsGrouped(selectedMemberId).completed.length }}</td>
                 </tr>
                 <tr>
-                  <td>Tasks In Progress</td>
+                  <td>{{ $t('Tasks In Progress') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #3b82f6;">{{ getMemberAssignmentsGrouped(selectedMemberId).inProgress.length }}</td>
                 </tr>
                 <tr>
-                  <td>Tasks Overdue</td>
+                  <td>{{ $t('Tasks Overdue') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #ef4444;">{{ getMemberAssignmentsGrouped(selectedMemberId).overdue.length }}</td>
                 </tr>
                 <tr>
-                  <td>Quality Checks Completed / Approved</td>
+                  <td>{{ $t('Quality Checks Completed / Approved') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #4f46e5;">{{ getMemberQualityIssues(selectedMemberId).filter(i => i.status === 'approved').length }}</td>
                 </tr>
                 <tr>
-                  <td>Follow-Ups Completed</td>
+                  <td>{{ $t('Follow-Ups Completed') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #4f46e5;">{{ getMemberFollowupRows(selectedMemberId).filter(s => s.status === 'done' || s.status === 'late').length }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div class="report-footer">
-            <span>Executive Accountability Registry</span>
-            <span>Page 2 of 6</span>
+            <span>{{ $t('Executive Accountability Registry') }}</span>
+            <span>{{ $t('Page 2 of 6') }}</span>
           </div>
         </div>
 
@@ -916,20 +916,20 @@
         <div class="pdf-page print-page flex flex-col justify-between">
           <div class="flex flex-col gap-6 flex-1">
             <div class="report-header flex justify-between items-center">
-              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Work Board Activities</span>
+              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Work Board Activities') }}</span>
               <span class="text-xs font-bold">{{ getMemberName(selectedMemberId) }}</span>
             </div>
-            <h2 class="report-section-title">2. Work Board Activities</h2>
-            <p class="report-paragraph" style="margin-bottom: 12px;">Detailed list of tasks worked on or completed during the reporting period.</p>
+            <h2 class="report-section-title">{{ $t('2. Work Board Activities') }}</h2>
+            <p class="report-paragraph" style="margin-bottom: 12px;">{{ $t('Detailed list of tasks worked on or completed during the reporting period.') }}</p>
             <table class="report-table">
               <thead>
                 <tr>
-                  <th style="width: 25%">Task Name</th>
-                  <th style="width: 30%">Description</th>
-                  <th style="width: 15%">Project</th>
-                  <th style="width: 10%; text-align: center;">Assigned</th>
-                  <th style="width: 10%; text-align: center;">Completed</th>
-                  <th style="width: 10%; text-align: center;">Status</th>
+                  <th style="width: 25%">{{ $t('Task Name') }}</th>
+                  <th style="width: 30%">{{ $t('Description') }}</th>
+                  <th style="width: 15%">{{ $t('Project') }}</th>
+                  <th style="width: 10%; text-align: center;">{{ $t('Assigned') }}</th>
+                  <th style="width: 10%; text-align: center;">{{ $t('Completed') }}</th>
+                  <th style="width: 10%; text-align: center;">{{ $t('Status') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -942,14 +942,14 @@
                   <td style="text-align: center; font-weight: bold;">{{ task.status.replace('_', ' ') }}</td>
                 </tr>
                 <tr v-if="getMemberAssignmentsForPeriod(selectedMemberId).length === 0">
-                  <td colspan="6" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">No tasks recorded for this period.</td>
+                  <td colspan="6" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">{{ $t('No tasks recorded for this period.') }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div class="report-footer">
-            <span>Executive Accountability Registry</span>
-            <span>Page 3 of 6</span>
+            <span>{{ $t('Executive Accountability Registry') }}</span>
+            <span>{{ $t('Page 3 of 6') }}</span>
           </div>
         </div>
 
@@ -957,19 +957,19 @@
         <div class="pdf-page print-page flex flex-col justify-between">
           <div class="flex flex-col gap-6 flex-1">
             <div class="report-header flex justify-between items-center">
-              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Quality Check Activities</span>
+              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Quality Check Activities') }}</span>
               <span class="text-xs font-bold">{{ getMemberName(selectedMemberId) }}</span>
             </div>
-            <h2 class="report-section-title">3. Quality Check Activities</h2>
-            <p class="report-paragraph" style="margin-bottom: 12px;">Factual review results and status logs of link checks, spacing audits, and UI validations.</p>
+            <h2 class="report-section-title">{{ $t('3. Quality Check Activities') }}</h2>
+            <p class="report-paragraph" style="margin-bottom: 12px;">{{ $t('Factual review results and status logs of link checks, spacing audits, and UI validations.') }}</p>
             <table class="report-table">
               <thead>
                 <tr>
-                  <th style="width: 35%">Quality Item</th>
-                  <th style="width: 15%; text-align: center;">Date</th>
-                  <th style="width: 15%; text-align: center;">Result</th>
-                  <th style="width: 15%; text-align: center;">Status</th>
-                  <th style="width: 20%">Notes</th>
+                  <th style="width: 35%">{{ $t('Quality Item') }}</th>
+                  <th style="width: 15%; text-align: center;">{{ $t('Date') }}</th>
+                  <th style="width: 15%; text-align: center;">{{ $t('Result') }}</th>
+                  <th style="width: 15%; text-align: center;">{{ $t('Status') }}</th>
+                  <th style="width: 20%">{{ $t('Notes') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -986,14 +986,14 @@
                   <td>{{ issue.description || '—' }}</td>
                 </tr>
                 <tr v-if="getMemberQualityIssues(selectedMemberId).length === 0">
-                  <td colspan="5" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">No quality reviews recorded.</td>
+                  <td colspan="5" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">{{ $t('No quality reviews recorded.') }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div class="report-footer">
-            <span>Executive Accountability Registry</span>
-            <span>Page 4 of 6</span>
+            <span>{{ $t('Executive Accountability Registry') }}</span>
+            <span>{{ $t('Page 4 of 6') }}</span>
           </div>
         </div>
 
@@ -1001,18 +1001,18 @@
         <div class="pdf-page print-page flex flex-col justify-between">
           <div class="flex flex-col gap-6 flex-1">
             <div class="report-header flex justify-between items-center">
-              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Follow-Up Activities</span>
+              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Follow-Up Activities') }}</span>
               <span class="text-xs font-bold">{{ getMemberName(selectedMemberId) }}</span>
             </div>
-            <h2 class="report-section-title">4. Follow-Up Activities</h2>
-            <p class="report-paragraph" style="margin-bottom: 12px;">Operational records of completed and pending follow-ups (Blog audits, Speed optimization, eBay clicks, Plugin updates).</p>
+            <h2 class="report-section-title">{{ $t('4. Follow-Up Activities') }}</h2>
+            <p class="report-paragraph" style="margin-bottom: 12px;">{{ $t('Operational records of completed and pending follow-ups (Blog audits, Speed optimization, eBay clicks, Plugin updates).') }}</p>
             <table class="report-table">
               <thead>
                 <tr>
-                  <th style="width: 30%">Activity Name</th>
-                  <th style="width: 20%; text-align: center;">Scheduled Date</th>
-                  <th style="width: 15%; text-align: center;">Status</th>
-                  <th style="width: 35%">Notes</th>
+                  <th style="width: 30%">{{ $t('Activity Name') }}</th>
+                  <th style="width: 20%; text-align: center;">{{ $t('Scheduled Date') }}</th>
+                  <th style="width: 15%; text-align: center;">{{ $t('Status') }}</th>
+                  <th style="width: 35%">{{ $t('Notes') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1023,14 +1023,14 @@
                   <td>{{ slot.notes || '—' }}</td>
                 </tr>
                 <tr v-if="getMemberFollowupRows(selectedMemberId).length === 0">
-                  <td colspan="4" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">No follow-up activities recorded.</td>
+                  <td colspan="4" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">{{ $t('No follow-up activities recorded.') }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div class="report-footer">
-            <span>Executive Accountability Registry</span>
-            <span>Page 5 of 6</span>
+            <span>{{ $t('Executive Accountability Registry') }}</span>
+            <span>{{ $t('Page 5 of 6') }}</span>
           </div>
         </div>
 
@@ -1038,32 +1038,32 @@
         <div class="pdf-page print-page flex flex-col justify-between">
           <div class="flex flex-col gap-6 flex-1">
             <div class="report-header flex justify-between items-center">
-              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Management Observations</span>
+              <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Management Observations') }}</span>
               <span class="text-xs font-bold">{{ getMemberName(selectedMemberId) }}</span>
             </div>
-            <h2 class="report-section-title">5. Manager Notes & Observations</h2>
+            <h2 class="report-section-title">{{ $t('5. Manager Notes & Observations') }}</h2>
             
             <div class="report-notes-container mt-6">
               <div class="report-notes-block" v-if="selectedObservations.length > 0">
-                <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="border-bottom: 1px dashed #d1d5db; padding-bottom: 4px;">Factual Observations</h3>
+                <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="border-bottom: 1px dashed #d1d5db; padding-bottom: 4px;">{{ $t('Factual Observations') }}</h3>
                 <ul class="report-bullets">
                   <li v-for="obs in selectedObservations" :key="obs" style="margin-bottom: 8px; line-height: 1.4;">{{ obs }}</li>
                 </ul>
               </div>
               
               <div class="report-notes-block mt-8" v-if="customNotes">
-                <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="border-bottom: 1px dashed #d1d5db; padding-bottom: 4px;">Additional Supervisor Remarks</h3>
+                <h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="border-bottom: 1px dashed #d1d5db; padding-bottom: 4px;">{{ $t('Additional Supervisor Remarks') }}</h3>
                 <p class="report-notes-text whitespace-pre-wrap" style="line-height: 1.6; font-style: italic; color: #374151;">{{ customNotes }}</p>
               </div>
               
               <div class="report-notes-block mt-8 text-gray-400 italic text-xs" v-if="selectedObservations.length === 0 && !customNotes">
-                No additional management observations or coaching remarks were recorded for this period.
+                {{ $t('No additional management observations or coaching remarks were recorded for this period.') }}
               </div>
             </div>
           </div>
           <div class="report-footer">
-            <span>Executive Accountability Registry</span>
-            <span>Page 6 of 6</span>
+            <span>{{ $t('Executive Accountability Registry') }}</span>
+            <span>{{ $t('Page 6 of 6') }}</span>
           </div>
         </div>
       </template>
@@ -1077,7 +1077,7 @@
         <div class="flex flex-wrap items-end gap-5">
           <!-- Date Select presets -->
           <div class="flex flex-col gap-1.5">
-            <label class="label text-xs font-bold text-text-muted">Report Date Selector</label>
+            <label class="label text-xs font-bold text-text-muted">{{ $t('Report Date Selector') }}</label>
             <div class="flex gap-2">
               <button
                 type="button"
@@ -1085,7 +1085,7 @@
                 :class="{ 'chip-active': dailyDatePreset === 'today' }"
                 @click="setDailyDatePreset('today')"
               >
-                Today's Report
+                {{ $t('Today\'s Report') }}
               </button>
               <button
                 type="button"
@@ -1093,7 +1093,7 @@
                 :class="{ 'chip-active': dailyDatePreset === 'yesterday' }"
                 @click="setDailyDatePreset('yesterday')"
               >
-                Yesterday's Report
+                {{ $t('Yesterday\'s Report') }}
               </button>
               <button
                 type="button"
@@ -1101,14 +1101,14 @@
                 :class="{ 'chip-active': dailyDatePreset === 'custom' }"
                 @click="setDailyDatePreset('custom')"
               >
-                Custom Date
+                {{ $t('Custom Date') }}
               </button>
             </div>
           </div>
 
           <!-- Custom Date Input -->
           <div class="flex flex-col gap-1.5" v-if="dailyDatePreset === 'custom'">
-            <label class="label text-xs font-bold text-text-muted">Select Custom Date</label>
+            <label class="label text-xs font-bold text-text-muted">{{ $t('Select Custom Date') }}</label>
             <input
               type="date"
               v-model="dailyReportDate"
@@ -1128,7 +1128,7 @@
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
                 <rect x="6" y="14" width="12" height="8"/>
               </svg>
-              Generate Daily PDF
+              {{ $t('Generate Daily PDF') }}
             </button>
           </div>
         </div>
@@ -1139,7 +1139,7 @@
         <!-- Date Header Banner -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex items-center justify-between">
           <div class="flex flex-col gap-1">
-            <span class="text-xs text-text-muted font-bold uppercase tracking-wider">Daily Team Operations Report</span>
+            <span class="text-xs text-text-muted font-bold uppercase tracking-wider">{{ $t('Daily Team Operations Report') }}</span>
             <h2 class="text-xl font-black text-text-main mt-1">
               Report Date: {{ formatDate(dailyReportDate) }}
             </h2>
@@ -1148,7 +1148,7 @@
             </p>
           </div>
           <div class="text-right">
-            <span class="text-xs text-text-muted font-bold uppercase tracking-wider">Classification</span>
+            <span class="text-xs text-text-muted font-bold uppercase tracking-wider">{{ $t('Classification') }}</span>
             <div class="text-xs font-bold text-rose-500 mt-1 uppercase tracking-widest">
               {{ dailyReportObject.classification }}
             </div>
@@ -1158,34 +1158,34 @@
         <!-- Summary Statistics KPI Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Tasks Completed</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Tasks Completed') }}</span>
             <span class="text-2xl font-black text-emerald-500 mt-2">{{ dailyReportObject.summary.tasksCompleted }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Active In Progress</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Active In Progress') }}</span>
             <span class="text-2xl font-black text-blue-500 mt-2">{{ dailyReportObject.summary.tasksInProgress }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Tasks Postponed</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Tasks Postponed') }}</span>
             <span class="text-2xl font-black text-amber-500 mt-2">{{ dailyReportObject.summary.tasksPostponed }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Tasks Overdue</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Tasks Overdue') }}</span>
             <span class="text-2xl font-black text-rose-500 mt-2">{{ dailyReportObject.summary.tasksOverdue }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Follow-Ups Completed</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Follow-Ups Completed') }}</span>
             <span class="text-2xl font-black text-emerald-500 mt-2">{{ dailyReportObject.summary.followupsCompleted }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">Follow-Ups Missed</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Follow-Ups Missed') }}</span>
             <span class="text-2xl font-black text-rose-500 mt-2">{{ dailyReportObject.summary.followupsMissed }}</span>
           </div>
         </div>
 
         <!-- Factual Summary Box -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-2">
-          <h3 class="text-xs text-text-muted font-bold uppercase tracking-wider">Executive Neutral Summary</h3>
+          <h3 class="text-xs text-text-muted font-bold uppercase tracking-wider">{{ $t('Executive Neutral Summary') }}</h3>
           <p class="text-sm font-semibold text-text-main mt-1 italic leading-relaxed border-l-4 border-primary pl-4 py-1">
             "{{ dailyReportObject.summary.summaryParagraph }}"
           </p>
@@ -1193,7 +1193,7 @@
 
         <!-- Member Activity Breakdown Matrix -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-4">
-          <h3 class="text-base font-bold text-text-main border-b border-border pb-3">Team Member Activity Matrix</h3>
+          <h3 class="text-base font-bold text-text-main border-b border-border pb-3">{{ $t('Team Member Activity Matrix') }}</h3>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div
@@ -1209,7 +1209,7 @@
               <div class="grid grid-cols-2 gap-4 text-xs">
                 <!-- Work Board -->
                 <div>
-                  <h4 class="font-extrabold text-[10px] text-text-muted uppercase tracking-wider mb-1.5 border-b border-border/60 pb-1">Work Board</h4>
+                  <h4 class="font-extrabold text-[10px] text-text-muted uppercase tracking-wider mb-1.5 border-b border-border/60 pb-1">{{ $t('Work Board') }}</h4>
                   <ul class="list-disc pl-4 flex flex-col gap-1 font-semibold text-text-main">
                     <li v-for="title in m.work.completed" :key="title" class="text-emerald-500">
                       <span class="text-text-main font-semibold">[Completed] {{ title }}</span>
@@ -1224,14 +1224,14 @@
                       <span class="text-text-main font-semibold">[Overdue] {{ title }}</span>
                     </li>
                     <li v-if="m.work.completed.length + m.work.inProgress.length + m.work.postponed.length + m.work.overdue.length === 0" class="list-none pl-0 text-text-muted italic text-[11px] font-normal">
-                      No board activity
+                      {{ $t('No board activity') }}
                     </li>
                   </ul>
                 </div>
 
                 <!-- Follow-Ups & Quality -->
                 <div>
-                  <h4 class="font-extrabold text-[10px] text-text-muted uppercase tracking-wider mb-1.5 border-b border-border/60 pb-1">Follow-Ups & QC</h4>
+                  <h4 class="font-extrabold text-[10px] text-text-muted uppercase tracking-wider mb-1.5 border-b border-border/60 pb-1">{{ $t('Follow-Ups & QC') }}</h4>
                   <ul class="list-disc pl-4 flex flex-col gap-1 font-semibold text-text-main">
                     <li v-for="f in m.followups.completed" :key="f.title" class="text-emerald-500">
                       <span class="text-text-main font-semibold">[Done] {{ f.title }} ({{ f.type }})</span>
@@ -1249,7 +1249,7 @@
                       <span class="text-text-main font-semibold">[QC Fail] {{ title }}</span>
                     </li>
                     <li v-if="m.followups.completed.length + m.followups.missed.length + m.followups.pending.length + m.qualityChecks.passed.length + m.qualityChecks.failed.length === 0" class="list-none pl-0 text-text-muted italic text-[11px] font-normal">
-                      No checklist entries
+                      {{ $t('No checklist entries') }}
                     </li>
                   </ul>
                 </div>
@@ -1260,16 +1260,16 @@
 
         <!-- Operations Log (Details Table) -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-4">
-          <h3 class="text-base font-bold text-text-main">Comprehensive Operations Log</h3>
+          <h3 class="text-base font-bold text-text-main">{{ $t('Comprehensive Operations Log') }}</h3>
           <div class="overflow-x-auto border border-border rounded-btn">
             <table class="w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="bg-soft border-b border-border text-xs text-text-muted font-bold uppercase">
-                  <th class="py-2.5 px-3">Title</th>
-                  <th class="py-2.5 px-3">Member</th>
-                  <th class="py-2.5 px-3">Status</th>
-                  <th class="py-2.5 px-3 text-center">Type</th>
-                  <th class="py-2.5 px-3 text-center">Date</th>
+                  <th class="py-2.5 px-3">{{ $t('Title') }}</th>
+                  <th class="py-2.5 px-3">{{ $t('Member') }}</th>
+                  <th class="py-2.5 px-3">{{ $t('Status') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Type') }}</th>
+                  <th class="py-2.5 px-3 text-center">{{ $t('Date') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1292,7 +1292,7 @@
                   <td class="py-3 px-3 text-center text-text-muted text-xs font-normal">{{ t.date }}</td>
                 </tr>
                 <tr v-if="dailyReportObject.taskDetails.length === 0">
-                  <td colspan="5" class="py-8 text-center text-text-muted italic">No tasks or checklist activities found for this date.</td>
+                  <td colspan="5" class="py-8 text-center text-text-muted italic">{{ $t('No tasks or checklist activities found for this date.') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -1301,53 +1301,53 @@
 
         <!-- Management View observations -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-4">
-          <h3 class="text-base font-bold text-text-main border-b border-border pb-3">Operational Management Observations</h3>
+          <h3 class="text-base font-bold text-text-main border-b border-border pb-3">{{ $t('Operational Management Observations') }}</h3>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
             <div>
-              <h4 class="font-extrabold text-[11px] text-text-muted uppercase tracking-wider mb-2 border-b border-border pb-1">High Task Completion Today</h4>
+              <h4 class="font-extrabold text-[11px] text-text-muted uppercase tracking-wider mb-2 border-b border-border pb-1">{{ $t('High Task Completion Today') }}</h4>
               <ul class="list-disc pl-4 flex flex-col gap-1 font-semibold text-text-main">
                 <li v-for="item in dailyReportObject.managementView.mostCompleted" :key="item.name">
                   {{ item.name }} ({{ item.count }} completed)
                 </li>
                 <li v-if="dailyReportObject.managementView.mostCompleted.length === 0" class="list-none pl-0 text-text-muted italic font-normal">
-                  No completions logged
+                  {{ $t('No completions logged') }}
                 </li>
               </ul>
             </div>
             
             <div>
-              <h4 class="font-extrabold text-[11px] text-text-muted uppercase tracking-wider mb-2 border-b border-border pb-1">Missed Follow-Ups</h4>
+              <h4 class="font-extrabold text-[11px] text-text-muted uppercase tracking-wider mb-2 border-b border-border pb-1">{{ $t('Missed Follow-Ups') }}</h4>
               <ul class="list-disc pl-4 flex flex-col gap-1 font-semibold text-text-main text-rose-500">
                 <li v-for="item in dailyReportObject.managementView.missedFollowups" :key="item.name" class="text-rose-500">
                   <span class="text-text-main font-semibold">{{ item.name }} ({{ item.count }} missed)</span>
                 </li>
                 <li v-if="dailyReportObject.managementView.missedFollowups.length === 0" class="list-none pl-0 text-text-muted italic font-normal">
-                  No missed follow-ups
+                  {{ $t('No missed follow-ups') }}
                 </li>
               </ul>
             </div>
             
             <div>
-              <h4 class="font-extrabold text-[11px] text-text-muted uppercase tracking-wider mb-2 border-b border-border pb-1">Active Overdue Deadlines</h4>
+              <h4 class="font-extrabold text-[11px] text-text-muted uppercase tracking-wider mb-2 border-b border-border pb-1">{{ $t('Active Overdue Deadlines') }}</h4>
               <ul class="list-disc pl-4 flex flex-col gap-1 font-semibold text-text-main text-rose-500">
                 <li v-for="item in dailyReportObject.managementView.overdueTasks" :key="item.name" class="text-rose-500">
                   <span class="text-text-main font-semibold">{{ item.name }} ({{ item.count }} overdue)</span>
                 </li>
                 <li v-if="dailyReportObject.managementView.overdueTasks.length === 0" class="list-none pl-0 text-text-muted italic font-normal">
-                  No overdue deadlines
+                  {{ $t('No overdue deadlines') }}
                 </li>
               </ul>
             </div>
             
             <div>
-              <h4 class="font-extrabold text-[11px] text-text-muted uppercase tracking-wider mb-2 border-b border-border pb-1">No Activity Logged Today</h4>
+              <h4 class="font-extrabold text-[11px] text-text-muted uppercase tracking-wider mb-2 border-b border-border pb-1">{{ $t('No Activity Logged Today') }}</h4>
               <ul class="list-disc pl-4 flex flex-col gap-1 font-semibold text-text-muted">
                 <li v-for="name in dailyReportObject.managementView.noActivity" :key="name">
                   {{ name }}
                 </li>
                 <li v-if="dailyReportObject.managementView.noActivity.length === 0" class="list-none pl-0 text-text-muted italic font-normal">
-                  All active members recorded entries
+                  {{ $t('All active members recorded entries') }}
                 </li>
               </ul>
             </div>
@@ -1888,7 +1888,7 @@ onMounted(async () => {
   width: 210mm;
   height: 297mm;
   box-sizing: border-box;
-  background: #ffffff;
+  background: #fbfbfb;
   color: #111827;
   border-radius: 8px;
   overflow: hidden;
@@ -2112,7 +2112,7 @@ onMounted(async () => {
   }
 
   body, html, #app, .min-h-screen, .bg-bg {
-    background: #ffffff !important;
+    background: #fbfbfb !important;
     color: #111827 !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -2137,7 +2137,7 @@ onMounted(async () => {
     padding: 20mm !important;
     margin: 0 !important;
     box-sizing: border-box !important;
-    background: #ffffff !important;
+    background: #fbfbfb !important;
     color: #111827 !important;
   }
 

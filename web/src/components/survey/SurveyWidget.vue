@@ -7,7 +7,7 @@
       class="survey-fab"
       :class="{ 'km-text': lang === 'kh' }"
       :title="t.giveFeedback"
-      :aria-label="t.giveFeedback"
+      :aria-:label="$t('t.giveFeedback')"
       @click="openModal"
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -20,7 +20,7 @@
   <!-- Bottom-right invitation banner (Not started yet) -->
   <Transition name="survey-banner">
     <div v-if="bannerVisible" class="survey-banner card" :class="{ 'ks-km': lang === 'kh' }" role="dialog" aria-live="polite">
-      <button type="button" class="survey-banner-close btn-ghost" :aria-label="t.later" @click="onLater">
+      <button type="button" class="survey-banner-close btn-ghost" :aria-:label="$t('t.later')" @click="onLater">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
       </button>
       <div v-if="store.previewMode" class="ks-pill mb-2">{{ t.testingMode }}</div>
@@ -37,8 +37,8 @@
       </div>
       <div class="mt-3 flex items-center justify-between gap-2">
         <div class="ks-seg ks-seg--sm">
-          <button type="button" :class="{ active: lang === 'en' }" @click="lang = 'en'">EN</button>
-          <button type="button" class="km-text" :class="{ active: lang === 'kh' }" @click="lang = 'kh'">ខ្មែរ</button>
+          <button type="button" :class="{ active: lang === 'en' }" @click="lang = 'en'">{{ $t('EN') }}</button>
+          <button type="button" class="km-text" :class="{ active: lang === 'kh' }" @click="lang = 'kh'">{{ $t('ខ្មែរ') }}</button>
         </div>
         <div class="flex items-center gap-2">
           <button type="button" class="btn-ghost px-3 py-1.5 text-xs" @click="onLater">{{ t.later }}</button>
@@ -59,8 +59,8 @@
         <span class="text-xs font-semibold text-text-main pr-6">{{ t.continueBannerText }}</span>
       </div>
       <div v-if="store.previewMode" class="mt-1 flex items-center justify-between">
-        <span class="ks-pill text-[9px] px-1.5 py-0.5">Test Mode</span>
-        <button type="button" class="text-[10px] text-text-muted hover:text-text-main hover:underline" @click="exitPreviewFromBanner">Exit Test</button>
+        <span class="ks-pill text-[9px] px-1.5 py-0.5">{{ $t('Test Mode') }}</span>
+        <button type="button" class="text-[10px] text-text-muted hover:text-text-main hover:underline" @click="exitPreviewFromBanner">{{ $t('Exit Test') }}</button>
       </div>
       <div class="mt-2.5 flex items-center justify-between gap-2">
         <span class="text-[10px] text-text-muted uppercase tracking-wider font-semibold">
@@ -107,7 +107,7 @@
                 <button type="button" :class="{ active: lang === 'en' }" @click="lang = 'en'">{{ t.english }}</button>
                 <button type="button" class="km-text" :class="{ active: lang === 'kh' }" @click="lang = 'kh'">{{ t.khmer }}</button>
               </div>
-              <button type="button" class="ks-close" :aria-label="t.close" @click="closeModal">
+              <button type="button" class="ks-close" :aria-:label="$t('t.close')" @click="closeModal">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
               </button>
             </div>
@@ -116,7 +116,7 @@
           <!-- Compact preview/test bar -->
           <div v-if="store.previewMode" class="ks-preview-bar flex items-center justify-between">
             <span>{{ t.previewingAs }} {{ roleLabel(store.previewRole) }}</span>
-            <button type="button" class="text-[10px] hover:underline font-bold" style="color: inherit;" @click="exitPreview">Exit Test</button>
+            <button type="button" class="text-[10px] hover:underline font-bold" style="color: inherit;" @click="exitPreview">{{ $t('Exit Test') }}</button>
           </div>
 
           <!-- Thank-you / test-saved -->
@@ -318,7 +318,7 @@
                   <div class="flex items-center justify-between">
                     <label class="ks-label">{{ t.summaryLabel }}</label>
                     <button v-if="isSummaryManuallyEdited" type="button" class="text-[10px] text-primary hover:underline font-semibold" @click="resetGeneratedSummary">
-                      Re-generate summary
+                      {{ $t('Re-generate summary') }}
                     </button>
                   </div>
                   <textarea
@@ -915,7 +915,7 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 .survey-continue-close:hover {
-  background: var(--soft-bg, rgba(255,255,255,0.05));
+  background: var(--soft-bg, rgba(248,251,255,0.05));
   color: var(--text-main);
 }
 .survey-continue-content {
@@ -1090,7 +1090,7 @@ onBeforeUnmount(() => {
   padding: 0.65rem 0.85rem;
   border: 1px solid var(--border);
   border-radius: 0.7rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--input-bg);
   color: var(--text-muted, #94a3b8);
   font-size: 0.85rem;
   font-weight: 500;
@@ -1124,7 +1124,7 @@ onBeforeUnmount(() => {
   padding: 0.45rem 0.85rem;
   border: 1px solid var(--border);
   border-radius: 0.65rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--input-bg);
   color: var(--text-muted, #94a3b8);
   font-size: 0.82rem;
   font-weight: 500;
@@ -1156,7 +1156,7 @@ onBeforeUnmount(() => {
   padding: 0.75rem 0.5rem;
   border: 1px solid var(--border);
   border-radius: 0.7rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(248, 251, 255, 0.03);
   color: var(--text-muted, #94a3b8);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1186,7 +1186,7 @@ onBeforeUnmount(() => {
   padding: 0.7rem 0.5rem;
   border: 1px solid var(--border);
   border-radius: 0.7rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(248, 251, 255, 0.03);
   color: var(--text-muted, #94a3b8);
   font-size: 0.82rem;
   font-weight: 600;
@@ -1210,7 +1210,7 @@ onBeforeUnmount(() => {
 /* Textareas & Review Card */
 .ks-review-card {
   border: 1px solid var(--border);
-  background: var(--soft-bg, rgba(255,255,255,0.01));
+  background: var(--soft-bg);
   border-radius: 0.75rem;
   overflow: hidden;
 }
@@ -1253,7 +1253,7 @@ onBeforeUnmount(() => {
   min-height: 5rem;
 }
 .ks-textarea:focus { outline: none; border-color: var(--primary, #15D6C2); box-shadow: 0 0 0 3px rgba(21, 214, 194, 0.15); }
-.ks-summary-box { background: var(--soft-bg, rgba(255,255,255,0.03)); border-style: dashed; }
+.ks-summary-box { background: var(--soft-bg); border-style: dashed; }
 
 /* Screenshot */
 .ks-drop {
@@ -1280,7 +1280,7 @@ onBeforeUnmount(() => {
   height: 1.9rem; width: 1.9rem;
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 9999px; border: none;
-  background: rgba(0, 0, 0, 0.6); color: #fff; cursor: pointer;
+  background: rgba(0, 0, 0, 0.6); color: #f8fbff; cursor: pointer;
 }
 .ks-shot-remove:hover { background: rgba(0, 0, 0, 0.78); }
 

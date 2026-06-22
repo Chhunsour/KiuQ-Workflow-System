@@ -6,21 +6,21 @@
       <!-- ── Department Accountability Rankings ── -->
       <div class="card p-5">
         <h3 class="section-title mb-4 flex items-center justify-between">
-          <span>Department Accountability Rankings</span>
-          <span class="text-xs text-text-muted font-normal">Ranked by overall average score</span>
+          <span>{{ $t('Department Accountability Rankings') }}</span>
+          <span class="text-xs text-text-muted font-normal">{{ $t('Ranked by overall average score') }}</span>
         </h3>
         
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="border-b border-border text-text-muted text-xs font-semibold uppercase">
-                <th class="py-3 px-4 w-12 text-center">Rank</th>
-                <th class="py-3 px-4">Department / Team</th>
-                <th class="py-3 px-4 text-center">Active Members</th>
-                <th class="py-3 px-4 text-center">Avg Compliance Score</th>
-                <th class="py-3 px-4 text-center">Avg Follow-up Rate</th>
-                <th class="py-3 px-4 text-center">Tasks Completed</th>
-                <th class="py-3 px-4 text-center pr-6">Avg Accountability Score</th>
+                <th class="py-3 px-4 w-12 text-center">{{ $t('Rank') }}</th>
+                <th class="py-3 px-4">{{ $t('Department / Team') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Active Members') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Avg Compliance Score') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Avg Follow-up Rate') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Tasks Completed') }}</th>
+                <th class="py-3 px-4 text-center pr-6">{{ $t('Avg Accountability Score') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -58,7 +58,7 @@
                 </td>
               </tr>
               <tr v-if="departmentStats.length === 0">
-                <td colspan="7" class="py-8 text-center text-text-muted text-sm">No department statistics available.</td>
+                <td colspan="7" class="py-8 text-center text-text-muted text-sm">{{ $t('No department statistics available.') }}</td>
               </tr>
             </tbody>
           </table>
@@ -67,17 +67,17 @@
 
       <!-- ── Project Neglect & Progress Summary ── -->
       <div class="card p-5">
-        <h3 class="section-title mb-4">Active Projects Progress & Deadlines</h3>
+        <h3 class="section-title mb-4">{{ $t('Active Projects Progress & Deadlines') }}</h3>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="border-b border-border text-text-muted text-xs font-semibold uppercase">
-                <th class="py-3 px-4">Project Name</th>
-                <th class="py-3 px-4 text-center">Status</th>
-                <th class="py-3 px-4 text-center">Tasks Created</th>
-                <th class="py-3 px-4 text-center">Tasks Completed</th>
-                <th class="py-3 px-4 text-center">Overdue Cards</th>
-                <th class="py-3 px-4 pr-6">Deadline</th>
+                <th class="py-3 px-4">{{ $t('Project Name') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Status') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Tasks Created') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Tasks Completed') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('Overdue Cards') }}</th>
+                <th class="py-3 px-4 pr-6">{{ $t('Deadline') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -107,7 +107,7 @@
                 </td>
               </tr>
               <tr v-if="projectSummaries.length === 0">
-                <td colspan="6" class="py-8 text-center text-text-muted text-sm">No active projects loaded.</td>
+                <td colspan="6" class="py-8 text-center text-text-muted text-sm">{{ $t('No active projects loaded.') }}</td>
               </tr>
             </tbody>
           </table>

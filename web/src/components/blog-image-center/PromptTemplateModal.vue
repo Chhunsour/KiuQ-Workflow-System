@@ -2,26 +2,26 @@
   <Modal :open="open" :title="editing ? 'Edit Prompt Template' : 'New Prompt Template'" size="md" @close="$emit('close')">
     <div class="ptm-form">
       <div>
-        <label class="label">Template Name</label>
+        <label class="label">{{ $t('Template Name') }}</label>
         <input
           v-model="form.templateName"
           class="input"
           type="text"
-          placeholder="e.g. Product Review, Buying Guide, Comparison…"
+          :placeholder="$t('e.g. Product Review, Buying Guide, Comparison…')"
         />
       </div>
       <div>
-        <label class="label">Prompt Content</label>
+        <label class="label">{{ $t('Prompt Content') }}</label>
         <textarea
           v-model="form.promptContent"
           class="input ptm-textarea"
-          placeholder="Create a professional 16:9 blog featured image showing…"
+          :placeholder="$t('Create a professional 16:9 blog featured image showing…')"
           rows="6"
         />
-        <p class="helper">This is the exact text team members will copy to generate blog featured images.</p>
+        <p class="helper">{{ $t('This is the exact text team members will copy to generate blog featured images.') }}</p>
       </div>
       <div>
-        <label class="label">Sort Position</label>
+        <label class="label">{{ $t('Sort Position') }}</label>
         <input
           v-model.number="form.position"
           class="input"
@@ -32,7 +32,7 @@
       </div>
     </div>
     <template #footer>
-      <button type="button" class="btn-secondary" @click="$emit('close')">Cancel</button>
+      <button type="button" class="btn-secondary" @click="$emit('close')">{{ $t('Cancel') }}</button>
       <button
         type="button"
         class="btn-primary"

@@ -1,14 +1,14 @@
 <template>
   <div class="card card-pad register-card">
-    <h1 class="ui-font text-xl font-semibold text-text-main">Create an account</h1>
+    <h1 class="ui-font text-xl font-semibold text-text-main">{{ $t('Create an account') }}</h1>
     <p class="mt-1 text-sm text-text-muted">
-      New accounts start as <strong>Quality Checker</strong>. A Head or Supervisor can promote you later.
+      {{ $t('New accounts start as') }} <strong>{{ $t('Quality Checker') }}</strong>{{ $t('. A Head or Supervisor can promote you later.') }}
     </p>
 
     <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
-      <FormInput v-model="fullName" label="Full name" placeholder="Jane Smith" />
-      <FormInput v-model="email" label="Email" type="email" placeholder="you@team.io" />
-      <FormInput v-model="password" label="Password" type="password" placeholder="At least 6 characters" />
+      <FormInput v-model="fullName" :label="$t('Full name')" :placeholder="$t('Jane Smith')" />
+      <FormInput v-model="email" :label="$t('Email')" type="email" placeholder="you@team.io" />
+      <FormInput v-model="password" :label="$t('Password')" type="password" :placeholder="$t('At least 6 characters')" />
 
       <div v-if="errorMessage" class="rounded-btn border border-status-needs-fix-bg bg-status-needs-fix-bg/30 px-3 py-2 text-sm text-status-needs-fix-fg">
         {{ errorMessage }}
@@ -24,9 +24,9 @@
     </form>
 
     <div class="mt-6 text-center text-sm text-text-muted">
-      Already have an account?
+      {{ $t('Already have an account?') }}
       <RouterLink to="/login" class="ui-font font-medium text-primary hover:underline">
-        Sign in
+        {{ $t('Sign in') }}
       </RouterLink>
     </div>
   </div>

@@ -65,18 +65,70 @@ serve(async (req) => {
     }
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE);
-    // Single-account model: replace any existing account.
-    await admin.from('gsc_oauth_accounts').delete().not('id', 'is', null);
-    const { data: insData, error: insErr } = await admin.from('gsc_oauth_accounts').insert({
-      google_email: email,
-      refresh_token: tok.refresh_token,
-      access_token: tok.access_token ?? null,
-      token_expiry: new Date(Date.now() + (Number(tok.expires_in) || 3600) * 1000).toISOString(),
-      scope: tok.scope ?? null,
-      connected_by: isUuid(state) ? state : null
-    }).select('id, updated_at').single();
+    const userId = isUuid(state) ? state : null;
+
+    // 1. Save connection under user_google_connections (multi-user model)
+    if (userId) {
+      const { error: userConnErr } = await admin.from('user_google_connections').upsert({
+        user_id: userId,
+        google_email: email,
+        provider: 'google',
+        refresh_token: tok.refresh_token,
+        access_token: tok.access_token ?? null,
+        token_expires_at: new Date(Date.now() + (Number(tok.expires_in) || 3600) * 1000).toISOString(),
+        scopes: tok.scope ?? null,
+        status: 'connected',
+        connected_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+      
+      if (userConnErr) {
+        console.error('[gsc-oauth-callback] user_google_connections store failed:', userConnErr.message);
+      }
+    }
+
+    // 2. Legacy support: upsert/insert into gsc_oauth_accounts (avoiding global delete)
+    let insData = null;
+    let insErr = null;
+    if (userId) {
+      const { data: existingAcct } = await admin.from('gsc_oauth_accounts').select('id').eq('connected_by', userId).limit(1).maybeSingle();
+      if (existingAcct) {
+        const { data: updData, error: updErr } = await admin.from('gsc_oauth_accounts').update({
+          google_email: email,
+          refresh_token: tok.refresh_token,
+          access_token: tok.access_token ?? null,
+          token_expiry: new Date(Date.now() + (Number(tok.expires_in) || 3600) * 1000).toISOString(),
+          scope: tok.scope ?? null,
+          updated_at: new Date().toISOString()
+        }).eq('id', existingAcct.id).select('id, updated_at').single();
+        insData = updData;
+        insErr = updErr;
+      } else {
+        const { data: newInsData, error: newInsErr } = await admin.from('gsc_oauth_accounts').insert({
+          google_email: email,
+          refresh_token: tok.refresh_token,
+          access_token: tok.access_token ?? null,
+          token_expiry: new Date(Date.now() + (Number(tok.expires_in) || 3600) * 1000).toISOString(),
+          scope: tok.scope ?? null,
+          connected_by: userId
+        }).select('id, updated_at').single();
+        insData = newInsData;
+        insErr = newInsErr;
+      }
+    } else {
+      // Fallback if no userId state
+      const { data: newInsData, error: newInsErr } = await admin.from('gsc_oauth_accounts').insert({
+        google_email: email,
+        refresh_token: tok.refresh_token,
+        access_token: tok.access_token ?? null,
+        token_expiry: new Date(Date.now() + (Number(tok.expires_in) || 3600) * 1000).toISOString(),
+        scope: tok.scope ?? null
+      }).select('id, updated_at').single();
+      insData = newInsData;
+      insErr = newInsErr;
+    }
+
     if (insErr) {
-      // Most common cause: migration 0126 not applied (table missing).
       console.error('[gsc-oauth-callback] token store failed:', insErr.message);
       return back('error_store');
     }

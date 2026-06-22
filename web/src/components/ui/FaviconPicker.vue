@@ -18,16 +18,16 @@
       <div class="fp-status-col">
         <span v-if="detecting" class="fp-status fp-status--loading">
           <span class="fp-spinner" />
-          Detecting favicon…
+          {{ $t('Detecting favicon…') }}
         </span>
         <span v-else-if="modelValue" class="fp-status fp-status--found">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-          Favicon set.
+          {{ $t('Favicon set.') }}
         </span>
         <span v-else-if="triedAuto && !modelValue" class="fp-status fp-status--notfound">
-          No favicon found. Choose an option below.
+          {{ $t('No favicon found. Choose an option below.') }}
         </span>
-        <span v-else class="fp-status fp-status--idle">Optional — auto-detect when you enter the domain.</span>
+        <span v-else class="fp-status fp-status--idle">{{ $t('Optional — auto-detect when you enter the domain.') }}</span>
       </div>
 
       <!-- Quick actions row -->
@@ -49,7 +49,7 @@
           @click="clear"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          Remove
+          {{ $t('Remove') }}
         </button>
       </div>
     </div>
@@ -78,7 +78,7 @@
           @keydown.enter.prevent="applyUrl"
         />
         <button type="button" class="btn-secondary fp-apply-btn" :disabled="!urlInput.trim()" @click="applyUrl">
-          Apply URL
+          {{ $t('Apply URL') }}
         </button>
         <span v-if="urlError" class="fp-url-error">{{ urlError }}</span>
       </div>
@@ -107,10 +107,10 @@
       <div v-if="activeTab === 'default'" class="fp-tab-body fp-tab-body--default">
         <div class="fp-default-preview">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>
-          Default website icon
+          {{ $t('Default website icon') }}
         </div>
         <button type="button" class="btn-secondary fp-apply-btn" @click="useDefault">
-          Use Default Icon
+          {{ $t('Use Default Icon') }}
         </button>
       </div>
     </div>
@@ -122,7 +122,7 @@
       class="fp-change-link"
       @click="showOptions = true"
     >
-      Change favicon
+      {{ $t('Change favicon') }}
     </button>
   </div>
 </template>

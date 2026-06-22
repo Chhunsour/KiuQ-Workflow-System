@@ -15,7 +15,7 @@ function getContrastColor(hex: string): string {
   const g = parseInt(cleanHex.slice(2, 4), 16);
   const b = parseInt(cleanHex.slice(4, 6), 16);
   const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 128 ? '#000000' : '#ffffff';
+  return yiq >= 128 ? '#000000' : '#f8fbff';
 }
 
 export interface PageGroupMeta {
@@ -241,7 +241,7 @@ Target audience: ${website.targetAudience || '-'}
 Primary color: ${website.primaryColor || '-'}
 Secondary color: ${website.secondaryColor || '-'}
 Background color: ${website.backgroundColor || '-'}
-Text color: ${getContrastColor(website.backgroundColor || '#ffffff')} (Automated)
+Text color: ${getContrastColor(website.backgroundColor || '#fbfbfb')} (Automated)
 Font family: ${website.fontFamily || '-'}
 Button font family: ${website.buttonFontFamily || website.fontFamily || '-'}
 Max width: ${website.maxWidth || '-'}
@@ -290,7 +290,7 @@ export const placeholderMap = (
     map.secondary_color = website.secondaryColor ?? '';
     map.accent_color = website.primaryColor ?? ''; // Simplified: use primary
     map.background_color = website.backgroundColor ?? '';
-    map.text_color = getContrastColor(website.backgroundColor ?? '#ffffff'); // Automated
+    map.text_color = getContrastColor(website.backgroundColor ?? '#fbfbfb'); // Automated
     map.font_family = website.fontFamily ?? '';
     map.button_font_family = website.buttonFontFamily ?? '';
     map.max_width = website.maxWidth ?? '';

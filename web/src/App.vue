@@ -179,6 +179,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch, h } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import AppLoadingScreen from '@/components/ui/AppLoadingScreen.vue';
 import Modal from '@/components/ui/Modal.vue';
 import SurveyWidget from '@/components/survey/SurveyWidget.vue';
@@ -190,6 +191,13 @@ import { usePushNotifications } from '@/composables/usePushNotifications';
 import { firebaseConfigured } from '@/lib/firebase';
 import { useImagePreviewStore } from '@/stores/imagePreview';
 import { playNotificationSound } from '@/composables/useNotificationSound';
+
+const { locale } = useI18n();
+
+// Watch active locale and update root html element lang attribute
+watch(locale, (newVal) => {
+  document.documentElement.setAttribute('lang', newVal);
+}, { immediate: true });
 
 const auth = useAuthStore();
 const realtime = useRealtimeService();
@@ -545,7 +553,7 @@ watch(
   border-radius: 50%;
   border: 2px solid var(--card-bg);
   box-shadow: 0 2px 4px rgba(15, 23, 42, 0.18);
-  color: #fff;
+  color: #f8fbff;
 }
 
 .badge-task {
@@ -644,7 +652,7 @@ watch(
 
 .push-toast-action-btn {
   background: var(--primary, #15D6C2);
-  color: #fff;
+  color: #f8fbff;
   border: none;
   font-weight: 700;
   cursor: pointer;

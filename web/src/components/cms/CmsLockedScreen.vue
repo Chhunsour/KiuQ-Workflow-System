@@ -1,31 +1,5 @@
 <template>
-  <!--
-    Coming-soon lock shown inside the CMS pages for any role that
-    isn't admin-class. Quality Checker is blocked earlier (sidebar
-    + route guard), so this screen is what Team Members and
-    Assistant Heads see when they click the CMS nav entry.
-  -->
-  <div class="cms-lock card card-pad">
-    <div class="cms-lock-icon" aria-hidden="true">
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-      </svg>
-    </div>
-
-    <div class="cms-lock-badge">{{ badge }}</div>
-
-    <h2 class="cms-lock-title">{{ title }}</h2>
-
-    <p class="cms-lock-sub" v-html="description"></p>
-
-    <p v-if="hint" class="cms-lock-hint">
-      {{ hint }}
-    </p>
-
-    <RouterLink to="/" class="btn-secondary cms-lock-cta">Back to Dashboard</RouterLink>
-  </div>
-</template>
+  </template>
 
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';

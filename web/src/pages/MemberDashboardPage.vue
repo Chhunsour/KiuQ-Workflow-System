@@ -21,7 +21,7 @@
       <div class="md-header-actions">
         <RouterLink to="/work-board/my" class="md-header-btn md-header-btn--primary">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          My Work Board
+          {{ $t('nav.myWorkBoard') }}
         </RouterLink>
       </div>
     </div>
@@ -34,14 +34,14 @@
           <line x1="12" y1="9" x2="12" y2="13"/>
           <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
-        <h2 class="md-attention-title">My Attention Required</h2>
+        <h2 class="md-attention-title">{{ $t('dashboard.attentionRequired') }}</h2>
       </div>
       <div class="md-attention-grid">
         <!-- Overdue Tasks -->
         <RouterLink v-if="overdueTasksCount > 0" to="/work-board/my" class="md-attention-item border-l-4 border-status-needs-fix-fg">
           <div class="md-attention-item-info">
             <span class="md-attention-count text-status-needs-fix-fg">{{ overdueTasksCount }}</span>
-            <span class="md-attention-label">Overdue Tasks</span>
+            <span class="md-attention-label">{{ $t('dashboard.overdueTasks') }}</span>
           </div>
           <svg class="md-attention-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </RouterLink>
@@ -50,7 +50,7 @@
         <RouterLink v-if="newTasksCount > 0" to="/work-board/my" class="md-attention-item border-l-4 border-status-pending-fg">
           <div class="md-attention-item-info">
             <span class="md-attention-count text-status-pending-fg">{{ newTasksCount }}</span>
-            <span class="md-attention-label">New Tasks</span>
+            <span class="md-attention-label">{{ $t('dashboard.newTasks') }}</span>
           </div>
           <svg class="md-attention-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </RouterLink>
@@ -59,7 +59,7 @@
         <RouterLink v-if="followupDueCount > 0" to="/followup" class="md-attention-item border-l-4 border-primary">
           <div class="md-attention-item-info">
             <span class="md-attention-count text-primary">{{ followupDueCount }}</span>
-            <span class="md-attention-label">Pending Follow-Ups</span>
+            <span class="md-attention-label">{{ $t('dashboard.pendingFollowups') }}</span>
           </div>
           <svg class="md-attention-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </RouterLink>
@@ -68,7 +68,7 @@
         <RouterLink v-if="myQualityIssuesCount > 0" to="/work-board/quality-check" class="md-attention-item border-l-4 border-purple-500">
           <div class="md-attention-item-info">
             <span class="md-attention-count text-purple-600 dark:text-purple-400">{{ myQualityIssuesCount }}</span>
-            <span class="md-attention-label">Quality Check Issues</span>
+            <span class="md-attention-label">{{ $t('dashboard.qualityIssues') }}</span>
           </div>
           <svg class="md-attention-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </RouterLink>
@@ -85,8 +85,8 @@
           <span class="md-stat-num">{{ myAssignments.length || 0 }}</span>
         </div>
         <div class="md-stat-text">
-          <span class="md-stat-label">My Tasks</span>
-          <span class="md-stat-helper">Assigned this month</span>
+          <span class="md-stat-label">{{ $t('dashboard.myTasks') }}</span>
+          <span class="md-stat-helper">{{ $t('dashboard.assignedThisMonth') }}</span>
         </div>
       </div>
 
@@ -98,8 +98,8 @@
           <span class="md-stat-num">{{ inProgressCount || 0 }}</span>
         </div>
         <div class="md-stat-text">
-          <span class="md-stat-label">In Progress</span>
-          <span class="md-stat-helper">Currently active</span>
+          <span class="md-stat-label">{{ $t('dashboard.inProgress') }}</span>
+          <span class="md-stat-helper">{{ $t('dashboard.currentlyActive') }}</span>
         </div>
       </div>
 
@@ -111,8 +111,8 @@
           <span class="md-stat-num">{{ waitingReviewCount || 0 }}</span>
         </div>
         <div class="md-stat-text">
-          <span class="md-stat-label">Waiting Review</span>
-          <span class="md-stat-helper">Submitted to admin</span>
+          <span class="md-stat-label">{{ $t('dashboard.waitingReview') }}</span>
+          <span class="md-stat-helper">{{ $t('dashboard.submittedToAdmin') }}</span>
         </div>
       </div>
 
@@ -124,8 +124,8 @@
           <span class="md-stat-num">{{ myNeedsFixCount || 0 }}</span>
         </div>
         <div class="md-stat-text">
-          <span class="md-stat-label">Needs Fix</span>
-          <span class="md-stat-helper">Admin requested changes</span>
+          <span class="md-stat-label">{{ $t('dashboard.needsFix') }}</span>
+          <span class="md-stat-helper">{{ $t('dashboard.adminRequestedChanges') }}</span>
         </div>
       </div>
 
@@ -137,8 +137,8 @@
           <span class="md-stat-num">{{ myApprovedCount || 0 }}</span>
         </div>
         <div class="md-stat-text">
-          <span class="md-stat-label">Completed</span>
-          <span class="md-stat-helper">Approved or done</span>
+          <span class="md-stat-label">{{ $t('dashboard.completed') }}</span>
+          <span class="md-stat-helper">{{ $t('dashboard.approvedOrDone') }}</span>
         </div>
       </div>
 
@@ -150,8 +150,8 @@
           <span class="md-stat-num">{{ followupDueCount || 0 }}</span>
         </div>
         <div class="md-stat-text">
-          <span class="md-stat-label">Followups Due</span>
-          <span class="md-stat-helper">Today or this week</span>
+          <span class="md-stat-label">{{ $t('dashboard.followupsDue') }}</span>
+          <span class="md-stat-helper">{{ $t('dashboard.todayOrThisWeek') }}</span>
         </div>
       </div>
     </div>
@@ -159,15 +159,15 @@
     <!-- Needs Fix alert banner -->
     <div v-if="myNeedsFixCount > 0" class="md-alert-banner">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
-      <span><strong>{{ myNeedsFixCount }} task{{ myNeedsFixCount > 1 ? 's' : '' }}</strong> need{{ myNeedsFixCount === 1 ? 's' : '' }} fixing. Open your work board to see admin feedback and resubmit.</span>
-      <RouterLink to="/work-board/my" class="md-alert-btn">Fix Now</RouterLink>
+      <span><strong>{{ myNeedsFixCount }}</strong> {{ $t('dashboard.needsFixMessage') }}</span>
+      <RouterLink to="/work-board/my" class="md-alert-btn">{{ $t('dashboard.fixNow') }}</RouterLink>
     </div>
 
     <!-- Today's Followups -->
     <section v-if="anyFollowupCardVisible" class="md-tf">
       <div class="md-tf-header">
-        <h2 class="md-tf-title">Today's Followups</h2>
-        <RouterLink to="/followup" class="md-tf-header-link">View all</RouterLink>
+        <h2 class="md-tf-title">{{ $t('dashboard.todaysFollowups') }}</h2>
+        <RouterLink to="/followup" class="md-tf-header-link">{{ $t('common.view') }} {{ $t('common.all') }}</RouterLink>
       </div>
       <div class="md-tf-grid">
 
@@ -180,8 +180,8 @@
             <span class="md-fu-badge" :class="fuBadgeClass(blogTodayStatus)">{{ fuBadgeLabel(blogTodayStatus) }}</span>
           </div>
           <div class="md-tf-info">
-            <span class="md-tf-name">Blog Followup</span>
-            <span class="md-tf-sub">{{ blogProgressText || 'Required Tue & Sat' }}</span>
+            <span class="md-tf-name">{{ $t('nav.blogFollowup') }}</span>
+            <span class="md-tf-sub">{{ blogProgressText || $t('dashboard.requiredTueSat') }}</span>
           </div>
           <div class="md-tf-actions">
             <button
@@ -191,9 +191,9 @@
               @click="markBlogDone"
             >
               <svg v-if="blogTodayStatus === 'done'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-              {{ blogTodayStatus === 'done' ? 'Done' : (savingFu === 'blog' ? 'Saving…' : 'Mark Done') }}
+              {{ blogTodayStatus === 'done' ? $t('dashboard.done') : (savingFu === 'blog' ? $t('common.loading') : $t('dashboard.markDone')) }}
             </button>
-            <RouterLink to="/followup/blog" class="md-tf-link">Open</RouterLink>
+            <RouterLink to="/followup/blog" class="md-tf-link">{{ $t('common.view') }}</RouterLink>
           </div>
         </div>
 
@@ -206,8 +206,8 @@
             <span class="md-fu-badge" :class="fuBadgeClass(pluginWeekStatus)">{{ fuBadgeLabel(pluginWeekStatus) }}</span>
           </div>
           <div class="md-tf-info">
-            <span class="md-tf-name">Plugin Update</span>
-            <span class="md-tf-sub">Once per week</span>
+            <span class="md-tf-name">{{ $t('nav.pluginUpdate') }}</span>
+            <span class="md-tf-sub">{{ $t('dashboard.oncePerWeek') }}</span>
           </div>
           <div class="md-tf-actions">
             <button
@@ -217,9 +217,9 @@
               @click="markPluginDone"
             >
               <svg v-if="pluginWeekStatus === 'done'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-              {{ pluginWeekStatus === 'done' ? 'Done' : (savingFu === 'plugin' ? 'Saving…' : 'Mark Done') }}
+              {{ pluginWeekStatus === 'done' ? $t('dashboard.done') : (savingFu === 'plugin' ? $t('common.loading') : $t('dashboard.markDone')) }}
             </button>
-            <RouterLink to="/followup/plugins" class="md-tf-link">Open</RouterLink>
+            <RouterLink to="/followup/plugins" class="md-tf-link">{{ $t('common.view') }}</RouterLink>
           </div>
         </div>
 
@@ -232,8 +232,8 @@
             <span class="md-fu-badge" :class="fuBadgeClass(ebayTodayStatus)">{{ ebayBadgeLabel }}</span>
           </div>
           <div class="md-tf-info">
-            <span class="md-tf-name">eBay Click</span>
-            <span class="md-tf-sub">Required Mon – Sat</span>
+            <span class="md-tf-name">{{ $t('nav.ebayClickFollowup') }}</span>
+            <span class="md-tf-sub">{{ $t('dashboard.requiredMonSat') }}</span>
           </div>
           <div class="md-tf-actions">
             <button
@@ -243,9 +243,9 @@
               @click="markEbayDone"
             >
               <svg v-if="ebayTodayStatus === 'done'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-              {{ ebayTodayStatus === 'done' ? ebayBadgeLabel : (savingFu === 'ebay' ? 'Saving…' : 'Mark Done') }}
+              {{ ebayTodayStatus === 'done' ? ebayBadgeLabel : (savingFu === 'ebay' ? $t('common.loading') : $t('dashboard.markDone')) }}
             </button>
-            <RouterLink to="/followup/ebay-click" class="md-tf-link">Open</RouterLink>
+            <RouterLink to="/followup/ebay-click" class="md-tf-link">{{ $t('common.view') }}</RouterLink>
           </div>
         </div>
 
@@ -258,8 +258,8 @@
             <span class="md-fu-badge" :class="fuBadgeClass(speedWeekStatus)">{{ fuBadgeLabel(speedWeekStatus) }}</span>
           </div>
           <div class="md-tf-info">
-            <span class="md-tf-name">Website Optimization</span>
-            <span class="md-tf-sub">Once per week</span>
+            <span class="md-tf-name">{{ $t('nav.websiteOptimization') }}</span>
+            <span class="md-tf-sub">{{ $t('dashboard.oncePerWeek') }}</span>
           </div>
           <div class="md-tf-actions">
             <button
@@ -269,9 +269,9 @@
               @click="markSpeedDone"
             >
               <svg v-if="speedWeekStatus === 'done'" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-              {{ speedWeekStatus === 'done' ? 'Done' : (savingFu === 'speed' ? 'Saving…' : 'Mark Done') }}
+              {{ speedWeekStatus === 'done' ? $t('dashboard.done') : (savingFu === 'speed' ? $t('common.loading') : $t('dashboard.markDone')) }}
             </button>
-            <RouterLink to="/followup/speed-optimization" class="md-tf-link">Open</RouterLink>
+            <RouterLink to="/followup/speed-optimization" class="md-tf-link">{{ $t('common.view') }}</RouterLink>
           </div>
         </div>
 
@@ -291,9 +291,9 @@
           <div class="md-card-head">
             <div class="md-card-title">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              Today's Focus
+              {{ $t('dashboard.todaysFocus') }}
             </div>
-            <RouterLink to="/work-board/my" class="md-card-link">View all</RouterLink>
+            <RouterLink to="/work-board/my" class="md-card-link">{{ $t('common.view') }} {{ $t('common.all') }}</RouterLink>
           </div>
 
           <!-- Loading -->
@@ -304,12 +304,12 @@
           <!-- Empty state -->
           <div v-else-if="focusTasks.length === 0" class="md-empty">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.25"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            <p class="md-empty-title">No urgent tasks right now</p>
-            <p class="md-empty-sub">Check Docs, Resources, or Followup while waiting for assigned work.</p>
+            <p class="md-empty-title">{{ $t('dashboard.noUrgentTasks') }}</p>
+            <p class="md-empty-sub">{{ $t('dashboard.noUrgentTasksSub') }}</p>
             <div class="md-empty-actions">
-              <RouterLink to="/docs" class="md-empty-btn">Open Docs</RouterLink>
-              <RouterLink to="/followup" class="md-empty-btn">Open Followup</RouterLink>
-              <RouterLink to="/websites/my" class="md-empty-btn">My Websites</RouterLink>
+              <RouterLink to="/docs" class="md-empty-btn">{{ $t('dashboard.openDocs') }}</RouterLink>
+              <RouterLink to="/followup" class="md-empty-btn">{{ $t('dashboard.openFollowup') }}</RouterLink>
+              <RouterLink to="/websites/my" class="md-empty-btn">{{ $t('nav.myWebsites') }}</RouterLink>
             </div>
           </div>
 
@@ -340,7 +340,7 @@
               <div class="md-task-right">
                 <span class="md-task-badge" :class="`tbadge--${task.status}`">{{ statusLabel(task.status) }}</span>
                 <RouterLink :to="`/work-board/my`" class="md-task-open-btn">
-                  Open
+                  {{ $t('common.view') }}
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </RouterLink>
               </div>
@@ -359,11 +359,11 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           </div>
           <div class="md-shortcut-text">
-            <div class="md-shortcut-title">My Work Board</div>
-            <div class="md-shortcut-sub">View and manage your assigned tasks</div>
+            <div class="md-shortcut-title">{{ $t('nav.myWorkBoard') }}</div>
+            <div class="md-shortcut-sub">{{ $t('dashboard.viewWorkBoardSub') }}</div>
           </div>
           <RouterLink to="/work-board/my" class="md-shortcut-btn">
-            Open
+            {{ $t('common.view') }}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </RouterLink>
         </div>
@@ -373,9 +373,9 @@
           <div class="md-card-head">
             <div class="md-card-title">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>
-              My Websites
+              {{ $t('nav.myWebsites') }}
             </div>
-            <RouterLink to="/websites/my" class="md-card-link">View all</RouterLink>
+            <RouterLink to="/websites/my" class="md-card-link">{{ $t('common.view') }} {{ $t('common.all') }}</RouterLink>
           </div>
 
           <div v-if="loading" class="md-focus-skeleton">
@@ -383,8 +383,8 @@
           </div>
 
           <div v-else-if="myWebsites.length === 0" class="md-empty md-empty--sm">
-            <p class="md-empty-title">No websites yet.</p>
-            <RouterLink to="/websites/new" class="md-empty-btn">Add Website</RouterLink>
+            <p class="md-empty-title">{{ $t('dashboard.noWebsitesYet') }}</p>
+            <RouterLink to="/websites/new" class="md-empty-btn">{{ $t('nav.newWebsite') }}</RouterLink>
           </div>
 
           <div v-else class="md-site-list">
@@ -414,6 +414,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useImagePreviewStore } from '@/stores/imagePreview';
@@ -437,6 +438,7 @@ import { roleLabel } from '@/lib/roles';
 import { supabase } from '@/lib/supabase';
 import { usePageRealtime, debounceRealtime } from '@/services/realtimeService';
 
+const { t, locale } = useI18n();
 const auth     = useAuthStore();
 const data     = useDataStore();
 const followup = useFollowupStore();
@@ -518,13 +520,13 @@ const initials  = computed(() => {
 
 const greeting = computed(() => {
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
+  if (h < 12) return t('dashboard.goodMorning');
+  if (h < 17) return t('dashboard.goodAfternoon');
+  return t('dashboard.goodEvening');
 });
 
 const todayFormatted = computed(() =>
-  new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+  new Date().toLocaleDateString(locale.value === 'km' ? 'km-KH' : 'en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
 );
 
 // ── Computed from store ───────────────────────────────────────────────────────
@@ -1107,7 +1109,7 @@ onMounted(async () => {
 .md-header-btn--primary {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 .md-header-btn--primary:hover {
   background: var(--primary-hover);
@@ -1223,7 +1225,7 @@ onMounted(async () => {
   padding: 0.28rem 0.75rem;
   border-radius: 7px;
   background: #dc2626;
-  color: #fff;
+  color: #f8fbff;
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
@@ -1519,8 +1521,8 @@ onMounted(async () => {
   flex-shrink: 0;
 }
 .md-shortcut-card--board .md-shortcut-icon {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
+  background: rgba(248, 251, 255, 0.18);
+  color: #f8fbff;
 }
 
 .md-shortcut-text { flex: 1; min-width: 0; }
@@ -1530,14 +1532,14 @@ onMounted(async () => {
   font-weight: 800;
   color: var(--text-main);
 }
-.md-shortcut-card--board .md-shortcut-title { color: #fff; }
+.md-shortcut-card--board .md-shortcut-title { color: #f8fbff; }
 
 .md-shortcut-sub {
   font-size: 0.72rem;
   color: var(--text-muted);
   margin-top: 0.1rem;
 }
-.md-shortcut-card--board .md-shortcut-sub { color: rgba(255, 255, 255, 0.82); }
+.md-shortcut-card--board .md-shortcut-sub { color: rgba(248, 251, 255, 0.82); }
 
 .md-shortcut-btn {
   display: inline-flex;
@@ -1548,7 +1550,7 @@ onMounted(async () => {
   padding: 0.42rem 0.9rem;
   border-radius: 9px;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   text-decoration: none;
   white-space: nowrap;
   transition: opacity 120ms ease;
@@ -1727,7 +1729,7 @@ onMounted(async () => {
   gap: 0.32rem;
   border-radius: 10px;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   padding: 0.45rem 0.85rem;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.74rem;
@@ -1742,7 +1744,7 @@ onMounted(async () => {
 }
 .md-tf-btn:disabled {
   background: color-mix(in srgb, #16a34a 90%, transparent);
-  color: #fff;
+  color: #f8fbff;
   cursor: default;
   box-shadow: none;
   opacity: 0.9;

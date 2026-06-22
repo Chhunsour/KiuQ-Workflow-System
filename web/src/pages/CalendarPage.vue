@@ -1,6 +1,6 @@
 <template>
   <div class="cal-page">
-    <PageHeader title="Calendar" subtitle="Task deadlines and followups at a glance.">
+    <PageHeader :title="$t('Calendar')" subtitle="Task deadlines and followups at a glance.">
       <template #actions>
         <MonthSelector v-model="selectedMonth" />
       </template>
@@ -8,11 +8,11 @@
 
     <!-- Legend -->
     <div class="cal-legend">
-      <span class="cal-legend-item"><i class="cal-dot cal-dot--task" /> Task due</span>
-      <span class="cal-legend-item"><i class="cal-dot cal-dot--overdue" /> Overdue</span>
-      <span class="cal-legend-item"><i class="cal-dot cal-dot--blog" /> Blog</span>
-      <span class="cal-legend-item"><i class="cal-dot cal-dot--plugin" /> Plugin</span>
-      <span class="cal-legend-item"><i class="cal-dot cal-dot--speed" /> Speed</span>
+      <span class="cal-legend-item"><i class="cal-dot cal-dot--task" /> {{ $t('Task due') }}</span>
+      <span class="cal-legend-item"><i class="cal-dot cal-dot--overdue" /> {{ $t('Overdue') }}</span>
+      <span class="cal-legend-item"><i class="cal-dot cal-dot--blog" /> {{ $t('Blog') }}</span>
+      <span class="cal-legend-item"><i class="cal-dot cal-dot--plugin" /> {{ $t('Plugin') }}</span>
+      <span class="cal-legend-item"><i class="cal-dot cal-dot--speed" /> {{ $t('Speed') }}</span>
       <span class="cal-legend-item"><i class="cal-dot cal-dot--ebay" /> eBay</span>
     </div>
 
@@ -32,7 +32,7 @@
         >
           <div class="cal-cell-head">
             <span class="cal-daynum">{{ cell.day }}</span>
-            <span v-if="cell.iso === todayIso" class="cal-today-chip">Today</span>
+            <span v-if="cell.iso === todayIso" class="cal-today-chip">{{ $t('Today') }}</span>
           </div>
 
           <div class="cal-events">
@@ -344,7 +344,7 @@ watch(selectedMonth, () => {
   font-size: 0.8rem; font-weight: 700; color: var(--text-main);
 }
 .cal-today-chip {
-  font-size: 0.58rem; font-weight: 800; color: #fff; background: var(--primary);
+  font-size: 0.58rem; font-weight: 800; color: #f8fbff; background: var(--primary);
   border-radius: 999px; padding: 0.05rem 0.4rem;
 }
 

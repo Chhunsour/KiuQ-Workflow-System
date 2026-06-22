@@ -5,11 +5,11 @@
     <div v-else class="mp-layout">
       <!-- Left pane: Members selection list -->
       <aside class="card mp-sidebar flex flex-col p-4 bg-card border border-border">
-        <h3 class="section-title mb-3">Team Directory</h3>
+        <h3 class="section-title mb-3">{{ $t('Team Directory') }}</h3>
         <input
           v-model="searchQuery"
           type="search"
-          placeholder="Search members..."
+          :placeholder="$t('Search members...')"
           class="input py-2 px-3 mb-3 text-xs"
         />
         <div class="members-list overflow-y-auto flex-1 flex flex-col gap-1.5 max-h-[500px]">
@@ -59,31 +59,31 @@
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-5">
           <div class="kpi card card-pad text-center">
             <div>
-              <div class="kpi-label text-text-muted">Completed</div>
+              <div class="kpi-label text-text-muted">{{ $t('Completed') }}</div>
               <div class="kpi-value text-emerald-500 mt-1">{{ selectedMemberSummary.tasksCompleted }}</div>
             </div>
           </div>
           <div class="kpi card card-pad text-center">
             <div>
-              <div class="kpi-label text-text-muted">In Progress</div>
+              <div class="kpi-label text-text-muted">{{ $t('In Progress') }}</div>
               <div class="kpi-value text-amber-500 mt-1">{{ selectedMemberSummary.tasksInProgress }}</div>
             </div>
           </div>
           <div class="kpi card card-pad text-center">
             <div>
-              <div class="kpi-label text-text-muted">Postponed</div>
+              <div class="kpi-label text-text-muted">{{ $t('Postponed') }}</div>
               <div class="kpi-value text-amber-600 mt-1">{{ selectedMemberSummary.tasksPostponed }}</div>
             </div>
           </div>
           <div class="kpi card card-pad text-center">
             <div>
-              <div class="kpi-label text-text-muted">Overdue</div>
+              <div class="kpi-label text-text-muted">{{ $t('Overdue') }}</div>
               <div class="kpi-value text-rose-500 mt-1">{{ selectedMemberSummary.tasksOverdue }}</div>
             </div>
           </div>
           <div class="kpi card card-pad text-center">
             <div>
-              <div class="kpi-label text-text-muted">Violations</div>
+              <div class="kpi-label text-text-muted">{{ $t('Violations') }}</div>
               <div class="kpi-value text-rose-600 mt-1 font-bold">{{ selectedMemberSummary.violationsCount }}</div>
             </div>
           </div>
@@ -93,12 +93,12 @@
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <!-- Personal Metrics Progress -->
           <div class="card p-5">
-            <h3 class="section-title mb-4">Performance Indicators</h3>
+            <h3 class="section-title mb-4">{{ $t('Performance Indicators') }}</h3>
             <div class="flex flex-col gap-4">
               <!-- Workflow Compliance Score -->
               <div class="indicator">
                 <div class="flex items-center justify-between text-xs font-semibold mb-1">
-                  <span class="text-text-muted">Workflow Compliance Score</span>
+                  <span class="text-text-muted">{{ $t('Workflow Compliance Score') }}</span>
                   <span class="text-text-main font-bold">{{ selectedMemberSummary.workflowComplianceScore }}%</span>
                 </div>
                 <div class="w-full bg-soft h-2 rounded-full overflow-hidden">
@@ -113,7 +113,7 @@
               <!-- Follow-Up Completion Rate -->
               <div class="indicator">
                 <div class="flex items-center justify-between text-xs font-semibold mb-1">
-                  <span class="text-text-muted">Follow-Up Completion Rate</span>
+                  <span class="text-text-muted">{{ $t('Follow-Up Completion Rate') }}</span>
                   <span class="text-text-main font-bold">{{ selectedMemberSummary.followUpCompletionRate }}%</span>
                 </div>
                 <div class="w-full bg-soft h-2 rounded-full overflow-hidden">
@@ -127,7 +127,7 @@
               <!-- Team Accountability Score -->
               <div class="indicator">
                 <div class="flex items-center justify-between text-xs font-semibold mb-1">
-                  <span class="text-text-muted">Overall Accountability Score</span>
+                  <span class="text-text-muted">{{ $t('Overall Accountability Score') }}</span>
                   <span class="text-text-main font-bold">{{ selectedMemberSummary.teamAccountabilityScore }}%</span>
                 </div>
                 <div class="w-full bg-soft h-2 rounded-full overflow-hidden">
@@ -143,11 +143,11 @@
 
           <!-- Follow-up Systems Completion Details -->
           <div class="card p-5">
-            <h3 class="section-title mb-4">Follow-up checklists completion</h3>
+            <h3 class="section-title mb-4">{{ $t('Follow-up checklists completion') }}</h3>
             <div class="flex flex-col gap-4">
               <!-- Blog slots -->
               <div class="flex items-center gap-4">
-                <div class="text-xs font-semibold text-text-muted w-32 flex-shrink-0">Blog Uploads</div>
+                <div class="text-xs font-semibold text-text-muted w-32 flex-shrink-0">{{ $t('Blog Uploads') }}</div>
                 <div class="flex-1 flex flex-col gap-1">
                   <div class="flex items-center justify-between text-[10px]">
                     <span class="font-bold text-text-main">Completion Rate: {{ selectedMemberSummary.blogRate }}%</span>
@@ -160,7 +160,7 @@
 
               <!-- eBay Slots -->
               <div class="flex items-center gap-4">
-                <div class="text-xs font-semibold text-text-muted w-32 flex-shrink-0">eBay Checklist</div>
+                <div class="text-xs font-semibold text-text-muted w-32 flex-shrink-0">{{ $t('eBay Checklist') }}</div>
                 <div class="flex-1 flex flex-col gap-1">
                   <div class="flex items-center justify-between text-[10px]">
                     <span class="font-bold text-text-main">Completion Rate: {{ selectedMemberSummary.ebayRate }}%</span>
@@ -173,7 +173,7 @@
 
               <!-- Speed Optimize Slots -->
               <div class="flex items-center gap-4">
-                <div class="text-xs font-semibold text-text-muted w-32 flex-shrink-0">Speed Checklist</div>
+                <div class="text-xs font-semibold text-text-muted w-32 flex-shrink-0">{{ $t('Speed Checklist') }}</div>
                 <div class="flex-1 flex flex-col gap-1">
                   <div class="flex items-center justify-between text-[10px]">
                     <span class="font-bold text-text-main">Completion Rate: {{ selectedMemberSummary.speedRate }}%</span>
@@ -186,7 +186,7 @@
 
               <!-- Plugin Slots -->
               <div class="flex items-center gap-4">
-                <div class="text-xs font-semibold text-text-muted w-32 flex-shrink-0">Plugins Check</div>
+                <div class="text-xs font-semibold text-text-muted w-32 flex-shrink-0">{{ $t('Plugins Check') }}</div>
                 <div class="flex-1 flex flex-col gap-1">
                   <div class="flex items-center justify-between text-[10px]">
                     <span class="font-bold text-text-main">Completion Rate: {{ selectedMemberSummary.pluginRate }}%</span>
@@ -202,7 +202,7 @@
       </main>
 
       <div v-else class="card card-pad bg-card border border-border text-center text-text-muted py-12 flex-1">
-        Select a team member to load accountability profile.
+        {{ $t('Select a team member to load accountability profile.') }}
       </div>
     </div>
   </div>

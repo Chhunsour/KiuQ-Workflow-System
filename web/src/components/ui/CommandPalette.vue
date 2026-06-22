@@ -2,7 +2,7 @@
   <Teleport to="body">
     <Transition name="cp-fade">
       <div v-if="open" class="cp-overlay" @click.self="close">
-        <div class="cp-panel" role="dialog" aria-label="Command palette">
+        <div class="cp-panel" role="dialog" aria-:label="$t('Command palette')">
           <!-- Search input -->
           <div class="cp-input-row">
             <svg class="cp-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -11,13 +11,13 @@
               v-model="query"
               type="text"
               class="cp-input"
-              placeholder="Search pages, websites, prompts…"
+              :placeholder="$t('Search pages, websites, prompts…')"
               @keydown.down.prevent="move(1)"
               @keydown.up.prevent="move(-1)"
               @keydown.enter.prevent="goActive"
               @keydown.esc.prevent="close"
             />
-            <kbd class="cp-esc">esc</kbd>
+            <kbd class="cp-esc">{{ $t('esc') }}</kbd>
           </div>
 
           <!-- Results -->
@@ -49,9 +49,9 @@
 
           <!-- Footer hint -->
           <div class="cp-footer">
-            <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
-            <span><kbd>↵</kbd> open</span>
-            <span><kbd>{{ modKey }}</kbd><kbd>K</kbd> toggle</span>
+            <span><kbd>↑</kbd><kbd>↓</kbd> {{ $t('navigate') }}</span>
+            <span><kbd>↵</kbd> {{ $t('open') }}</span>
+            <span><kbd>{{ modKey }}</kbd><kbd>K</kbd> {{ $t('toggle') }}</span>
           </div>
         </div>
       </div>

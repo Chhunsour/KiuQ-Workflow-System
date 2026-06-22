@@ -3,26 +3,26 @@
     <!-- ════ Hero ════ -->
     <section class="fu-hero">
       <div class="fu-hero-copy">
-        <span class="fu-hero-kicker">Recurring Work</span>
-        <h1 class="fu-hero-title">Followup Center</h1>
-        <p class="fu-hero-sub">Track recurring website responsibilities, maintenance tasks, publishing schedules, and team routines.</p>
+        <span class="fu-hero-kicker">{{ $t('Recurring Work') }}</span>
+        <h1 class="fu-hero-title">{{ $t('Followup Center') }}</h1>
+        <p class="fu-hero-sub">{{ $t('Track recurring website responsibilities, maintenance tasks, publishing schedules, and team routines.') }}</p>
       </div>
-      <div class="fu-hero-metrics" aria-label="Team followup metrics">
+      <div class="fu-hero-metrics" aria-:label="$t('Team followup metrics')">
         <div class="fu-stat-pill">
           <span class="fu-stat-pill-num">{{ membersAllDone }}</span>
-          <span class="fu-stat-pill-label">Fully Done</span>
+          <span class="fu-stat-pill-label">{{ $t('Fully Done') }}</span>
         </div>
         <div class="fu-stat-pill">
           <span class="fu-stat-pill-num fu-stat-pill-num--warn">{{ membersWithPending }}</span>
-          <span class="fu-stat-pill-label">Pending</span>
+          <span class="fu-stat-pill-label">{{ $t('Pending') }}</span>
         </div>
         <div class="fu-stat-pill">
           <span class="fu-stat-pill-num">{{ blogDoneTotal }}/{{ blogTotal }}</span>
-          <span class="fu-stat-pill-label">Blog</span>
+          <span class="fu-stat-pill-label">{{ $t('Blog') }}</span>
         </div>
         <div class="fu-stat-pill">
           <span class="fu-stat-pill-num">{{ pluginDoneTotal }}/{{ pluginTotal }}</span>
-          <span class="fu-stat-pill-label">Plugin</span>
+          <span class="fu-stat-pill-label">{{ $t('Plugin') }}</span>
         </div>
         <div class="fu-stat-pill">
           <span class="fu-stat-pill-num">{{ ebayDoneTotal }}/{{ ebayRequiredTotal }}</span>
@@ -30,7 +30,7 @@
         </div>
         <div class="fu-stat-pill">
           <span class="fu-stat-pill-num">{{ speedDoneTotal }}/{{ speedTotal }}</span>
-          <span class="fu-stat-pill-label">Speed</span>
+          <span class="fu-stat-pill-label">{{ $t('Speed') }}</span>
         </div>
       </div>
     </section>
@@ -44,33 +44,33 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </span>
           <div class="fu-card-top-right">
-            <span class="fu-card-freq">Tue &amp; Sat</span>
+            <span class="fu-card-freq">{{ $t('Tue &amp; Sat') }}</span>
             <div v-if="canManageFollowups" class="fu-card-opt-wrapper">
               <button
                 type="button"
                 class="fu-card-opt-btn"
                 @click.prevent.stop="toggleDropdown('blog')"
-                aria-label="Quick Actions"
+                aria-:label="$t('Quick Actions')"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
               </button>
               
               <div v-if="activeDropdownCard === 'blog'" class="fu-card-dropdown">
-                <RouterLink to="/followup/blog" class="fu-dropdown-item">Open Blog Followup</RouterLink>
-                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('blog', 'admin_auto_completed')">Mark Due Blog Followups Done</button>
-                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('blog', 'admin_marked_not_required')">Mark Due Blog Followups Not Required</button>
-                <RouterLink to="/followup/blog" class="fu-dropdown-item">View Due Today</RouterLink>
-                <RouterLink to="/followup/blog" class="fu-dropdown-item">View Overdue</RouterLink>
+                <RouterLink to="/followup/blog" class="fu-dropdown-item">{{ $t('Open Blog Followup') }}</RouterLink>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('blog', 'admin_auto_completed')">{{ $t('Mark Due Blog Followups Done') }}</button>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('blog', 'admin_marked_not_required')">{{ $t('Mark Due Blog Followups Not Required') }}</button>
+                <RouterLink to="/followup/blog" class="fu-dropdown-item">{{ $t('View Due Today') }}</RouterLink>
+                <RouterLink to="/followup/blog" class="fu-dropdown-item">{{ $t('View Overdue') }}</RouterLink>
               </div>
             </div>
           </div>
         </div>
-        <h2 class="fu-card-title">Blog Followup</h2>
-        <p class="fu-card-desc">Track scheduled blog publishing requirements for each website.</p>
+        <h2 class="fu-card-title">{{ $t('Blog Followup') }}</h2>
+        <p class="fu-card-desc">{{ $t('Track scheduled blog publishing requirements for each website.') }}</p>
         <div class="fu-card-foot">
           <span class="fu-card-stat">{{ blogDoneTotal }}/{{ blogTotal }} done</span>
           <RouterLink to="/followup/blog" class="fu-card-btn">
-            Open
+            {{ $t('Open') }}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </RouterLink>
         </div>
@@ -83,33 +83,33 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
           </span>
           <div class="fu-card-top-right">
-            <span class="fu-card-freq">Weekly</span>
+            <span class="fu-card-freq">{{ $t('Weekly') }}</span>
             <div v-if="canManageFollowups" class="fu-card-opt-wrapper">
               <button
                 type="button"
                 class="fu-card-opt-btn"
                 @click.prevent.stop="toggleDropdown('plugin')"
-                aria-label="Quick Actions"
+                aria-:label="$t('Quick Actions')"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
               </button>
               
               <div v-if="activeDropdownCard === 'plugin'" class="fu-card-dropdown">
-                <RouterLink to="/followup/plugins" class="fu-dropdown-item">Open Plugin Update</RouterLink>
-                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('plugin', 'admin_auto_completed')">Mark This Week’s Plugin Updates Done</button>
-                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('plugin', 'admin_marked_not_required')">Mark This Week Not Required</button>
-                <RouterLink to="/followup/plugins" class="fu-dropdown-item">View Pending This Week</RouterLink>
-                <RouterLink to="/followup/plugins" class="fu-dropdown-item">View Overdue</RouterLink>
+                <RouterLink to="/followup/plugins" class="fu-dropdown-item">{{ $t('Open Plugin Update') }}</RouterLink>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('plugin', 'admin_auto_completed')">{{ $t('Mark This Week’s Plugin Updates Done') }}</button>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('plugin', 'admin_marked_not_required')">{{ $t('Mark This Week Not Required') }}</button>
+                <RouterLink to="/followup/plugins" class="fu-dropdown-item">{{ $t('View Pending This Week') }}</RouterLink>
+                <RouterLink to="/followup/plugins" class="fu-dropdown-item">{{ $t('View Overdue') }}</RouterLink>
               </div>
             </div>
           </div>
         </div>
-        <h2 class="fu-card-title">Plugin Update</h2>
-        <p class="fu-card-desc">Check &amp; update WordPress plugins once per week per website.</p>
+        <h2 class="fu-card-title">{{ $t('Plugin Update') }}</h2>
+        <p class="fu-card-desc">{{ $t('Check &amp; update WordPress plugins once per week per website.') }}</p>
         <div class="fu-card-foot">
           <span class="fu-card-stat">{{ pluginDoneTotal }}/{{ pluginTotal }} done</span>
           <RouterLink to="/followup/plugins" class="fu-card-btn">
-            Open
+            {{ $t('Open') }}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </RouterLink>
         </div>
@@ -122,29 +122,29 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </span>
           <div class="fu-card-top-right">
-            <span class="fu-card-freq">Mon – Sat</span>
+            <span class="fu-card-freq">{{ $t('Mon – Sat') }}</span>
             <div v-if="canManageFollowups" class="fu-card-opt-wrapper">
               <button
                 type="button"
                 class="fu-card-opt-btn"
                 @click.prevent.stop="toggleDropdown('ebay')"
-                aria-label="Quick Actions"
+                aria-:label="$t('Quick Actions')"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
               </button>
               
               <div v-if="activeDropdownCard === 'ebay'" class="fu-card-dropdown">
-                <RouterLink to="/followup/ebay-click" class="fu-dropdown-item">Open eBay Click Followup</RouterLink>
-                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('ebay', 'admin_auto_fill')">Auto Fill Today for All Members</button>
-                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('ebay', 'not_required_today')">Mark Today Not Required</button>
-                <RouterLink to="/followup/ebay-click" class="fu-dropdown-item">View Today’s Pending Members</RouterLink>
-                <RouterLink to="/followup/ebay-click" class="fu-dropdown-item">View Overdue</RouterLink>
+                <RouterLink to="/followup/ebay-click" class="fu-dropdown-item">{{ $t('Open eBay Click Followup') }}</RouterLink>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('ebay', 'admin_auto_fill')">{{ $t('Auto Fill Today for All Members') }}</button>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('ebay', 'not_required_today')">{{ $t('Mark Today Not Required') }}</button>
+                <RouterLink to="/followup/ebay-click" class="fu-dropdown-item">{{ $t('View Today’s Pending Members') }}</RouterLink>
+                <RouterLink to="/followup/ebay-click" class="fu-dropdown-item">{{ $t('View Overdue') }}</RouterLink>
               </div>
             </div>
           </div>
         </div>
-        <h2 class="fu-card-title">eBay Click Followup</h2>
-        <p class="fu-card-desc">Check the eBay listing daily and tick it off when done.</p>
+        <h2 class="fu-card-title">{{ $t('eBay Click Followup') }}</h2>
+        <p class="fu-card-desc">{{ $t('Check the eBay listing daily and tick it off when done.') }}</p>
         <div class="fu-card-foot">
           <span class="fu-card-stat">{{ ebayDoneTotal }}/{{ ebayRequiredTotal }} done</span>
           <a
@@ -152,12 +152,12 @@
             target="_blank"
             rel="noopener"
             class="fu-card-ghost"
-            title="Open eBay listing"
+            :title="$t('Open eBay listing')"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </a>
           <RouterLink to="/followup/ebay-click" class="fu-card-btn">
-            Open
+            {{ $t('Open') }}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </RouterLink>
         </div>
@@ -170,33 +170,33 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </span>
           <div class="fu-card-top-right">
-            <span class="fu-card-freq">Weekly</span>
+            <span class="fu-card-freq">{{ $t('Weekly') }}</span>
             <div v-if="canManageFollowups" class="fu-card-opt-wrapper">
               <button
                 type="button"
                 class="fu-card-opt-btn"
                 @click.prevent.stop="toggleDropdown('speed')"
-                aria-label="Quick Actions"
+                aria-:label="$t('Quick Actions')"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
               </button>
               
               <div v-if="activeDropdownCard === 'speed'" class="fu-card-dropdown">
-                <RouterLink to="/followup/speed-optimization" class="fu-dropdown-item">Open Website Optimization</RouterLink>
-                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('speed', 'admin_auto_completed')">Mark This Week’s Speed Checks Done</button>
-                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('speed', 'admin_marked_not_required')">Mark This Week Not Required</button>
-                <RouterLink to="/followup/speed-optimization" class="fu-dropdown-item">View Pending Websites</RouterLink>
-                <RouterLink to="/followup/speed-optimization" class="fu-dropdown-item">View Overdue</RouterLink>
+                <RouterLink to="/followup/speed-optimization" class="fu-dropdown-item">{{ $t('Open Website Optimization') }}</RouterLink>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('speed', 'admin_auto_completed')">{{ $t('Mark This Week’s Speed Checks Done') }}</button>
+                <button type="button" class="fu-dropdown-item" @click="openConfirmModal('speed', 'admin_marked_not_required')">{{ $t('Mark This Week Not Required') }}</button>
+                <RouterLink to="/followup/speed-optimization" class="fu-dropdown-item">{{ $t('View Pending Websites') }}</RouterLink>
+                <RouterLink to="/followup/speed-optimization" class="fu-dropdown-item">{{ $t('View Overdue') }}</RouterLink>
               </div>
             </div>
           </div>
         </div>
-        <h2 class="fu-card-title">Website Optimization</h2>
-        <p class="fu-card-desc">Run a weekly speed check &amp; performance review per website.</p>
+        <h2 class="fu-card-title">{{ $t('Website Optimization') }}</h2>
+        <p class="fu-card-desc">{{ $t('Run a weekly speed check &amp; performance review per website.') }}</p>
         <div class="fu-card-foot">
           <span class="fu-card-stat">{{ speedDoneTotal }}/{{ speedTotal }} done</span>
           <RouterLink to="/followup/speed-optimization" class="fu-card-btn">
-            Open
+            {{ $t('Open') }}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </RouterLink>
         </div>
@@ -207,7 +207,7 @@
     <section class="fu-summary">
       <div class="fu-summary-head">
         <div>
-          <h2 class="fu-summary-title">Team Followup Summary</h2>
+          <h2 class="fu-summary-title">{{ $t('Team Followup Summary') }}</h2>
           <p class="fu-summary-sub">{{ periodSubLabel }} — who has completed their followups and who hasn't.</p>
         </div>
         <div class="fu-summary-toolbar">
@@ -227,11 +227,11 @@
 
           <!-- Date/Period Switcher -->
           <div class="fu-period-switcher">
-            <button class="fu-nav-btn" type="button" @click="adjustPeriod(-1)" aria-label="Previous period">
+            <button class="fu-nav-btn" type="button" @click="adjustPeriod(-1)" aria-:label="$t('Previous period')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
             <span class="fu-period-text">{{ currentPeriodLabel }}</span>
-            <button class="fu-nav-btn" type="button" @click="adjustPeriod(1)" aria-label="Next period">
+            <button class="fu-nav-btn" type="button" @click="adjustPeriod(1)" aria-:label="$t('Next period')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
             </button>
             <button class="fu-reset-btn" type="button" @click="resetPeriod">
@@ -245,47 +245,47 @@
       <div class="fu-stat-row">
         <div class="fu-stat">
           <span class="fu-stat-num">{{ membersAllDone }}</span>
-          <span class="fu-stat-label">Fully done</span>
+          <span class="fu-stat-label">{{ $t('Fully done') }}</span>
         </div>
         <div class="fu-stat">
           <span class="fu-stat-num fu-stat-num--warn">{{ membersWithPending }}</span>
-          <span class="fu-stat-label">Has pending</span>
+          <span class="fu-stat-label">{{ $t('Has pending') }}</span>
         </div>
         <div class="fu-stat">
           <span class="fu-stat-num">{{ blogDoneTotal }}/{{ blogTotal }}</span>
-          <span class="fu-stat-label">Blog websites done</span>
+          <span class="fu-stat-label">{{ $t('Blog websites done') }}</span>
         </div>
         <div class="fu-stat">
           <span class="fu-stat-num">{{ pluginDoneTotal }}/{{ pluginTotal }}</span>
-          <span class="fu-stat-label">Plugin websites done</span>
+          <span class="fu-stat-label">{{ $t('Plugin websites done') }}</span>
         </div>
         <div class="fu-stat">
           <span class="fu-stat-num">{{ ebayDoneTotal }}/{{ ebayRequiredTotal }}</span>
-          <span class="fu-stat-label">eBay clicks done</span>
+          <span class="fu-stat-label">{{ $t('eBay clicks done') }}</span>
         </div>
         <div class="fu-stat">
           <span class="fu-stat-num">{{ speedDoneTotal }}/{{ speedTotal }}</span>
-          <span class="fu-stat-label">Speed optimization done</span>
+          <span class="fu-stat-label">{{ $t('Speed optimization done') }}</span>
         </div>
       </div>
 
       <!-- Loading -->
-      <div v-if="loading" class="fu-summary-loading card card-pad">Loading team summary…</div>
+      <div v-if="loading" class="fu-summary-loading card card-pad">{{ $t('Loading team summary…') }}</div>
 
       <!-- Empty -->
       <div v-else-if="rows.length === 0" class="fu-summary-empty card card-pad">
-        No members to show.
+        {{ $t('No members to show.') }}
       </div>
 
       <!-- Member table -->
       <div v-else class="fu-table card">
         <div class="fu-thead">
-          <div class="fu-th fu-th-member">Member</div>
-          <div class="fu-th">Blog</div>
-          <div class="fu-th">Plugin</div>
+          <div class="fu-th fu-th-member">{{ $t('Member') }}</div>
+          <div class="fu-th">{{ $t('Blog') }}</div>
+          <div class="fu-th">{{ $t('Plugin') }}</div>
           <div class="fu-th">eBay</div>
-          <div class="fu-th">Speed</div>
-          <div class="fu-th fu-th-overall">Overall</div>
+          <div class="fu-th">{{ $t('Speed') }}</div>
+          <div class="fu-th fu-th-overall">{{ $t('Overall') }}</div>
         </div>
         <div v-for="r in rows" :key="r.member.id" class="fu-trow">
           <div class="fu-td fu-td-member">
@@ -342,15 +342,15 @@
         <div class="fu-modal-body">
           <div class="fu-modal-meta-grid">
             <div class="fu-modal-meta-item">
-              <span class="fu-meta-label">Period / Date</span>
+              <span class="fu-meta-label">{{ $t('Period / Date') }}</span>
               <span class="fu-meta-value">{{ confirmModal.periodLabel }}</span>
             </div>
             <div class="fu-modal-meta-item">
-              <span class="fu-meta-label">Pending Updates</span>
+              <span class="fu-meta-label">{{ $t('Pending Updates') }}</span>
               <span class="fu-meta-value font-bold text-amber-500">{{ confirmModal.affectedCount }}</span>
             </div>
             <div class="fu-modal-meta-item">
-              <span class="fu-meta-label">Already Completed</span>
+              <span class="fu-meta-label">{{ $t('Already Completed') }}</span>
               <span class="fu-meta-value text-green-500">{{ confirmModal.completedCount }}</span>
             </div>
           </div>
@@ -359,11 +359,11 @@
           <div v-if="confirmModal.cardType === 'ebay' && isSundayDate(confirmModal.targetKey)" class="fu-warning-box">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-500 flex-shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             <div>
-              <p class="font-bold text-sm">Sunday Warning</p>
-              <p class="text-xs text-text-muted mt-0.5">Sunday is normally a non-working day for eBay Click. Please confirm if you want to proceed.</p>
+              <p class="font-bold text-sm">{{ $t('Sunday Warning') }}</p>
+              <p class="text-xs text-text-muted mt-0.5">{{ $t('Sunday is normally a non-working day for eBay Click. Please confirm if you want to proceed.') }}</p>
               <label class="fu-checkbox-label mt-2">
                 <input v-model="confirmModal.sundayConfirmed" type="checkbox" />
-                <span class="text-xs">Yes, auto fill this Sunday date</span>
+                <span class="text-xs">{{ $t('Yes, auto fill this Sunday date') }}</span>
               </label>
             </div>
           </div>
@@ -382,19 +382,19 @@
 
           <!-- Reason Field -->
           <div class="fu-field mt-4">
-            <span class="fu-field-label">Reason <em class="text-xs text-text-muted">(optional)</em></span>
+            <span class="fu-field-label">{{ $t('Reason') }} <em class="text-xs text-text-muted">{{ $t('(optional)') }}</em></span>
             <textarea
               v-model="confirmModal.reason"
               rows="3"
               class="fu-textarea"
-              placeholder="e.g. Completed during weekly review, holiday, etc."
+              :placeholder="$t('e.g. Completed during weekly review, holiday, etc.')"
             ></textarea>
           </div>
         </div>
 
         <div class="fu-modal-foot">
           <button type="button" class="btn-secondary" :disabled="isSubmitting" @click="confirmModal = null">
-            Cancel
+            {{ $t('Cancel') }}
           </button>
           <button
             type="button"
@@ -1564,7 +1564,7 @@ onMounted(async () => {
   gap: 0.35rem;
   border-radius: 9px;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   padding: 0.4rem 0.8rem;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.76rem;
@@ -1660,7 +1660,7 @@ onMounted(async () => {
 
 .fu-mode-btn--active {
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 
 .fu-period-switcher {

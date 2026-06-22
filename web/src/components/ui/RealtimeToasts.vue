@@ -1,5 +1,5 @@
 <template>
-  <div class="rt-stack" role="region" aria-label="Notifications">
+  <div class="rt-stack" role="region" aria-:label="$t('Notifications')">
     <TransitionGroup name="rt">
       <div
         v-for="toast in toasts"
@@ -16,14 +16,14 @@
           <div class="rt-title">{{ toast.title }}</div>
           <div v-if="toast.message" class="rt-message">{{ toast.message }}</div>
           <div v-if="toast.link" class="rt-actions">
-            <button type="button" class="rt-open" @click="open(toast)">Open</button>
+            <button type="button" class="rt-open" @click="open(toast)">{{ $t('Open') }}</button>
           </div>
         </div>
 
         <button
           type="button"
           class="rt-close"
-          aria-label="Dismiss"
+          aria-:label="$t('Dismiss')"
           @click="removeToast(toast.id)"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">

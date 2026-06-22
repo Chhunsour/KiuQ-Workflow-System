@@ -11,14 +11,14 @@
             <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
           </svg>
         </span>
-        <h3 class="brand-title">Website Branding</h3>
+        <h3 class="brand-title">{{ $t('Website Branding') }}</h3>
       </div>
       <a v-if="canEdit" :href="`/websites/${website.id}/edit`" class="btn-secondary brand-edit-link">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z" />
         </svg>
-        Edit Branding
+        {{ $t('Edit Branding') }}
       </a>
     </div>
 
@@ -43,20 +43,20 @@
           rel="noopener"
           class="brand-site-domain"
         >{{ displayDomain(website.domain) }}</a>
-        <span v-else class="brand-site-domain brand-site-domain--empty">No domain</span>
+        <span v-else class="brand-site-domain brand-site-domain--empty">{{ $t('No domain') }}</span>
       </div>
     </div>
 
     <!-- Colors -->
     <div class="brand-colors-grid">
-      <ColorSwatch :color="website.primaryColor" label="Primary" @copied="(c) => $emit('copied', 'Color code copied ✓')" />
-      <ColorSwatch v-if="website.secondaryColor" :color="website.secondaryColor" label="Secondary" @copied="() => $emit('copied', 'Color code copied ✓')" />
-      <ColorSwatch v-if="website.accentColor" :color="website.accentColor" label="Accent" @copied="() => $emit('copied', 'Color code copied ✓')" />
+      <ColorSwatch :color="website.primaryColor" :label="$t('Primary')" @copied="(c) => $emit('copied', 'Color code copied ✓')" />
+      <ColorSwatch v-if="website.secondaryColor" :color="website.secondaryColor" :label="$t('Secondary')" @copied="() => $emit('copied', 'Color code copied ✓')" />
+      <ColorSwatch v-if="website.accentColor" :color="website.accentColor" :label="$t('Accent')" @copied="() => $emit('copied', 'Color code copied ✓')" />
     </div>
 
     <!-- Font -->
     <div v-if="website.fontFamily" class="brand-font">
-      <span class="brand-font-label">Font Family</span>
+      <span class="brand-font-label">{{ $t('Font Family') }}</span>
       <span class="brand-font-value" :style="{ fontFamily: website.fontFamily }">{{ website.fontFamily }}</span>
     </div>
   </div>

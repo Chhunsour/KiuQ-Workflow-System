@@ -1,7 +1,7 @@
 <template>
   <Modal
     :open="open"
-    title="Replace prompt"
+    :title="$t('Replace prompt')"
     subtitle="Swap the prompt on this task without losing the submission history."
     size="lg"
     @close="$emit('close')"
@@ -11,15 +11,15 @@
       <div class="rounded-card border border-border bg-soft/40 p-4 text-sm">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <div class="ui-font text-xs uppercase text-text-muted">Member</div>
+            <div class="ui-font text-xs uppercase text-text-muted">{{ $t('Member') }}</div>
             <div class="font-medium text-text-main">{{ memberName }}</div>
           </div>
           <div>
-            <div class="ui-font text-xs uppercase text-text-muted">Project</div>
+            <div class="ui-font text-xs uppercase text-text-muted">{{ $t('Project') }}</div>
             <div class="font-medium text-text-main">{{ projectName }}</div>
           </div>
           <div class="sm:col-span-2">
-            <div class="ui-font text-xs uppercase text-text-muted">Current prompt</div>
+            <div class="ui-font text-xs uppercase text-text-muted">{{ $t('Current prompt') }}</div>
             <div class="flex flex-wrap items-center gap-2">
               <span class="font-medium text-text-main">{{ currentPromptTitle }}</span>
               <span
@@ -34,21 +34,21 @@
 
       <FormSelect
         v-model="form.reason"
-        label="Reason for replacement"
+        :label="$t('Reason for replacement')"
         :options="reasonOptions"
         helper="If you pick Weak Prompt or Needs Improvement, the old prompt's quality is updated automatically."
       />
 
       <div>
-        <label class="label">New prompt</label>
+        <label class="label">{{ $t('New prompt') }}</label>
         <p class="helper -mt-1 mb-2">
-          Pick from approved, non-archived prompts. Search by title, page group, or category.
+          {{ $t('Pick from approved, non-archived prompts. Search by title, page group, or category.') }}
         </p>
         <input
           v-model="searchTerm"
           class="input mb-2"
           type="search"
-          placeholder="Search prompts..."
+          :placeholder="$t('Search prompts...')"
         />
         <div class="max-h-[280px] overflow-y-auto rounded-card border border-border">
           <button
@@ -77,14 +77,14 @@
             >{{ qualityLabel(candidate.qualityStatus) }}</span>
           </button>
           <div v-if="filteredCandidates.length === 0" class="p-4 text-center text-sm text-text-muted">
-            No matching prompts.
+            {{ $t('No matching prompts.') }}
           </div>
         </div>
       </div>
 
       <FormTextarea
         v-model="form.adminNote"
-        label="Admin note (optional)"
+        :label="$t('Admin note (optional)')"
         helper="Tell the team why you're swapping the prompt — e.g. ‘Hero output kept missing the CTA. Try v2.’"
         :rows="3"
       />
@@ -98,7 +98,7 @@
     </div>
     <template #footer>
       <button class="btn-ghost" type="button" :disabled="submitting" @click="$emit('close')">
-        Cancel
+        {{ $t('Cancel') }}
       </button>
       <button
         class="btn-primary"

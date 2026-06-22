@@ -30,27 +30,27 @@
               :value="hexDigits"
               maxlength="6"
               spellcheck="false"
-              placeholder="15d6c2"
+              :placeholder="$t('15d6c2')"
               @input="onHexInput"
               @keydown.enter.prevent="close"
             />
           </div>
 
-          <label class="cf-tool" title="Open spectrum">
+          <label class="cf-tool" :title="$t('Open spectrum')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
             <input type="color" class="cf-native" :value="normalizedHex" @input="onNative" />
           </label>
 
-          <button v-if="hasEyeDropper" type="button" class="cf-tool" title="Eyedropper" @click="pickWithEyedropper">
+          <button v-if="hasEyeDropper" type="button" class="cf-tool" :title="$t('Eyedropper')" @click="pickWithEyedropper">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg>
           </button>
         </div>
 
         <!-- Contrast hint -->
         <div class="cf-contrast">
-          <span class="cf-contrast-sample" :style="{ background: normalizedHex, color: contrast.textColor }">Aa</span>
+          <span class="cf-contrast-sample" :style="{ background: normalizedHex, color: contrast.textColor }">{{ $t('Aa') }}</span>
           <span class="cf-contrast-text">
-            Pair with <strong>{{ contrast.textColor === '#ffffff' ? 'light' : 'dark' }}</strong> text
+            {{ $t('Pair with') }} <strong>{{ contrast.textColor === '#f8fbff' ? 'light' : 'dark' }}</strong> {{ $t('text') }}
           </span>
           <span class="cf-contrast-badge" :class="contrast.ok ? 'cf-badge-ok' : 'cf-badge-warn'">
             {{ contrast.ok ? 'AA ✓' : 'low' }} · {{ contrast.ratio }}:1
@@ -59,7 +59,7 @@
 
         <!-- Recent -->
         <template v-if="recentColors.length">
-          <div class="cf-section-label">Recent</div>
+          <div class="cf-section-label">{{ $t('Recent') }}</div>
           <div class="cf-presets">
             <button
               v-for="c in recentColors"
@@ -77,7 +77,7 @@
         </template>
 
         <!-- Presets -->
-        <div class="cf-section-label">Presets</div>
+        <div class="cf-section-label">{{ $t('Presets') }}</div>
         <div class="cf-presets">
           <button
             v-for="c in PRESETS"
@@ -151,7 +151,7 @@ const contrast = computed(() => {
   const cBlack = (L + 0.05) / 0.05;
   const useWhite = cWhite >= cBlack;
   const ratio = useWhite ? cWhite : cBlack;
-  return { textColor: useWhite ? '#ffffff' : '#0f172a', ratio: Math.round(ratio * 10) / 10, ok: ratio >= 4.5 };
+  return { textColor: useWhite ? '#f8fbff' : '#0f172a', ratio: Math.round(ratio * 10) / 10, ok: ratio >= 4.5 };
 });
 
 // A valid #rrggbb for the native input + preview (falls back to brand blue).
@@ -159,7 +159,7 @@ const normalizedHex = computed(() => {
   const v = (props.modelValue || '').trim();
   return /^#?[0-9a-fA-F]{6}$/.test(v) ? (v.startsWith('#') ? v : `#${v}`) : '#15D6C2';
 });
-const previewColor = computed(() => props.modelValue || '#ffffff');
+const previewColor = computed(() => props.modelValue || '#fbfbfb');
 const hexDigits = computed(() => (props.modelValue || '').replace('#', ''));
 
 const update = (v: string) => emit('update:modelValue', v);
@@ -232,7 +232,7 @@ onBeforeUnmount(() => {
   display: flex; align-items: center; justify-content: center;
   width: 2rem; height: 2rem; flex-shrink: 0;
   border-radius: 8px;
-  color: rgba(255,255,255,0.85);
+  color: rgba(248,251,255,0.85);
   box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.1);
   /* checkerboard so empty/transparent reads clearly */
   background-image:
@@ -279,7 +279,7 @@ onBeforeUnmount(() => {
 .cf-preview-hex {
   font-family: 'Jost Numbers', 'Google Sans', monospace;
   font-size: 0.68rem; font-weight: 800;
-  color: #fff;
+  color: #f8fbff;
   background: rgba(0,0,0,0.35);
   border-radius: 999px;
   padding: 0.12rem 0.5rem;
@@ -374,7 +374,7 @@ onBeforeUnmount(() => {
   border: none;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  color: #fff;
+  color: #f8fbff;
   box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
   transition: transform 120ms ease, box-shadow 120ms ease;
 }

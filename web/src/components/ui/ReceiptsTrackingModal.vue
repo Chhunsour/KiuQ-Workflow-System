@@ -3,15 +3,15 @@
     <div class="receipts-modal card p-5 flex flex-col max-h-[90vh]">
       <header class="flex justify-between items-center mb-4 border-b border-border/60 pb-3 flex-shrink-0">
         <div>
-          <span class="text-text-muted text-[10px] font-bold uppercase tracking-wider block mb-0.5">Alert Delivery Status</span>
+          <span class="text-text-muted text-[10px] font-bold uppercase tracking-wider block mb-0.5">{{ $t('Alert Delivery Status') }}</span>
           <h3 class="text-sm font-bold text-text-main uppercase tracking-wider line-clamp-1">{{ target.title }}</h3>
         </div>
-        <button class="text-text-muted hover:text-text-main text-lg" @click="close">&times;</button>
+        <button class="text-text-muted hover:text-text-main text-lg" @click="close">{{ $t('&times;') }}</button>
       </header>
 
       <!-- Loading State -->
       <div v-if="loading" class="flex-1 flex items-center justify-center py-10">
-        <span class="text-xs text-text-muted">Loading receipt logs...</span>
+        <span class="text-xs text-text-muted">{{ $t('Loading receipt logs...') }}</span>
       </div>
 
       <!-- Content -->
@@ -19,24 +19,24 @@
         <!-- Stats Summary -->
         <div class="grid grid-cols-3 gap-3 bg-soft/20 p-3 rounded-xl text-center">
           <div>
-            <span class="text-text-muted block text-[10px] uppercase font-semibold">Delivered</span>
+            <span class="text-text-muted block text-[10px] uppercase font-semibold">{{ $t('Delivered') }}</span>
             <strong class="text-text-main text-lg">{{ summary.delivered }}</strong>
           </div>
           <div>
-            <span class="text-status-approved-fg block text-[10px] uppercase font-semibold">Acknowledged</span>
+            <span class="text-status-approved-fg block text-[10px] uppercase font-semibold">{{ $t('Acknowledged') }}</span>
             <strong class="text-status-approved-fg text-lg">{{ summary.acknowledged }}</strong>
           </div>
           <div>
-            <span class="text-status-needs-fix-fg block text-[10px] uppercase font-semibold">Pending</span>
+            <span class="text-status-needs-fix-fg block text-[10px] uppercase font-semibold">{{ $t('Pending') }}</span>
             <strong class="text-status-needs-fix-fg text-lg">{{ summary.pending }}</strong>
           </div>
         </div>
 
         <!-- Alerts history dropdown/list if multiple alerts were sent -->
         <div v-if="alerts.length > 1" class="text-xs flex items-center gap-2 flex-shrink-0">
-          <span class="text-text-muted">Filter by Alert:</span>
+          <span class="text-text-muted">{{ $t('Filter by Alert:') }}</span>
           <select v-model="selectedAlertId" class="filter-select text-xs py-1 px-2">
-            <option value="all">All Alerts (Aggregated)</option>
+            <option value="all">{{ $t('All Alerts (Aggregated)') }}</option>
             <option v-for="a in alerts" :key="a.id" :value="a.id">
               {{ a.alertType }} - {{ formattedDate(a.publishedAt || a.createdAt) }}
             </option>
@@ -80,7 +80,7 @@
           </div>
 
           <div v-if="filteredReceipts.length === 0" class="text-center text-text-muted text-xs py-10">
-            No alerts have been sent for this task yet.
+            {{ $t('No alerts have been sent for this task yet.') }}
           </div>
         </div>
 
@@ -310,7 +310,7 @@ const repushAllPending = async () => {
 }
 .btn-repush:hover {
   background: var(--primary);
-  color: white;
+  color: #f8fbff;
 }
 
 .badge--critical { background: rgba(239, 68, 68, 0.15); color: #ef4444; }

@@ -17,7 +17,7 @@
         rel="noopener"
         class="btn-secondary"
       >
-        Open
+        {{ $t('Open') }}
       </a>
     </div>
     <p v-if="helper" class="helper">{{ helper }}</p>

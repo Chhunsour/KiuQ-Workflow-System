@@ -26,7 +26,7 @@
         <!-- Center Text -->
         <circle cx="100" cy="100" r="55" fill="var(--card-bg)" />
         <g class="center-text">
-          <text x="100" y="95" text-anchor="middle" class="center-label">Total</text>
+          <text x="100" y="95" text-anchor="middle" class="center-label">{{ $t('Total') }}</text>
           <text x="100" y="120" text-anchor="middle" class="center-value">{{ totalSum }}</text>
         </g>
       </svg>

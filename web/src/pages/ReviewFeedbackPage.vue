@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PageHeader title="Review Feedback" subtitle="Admin feedback for work that needs fixes or was rejected." />
+    <PageHeader :title="$t('Review Feedback')" subtitle="Admin feedback for work that needs fixes or was rejected." />
 
     <LoadingBlock :loading="data.loading.reviewComments" :error="data.errors.reviewComments" :retry="data.fetchReviewComments">
       <div v-if="feedbackItems.length > 0" class="space-y-4">
@@ -19,24 +19,24 @@
               <div class="mt-2 text-xs text-text-muted">{{ comment.createdAt }}</div>
             </div>
             <div v-if="item.comments.length === 0" class="text-sm text-text-muted">
-              No written feedback was attached.
+              {{ $t('No written feedback was attached.') }}
             </div>
           </div>
 
           <div class="mt-4 flex justify-end">
             <RouterLink :to="`/prompt-builder/${item.submission.assignmentId}`" class="btn-primary h-9 px-3 text-xs">
-              Fix and Resubmit
+              {{ $t('Fix and Resubmit') }}
             </RouterLink>
           </div>
         </div>
       </div>
       <EmptyState
         v-else
-        title="No fix feedback"
+        :title="$t('No fix feedback')"
         description="No fix feedback right now. Keep working on your assigned tasks."
       >
         <template #action>
-          <RouterLink to="/work-board/my" class="btn-primary">Open My Work Board</RouterLink>
+          <RouterLink to="/work-board/my" class="btn-primary">{{ $t('Open My Work Board') }}</RouterLink>
         </template>
       </EmptyState>
     </LoadingBlock>

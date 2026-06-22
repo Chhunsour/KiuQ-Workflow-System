@@ -9,14 +9,14 @@
           </svg>
         </span>
         <div>
-          <h1 class="mw-title">My Websites</h1>
-          <p class="mw-subtitle">Manage saved websites, assignments, and website profiles.</p>
+          <h1 class="mw-title">{{ $t('websites.myWebsites') }}</h1>
+          <p class="mw-subtitle">{{ $t('websites.myWebsitesDesc') }}</p>
         </div>
       </div>
       <div class="mw-header-right">
         <RouterLink v-if="!auth.isViewer" to="/websites/new" class="mw-btn-new">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          New Website
+          {{ $t('websites.addNewWebsite') }}
         </RouterLink>
       </div>
     </header>
@@ -25,27 +25,27 @@
     <div class="mw-stats">
       <div class="mw-stat">
         <span class="mw-stat-num">{{ stats.total }}</span>
-        <span class="mw-stat-label">Total</span>
+        <span class="mw-stat-label">{{ $t('websites.total') }}</span>
       </div>
       <div class="mw-stat">
         <span class="mw-stat-num mw-stat-num--green">{{ stats.active }}</span>
-        <span class="mw-stat-label">Active</span>
+        <span class="mw-stat-label">{{ $t('websites.active') }}</span>
       </div>
       <div class="mw-stat">
         <span class="mw-stat-num">{{ stats.existing }}</span>
-        <span class="mw-stat-label">Existing</span>
+        <span class="mw-stat-label">{{ $t('websites.existing') }}</span>
       </div>
       <div class="mw-stat">
         <span class="mw-stat-num mw-stat-num--accent">{{ stats.ecommerce }}</span>
-        <span class="mw-stat-label">E-commerce</span>
+        <span class="mw-stat-label">{{ $t('websites.ecommerce') }}</span>
       </div>
       <div class="mw-stat">
         <span class="mw-stat-num mw-stat-num--wp">{{ stats.wordpress }}</span>
-        <span class="mw-stat-label">WordPress</span>
+        <span class="mw-stat-label">{{ $t('websites.wordpress') }}</span>
       </div>
       <div class="mw-stat">
         <span class="mw-stat-num mw-stat-num--fw">{{ stats.framework }}</span>
-        <span class="mw-stat-label">Framework</span>
+        <span class="mw-stat-label">{{ $t('websites.framework') }}</span>
       </div>
     </div>
 
@@ -54,33 +54,33 @@
       <div class="mw-toolbar-left">
         <div class="mw-search-wrap">
           <svg class="mw-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input v-model="search" type="search" class="mw-search" placeholder="Search by name or domain…" />
+          <input v-model="search" type="search" class="mw-search" :placeholder="$t('websites.searchPlaceholder')" />
         </div>
         <select v-if="auth.isAdmin" v-model="filterMemberId" class="mw-select">
-          <option value="">All members</option>
+          <option value="">{{ $t('websites.allMembers') }}</option>
           <option v-for="m in data.members" :key="m.id" :value="m.id">{{ m.fullName }}</option>
         </select>
         <select v-model="filterType" class="mw-select">
-          <option value="">All types</option>
-          <option value="existing">Existing Website</option>
-          <option value="ecommerce">E-commerce</option>
-          <option value="landing">Landing Page</option>
-          <option value="catalog">Catalog</option>
-          <option value="blog">Blog / Guide</option>
-          <option value="service">Service</option>
-          <option value="brand">Brand</option>
+          <option value="">{{ $t('websites.allTypes') }}</option>
+          <option value="existing">{{ $t('websites.existing') }}</option>
+          <option value="ecommerce">{{ $t('websites.ecommerce') }}</option>
+          <option value="landing">{{ $t('websites.landing') }}</option>
+          <option value="catalog">{{ $t('websites.catalog') }}</option>
+          <option value="blog">{{ $t('websites.blog') }}</option>
+          <option value="service">{{ $t('websites.service') }}</option>
+          <option value="brand">{{ $t('websites.brand') }}</option>
         </select>
         <select v-model="filterPlatform" class="mw-select">
-          <option value="">All Platforms</option>
-          <option value="wordpress">WordPress</option>
-          <option value="framework">Framework</option>
-          <option value="unknown">Unknown</option>
+          <option value="">{{ $t('websites.allPlatforms') }}</option>
+          <option value="wordpress">{{ $t('websites.wordpress') }}</option>
+          <option value="framework">{{ $t('websites.framework') }}</option>
+          <option value="unknown">{{ $t('websites.unknown') }}</option>
         </select>
         <select v-model="sortBy" class="mw-select">
-          <option value="newest">Newest first</option>
-          <option value="oldest">Oldest first</option>
-          <option value="az">A → Z</option>
-          <option value="za">Z → A</option>
+          <option value="newest">{{ $t('websites.newestFirst') }}</option>
+          <option value="oldest">{{ $t('websites.oldestFirst') }}</option>
+          <option value="az">{{ $t('websites.az') }}</option>
+          <option value="za">{{ $t('websites.za') }}</option>
         </select>
       </div>
       <div class="mw-toolbar-right">
@@ -90,7 +90,7 @@
             class="mw-view-btn"
             :class="{ 'mw-view-btn--active': viewMode === 'grid' }"
             @click="viewMode = 'grid'"
-            title="Grid View"
+            :title="$t('qualityCheck.boardView') || 'Grid View'"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
           </button>
@@ -99,7 +99,7 @@
             class="mw-view-btn"
             :class="{ 'mw-view-btn--active': viewMode === 'list' }"
             @click="viewMode = 'list'"
-            title="List View"
+            :title="$t('List View')"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
           </button>
@@ -125,7 +125,7 @@
             <div class="mw-card-info">
               <h3 class="mw-card-name">{{ w.name }}</h3>
               <a v-if="w.domain" :href="liveUrl(w.domain)" target="_blank" rel="noopener noreferrer" class="mw-card-domain">{{ displayDomain(w.domain) }}</a>
-              <span v-else class="mw-card-domain mw-card-domain--empty">No domain</span>
+              <span v-else class="mw-card-domain mw-card-domain--empty">{{ $t('websites.noDomain') }}</span>
             </div>
             <div class="mw-card-status">
               <StatusBadge :status="w.status" />
@@ -136,11 +136,11 @@
           <div class="mw-card-body">
             <!-- Meta row -->
             <div class="mw-card-meta">
-              <div v-if="creatorName(w)" class="mw-meta-item" title="Assigned Member">
+              <div v-if="creatorName(w)" class="mw-meta-item" :title="$t('websites.assignedMember')">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
                 <span>{{ creatorName(w) }}</span>
               </div>
-              <div v-if="w.createdAt" class="mw-meta-item" title="Created Date">
+              <div v-if="w.createdAt" class="mw-meta-item" :title="$t('websites.createdDate')">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                 <span>{{ formatDate(w.createdAt) }}</span>
               </div>
@@ -156,13 +156,13 @@
           <div class="mw-card-actions">
             <RouterLink :to="`/websites/${w.id}/edit`" class="mw-action mw-action--secondary">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-              <span>{{ auth.isViewer ? 'View' : 'Edit' }}</span>
+              <span>{{ auth.isViewer ? $t('common.view') : $t('websites.edit') }}</span>
             </RouterLink>
             <a v-if="w.domain" :href="liveUrl(w.domain)" target="_blank" rel="noopener noreferrer" class="mw-action mw-action--primary">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              <span>Open</span>
+              <span>{{ $t('websites.open') }}</span>
             </a>
-            <button v-if="canDelete(w) && !auth.isViewer" class="mw-action mw-action--danger" title="Delete Website" @click="confirmDelete(w)">
+            <button v-if="canDelete(w) && !auth.isViewer" class="mw-action mw-action--danger" :title="$t('websites.delete')" @click="confirmDelete(w)">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
             </button>
           </div>
@@ -172,12 +172,12 @@
       <!-- ── List View ── -->
       <div v-else-if="sorted.length && viewMode === 'list'" class="mw-list">
         <div class="mw-list-header">
-          <span class="mw-lh-name">Website</span>
-          <span class="mw-lh-type">Type</span>
-          <span class="mw-lh-status">Status</span>
-          <span class="mw-lh-creator">Creator</span>
-          <span class="mw-lh-date">Created</span>
-          <span class="mw-lh-actions">Actions</span>
+          <span class="mw-lh-name">{{ $t('websites.website') }}</span>
+          <span class="mw-lh-type">{{ $t('websites.type') }}</span>
+          <span class="mw-lh-status">{{ $t('websites.status') }}</span>
+          <span class="mw-lh-creator">{{ $t('websites.creator') }}</span>
+          <span class="mw-lh-date">{{ $t('websites.created') }}</span>
+          <span class="mw-lh-actions">{{ $t('websites.actions') }}</span>
         </div>
         <div v-for="w in sorted" :key="w.id" class="mw-list-row">
           <div class="mw-lr-name">
@@ -188,7 +188,7 @@
             <div class="mw-lr-nameblock">
               <span class="mw-lr-title">{{ w.name }}</span>
               <a v-if="w.domain" :href="liveUrl(w.domain)" target="_blank" rel="noopener noreferrer" class="mw-lr-domain">{{ displayDomain(w.domain) }}</a>
-              <span v-else class="mw-lr-domain mw-lr-domain--empty">No domain</span>
+              <span v-else class="mw-lr-domain mw-lr-domain--empty">{{ $t('websites.noDomain') }}</span>
             </div>
           </div>
           <span class="mw-lr-type">
@@ -201,13 +201,13 @@
           <span class="mw-lr-creator">{{ creatorName(w) || '—' }}</span>
           <span class="mw-lr-date">{{ formatDate(w.createdAt) }}</span>
           <div class="mw-lr-actions">
-            <RouterLink :to="`/websites/${w.id}/edit`" class="mw-action-icon" title="Edit">
+            <RouterLink :to="`/websites/${w.id}/edit`" class="mw-action-icon" :title="$t('websites.edit')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
             </RouterLink>
-            <a v-if="w.domain" :href="liveUrl(w.domain)" target="_blank" rel="noopener noreferrer" class="mw-action-icon mw-action-icon--primary" title="Open">
+            <a v-if="w.domain" :href="liveUrl(w.domain)" target="_blank" rel="noopener noreferrer" class="mw-action-icon mw-action-icon--primary" :title="$t('websites.open')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
-            <button v-if="canDelete(w) && !auth.isViewer" class="mw-action-icon mw-action-icon--danger" title="Delete" @click="confirmDelete(w)">
+            <button v-if="canDelete(w) && !auth.isViewer" class="mw-action-icon mw-action-icon--danger" :title="$t('websites.delete')" @click="confirmDelete(w)">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
             </button>
           </div>
@@ -221,11 +221,11 @@
             <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
         </div>
-        <h3 class="mw-empty-title">{{ hasActiveFilters ? 'No websites match your filters' : 'No websites found' }}</h3>
-        <p class="mw-empty-desc">{{ hasActiveFilters ? 'Try adjusting your search or filters.' : 'Create a website profile to track domains, assignments, and followups.' }}</p>
+        <h3 class="mw-empty-title">{{ hasActiveFilters ? $t('websites.noWebsitesMatch') : $t('websites.noWebsites') }}</h3>
+        <p class="mw-empty-desc">{{ hasActiveFilters ? $t('websites.adjustFilters') : $t('websites.createProfileDesc') }}</p>
         <div class="mw-empty-actions">
-          <button v-if="hasActiveFilters" class="mw-action mw-action--secondary" @click="clearFilters">Clear Filters</button>
-          <RouterLink v-if="!auth.isViewer" to="/websites/new" class="mw-action mw-action--primary">New Website</RouterLink>
+          <button v-if="hasActiveFilters" class="mw-action mw-action--secondary" @click="clearFilters">{{ $t('websites.clearFilters') }}</button>
+          <RouterLink v-if="!auth.isViewer" to="/websites/new" class="mw-action mw-action--primary">{{ $t('websites.addNewWebsite') }}</RouterLink>
         </div>
       </div>
     </LoadingBlock>
@@ -235,11 +235,14 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
 import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import { useDataStore, type Website } from '@/stores/data';
 import { useAuthStore } from '@/stores/auth';
 import { usePageRealtime } from '@/services/realtimeService';
+
+const { t } = useI18n();
 
 usePageRealtime(['websites']);
 
@@ -322,20 +325,20 @@ const stats = computed(() => {
 });
 
 // ── Helpers ──
-const typeLabel = (t: string) => {
+const typeLabel = (tVal: string) => {
   const map: Record<string, string> = {
-    existing: 'Existing',
-    ecommerce: 'E-commerce',
-    landing: 'Landing Page',
-    catalog: 'Catalog',
-    blog: 'Blog / Guide',
-    service: 'Service',
-    brand: 'Brand',
-    normal_ecommerce: 'E-commerce',
-    product_landing: 'Landing Page',
-    blog_guide: 'Blog / Guide',
+    existing: t('websites.existing'),
+    ecommerce: t('websites.ecommerce'),
+    landing: t('websites.landing'),
+    catalog: t('websites.catalog'),
+    blog: t('websites.blog'),
+    service: t('websites.service'),
+    brand: t('websites.brand'),
+    normal_ecommerce: t('websites.ecommerce'),
+    product_landing: t('websites.landing'),
+    blog_guide: t('websites.blog'),
   };
-  return map[t] || t || 'Website';
+  return map[tVal] || tVal || 'Website';
 };
 
 const platformLabel = (p: string) => {
@@ -377,7 +380,7 @@ const canDelete = (w: Website) => {
 };
 
 const confirmDelete = async (w: Website) => {
-  if (!confirm(`Delete website "${w.name}"? This cannot be undone.`)) return;
+  if (!confirm(t('websites.confirmDelete', { name: w.name }))) return;
   await data.removeWebsite(w.id);
 };
 
@@ -454,7 +457,7 @@ onMounted(() => {
   padding: 8px 16px;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #fff;
+  color: #f8fbff;
   background: var(--primary);
   border: none;
   border-radius: 10px;
@@ -612,7 +615,7 @@ onMounted(() => {
 .mw-view-btn:hover { color: var(--text-main); }
 .mw-view-btn--active {
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 
 /* ── Grid ── */
@@ -839,13 +842,13 @@ onMounted(() => {
 }
 .mw-action--primary {
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   border-color: var(--primary);
 }
 .mw-action--primary:hover {
   filter: brightness(1.08);
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 .mw-action--secondary { }
 .mw-action--danger {

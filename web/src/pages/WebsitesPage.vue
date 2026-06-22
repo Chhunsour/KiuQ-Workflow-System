@@ -1,18 +1,18 @@
 <template>
   <div>
-    <PageHeader title="Websites" subtitle="Saved website profiles you can reference inside prompts.">
+    <PageHeader :title="$t('Websites')" subtitle="Saved website profiles you can reference inside prompts.">
       <template #actions>
         <RouterLink to="/websites/new" class="btn-primary">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          New Website
+          {{ $t('New Website') }}
         </RouterLink>
       </template>
     </PageHeader>
 
     <div class="mb-5 flex flex-wrap items-center gap-3">
-      <input v-model="search" class="input max-w-sm" type="search" placeholder="Search websites..." />
+      <input v-model="search" class="input max-w-sm" type="search" :placeholder="$t('Search websites...')" />
     </div>
 
     <LoadingBlock :loading="data.loading.websites" :error="data.errors.websites" :retry="data.fetchWebsites">
@@ -34,12 +34,12 @@
                 >
                   {{ w.domain }}
                 </a>
-                <span v-else class="text-sm text-text-muted">No domain</span>
+                <span v-else class="text-sm text-text-muted">{{ $t('No domain') }}</span>
               </div>
             </div>
             <div class="flex flex-col items-end gap-1 flex-shrink-0">
               <StatusBadge :status="w.status" />
-              <span v-if="w.isFramework" class="wp-conn-badge" :class="getConnectionStatus(w).dotClass" title="Framework connection status">
+              <span v-if="w.isFramework" class="wp-conn-badge" :class="getConnectionStatus(w).dotClass" :title="$t('Framework connection status')">
                 <span class="wp-conn-dot" /> {{ getConnectionStatus(w).text }}
               </span>
             </div>
@@ -47,21 +47,21 @@
 
           <div class="mt-4 grid grid-cols-3 gap-2">
             <div>
-              <div class="text-xs text-text-muted">Primary</div>
+              <div class="text-xs text-text-muted">{{ $t('Primary') }}</div>
               <div class="mt-1 flex items-center gap-2">
                 <span class="block h-5 w-5 rounded-full border border-border" :style="{ backgroundColor: w.primaryColor }" />
                 <span class="ui-font text-xs text-text-main">{{ w.primaryColor }}</span>
               </div>
             </div>
             <div>
-              <div class="text-xs text-text-muted">Secondary</div>
+              <div class="text-xs text-text-muted">{{ $t('Secondary') }}</div>
               <div class="mt-1 flex items-center gap-2">
                 <span class="block h-5 w-5 rounded-full border border-border" :style="{ backgroundColor: w.secondaryColor }" />
                 <span class="ui-font text-xs text-text-main">{{ w.secondaryColor }}</span>
               </div>
             </div>
             <div>
-              <div class="text-xs text-text-muted">Background</div>
+              <div class="text-xs text-text-muted">{{ $t('Background') }}</div>
               <div class="mt-1 flex items-center gap-2">
                 <span class="block h-5 w-5 rounded-full border border-border" :style="{ backgroundColor: w.backgroundColor }" />
                 <span class="ui-font text-xs text-text-main">{{ w.backgroundColor }}</span>
@@ -71,37 +71,37 @@
 
           <dl class="mt-4 space-y-1.5 text-sm">
             <div class="flex justify-between gap-2">
-              <dt class="text-text-muted">Type</dt>
+              <dt class="text-text-muted">{{ $t('Type') }}</dt>
               <dd class="ui-font text-text-main">{{ w.websiteType || '—' }}</dd>
             </div>
             <div class="flex justify-between gap-2">
-              <dt class="text-text-muted">Font</dt>
+              <dt class="text-text-muted">{{ $t('Font') }}</dt>
               <dd class="ui-font text-text-main">{{ w.fontFamily || '—' }}</dd>
             </div>
             <div class="flex justify-between gap-2">
-              <dt class="text-text-muted">Max width</dt>
+              <dt class="text-text-muted">{{ $t('Max width') }}</dt>
               <dd class="ui-font text-text-main">{{ w.maxWidth || '—' }}</dd>
             </div>
             <div class="flex justify-between gap-2">
-              <dt class="text-text-muted">Products</dt>
+              <dt class="text-text-muted">{{ $t('Products') }}</dt>
               <dd class="ui-font text-text-main">{{ w.products.length }}</dd>
             </div>
           </dl>
 
           <div class="mt-4 flex gap-2">
-            <RouterLink :to="`/websites/${w.id}/edit`" class="btn-secondary flex-1">Edit</RouterLink>
-            <button class="btn-danger" @click="confirmDelete(w)">Delete</button>
+            <RouterLink :to="`/websites/${w.id}/edit`" class="btn-secondary flex-1">{{ $t('Edit') }}</RouterLink>
+            <button class="btn-danger" @click="confirmDelete(w)">{{ $t('Delete') }}</button>
           </div>
         </div>
       </div>
 
       <EmptyState
         v-if="filtered.length === 0"
-        title="No websites yet"
+        :title="$t('No websites yet')"
         description="Create your first website profile to use inside prompt templates."
       >
         <template #action>
-          <RouterLink to="/websites/new" class="btn-primary">New Website</RouterLink>
+          <RouterLink to="/websites/new" class="btn-primary">{{ $t('New Website') }}</RouterLink>
         </template>
       </EmptyState>
     </LoadingBlock>

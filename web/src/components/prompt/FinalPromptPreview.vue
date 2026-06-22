@@ -2,9 +2,9 @@
   <div class="space-y-3">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div>
-        <div class="ui-font text-sm font-semibold text-text-main">Final prompt preview</div>
+        <div class="ui-font text-sm font-semibold text-text-main">{{ $t('Final prompt preview') }}</div>
         <div class="text-xs text-text-muted">
-          Combined: website + selected products + locked rules + filled fields + template + output type.
+          {{ $t('Combined: website + selected products + locked rules + filled fields + template + output type.') }}
         </div>
       </div>
       <div class="flex gap-2">
@@ -17,8 +17,8 @@
     <FormSelect
       :model-value="websiteId ?? ''"
       :options="websiteOptions"
-      label="Test website profile"
-      placeholder="No website context"
+      :label="$t('Test website profile')"
+      :placeholder="$t('No website context')"
       @update:model-value="(v: string) => $emit('update:websiteId', v || null)"
     />
 
@@ -26,7 +26,7 @@
     <div v-if="availableProducts.length" class="rounded-card border border-border p-3 space-y-2">
       <div class="flex items-center justify-between gap-2">
         <div class="ui-font text-xs font-semibold uppercase tracking-wide text-text-muted">
-          Test products
+          {{ $t('Test products') }}
           <span v-if="prompt.requiresProducts > 0" class="ml-1 text-primary">
             (this prompt expects {{ prompt.requiresProducts }})
           </span>
@@ -36,7 +36,7 @@
           type="button"
           @click="selectedProductIds = []"
           v-if="selectedProductIds.length"
-        >Clear</button>
+        >{{ $t('Clear') }}</button>
       </div>
       <div class="flex flex-wrap gap-2">
         <button
@@ -58,7 +58,7 @@
 
     <div v-if="prompt.editableFields.length > 0" class="rounded-card border border-border p-4 space-y-3">
       <div class="ui-font text-xs font-semibold uppercase tracking-wide text-text-muted">
-        Test fields (team would fill these)
+        {{ $t('Test fields (team would fill these)') }}
       </div>
       <div v-for="field in prompt.editableFields" :key="field.id">
         <FormInput
@@ -82,7 +82,7 @@
           :label="field.label || field.key"
           :helper="field.helper"
           :options="field.options ?? []"
-          placeholder="Select..."
+          :placeholder="$t('Select...')"
           @update:model-value="(v) => update(field.key, v)"
         />
       </div>
@@ -92,7 +92,7 @@
       v-if="missingRequirementMessages.length"
       class="rounded-card border border-status-needs-fix-bg bg-status-needs-fix-bg/20 p-3 text-sm text-status-needs-fix-fg"
     >
-      <div class="ui-font font-semibold">Missing required data</div>
+      <div class="ui-font font-semibold">{{ $t('Missing required data') }}</div>
       <ul class="mt-2 list-disc space-y-1 pl-5">
         <li v-for="message in missingRequirementMessages" :key="message">{{ message }}</li>
       </ul>

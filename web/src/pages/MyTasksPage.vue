@@ -1,18 +1,18 @@
 <template>
   <div>
-    <PageHeader title="My Tasks" subtitle="All assigned work with clear next actions." />
+    <PageHeader :title="$t('My Tasks')" subtitle="All assigned work with clear next actions." />
 
     <div class="mb-5 flex flex-wrap gap-2">
       <button
         v-for="tab in tabs"
         :key="tab.key"
         class="btn h-9 px-3 text-xs"
-        :class="activeTab === tab.key ? 'bg-primary text-white shadow-soft' : 'bg-card text-text-main border border-border hover:bg-soft'"
+        :class="activeTab === tab.key ? 'bg-primary text-on-primary shadow-soft' : 'bg-card text-text-main border border-border hover:bg-soft'"
         type="button"
         @click="activeTab = tab.key"
       >
         {{ tab.label }}
-        <span class="ui-font rounded-full bg-white/20 px-1.5">{{ tab.count }}</span>
+        <span class="ui-font rounded-full bg-card-elevated/30 px-1.5">{{ tab.count }}</span>
       </button>
     </div>
 
@@ -36,19 +36,19 @@
 
           <dl class="mt-4 grid grid-cols-2 gap-3 text-sm md:grid-cols-5">
             <div>
-              <dt class="text-text-muted">Prompt</dt>
+              <dt class="text-text-muted">{{ $t('Prompt') }}</dt>
               <dd class="ui-font text-text-main">{{ task.prompt }}</dd>
             </div>
             <div>
-              <dt class="text-text-muted">Due date</dt>
+              <dt class="text-text-muted">{{ $t('Due date') }}</dt>
               <dd class="ui-font text-text-main">{{ task.dueDate || 'No date' }}</dd>
             </div>
             <div>
-              <dt class="text-text-muted">Last update</dt>
+              <dt class="text-text-muted">{{ $t('Last update') }}</dt>
               <dd class="ui-font text-text-main">{{ task.updatedAt || '—' }}</dd>
             </div>
             <div>
-              <dt class="text-text-muted">Project</dt>
+              <dt class="text-text-muted">{{ $t('Project') }}</dt>
               <dd class="ui-font text-text-main">{{ task.project }}</dd>
             </div>
             <div class="flex items-end justify-end">
@@ -62,11 +62,11 @@
 
       <EmptyState
         v-else
-        title="Your admin has not assigned work yet."
+        :title="$t('Your admin has not assigned work yet.')"
         description="Open Docs to review team rules while you wait for your first task."
       >
         <template #action>
-          <RouterLink to="/docs" class="btn-primary">Open Docs</RouterLink>
+          <RouterLink to="/docs" class="btn-primary">{{ $t('Open Docs') }}</RouterLink>
         </template>
       </EmptyState>
     </LoadingBlock>

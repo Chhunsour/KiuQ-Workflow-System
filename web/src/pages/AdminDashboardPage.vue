@@ -1,32 +1,32 @@
 <template>
   <div>
-    <PageHeader title="Dashboard" subtitle="Admin overview of the workspace and review queue.">
+    <PageHeader :title="$t('Dashboard')" subtitle="Admin overview of the workspace and review queue.">
       <template #actions>
-        <RouterLink to="/websites/new" class="btn-secondary">New Website</RouterLink>
-        <RouterLink to="/library" class="btn-primary">New Prompt</RouterLink>
+        <RouterLink to="/websites/new" class="btn-secondary">{{ $t('New Website') }}</RouterLink>
+        <RouterLink to="/library" class="btn-primary">{{ $t('New Prompt') }}</RouterLink>
       </template>
     </PageHeader>
 
     <div class="grid grid-cols-2 gap-3 lg:grid-cols-5">
-      <StatCard label="Total Members" :value="data.totalMembers" :icon="icons.members" />
-      <StatCard label="Total Projects" :value="data.totalProjects" :icon="icons.projects" />
-      <StatCard label="Total Websites" :value="data.totalWebsites" :icon="icons.websites" />
-      <StatCard label="Total Prompts" :value="data.totalPrompts" :icon="icons.prompts" />
-      <StatCard label="Pending Reviews" :value="data.pendingReviews" :icon="icons.reviews" />
+      <StatCard :label="$t('Total Members')" :value="data.totalMembers" :icon="icons.members" />
+      <StatCard :label="$t('Total Projects')" :value="data.totalProjects" :icon="icons.projects" />
+      <StatCard :label="$t('Total Websites')" :value="data.totalWebsites" :icon="icons.websites" />
+      <StatCard :label="$t('Total Prompts')" :value="data.totalPrompts" :icon="icons.prompts" />
+      <StatCard :label="$t('Pending Reviews')" :value="data.pendingReviews" :icon="icons.reviews" />
     </div>
 
     <!-- Followups — schedule-aware, range-filtered -->
     <div class="mt-5">
       <div class="mb-2.5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 class="section-title">Followups</h3>
+          <h3 class="section-title">{{ $t('Followups') }}</h3>
           <p class="mt-0.5 text-xs text-text-muted">
-            Showing <strong class="text-text-main">{{ currentRange.label }}</strong>
+            {{ $t('Showing') }} <strong class="text-text-main">{{ currentRange.label }}</strong>
             · {{ currentRange.start === currentRange.end ? currentRange.start : `${currentRange.start} → ${currentRange.end}` }}
           </p>
         </div>
         <div class="flex items-center gap-1.5">
-          <label class="text-xs font-semibold text-text-muted" for="dash-range">Range:</label>
+          <label class="text-xs font-semibold text-text-muted" for="dash-range">{{ $t('Range:') }}</label>
           <select
             id="dash-range"
             v-model="timeRange"
@@ -52,18 +52,18 @@
             <div class="ui-font text-sm font-semibold text-text-main">{{ fu.label }}</div>
             <div class="mt-0.5 text-xs text-text-muted">
               <span v-if="fu.summary.total === 0" class="font-bold text-text-muted">
-                None due
+                {{ $t('None due') }}
               </span>
               <template v-else>
                 <strong class="ui-font text-text-main">{{ fu.summary.done }}/{{ fu.summary.total }}</strong>
-                completed
+                {{ $t('completed') }}
                 <span v-if="fu.summary.pending > 0" class="ml-1 font-semibold text-status-needs-fix-fg">
                   · {{ fu.summary.pending }} pending
                 </span>
               </template>
             </div>
           </div>
-          <RouterLink :to="fu.to" class="btn-secondary h-8 flex-shrink-0 px-3 text-xs">Open</RouterLink>
+          <RouterLink :to="fu.to" class="btn-secondary h-8 flex-shrink-0 px-3 text-xs">{{ $t('Open') }}</RouterLink>
         </div>
       </div>
     </div>
@@ -72,8 +72,8 @@
     <div v-if="canViewTeamMemberDetails" class="card mt-5">
       <div class="border-b border-border px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 bg-soft/10">
         <div>
-          <h3 class="section-title">Team Member Details</h3>
-          <p class="mt-0.5 text-xs text-text-muted">Real-time range-based team activity and progress summary.</p>
+          <h3 class="section-title">{{ $t('Team Member Details') }}</h3>
+          <p class="mt-0.5 text-xs text-text-muted">{{ $t('Real-time range-based team activity and progress summary.') }}</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <!-- Search input -->
@@ -81,7 +81,7 @@
             <input
               type="text"
               v-model="searchQuery"
-              placeholder="Search member..."
+              :placeholder="$t('Search member...')"
               class="rounded-btn border border-border bg-card pl-8 pr-3 py-1.5 text-xs text-text-main placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
             <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted">
@@ -97,10 +97,10 @@
             v-model="roleFilter"
             class="rounded-btn border border-border bg-card px-2.5 py-1.5 text-xs font-semibold text-text-main focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
-            <option value="all">All Roles</option>
-            <option value="team_member">Team Member</option>
-            <option value="assistant_head">Assistant Head</option>
-            <option value="head">Head</option>
+            <option value="all">{{ $t('All Roles') }}</option>
+            <option value="team_member">{{ $t('Team Member') }}</option>
+            <option value="assistant_head">{{ $t('Assistant Head') }}</option>
+            <option value="head">{{ $t('Head') }}</option>
           </select>
         </div>
       </div>
@@ -120,9 +120,9 @@
           </button>
         </div>
         <div class="text-[11px] text-text-muted flex items-center gap-3">
-          <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-status-approved-fg"></span> Online</span>
-          <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-amber-500"></span> Away</span>
-          <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-text-soft"></span> Offline</span>
+          <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-status-approved-fg"></span> {{ $t('Online') }}</span>
+          <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-amber-500"></span> {{ $t('Away') }}</span>
+          <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-text-soft"></span> {{ $t('Offline') }}</span>
         </div>
       </div>
 
@@ -143,13 +143,13 @@
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-border bg-soft/30">
-              <th class="px-5 py-3 table-head">Member</th>
-              <th class="px-5 py-3 table-head">Status</th>
-              <th class="px-5 py-3 table-head">Followups Today/Period</th>
-              <th class="px-5 py-3 table-head">Tasks In-Progress</th>
-              <th class="px-5 py-3 table-head">Missed Followups</th>
-              <th class="px-5 py-3 table-head">Pending Reviews</th>
-              <th class="px-5 py-3 table-head text-right">Action</th>
+              <th class="px-5 py-3 table-head">{{ $t('Member') }}</th>
+              <th class="px-5 py-3 table-head">{{ $t('Status') }}</th>
+              <th class="px-5 py-3 table-head">{{ $t('Followups Today/Period') }}</th>
+              <th class="px-5 py-3 table-head">{{ $t('Tasks In-Progress') }}</th>
+              <th class="px-5 py-3 table-head">{{ $t('Missed Followups') }}</th>
+              <th class="px-5 py-3 table-head">{{ $t('Pending Reviews') }}</th>
+              <th class="px-5 py-3 table-head text-right">{{ $t('Action') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
@@ -204,7 +204,7 @@
               <td class="px-5 py-3 text-xs text-text-main">
                 <div class="flex items-center gap-1">
                   <span class="font-semibold">{{ member.tasksInProgress }}</span>
-                  <span class="text-[10px] text-text-muted">active</span>
+                  <span class="text-[10px] text-text-muted">{{ $t('active') }}</span>
                 </div>
               </td>
               <td class="px-5 py-3 text-xs">
@@ -212,13 +212,13 @@
                   <span class="h-1.5 w-1.5 rounded-full bg-status-rejected-fg shrink-0 animate-pulse"></span>
                   {{ member.followupsMissed }} missed
                 </span>
-                <span class="text-text-muted font-medium" v-else>0 missed</span>
+                <span class="text-text-muted font-medium" v-else>{{ $t('0 missed') }}</span>
               </td>
               <td class="px-5 py-3 text-xs">
                 <span v-if="member.tasksWaitingReview > 0" class="font-bold text-status-submitted-fg">
                   {{ member.tasksWaitingReview }} reviews
                 </span>
-                <span class="text-text-muted" v-else>0 reviews</span>
+                <span class="text-text-muted" v-else>{{ $t('0 reviews') }}</span>
               </td>
               <td class="px-5 py-3 text-right">
                 <button
@@ -226,13 +226,13 @@
                   class="btn-secondary py-1 px-3 text-xs h-7 hover:border-primary/40"
                   @click="openMemberDetails(member)"
                 >
-                  View Details
+                  {{ $t('View Details') }}
                 </button>
               </td>
             </tr>
             <tr v-if="showTeamMemberLoadError">
               <td colspan="7" class="px-5 py-10 text-center text-xs text-status-rejected-fg bg-soft/10">
-                Could not load team member details.
+                {{ $t('Could not load team member details.') }}
               </td>
             </tr>
             <tr v-else-if="filteredMembers.length === 0">
@@ -289,19 +289,19 @@
 
           <div class="grid grid-cols-3 gap-2 bg-soft/30 p-2.5 rounded-btn text-[11px] text-text-main text-center">
             <div>
-              <div class="text-text-muted text-[10px]">Followups</div>
+              <div class="text-text-muted text-[10px]">{{ $t('Followups') }}</div>
               <div class="font-bold mt-0.5 text-xs" :class="member.followupsTotal === 0 ? 'text-text-soft' : ''">
                 {{ member.followupsDone }}/{{ member.followupsTotal }}
               </div>
             </div>
             <div>
-              <div class="text-text-muted text-[10px]">Tasks (IP/Rev)</div>
+              <div class="text-text-muted text-[10px]">{{ $t('Tasks (IP/Rev)') }}</div>
               <div class="font-bold mt-0.5 text-xs">
                 {{ member.tasksInProgress }} / {{ member.tasksWaitingReview }}
               </div>
             </div>
             <div>
-              <div class="text-text-muted text-[10px]">Missed</div>
+              <div class="text-text-muted text-[10px]">{{ $t('Missed') }}</div>
               <div class="font-bold mt-0.5 text-xs" :class="member.followupsMissed > 0 ? 'text-status-rejected-fg font-extrabold' : ''">
                 {{ member.followupsMissed }}
               </div>
@@ -314,12 +314,12 @@
               class="btn-secondary w-full py-1 text-xs h-8"
               @click="openMemberDetails(member)"
             >
-              View Details
+              {{ $t('View Details') }}
             </button>
           </div>
         </div>
         <div v-if="showTeamMemberLoadError" class="p-8 text-center text-xs text-status-rejected-fg">
-          Could not load team member details.
+          {{ $t('Could not load team member details.') }}
         </div>
         <div v-else-if="filteredMembers.length === 0" class="p-8 text-center text-xs text-text-muted italic">
           {{ teamMemberEmptyMessage }}
@@ -392,35 +392,35 @@
       <div v-if="loadingDetails" class="flex-1 flex items-center justify-center p-6">
         <div class="flex flex-col items-center gap-2">
           <div class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <span class="text-xs text-text-muted">Loading member details...</span>
+          <span class="text-xs text-text-muted">{{ $t('Loading member details...') }}</span>
         </div>
       </div>
       <div v-else-if="selectedMember" class="flex-1 overflow-y-auto p-5 space-y-6">
         <!-- 1. Basic Info -->
         <div class="space-y-2">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">Basic Info</h4>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">{{ $t('Basic Info') }}</h4>
           <div class="grid grid-cols-2 gap-3 bg-soft/50 rounded-btn p-3 text-xs">
             <div>
-              <span class="text-text-muted">Status</span>
+              <span class="text-text-muted">{{ $t('Status') }}</span>
               <div class="mt-1 flex items-center gap-1.5 font-semibold text-text-main">
                 <span class="h-2 w-2 rounded-full shrink-0" :class="statusDotClass(selectedMember.currentStatus)"></span>
                 <span class="capitalize">{{ selectedMember.currentStatus }}</span>
               </div>
             </div>
             <div>
-              <span class="text-text-muted">Last Active</span>
+              <span class="text-text-muted">{{ $t('Last Active') }}</span>
               <div class="mt-1 font-semibold text-text-main">
                 {{ selectedMember.lastActiveAt ? formatLastActive(selectedMember.lastActiveAt) : 'Never' }}
               </div>
             </div>
             <div>
-              <span class="text-text-muted">Joined Date</span>
+              <span class="text-text-muted">{{ $t('Joined Date') }}</span>
               <div class="mt-1 font-semibold text-text-main">
                 {{ selectedMember.createdAt ? new Date(selectedMember.createdAt).toLocaleDateString() : 'N/A' }}
               </div>
             </div>
             <div>
-              <span class="text-text-muted">Email</span>
+              <span class="text-text-muted">{{ $t('Email') }}</span>
               <div class="mt-1 font-semibold text-text-main truncate" :title="selectedMember.email">
                 {{ selectedMember.email || 'N/A' }}
               </div>
@@ -430,34 +430,34 @@
 
         <!-- 2. Followup Summary -->
         <div class="space-y-2">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">Followup Summary</h4>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">{{ $t('Followup Summary') }}</h4>
           <div class="bg-soft/50 rounded-btn p-3 space-y-2 text-xs">
             <div class="flex justify-between">
-              <span class="text-text-muted">Total Followups Due</span>
+              <span class="text-text-muted">{{ $t('Total Followups Due') }}</span>
               <span class="font-bold text-text-main">{{ selectedMember.followupsTotal }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-text-muted">Completed</span>
+              <span class="text-text-muted">{{ $t('Completed') }}</span>
               <span class="font-bold text-status-approved-fg">{{ selectedMember.followupsDone }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-text-muted">Pending</span>
+              <span class="text-text-muted">{{ $t('Pending') }}</span>
               <span class="font-bold" :class="selectedMember.followupsPending > 0 ? 'text-status-needs-fix-fg' : 'text-text-main'">
                 {{ selectedMember.followupsPending }}
               </span>
             </div>
             <div class="flex justify-between">
-              <span class="text-text-muted">Missed</span>
+              <span class="text-text-muted">{{ $t('Missed') }}</span>
               <span class="font-bold" :class="selectedMember.followupsMissed > 0 ? 'text-status-rejected-fg' : 'text-text-main'">
                 {{ selectedMember.followupsMissed }}
               </span>
             </div>
             <div class="flex justify-between">
-              <span class="text-text-muted">Not Required</span>
+              <span class="text-text-muted">{{ $t('Not Required') }}</span>
               <span class="font-bold text-text-muted">{{ selectedMember.followupsNotRequired }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-text-muted">Admin Auto Completed</span>
+              <span class="text-text-muted">{{ $t('Admin Auto Completed') }}</span>
               <span class="font-bold text-text-muted">{{ selectedMember.followupsAutoCompleted }}</span>
             </div>
           </div>
@@ -465,22 +465,22 @@
 
         <!-- 3. Work Board Summary -->
         <div class="space-y-2">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">Work Board Summary</h4>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">{{ $t('Work Board Summary') }}</h4>
           <div class="grid grid-cols-2 gap-3 text-xs mb-3">
             <div class="bg-soft/50 rounded-btn p-3 flex justify-between items-center">
-              <span class="text-text-muted">In Progress</span>
+              <span class="text-text-muted">{{ $t('In Progress') }}</span>
               <span class="font-bold text-text-main">{{ selectedMember.tasksInProgress }}</span>
             </div>
             <div class="bg-soft/50 rounded-btn p-3 flex justify-between items-center">
-              <span class="text-text-muted">Waiting Review</span>
+              <span class="text-text-muted">{{ $t('Waiting Review') }}</span>
               <span class="font-bold text-status-submitted-fg">{{ selectedMember.tasksWaitingReview }}</span>
             </div>
             <div class="bg-soft/50 rounded-btn p-3 flex justify-between items-center">
-              <span class="text-text-muted">Completed</span>
+              <span class="text-text-muted">{{ $t('Completed') }}</span>
               <span class="font-bold text-status-approved-fg">{{ selectedMember.tasksCompleted }}</span>
             </div>
             <div class="bg-soft/50 rounded-btn p-3 flex justify-between items-center">
-              <span class="text-text-muted">Overdue</span>
+              <span class="text-text-muted">{{ $t('Overdue') }}</span>
               <span class="font-bold" :class="selectedMember.tasksOverdue > 0 ? 'text-status-rejected-fg font-extrabold' : 'text-text-main'">
                 {{ selectedMember.tasksOverdue }}
               </span>
@@ -489,7 +489,7 @@
 
           <!-- Current Range Tasks List -->
           <div class="space-y-1.5">
-            <div class="text-[11px] font-semibold text-text-muted">Tasks due in this range:</div>
+            <div class="text-[11px] font-semibold text-text-muted">{{ $t('Tasks due in this range:') }}</div>
             <div v-if="detailedData.tasks.length > 0" class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
               <div v-for="t in detailedData.tasks" :key="t.id" class="border border-border/60 rounded px-2.5 py-1.5 text-xs bg-card flex items-center justify-between gap-3">
                 <div class="min-w-0 flex-1">
@@ -500,41 +500,41 @@
               </div>
             </div>
             <div v-else class="text-xs text-text-muted italic bg-soft/30 rounded p-2 text-center">
-              No tasks due for this range.
+              {{ $t('No tasks due for this range.') }}
             </div>
           </div>
         </div>
 
         <!-- 4. Quality Check Summary -->
         <div class="space-y-2">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">Quality Check Summary</h4>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">{{ $t('Quality Check Summary') }}</h4>
           <div class="grid grid-cols-2 gap-3 text-xs mb-3">
             <div class="bg-soft/50 rounded-btn p-3 flex justify-between items-center">
-              <span class="text-text-muted">Assigned Issues</span>
+              <span class="text-text-muted">{{ $t('Assigned Issues') }}</span>
               <span class="font-bold text-text-main">{{ selectedMember.qiAssigned }}</span>
             </div>
             <div class="bg-soft/50 rounded-btn p-3 flex justify-between items-center">
-              <span class="text-text-muted">Fixed Issues</span>
+              <span class="text-text-muted">{{ $t('Fixed Issues') }}</span>
               <span class="font-bold text-status-submitted-fg">{{ selectedMember.qiFixed }}</span>
             </div>
             <div class="bg-soft/50 rounded-btn p-3 flex justify-between items-center">
-              <span class="text-text-muted">Waiting Review</span>
+              <span class="text-text-muted">{{ $t('Waiting Review') }}</span>
               <span class="font-bold text-status-submitted-fg">{{ selectedMember.qiWaitingReview }}</span>
             </div>
             <div class="bg-soft/50 rounded-btn p-3 flex justify-between items-center">
-              <span class="text-text-muted">Needs Fix</span>
+              <span class="text-text-muted">{{ $t('Needs Fix') }}</span>
               <span class="font-bold text-status-needs-fix-fg">{{ selectedMember.qiNeedsFix }}</span>
             </div>
           </div>
 
           <!-- Quality Issues List -->
           <div class="space-y-1.5">
-            <div class="text-[11px] font-semibold text-text-muted">Assigned Quality Issues:</div>
+            <div class="text-[11px] font-semibold text-text-muted">{{ $t('Assigned Quality Issues:') }}</div>
             <div v-if="detailedData.qualityIssues.length > 0" class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
               <div v-for="qi in detailedData.qualityIssues" :key="qi.id" class="border border-border/60 rounded px-2.5 py-1.5 text-xs bg-card flex items-center justify-between gap-3">
                 <div class="min-w-0 flex-1">
                   <div class="font-semibold text-text-main truncate">{{ qi.title }}</div>
-                  <div class="text-[10px] text-text-muted mt-0.5">Priority: <span class="capitalize font-semibold text-text-main">{{ qi.priority }}</span></div>
+                  <div class="text-[10px] text-text-muted mt-0.5">{{ $t('Priority:') }} <span class="capitalize font-semibold text-text-main">{{ qi.priority }}</span></div>
                 </div>
                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase shrink-0" :class="qiStatusClass(qi.status)">
                   {{ qi.status?.replace('_', ' ') }}
@@ -542,7 +542,7 @@
               </div>
             </div>
             <div v-else class="text-xs text-text-muted italic bg-soft/30 rounded p-2 text-center">
-              No quality issues assigned.
+              {{ $t('No quality issues assigned.') }}
             </div>
           </div>
         </div>
@@ -550,9 +550,9 @@
         <!-- 5. Recent Activity -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">Recent Activity</h4>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-text-soft">{{ $t('Recent Activity') }}</h4>
             <RouterLink :to="`/activity?user=${selectedMember.memberId}`" class="text-[11px] text-primary hover:underline" @click="closeDrawer">
-              View Full Activity
+              {{ $t('View Full Activity') }}
             </RouterLink>
           </div>
           <div v-if="detailedData.activities.length > 0" class="divide-y divide-border/60 border border-border/60 rounded-btn bg-card overflow-hidden">
@@ -562,26 +562,26 @@
             </div>
           </div>
           <div v-else class="text-xs text-text-muted italic bg-soft/30 rounded p-2.5 text-center">
-            No recent activity.
+            {{ $t('No recent activity.') }}
           </div>
         </div>
       </div>
 
       <!-- Drawer Footer (Quick Actions) -->
       <div v-if="!loadingDetails && selectedMember" class="border-t border-border bg-soft/40 px-5 py-4 shrink-0 flex flex-col gap-2">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-text-soft mb-1">Quick Actions</div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-text-soft mb-1">{{ $t('Quick Actions') }}</div>
         <div class="grid grid-cols-2 gap-2">
           <RouterLink :to="`/profiles/${selectedMember.memberId}`" class="btn-secondary py-2 text-xs flex justify-center items-center" @click="closeDrawer">
-            Open Profile
+            {{ $t('Open Profile') }}
           </RouterLink>
           <RouterLink :to="`/work-board/members/${selectedMember.memberId}`" class="btn-secondary py-2 text-xs flex justify-center items-center" @click="closeDrawer">
-            Open Work Board
+            {{ $t('Open Work Board') }}
           </RouterLink>
           <RouterLink :to="`/reports`" class="btn-secondary py-2 text-xs flex justify-center items-center" @click="closeDrawer">
-            Open Report
+            {{ $t('Open Report') }}
           </RouterLink>
           <button class="btn-primary py-2 text-xs" @click="closeDrawer">
-            Close Details
+            {{ $t('Close Details') }}
           </button>
         </div>
       </div>
@@ -590,8 +590,8 @@
     <div class="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       <div class="card">
         <div class="border-b border-border px-5 py-3.5">
-          <h3 class="section-title">Team Activity</h3>
-          <p class="mt-1 text-xs text-text-muted">Simple presence for workflow visibility.</p>
+          <h3 class="section-title">{{ $t('Team Activity') }}</h3>
+          <p class="mt-1 text-xs text-text-muted">{{ $t('Simple presence for workflow visibility.') }}</p>
         </div>
         <div class="grid grid-cols-2 gap-3 p-4">
           <div v-for="item in teamActivityStats" :key="item.label" class="rounded-btn bg-soft/50 px-3 py-2">
@@ -604,11 +604,11 @@
       <div class="card">
         <div class="border-b border-border px-5 py-3.5 flex items-center justify-between">
           <div>
-            <h3 class="section-title">Task Alerts Summary</h3>
-            <p class="mt-1 text-xs text-text-muted">Targeted notification delivery status.</p>
+            <h3 class="section-title">{{ $t('Task Alerts Summary') }}</h3>
+            <p class="mt-1 text-xs text-text-muted">{{ $t('Targeted notification delivery status.') }}</p>
           </div>
           <RouterLink to="/admin/notifications/task-alerts" class="text-xs text-primary hover:underline">
-            Manage
+            {{ $t('Manage') }}
           </RouterLink>
         </div>
         <div class="p-4 flex flex-col gap-2">
@@ -629,8 +629,8 @@
 
       <div class="card">
         <div class="flex items-center justify-between border-b border-border px-5 py-3.5">
-          <h3 class="section-title">Member activity</h3>
-          <RouterLink to="/activity" class="text-sm text-primary hover:underline">Open Activity</RouterLink>
+          <h3 class="section-title">{{ $t('Member activity') }}</h3>
+          <RouterLink to="/activity" class="text-sm text-primary hover:underline">{{ $t('Open Activity') }}</RouterLink>
         </div>
         <div v-if="data.activityLogs.length > 0" class="divide-y divide-border">
           <div v-for="log in data.activityLogs.slice(0, 4)" :key="log.id" class="px-5 py-3.5">
@@ -638,12 +638,12 @@
             <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-muted">
               <span>{{ memberName(log.userId) }} · {{ new Date(log.createdAt).toLocaleString() }}</span>
               <RouterLink :to="`/profiles/${log.userId}`" class="text-primary hover:underline">
-                View Full
+                {{ $t('View Full') }}
               </RouterLink>
             </div>
           </div>
         </div>
-        <div v-else class="px-6 py-8 text-center text-sm text-text-muted">No member activity yet.</div>
+        <div v-else class="px-6 py-8 text-center text-sm text-text-muted">{{ $t('No member activity yet.') }}</div>
       </div>
     </div>
 
@@ -653,15 +653,15 @@
     >
       <span>{{ combinedError }}</span>
       <button type="button" class="btn-secondary h-8 px-3 text-xs" @click="loadDashboardData">
-        Retry
+        {{ $t('Retry') }}
       </button>
     </div>
 
     <div class="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div class="card lg:col-span-2">
         <div class="flex items-center justify-between border-b border-border px-5 py-3.5">
-          <h3 class="section-title">Recently submitted work</h3>
-          <RouterLink to="/reviews" class="text-sm text-primary hover:underline">Open Reviews</RouterLink>
+          <h3 class="section-title">{{ $t('Recently submitted work') }}</h3>
+          <RouterLink to="/reviews" class="text-sm text-primary hover:underline">{{ $t('Open Reviews') }}</RouterLink>
         </div>
         <ul v-if="recentSubmissions.length > 0" class="divide-y divide-border">
           <li v-for="submission in recentSubmissions" :key="submission.id" class="px-5 py-3.5">
@@ -683,7 +683,7 @@
 
       <div class="card">
         <div class="border-b border-border px-5 py-3.5">
-          <h3 class="section-title">Project progress overview</h3>
+          <h3 class="section-title">{{ $t('Project progress overview') }}</h3>
         </div>
         <div class="space-y-3 p-4">
           <div v-for="item in projectProgress" :key="item.status" class="flex items-center justify-between rounded-btn bg-soft/50 px-3 py-2">

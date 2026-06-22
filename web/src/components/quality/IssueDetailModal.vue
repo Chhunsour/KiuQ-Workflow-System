@@ -16,7 +16,7 @@
           <span v-if="issue.priority !== 'normal'" class="id-meta-pill" :class="`id-prio--${issue.priority}`">
             {{ issue.priority.toUpperCase() }}
           </span>
-          <span v-if="issue.dueDate" class="id-meta-text">Due {{ formatDate(issue.dueDate) }}</span>
+          <span v-if="issue.dueDate" class="id-meta-text">{{ $t('qualityCheck.due') }} {{ formatDate(issue.dueDate) }}</span>
         </div>
         <a
           v-if="issue.pageUrl"
@@ -24,7 +24,7 @@
           target="_blank"
           rel="noopener"
           class="id-url-chip"
-          :title="`Open ${issue.pageUrl} in a new tab`"
+          :title="$t('qualityModal.openNewTab')"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           <span class="id-url-chip-text">{{ shortUrl(issue.pageUrl) }}</span>
@@ -40,28 +40,28 @@
             <button
               type="button"
               class="id-shot-thumb-btn"
-              title="Click to view full size"
+              :title="$t('Click to view full size')"
               @click="lightboxOpen = true"
             >
               <img :src="issue.screenshotUrl" alt="Issue screenshot" class="id-screenshot" />
               <span class="id-shot-overlay">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                Review fully
+                {{ $t('qualityModal.reviewFully') }}
               </span>
             </button>
             <button
               type="button"
               class="id-shot-review"
-              title="View the screenshot full size"
+              :title="$t('qualityModal.reviewFully')"
               @click="lightboxOpen = true"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
-              Review fully
+              {{ $t('qualityModal.reviewFully') }}
             </button>
           </div>
           <div v-else class="id-shot-empty">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span>No screenshot attached</span>
+            <span>{{ $t('qualityModal.noScreenshot') }}</span>
           </div>
         </div>
 
@@ -69,16 +69,16 @@
         <div class="id-col id-col-details">
           <!-- Description -->
           <div class="id-section">
-            <span class="id-section-label">Description</span>
+            <span class="id-section-label">{{ $t('qualityModal.description') }}</span>
             <p class="id-description">{{ issue.description || '—' }}</p>
           </div>
 
           <!-- Assignment -->
           <div class="id-section">
-            <span class="id-section-label">Assigned to</span>
+            <span class="id-section-label">{{ $t('websites.assignedMember') }}</span>
             <div v-if="isManager" class="id-assign-row">
               <select v-model="assignedLocal" class="id-select" @change="onAssignChange">
-                <option value="">Unassigned</option>
+                <option value="">{{ $t('qualityCheck.unassigned') }}</option>
                 <option v-for="m in members" :key="m.id" :value="m.id">
                   {{ m.fullName || m.email }}
                 </option>
@@ -91,8 +91,8 @@
 
           <!-- Comments -->
           <div class="id-section id-section-comments">
-            <span class="id-section-label">Comments &amp; updates</span>
-            <div v-if="issueComments.length === 0" class="id-comments-empty">No comments yet.</div>
+            <span class="id-section-label">{{ $t('qualityModal.commentsUpdates') }}</span>
+            <div v-if="issueComments.length === 0" class="id-comments-empty">{{ $t('workBoardDetail.noComments') }}</div>
             <div v-else class="id-comments">
               <div v-for="c in issueComments" :key="c.id" class="id-comment">
                 <div class="id-comment-head">
@@ -107,20 +107,20 @@
               <textarea
                 v-model="newComment"
                 class="id-input id-textarea"
-                placeholder="Add an update…"
+                :placeholder="$t('qualityModal.addUpdatePlaceholder')"
                 rows="2"
                 @keydown.enter.exact.prevent="postComment"
               />
               <div v-if="commentScreenshotUrl" class="id-comment-upload-preview">
                 <img :src="commentScreenshotUrl" alt="" />
                 <button type="button" class="btn-ghost id-remove-shot" :disabled="posting" @click="removeCommentScreenshot">
-                  Remove
+                  {{ $t('qualityModal.remove') }}
                 </button>
               </div>
               <div class="id-comment-actions">
                 <label class="btn-secondary id-upload-btn" :class="{ 'is-disabled': posting || uploadingCommentShot }">
                   <input type="file" accept="image/*" :disabled="posting || uploadingCommentShot" @change="onCommentScreenshotChange" />
-                  {{ uploadingCommentShot ? 'Uploading…' : commentScreenshotUrl ? 'Replace image' : 'Add image' }}
+                  {{ uploadingCommentShot ? $t('common.loading') : commentScreenshotUrl ? $t('qualityModal.replaceImage') : $t('qualityModal.addImage') }}
                 </label>
                 <button
                   type="button"
@@ -128,7 +128,7 @@
                   :disabled="!newComment.trim() || posting || uploadingCommentShot"
                   @click="postComment"
                 >
-                  {{ posting ? 'Posting…' : 'Post' }}
+                  {{ posting ? $t('qualityModal.posting') : $t('qualityModal.post') }}
                 </button>
               </div>
             </div>
@@ -144,10 +144,10 @@
             class="idlb-backdrop"
             role="dialog"
             aria-modal="true"
-            aria-label="Screenshot review"
+            aria-:label="$t('Screenshot review')"
             @click.self="lightboxOpen = false"
           >
-            <button class="idlb-close" type="button" title="Close (Esc)" @click="lightboxOpen = false">
+            <button class="idlb-close" type="button" :title="$t('Close (Esc)')" @click="lightboxOpen = false">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
             <img :src="issue.screenshotUrl" alt="Issue screenshot full size" class="idlb-img" />
@@ -156,10 +156,10 @@
               target="_blank"
               rel="noopener"
               class="idlb-open"
-              title="Open image in a new tab"
+              :title="$t('Open image in a new tab')"
               @click.stop
             >
-              Open in new tab
+              {{ $t('qualityModal.openNewTab') }}
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
           </div>
@@ -173,7 +173,7 @@
       <div v-if="issue" class="id-footer">
         <!-- Admin/Manager destructive actions -->
         <button v-if="isManager" class="btn-danger" type="button" :disabled="busy" @click="onDelete">
-          Delete
+          {{ $t('common.delete') }}
         </button>
 
         <div class="id-footer-actions">
@@ -184,7 +184,7 @@
             :disabled="busy"
             @click="$emit('edit', issue.id)"
           >
-            Edit Issue
+            {{ $t('qualityModal.editIssue') }}
           </button>
 
           <!-- Member Actions -->
@@ -195,7 +195,7 @@
             :disabled="busy"
             @click="move('in_progress')"
           >
-            Start Fix
+            {{ $t('qualityModal.startFix') }}
           </button>
           <button
             v-if="canMemberAct && issue.status === 'in_progress'"
@@ -204,7 +204,7 @@
             :disabled="busy"
             @click="move('needs_review')"
           >
-            Request Review
+            {{ $t('qualityModal.requestReview') }}
           </button>
 
           <!-- Admin / Head Actions -->
@@ -215,7 +215,7 @@
             :disabled="busy"
             @click="move('rejected')"
           >
-            Reject
+            {{ $t('qualityModal.reject') }}
           </button>
           <button
             v-if="canApprove && (issue.status === 'needs_review' || issue.status === 'fixed')"
@@ -224,10 +224,10 @@
             :disabled="busy"
             @click="move('approved')"
           >
-            Approve
+            {{ $t('qualityModal.approve') }}
           </button>
 
-          <button class="btn-ghost" type="button" @click="$emit('close')">Close</button>
+          <button class="btn-ghost" type="button" @click="$emit('close')">{{ $t('qualityModal.close') }}</button>
         </div>
       </div>
     </template>
@@ -236,10 +236,13 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Modal from '@/components/ui/Modal.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore, type Member } from '@/stores/data';
 import { optimizeImage } from '@/utils/imageOptimizer';
+
+const { t, te } = useI18n();
 import {
   useQualityCheckStore,
   QUALITY_ISSUE_TYPES,
@@ -380,7 +383,7 @@ const onAssignChange = async () => {
     });
     if (ok) {
       if (isManager.value && assignedLocal.value && assignedLocal.value !== previousAssignee) {
-        const sendAlert = window.confirm('Send Alert To Assignee?');
+        const sendAlert = window.confirm(t('qualityModal.sendAlertAssignee'));
         if (sendAlert) {
           const alertPayload = {
             alertId: `qc-reassign-${issue.value.id}-${Date.now()}`,
@@ -397,7 +400,7 @@ const onAssignChange = async () => {
         }
       }
     } else {
-      err.value = qc.error || 'Could not change assignee.';
+      err.value = qc.error || t('qualityModal.errors.updateError');
     }
   } finally {
     busy.value = false;
@@ -406,7 +409,7 @@ const onAssignChange = async () => {
 
 const onDelete = async () => {
   if (!issue.value) return;
-  if (!window.confirm(`Delete "${issue.value.title}"? This cannot be undone.`)) return;
+  if (!window.confirm(t('qualityModal.confirmDelete', { title: issue.value.title }))) return;
   busy.value = true;
   try {
     const ok = await qc.deleteIssue(issue.value.id);
@@ -467,22 +470,28 @@ const removeCommentScreenshot = () => {
 };
 
 // Formatters
-const typeLabel = (t?: QualityIssueType) =>
-  t ? (QUALITY_ISSUE_TYPES.find((x) => x.value === t)?.label ?? t) : '';
-const statusLabel = (s: QualityIssueStatus) =>
-  ({
-    new_issue: 'Open',
-    acknowledged: 'Acknowledged',
-    in_progress: 'In Progress',
-    fixed: 'Ready For Review',
-    needs_review: 'Ready For Review',
-    approved: 'Closed',
-    rejected: 'Open',
-    closed: 'Closed',
-    reopened: 'Open'
-  }[s] || s);
+const typeLabel = (tVal?: QualityIssueType) => {
+  if (!tVal) return '';
+  const key = `qualityCheck.types.${tVal}`;
+  return te(key) ? t(key) : (QUALITY_ISSUE_TYPES.find((x) => x.value === tVal)?.label ?? tVal);
+};
+const statusLabel = (s: QualityIssueStatus) => {
+  const mappedKey = {
+    new_issue: 'open',
+    acknowledged: 'pending',
+    in_progress: 'in_progress',
+    fixed: 'pending_review',
+    needs_review: 'pending_review',
+    approved: 'closed',
+    rejected: 'open',
+    closed: 'closed',
+    reopened: 'open'
+  }[s] || s;
+  const key = `common.statuses.${mappedKey}`;
+  return te(key) ? t(key) : s;
+};
 const memberName = (id: string | null) =>
-  id ? (data.members.find((m) => m.id === id)?.fullName || 'Unassigned') : 'Unassigned';
+  id ? (data.members.find((m) => m.id === id)?.fullName || t('qualityCheck.unassigned')) : t('qualityCheck.unassigned');
 const formatDate = (d: string) =>
   new Date(`${d}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 const formatTimestamp = (ts: string) =>
@@ -649,7 +658,7 @@ const shortUrl = (url: string): string => {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  color: #fff;
+  color: #f8fbff;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.86rem;
   font-weight: 800;
@@ -670,9 +679,9 @@ const shortUrl = (url: string): string => {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(248, 251, 255, 0.18);
   background: rgba(8, 12, 20, 0.55);
-  color: #fff;
+  color: #f8fbff;
   border-radius: 999px;
   padding: 0.3rem 0.7rem;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
@@ -685,7 +694,7 @@ const shortUrl = (url: string): string => {
 }
 .id-shot-review:hover {
   background: rgba(8, 12, 20, 0.8);
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(248, 251, 255, 0.3);
 }
 
 /* Empty screenshot state — keeps left column from collapsing */
@@ -732,15 +741,15 @@ const shortUrl = (url: string): string => {
   height: 2.4rem;
   border-radius: 999px;
   border: none;
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  background: rgba(248, 251, 255, 0.12);
+  color: #f8fbff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: background 140ms;
 }
-.idlb-close:hover { background: rgba(255, 255, 255, 0.22); }
+.idlb-close:hover { background: rgba(248, 251, 255, 0.22); }
 .idlb-open {
   position: absolute;
   bottom: 1.1rem;
@@ -751,15 +760,15 @@ const shortUrl = (url: string): string => {
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.78rem;
   font-weight: 800;
-  color: #fff;
+  color: #f8fbff;
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(248, 251, 255, 0.12);
+  border: 1px solid rgba(248, 251, 255, 0.18);
   border-radius: 999px;
   padding: 0.4rem 0.85rem;
   transition: background 140ms;
 }
-.idlb-open:hover { background: rgba(255, 255, 255, 0.22); }
+.idlb-open:hover { background: rgba(248, 251, 255, 0.22); }
 .idlb-fade-enter-active,
 .idlb-fade-leave-active { transition: opacity 180ms ease; }
 .idlb-fade-enter-from,

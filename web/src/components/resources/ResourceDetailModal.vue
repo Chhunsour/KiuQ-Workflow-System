@@ -88,7 +88,7 @@
         v-else-if="resource.type === 'link' || resource.type === 'website_ref'"
         class="rounded-card border border-border p-4"
       >
-        <div class="ui-font text-xs font-medium uppercase text-text-muted">URL</div>
+        <div class="ui-font text-xs font-medium uppercase text-text-muted">{{ $t('URL') }}</div>
         <div class="mt-1 break-all text-sm text-primary">{{ resource.externalUrl || '—' }}</div>
         <div class="mt-3">
           <a
@@ -98,7 +98,7 @@
             rel="noopener"
             class="btn-primary"
           >
-            Open Link
+            {{ $t('Open Link') }}
           </a>
         </div>
       </div>
@@ -117,32 +117,32 @@
       <!-- Organization tags -->
       <dl class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
         <div v-if="folderName" class="flex justify-between gap-2">
-          <dt class="text-text-muted">Folder</dt>
+          <dt class="text-text-muted">{{ $t('Folder') }}</dt>
           <dd class="ui-font text-text-main">{{ folderName }}</dd>
         </div>
         <div v-if="projectName" class="flex justify-between gap-2">
-          <dt class="text-text-muted">Project</dt>
+          <dt class="text-text-muted">{{ $t('Project') }}</dt>
           <dd class="ui-font text-text-main">{{ projectName }}</dd>
         </div>
         <div v-if="websiteName" class="flex justify-between gap-2">
-          <dt class="text-text-muted">Website</dt>
+          <dt class="text-text-muted">{{ $t('Website') }}</dt>
           <dd class="ui-font text-text-main">{{ websiteName }}</dd>
         </div>
         <div class="flex justify-between gap-2">
-          <dt class="text-text-muted">Created by</dt>
+          <dt class="text-text-muted">{{ $t('Created by') }}</dt>
           <dd class="ui-font text-text-main">{{ creatorName }}</dd>
         </div>
         <div class="flex justify-between gap-2">
-          <dt class="text-text-muted">Updated</dt>
+          <dt class="text-text-muted">{{ $t('Updated') }}</dt>
           <dd class="ui-font text-text-main">{{ resource.updatedAt || resource.createdAt || '—' }}</dd>
         </div>
       </dl>
     </div>
 
     <template #footer>
-      <button class="btn-ghost" type="button" @click="$emit('close')">Close</button>
+      <button class="btn-ghost" type="button" @click="$emit('close')">{{ $t('Close') }}</button>
       <button v-if="canEdit && resource" class="btn-secondary" type="button" @click="$emit('edit', resource)">
-        Edit
+        {{ $t('Edit') }}
       </button>
     </template>
   </Modal>

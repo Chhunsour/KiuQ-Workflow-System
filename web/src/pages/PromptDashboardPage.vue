@@ -1,7 +1,7 @@
 <template>
   <div>
     <PageHeader
-      title="Prompt Dashboard"
+      :title="$t('Prompt Dashboard')"
       subtitle="Select a website to start building prompts — website-first workflow."
     >
       <template #actions>
@@ -9,13 +9,13 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
           </svg>
-          Prompt Library
+          {{ $t('Prompt Library') }}
         </RouterLink>
         <RouterLink to="/websites/new" class="btn-primary">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14"/>
           </svg>
-          New Website
+          {{ $t('New Website') }}
         </RouterLink>
       </template>
     </PageHeader>
@@ -39,14 +39,14 @@
         v-model="search"
         type="search"
         class="input flex-1 min-w-[200px]"
-        placeholder="Search websites by name or domain…"
+        :placeholder="$t('Search websites by name or domain…')"
       />
       <select v-if="auth.isAdmin" v-model="filterMember" class="input w-48">
-        <option value="">All members</option>
+        <option value="">{{ $t('All members') }}</option>
         <option v-for="m in data.members" :key="m.id" :value="m.id">{{ m.fullName }}</option>
       </select>
       <select v-model="filterType" class="input w-48">
-        <option value="">All types</option>
+        <option value="">{{ $t('All types') }}</option>
         <option v-for="opt in typeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
       </select>
     </div>
@@ -77,7 +77,7 @@
                 rel="noopener"
                 class="pd-card-domain"
               >{{ displayDomain(w.domain) }}</a>
-              <span v-else class="pd-card-domain pd-card-domain--empty">No domain set</span>
+              <span v-else class="pd-card-domain pd-card-domain--empty">{{ $t('No domain set') }}</span>
             </div>
           </div>
 
@@ -129,7 +129,7 @@
 
           <!-- Action -->
           <RouterLink :to="`/prompt/website/${w.id}`" class="btn-primary pd-open-btn">
-            Open Prompts
+            {{ $t('Open Prompts') }}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
@@ -140,11 +140,11 @@
       <!-- Empty state -->
       <EmptyState
         v-else
-        title="No websites yet"
+        :title="$t('No websites yet')"
         description="Create a website first, fill in the details, then come back to build prompts."
       >
         <template #action>
-          <RouterLink to="/websites/new" class="btn-primary">Create Website</RouterLink>
+          <RouterLink to="/websites/new" class="btn-primary">{{ $t('Create Website') }}</RouterLink>
         </template>
       </EmptyState>
     </LoadingBlock>
@@ -258,7 +258,7 @@ onMounted(async () => {
   height: 1.3rem;
   border-radius: 50%;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   font-size: 0.65rem;
   font-weight: 700;
   flex-shrink: 0;
@@ -337,7 +337,7 @@ onMounted(async () => {
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   opacity: 0.85;
 }
 .pd-creator {

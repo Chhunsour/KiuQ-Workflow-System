@@ -67,7 +67,7 @@
     </div>
 
     <div class="mt-auto flex flex-wrap items-center gap-2 pt-4">
-      <button class="btn-secondary" type="button" @click="$emit('view', resource)">View</button>
+      <button class="btn-secondary" type="button" @click="$emit('view', resource)">{{ $t('View') }}</button>
       <a
         v-if="normalizedLinkHref"
         :href="normalizedLinkHref"
@@ -75,7 +75,7 @@
         rel="noopener"
         class="btn-primary"
       >
-        Open Link
+        {{ $t('Open Link') }}
       </a>
       <button
         v-if="canOpenFile"
@@ -87,10 +87,10 @@
         {{ openingFile ? 'Opening...' : 'Open File' }}
       </button>
       <button v-if="canEdit" class="btn-secondary" type="button" @click="$emit('edit', resource)">
-        Edit
+        {{ $t('Edit') }}
       </button>
       <button v-if="canDelete" class="btn-danger" type="button" @click="$emit('delete', resource)">
-        Delete
+        {{ $t('Delete') }}
       </button>
     </div>
   </article>

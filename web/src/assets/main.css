@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -731,4 +733,42 @@
    * numbers + icons all fit cleanly side by side in two columns.
    */
   .card .text-3xl { font-size: 1.5rem; line-height: 1.15; }
+}
+
+/* ── Khmer font styling overrides when html[lang='km'] ── */
+html[lang='km'] {
+  font-family: 'Kantumruy Pro', sans-serif !important;
+}
+
+html[lang='km'] button,
+html[lang='km'] .btn,
+html[lang='km'] .btn-primary,
+html[lang='km'] .btn-secondary,
+html[lang='km'] .btn-ghost,
+html[lang='km'] .input,
+html[lang='km'] .label,
+html[lang='km'] .helper,
+html[lang='km'] .ui-font,
+html[lang='km'] h1,
+html[lang='km'] h2,
+html[lang='km'] h3,
+html[lang='km'] h4,
+html[lang='km'] h5,
+html[lang='km'] h6,
+html[lang='km'] table,
+html[lang='km'] select,
+html[lang='km'] textarea,
+html[lang='km'] placeholder,
+html[lang='km'] .nav-item,
+html[lang='km'] .nav-section-label,
+html[lang='km'] .eyebrow,
+html[lang='km'] .kpi-label,
+html[lang='km'] .topbar-search-text {
+  font-family: 'Kantumruy Pro', sans-serif !important;
+}
+
+/* Numbers still use Pliant */
+html[lang='km'] .font-number,
+html[lang='km'] .num {
+  font-family: 'Pliant', 'Jost Numbers', sans-serif !important;
 }

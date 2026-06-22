@@ -2,19 +2,19 @@
   <form class="space-y-5" @submit.prevent="$emit('submit', model)">
     <FormSelect
       v-model="model.type"
-      label="Resource type"
+      :label="$t('Resource type')"
       helper="Pick how this resource will be stored."
       :options="resourceTypeSelectOptions"
     />
 
     <FormInput
       v-model="model.title"
-      label="Title"
-      placeholder="What should we call this resource?"
+      :label="$t('Title')"
+      :placeholder="$t('What should we call this resource?')"
     />
     <FormTextarea
       v-model="model.description"
-      label="Description (optional)"
+      :label="$t('Description (optional)')"
       :rows="3"
       helper="Tell the team what this is for."
     />
@@ -33,7 +33,7 @@
     <LinkPreviewField
       v-if="isLink"
       v-model="model.externalUrl"
-      label="URL"
+      :label="$t('URL')"
       helper="External links open in a new tab."
     />
 
@@ -48,26 +48,26 @@
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <FormSelect
         v-model="folderValue"
-        label="Folder (optional)"
-        placeholder="No folder"
+        :label="$t('Folder (optional)')"
+        :placeholder="$t('No folder')"
         :options="folderOptions"
       />
       <FormSelect
         v-model="projectValue"
-        label="Project (optional)"
-        placeholder="None"
+        :label="$t('Project (optional)')"
+        :placeholder="$t('None')"
         :options="projectOptions"
       />
       <FormSelect
         v-model="websiteValue"
-        label="Website (optional)"
-        placeholder="None"
+        :label="$t('Website (optional)')"
+        :placeholder="$t('None')"
         :options="websiteOptions"
       />
       <FormSelect
         v-model="taskValue"
-        label="Task (optional)"
-        placeholder="None"
+        :label="$t('Task (optional)')"
+        :placeholder="$t('None')"
         :options="taskOptions"
       />
     </div>
@@ -75,13 +75,13 @@
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <FormSelect
         v-model="model.visibility"
-        label="Visibility"
+        :label="$t('Visibility')"
         :options="visibilityOptions"
         helper="Private = only you. Team Visible = whole team."
       />
       <FormSelect
         v-model="model.status"
-        label="Status"
+        :label="$t('Status')"
         :options="statusSelectOptions"
         helper="Draft = work in progress. Published = ready to share."
       />

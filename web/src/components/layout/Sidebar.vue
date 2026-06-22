@@ -7,8 +7,8 @@
       <button
         type="button"
         class="app-sidebar-brand flex flex-col items-center gap-1.5"
-        title="Refresh page"
-        aria-label="Refresh page"
+        :title="$t('Refresh page')"
+        :aria-label="$t('Refresh page')"
         @click="refreshPage"
       >
         <img
@@ -16,12 +16,12 @@
           alt="KiuQ Website System"
           class="app-sidebar-logo h-auto w-full max-w-[183px] object-contain"
         />
-        <div class="app-sidebar-logo-sub text-[10px] uppercase tracking-wider text-text-muted opacity-80">KiuQ Website System</div>
+        <div class="app-sidebar-logo-sub text-[10px] uppercase tracking-wider text-text-muted opacity-80">{{ $t('KiuQ Website System') }}</div>
       </button>
       <button
         type="button"
         class="app-sidebar-close btn-ghost h-8 w-8 px-0"
-        aria-label="Close menu"
+        :aria-label="$t('Close menu')"
         @click="$emit('close')"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -33,7 +33,9 @@
     <nav class="app-sidebar-nav flex-1 space-y-1 overflow-y-auto px-3 pb-6">
       <template v-for="item in visibleNavItems" :key="item.to">
         <!-- Section label (expanded) / hairline divider (collapsed) -->
-        <div v-if="item.section && !collapsed" class="nav-section-label">{{ item.section }}</div>
+        <div v-if="item.section && !collapsed" class="nav-section-label">
+          {{ getNavTranslationKey(item.section) ? $t(getNavTranslationKey(item.section)) : item.section }}
+        </div>
         <div v-else-if="item.section && collapsed" class="nav-collapsed-divider" aria-hidden="true" />
         <!-- Group item (has children) -->
         <div v-if="item.children?.length">
@@ -52,12 +54,14 @@
               @click="toggleGroup(item.to)"
             >
               <span class="flex h-5 w-5 items-center justify-center" v-html="item.icon"></span>
-              <span class="min-w-0 flex-1 truncate text-left">{{ item.label }}</span>
+              <span class="min-w-0 flex-1 truncate text-left">
+                {{ getNavTranslationKey(item.label) ? $t(getNavTranslationKey(item.label)) : item.label }}
+              </span>
             </RouterLink>
             <button
               type="button"
               class="ml-auto flex-shrink-0 rounded p-1 transition-colors text-text-muted hover:text-text-main"
-              aria-label="Toggle section"
+              :aria-label="$t('Toggle section')"
               @click.stop="toggleGroup(item.to)"
             >
               <svg
@@ -86,8 +90,10 @@
                   :class="{ 'nav-item-active': isActive(child) }"
                 >
                   <span class="flex h-4 w-4 items-center justify-center" v-html="child.icon"></span>
-                  <span class="min-w-0 flex-1 truncate">{{ child.label }}</span>
-                  <span v-if="child.isLocked" class="ml-auto flex items-center justify-center text-text-muted opacity-70" title="Locked">
+                  <span class="min-w-0 flex-1 truncate">
+                    {{ getNavTranslationKey(child.label) ? $t(getNavTranslationKey(child.label)) : child.label }}
+                  </span>
+                  <span v-if="child.isLocked" class="ml-auto flex items-center justify-center text-text-muted opacity-70" :title="$t('Locked')">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -107,8 +113,10 @@
           :class="{ 'nav-item-active': isActive(item) }"
         >
           <span class="flex h-5 w-5 items-center justify-center" v-html="item.icon"></span>
-          <span class="min-w-0 flex-1 truncate">{{ item.label }}</span>
-          <span v-if="item.isLocked" class="ml-auto flex items-center justify-center text-text-muted opacity-70" title="Locked">
+          <span class="min-w-0 flex-1 truncate">
+            {{ getNavTranslationKey(item.label) ? $t(getNavTranslationKey(item.label)) : item.label }}
+          </span>
+          <span v-if="item.isLocked" class="ml-auto flex items-center justify-center text-text-muted opacity-70" :title="$t('Locked')">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
               <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -129,8 +137,8 @@
       <button
         type="button"
         class="app-sidebar-collapse-btn"
-        :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-        :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        :aria-label="collapsed ? $t('Expand sidebar') : $t('Collapse sidebar')"
+        :title="collapsed ? $t('Expand sidebar') : $t('Collapse sidebar')"
         @click="toggleCollapsed"
       >
         <svg
@@ -140,7 +148,7 @@
         >
           <path d="M15 18l-6-6 6-6" />
         </svg>
-        <span class="app-sidebar-collapse-label">Collapse</span>
+        <span class="app-sidebar-collapse-label">{{ $t('nav.collapse') }}</span>
       </button>
     </div>
 
@@ -168,7 +176,7 @@
         class="app-sidebar-viewfull mt-2 block rounded-btn px-3 py-2 text-center ui-font text-xs font-medium text-primary hover:bg-soft"
         :to="`/profiles/${auth.user.id}`"
       >
-        View Full
+        {{ $t('nav.viewFull') }}
       </RouterLink>
     </div>
   </aside>
@@ -180,6 +188,68 @@ import { useRoute } from 'vue-router';
 import { adminNavItems, memberNavItems, qualityCheckerNavItems, type NavItem } from './navItems';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
+
+const getNavTranslationKey = (label: string) => {
+  const mapping: Record<string, string> = {
+    'Dashboard': 'nav.dashboard',
+    'My Dashboard': 'nav.dashboard',
+    'Command Center': 'nav.commandCenter',
+    'Winner Center': 'nav.winnerCenter',
+    'Work Board': 'nav.workBoard',
+    'My Work Board': 'nav.myWorkBoard',
+    'Member Board': 'nav.memberBoard',
+    'Quality Check': 'nav.qualityCheck',
+    'Quality Check Board': 'nav.qualityCheck',
+    'Followup': 'nav.followup',
+    'Followup Center': 'nav.followup',
+    'Blog Followup': 'nav.blogFollowup',
+    'Plugin Update': 'nav.pluginUpdate',
+    'eBay Click Followup': 'nav.ebayClickFollowup',
+    'Website Optimization': 'nav.websiteOptimization',
+    'Calendar': 'nav.calendar',
+    'Reports': 'nav.reports',
+    'Projects': 'nav.projects',
+    'Folders': 'nav.folders',
+    'Websites': 'nav.websites',
+    'My Websites': 'nav.myWebsites',
+    'Team Websites': 'nav.teamWebsites',
+    'New Website': 'nav.newWebsite',
+    'Performance': 'nav.performance',
+    'Overview': 'nav.overview',
+    'Page Indexing': 'nav.pageIndexing',
+    'CMS': 'nav.cms',
+    'Products': 'nav.products',
+    'Blog Posts': 'nav.blogPosts',
+    'Blog Center': 'nav.blogCenter',
+    'Images': 'nav.images',
+    'Prompt': 'nav.prompt',
+    'Prompt Dashboard': 'nav.promptDashboard',
+    'Prompt Library': 'nav.promptLibrary',
+    'Prompt Builder': 'nav.promptBuilder',
+    'Old Prompt Library': 'nav.oldPromptLibrary',
+    'Members': 'nav.members',
+    'Team Members': 'nav.members',
+    'Reviews': 'nav.reviews',
+    'Leaderboard': 'nav.leaderboard',
+    'Activity': 'nav.activity',
+    'Notes': 'nav.notes',
+    'Docs': 'nav.docs',
+    'Resources': 'nav.resources',
+    'Settings': 'nav.settings',
+    'Account Settings': 'nav.settings',
+    'Task Alerts': 'nav.taskAlerts',
+    'Profile': 'nav.profile',
+    'My Profile': 'nav.myProfile',
+    'Member Profile': 'nav.memberProfile',
+    'Executive': 'nav.executiveSection',
+    'Operations': 'nav.operationsSection',
+    'Content': 'nav.contentSection',
+    'Team': 'nav.teamSection',
+    'Library': 'nav.librarySection',
+    'System': 'nav.systemSection'
+  };
+  return mapping[label] || '';
+};
 import { roleLabel } from '@/lib/roles';
 import { useSidebarCollapsed } from '@/composables/useSidebarCollapsed';
 

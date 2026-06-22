@@ -24,7 +24,7 @@
       <button
         class="tc-menu-trigger"
         type="button"
-        title="Task actions"
+        :title="$t('Task actions')"
         @click.stop="toggleMenu"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -32,12 +32,12 @@
         </svg>
       </button>
       <div v-if="menuOpen" class="tc-menu-dropdown">
-        <button class="tc-menu-item" type="button" @click.stop="handleEdit">Edit</button>
-        <button class="tc-menu-item" type="button" @click.stop="handleAssign">Assign</button>
-        <button class="tc-menu-item" type="button" @click.stop="handleAlert">Send Alert</button>
-        <button class="tc-menu-item" type="button" @click.stop="handleReceipts">View Receipts</button>
+        <button class="tc-menu-item" type="button" @click.stop="handleEdit">{{ $t('Edit') }}</button>
+        <button class="tc-menu-item" type="button" @click.stop="handleAssign">{{ $t('Assign') }}</button>
+        <button class="tc-menu-item" type="button" @click.stop="handleAlert">{{ $t('Send Alert') }}</button>
+        <button class="tc-menu-item" type="button" @click.stop="handleReceipts">{{ $t('View Receipts') }}</button>
         <div class="tc-menu-divider" />
-        <button class="tc-menu-item tc-menu-item--danger" type="button" @click.stop="handleArchive">Archive</button>
+        <button class="tc-menu-item tc-menu-item--danger" type="button" @click.stop="handleArchive">{{ $t('Archive') }}</button>
       </div>
     </div>
 
@@ -52,7 +52,7 @@
             <line x1="21" y1="3" x2="14" y2="10"></line>
             <line x1="3" y1="21" x2="10" y2="14"></line>
           </svg>
-          View Full
+          {{ $t('View Full') }}
         </button>
       </div>
     </div>
@@ -85,18 +85,18 @@
     <div v-if="isManager && receiptSummary && receiptSummary.delivered > 0" class="tc-tracking-panel" @click.stop>
       <div class="tc-tracking-header">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Alert Status
+        {{ $t('Alert Status') }}
       </div>
       <div class="tc-tracking-stats">
-        <span>Delivered: <strong>Yes</strong></span>
-        <span>Opened: <strong>{{ receiptSummary.opened > 0 ? 'Yes' : 'No' }}</strong></span>
-        <span>Acked: <strong>{{ receiptSummary.acknowledged === receiptSummary.delivered ? 'Yes' : 'No' }}</strong></span>
+        <span>{{ $t('Delivered:') }} <strong>{{ $t('Yes') }}</strong></span>
+        <span>{{ $t('Opened:') }} <strong>{{ receiptSummary.opened > 0 ? 'Yes' : 'No' }}</strong></span>
+        <span>{{ $t('Acked:') }} <strong>{{ receiptSummary.acknowledged === receiptSummary.delivered ? 'Yes' : 'No' }}</strong></span>
       </div>
       <div v-if="receiptSummary.lastAlertAt" class="tc-tracking-time">
-        Last Alert: <strong>{{ formattedAlertDate(receiptSummary.lastAlertAt) }}</strong>
+        {{ $t('Last Alert:') }} <strong>{{ formattedAlertDate(receiptSummary.lastAlertAt) }}</strong>
       </div>
       <div class="tc-tracking-actions">
-        <button class="tc-track-btn" type="button" @click.stop="handleReceipts">View Receipts</button>
+        <button class="tc-track-btn" type="button" @click.stop="handleReceipts">{{ $t('View Receipts') }}</button>
         <button class="tc-track-btn" type="button" :disabled="repushingAlerts || receiptSummary.pending === 0" @click.stop="handleRepush">
           {{ repushingAlerts ? 'Nudging...' : 'Repush' }}
         </button>
@@ -126,9 +126,9 @@
           <span v-if="members.length > 1" class="tc-extra">+{{ members.length - 1 }}</span>
         </span>
       </div>
-      <span v-else class="tc-unassigned">Unassigned</span>
+      <span v-else class="tc-unassigned">{{ $t('Unassigned') }}</span>
 
-      <button class="tc-open" type="button" @click.stop="$emit('open')">Open</button>
+      <button class="tc-open" type="button" @click.stop="$emit('open')">{{ $t('Open') }}</button>
     </div>
 
     <!-- Move celebration sparkles -->
@@ -457,7 +457,7 @@ const createdBy = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  background: white;
+  background: var(--card-elevated-bg);
   color: #0f172a;
   border: none;
   padding: 0.4rem 0.75rem;
@@ -476,7 +476,7 @@ const createdBy = computed(() => {
 
 .tc-view-btn:hover {
   background: var(--primary);
-  color: white;
+  color: #f8fbff;
   transform: scale(1.05);
 }
 
@@ -673,7 +673,7 @@ const createdBy = computed(() => {
 .tc-open:hover {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 36%, transparent);
 }
 
@@ -755,15 +755,15 @@ const createdBy = computed(() => {
   background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(248, 251, 255, 0.08);
+  color: rgba(248, 251, 255, 0.85);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .tc-menu-trigger:hover {
   background: rgba(15, 23, 42, 0.75);
-  color: #fff;
+  color: #f8fbff;
 }
 
 .tc-menu-dropdown {

@@ -9,28 +9,28 @@
           class="fde-btn"
           :class="{ 'fde-btn--active': editor.isActive('heading', { level: 1 }) }"
           @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
-          title="Heading 1"
-        >H1</button>
+          :title="$t('Heading 1')"
+        >{{ $t('H1') }}</button>
         <button
           type="button"
           class="fde-btn"
           :class="{ 'fde-btn--active': editor.isActive('heading', { level: 2 }) }"
           @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-          title="Heading 2"
-        >H2</button>
+          :title="$t('Heading 2')"
+        >{{ $t('H2') }}</button>
         <button
           type="button"
           class="fde-btn"
           :class="{ 'fde-btn--active': editor.isActive('heading', { level: 3 }) }"
           @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
-          title="Heading 3"
-        >H3</button>
+          :title="$t('Heading 3')"
+        >{{ $t('H3') }}</button>
         <button
           type="button"
           class="fde-btn"
           :class="{ 'fde-btn--active': editor.isActive('paragraph') && !editor.isActive('heading') }"
           @click="editor.chain().focus().setParagraph().run()"
-          title="Paragraph"
+          :title="$t('Paragraph')"
         >P</button>
       </div>
 
@@ -43,21 +43,21 @@
           class="fde-btn fde-btn--fmt"
           :class="{ 'fde-btn--active': editor.isActive('bold') }"
           @click="editor.chain().focus().toggleBold().run()"
-          title="Bold"
+          :title="$t('Bold')"
         ><strong>B</strong></button>
         <button
           type="button"
           class="fde-btn fde-btn--fmt"
           :class="{ 'fde-btn--active': editor.isActive('italic') }"
           @click="editor.chain().focus().toggleItalic().run()"
-          title="Italic"
+          :title="$t('Italic')"
         ><em>I</em></button>
         <button
           type="button"
           class="fde-btn fde-btn--fmt"
           :class="{ 'fde-btn--active': editor.isActive('underline') }"
           @click="editor.chain().focus().toggleUnderline().run()"
-          title="Underline"
+          :title="$t('Underline')"
         ><span style="text-decoration: underline">U</span></button>
       </div>
 
@@ -70,7 +70,7 @@
           class="fde-btn"
           :class="{ 'fde-btn--active': editor.isActive('bulletList') }"
           @click="editor.chain().focus().toggleBulletList().run()"
-          title="Bullet List"
+          :title="$t('Bullet List')"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
@@ -82,7 +82,7 @@
           class="fde-btn"
           :class="{ 'fde-btn--active': editor.isActive('orderedList') }"
           @click="editor.chain().focus().toggleOrderedList().run()"
-          title="Ordered List"
+          :title="$t('Ordered List')"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/>
@@ -102,7 +102,7 @@
           class="fde-btn"
           :class="{ 'fde-btn--active': editor.isActive('link') }"
           @click="toggleLinkDialog"
-          title="Insert Link"
+          :title="$t('Insert Link')"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
@@ -113,7 +113,7 @@
           type="button"
           class="fde-btn"
           @click="showImageDialog = true"
-          title="Insert Image"
+          :title="$t('Insert Image')"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" />
@@ -130,7 +130,7 @@
           class="fde-btn"
           @click="editor.chain().focus().undo().run()"
           :disabled="!editor.can().undo()"
-          title="Undo"
+          :title="$t('Undo')"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.69 3L3 13"/>
@@ -141,7 +141,7 @@
           class="fde-btn"
           @click="editor.chain().focus().redo().run()"
           :disabled="!editor.can().redo()"
-          title="Redo"
+          :title="$t('Redo')"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6.69 3L21 13"/>
@@ -167,10 +167,10 @@
               </svg>
               {{ editor?.isActive('link') ? 'Edit Link' : 'Insert Link' }}
             </span>
-            <button type="button" class="fde-dialog__close" @click="closeLinkDialog" title="Close">✕</button>
+            <button type="button" class="fde-dialog__close" @click="closeLinkDialog" :title="$t('Close')">✕</button>
           </div>
           <div class="fde-dialog__body">
-            <label class="fde-dialog__label">URL</label>
+            <label class="fde-dialog__label">{{ $t('URL') }}</label>
             <input
               v-model="linkUrl"
               type="text"
@@ -181,7 +181,7 @@
             />
             <label class="fde-dialog__label" style="margin-top: 8px">
               <input type="checkbox" v-model="linkNewTab" class="fde-dialog__checkbox" />
-              Open in new tab
+              {{ $t('Open in new tab') }}
             </label>
           </div>
           <div class="fde-dialog__footer">
@@ -190,9 +190,9 @@
               type="button"
               class="fde-dialog__btn fde-dialog__btn--danger"
               @click="removeLink"
-            >Remove Link</button>
+            >{{ $t('Remove Link') }}</button>
             <div style="flex: 1"></div>
-            <button type="button" class="fde-dialog__btn fde-dialog__btn--ghost" @click="closeLinkDialog">Cancel</button>
+            <button type="button" class="fde-dialog__btn fde-dialog__btn--ghost" @click="closeLinkDialog">{{ $t('Cancel') }}</button>
             <button type="button" class="fde-dialog__btn fde-dialog__btn--primary" @click="applyLink">
               {{ editor?.isActive('link') ? 'Update' : 'Insert' }}
             </button>
@@ -210,12 +210,12 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" />
               </svg>
-              Insert Image
+              {{ $t('Insert Image') }}
             </span>
-            <button type="button" class="fde-dialog__close" @click="showImageDialog = false" title="Close">✕</button>
+            <button type="button" class="fde-dialog__close" @click="showImageDialog = false" :title="$t('Close')">✕</button>
           </div>
           <div class="fde-dialog__body">
-            <label class="fde-dialog__label">Image URL</label>
+            <label class="fde-dialog__label">{{ $t('Image URL') }}</label>
             <input
               v-model="imageUrl"
               type="text"
@@ -224,12 +224,12 @@
               @keydown.enter.prevent="insertImage"
               ref="imageUrlInput"
             />
-            <label class="fde-dialog__label" style="margin-top: 8px">Alt Text (optional)</label>
+            <label class="fde-dialog__label" style="margin-top: 8px">{{ $t('Alt Text (optional)') }}</label>
             <input
               v-model="imageAlt"
               type="text"
               class="fde-dialog__input"
-              placeholder="Product image description"
+              :placeholder="$t('Product image description')"
             />
             <div v-if="imagePreviewUrl" class="fde-image-preview">
               <img :src="imagePreviewUrl" alt="Preview" />
@@ -238,8 +238,8 @@
           </div>
           <div class="fde-dialog__footer">
             <div style="flex: 1"></div>
-            <button type="button" class="fde-dialog__btn fde-dialog__btn--ghost" @click="showImageDialog = false">Cancel</button>
-            <button type="button" class="fde-dialog__btn fde-dialog__btn--primary" @click="insertImage">Insert Image</button>
+            <button type="button" class="fde-dialog__btn fde-dialog__btn--ghost" @click="showImageDialog = false">{{ $t('Cancel') }}</button>
+            <button type="button" class="fde-dialog__btn fde-dialog__btn--primary" @click="insertImage">{{ $t('Insert Image') }}</button>
           </div>
         </div>
       </div>
@@ -473,7 +473,7 @@ onBeforeUnmount(() => {
 }
 .fde-btn--active {
   background: var(--primary) !important;
-  color: #fff !important;
+  color: #f8fbff !important;
 }
 .fde-btn--fmt strong { font-size: 12px; }
 .fde-btn--fmt em { font-size: 12px; font-style: italic; }
@@ -718,7 +718,7 @@ onBeforeUnmount(() => {
 }
 .fde-dialog__btn--primary {
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 .fde-dialog__btn--primary:hover { filter: brightness(1.1); }
 .fde-dialog__btn--ghost {

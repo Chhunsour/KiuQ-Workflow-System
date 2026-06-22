@@ -10,7 +10,7 @@
             <div class="cms-logo-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             </div>
-            <span class="cms-logo-text">CMS Studio</span>
+            <span class="cms-logo-text">{{ $t('CMS Studio') }}</span>
           </div>
           <button type="button" class="btn-sidebar-toggle" @click="sidebarCollapsed = !sidebarCollapsed" :title="sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'">
             <svg class="chevron-toggle-icon" :class="{ 'collapsed': sidebarCollapsed }" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
@@ -21,13 +21,13 @@
           <!-- Action Buttons -->
           <div class="cms-sidebar-actions">
             <button type="button" class="btn-primary btn-sm btn-sidebar-new" :disabled="creatingPost" @click="onNewPost">
-              + New Post
+              {{ $t('+ New Post') }}
             </button>
           </div>
 
           <!-- Section: Headless Framework Websites -->
           <div class="cms-sidebar-section">
-            <div class="cms-section-label">Headless Frameworks</div>
+            <div class="cms-section-label">{{ $t('Headless Frameworks') }}</div>
             <ul class="cms-sidebar-list">
               <li
                 v-for="w in frameworkWebsites"
@@ -47,7 +47,7 @@
                 </div>
               </li>
               <li v-if="!frameworkWebsites.length" class="cms-sidebar-empty">
-                No headless websites
+                {{ $t('No headless websites') }}
               </li>
             </ul>
           </div>
@@ -62,14 +62,14 @@
           <header class="cms-hero reveal" style="--d: 0ms">
             <div class="cms-hero-glow" aria-hidden="true" />
             <div class="cms-hero-text">
-              <span class="eyebrow cms-hero-eyebrow">Content Management</span>
-              <h1 class="cms-hero-title">CMS Studio</h1>
+              <span class="eyebrow cms-hero-eyebrow">{{ $t('Content Management') }}</span>
+              <h1 class="cms-hero-title">{{ $t('CMS Studio') }}</h1>
               <p class="cms-hero-sub">
-                Select a website to browse, access its admin panel, or copy API keys. Publish products and blog posts here to go live automatically.
+                {{ $t('Select a website to browse, access its admin panel, or copy API keys. Publish products and blog posts here to go live automatically.') }}
               </p>
               <span class="cms-hero-pulse">
                 <span class="cms-hero-pulse-dot" />
-                Synced with Supabase
+                {{ $t('Synced with Supabase') }}
               </span>
             </div>
             <div class="cms-hero-actions">
@@ -110,8 +110,8 @@
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                   </span>
                   <div>
-                    <span class="eyebrow block">Catalog</span>
-                    <h3 class="section-title mt-0.5">Products</h3>
+                    <span class="eyebrow block">{{ $t('Catalog') }}</span>
+                    <h3 class="section-title mt-0.5">{{ $t('Products') }}</h3>
                   </div>
                 </div>
                 <span class="text-2xl font-bold text-text-soft font-mono">{{ productsStore.products.length }}</span>
@@ -142,17 +142,17 @@
                   </span>
                 </div>
                 <div v-if="!recentProducts.length" class="py-4 text-center text-text-muted text-xs italic">
-                  No products yet.
+                  {{ $t('No products yet.') }}
                 </div>
               </div>
 
               <div class="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
                 <span class="text-xs text-primary font-bold hover:underline flex items-center gap-1">
-                  Manage Catalog
+                  {{ $t('Manage Catalog') }}
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 </span>
                 <button type="button" class="btn-secondary py-1 px-3 text-xs rounded-lg" :disabled="creatingProduct" @click.stop="onNewProduct">
-                  + New
+                  {{ $t('+ New') }}
                 </button>
               </div>
             </article>
@@ -165,8 +165,8 @@
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                   </span>
                   <div>
-                    <span class="eyebrow block">Editorial</span>
-                    <h3 class="section-title mt-0.5">Blog Posts</h3>
+                    <span class="eyebrow block">{{ $t('Editorial') }}</span>
+                    <h3 class="section-title mt-0.5">{{ $t('Blog Posts') }}</h3>
                   </div>
                 </div>
                 <span class="text-2xl font-bold text-text-soft font-mono">{{ postsStore.posts.length }}</span>
@@ -197,17 +197,17 @@
                   </span>
                 </div>
                 <div v-if="!recentPosts.length" class="py-4 text-center text-text-muted text-xs italic">
-                  No posts yet.
+                  {{ $t('No posts yet.') }}
                 </div>
               </div>
 
               <div class="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
                 <span class="text-xs text-primary font-bold hover:underline flex items-center gap-1">
-                  Manage Posts
+                  {{ $t('Manage Posts') }}
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 </span>
                 <button type="button" class="btn-secondary py-1 px-3 text-xs rounded-lg" :disabled="creatingPost" @click.stop="onNewPost">
-                  + New
+                  {{ $t('+ New') }}
                 </button>
               </div>
             </article>
@@ -218,8 +218,8 @@
             <!-- Recent activity -->
             <section class="card card-pad">
               <header class="flex items-baseline justify-between border-b border-border pb-3 mb-4">
-                <h3 class="section-title">Recently Updated</h3>
-                <span class="text-xs text-text-soft">Products &amp; posts</span>
+                <h3 class="section-title">{{ $t('Recently Updated') }}</h3>
+                <span class="text-xs text-text-soft">{{ $t('Products &amp; posts') }}</span>
               </header>
               <div v-if="recentActivity.length" class="flex flex-col gap-1.5">
                 <div
@@ -256,8 +256,8 @@
             <!-- Connected websites directory grid cards -->
             <section class="card card-pad">
               <header class="flex items-baseline justify-between border-b border-border pb-3 mb-4">
-                <h3 class="section-title">Connected Websites</h3>
-                <span class="text-xs text-text-soft">Manage live and admin links</span>
+                <h3 class="section-title">{{ $t('Connected Websites') }}</h3>
+                <span class="text-xs text-text-soft">{{ $t('Manage live and admin links') }}</span>
               </header>
               <div v-if="frameworkWebsites.length" class="flex flex-col gap-3">
                 <div v-for="w in frameworkWebsites" :key="w.id" class="flex items-center justify-between p-3 rounded-btn border border-border bg-card hover:border-primary/40 hover:shadow-sm transition-all">
@@ -267,7 +267,7 @@
                     <div class="min-w-0">
                       <div class="flex items-center gap-2">
                         <span class="text-sm font-bold text-text-main truncate">{{ w.name }}</span>
-                        <span class="badge-framework-tag">Headless</span>
+                        <span class="badge-framework-tag">{{ $t('Headless') }}</span>
                       </div>
                       <span class="text-xs text-primary hover:underline truncate block cursor-pointer" @click.stop="openInBrowser(w, 'live')">{{ w.domain }}</span>
                     </div>
@@ -278,21 +278,21 @@
                       <span class="cms-status-dot" /> {{ getConnectionStatus(w).text }}
                     </span>
                     <button type="button" class="btn-primary py-1 px-2.5 text-xs rounded-lg" @click="openInBrowser(w, 'live')">
-                      Live
+                      {{ $t('Live') }}
                     </button>
                     <button type="button" class="btn-secondary py-1 px-2.5 text-xs rounded-lg" @click="openInBrowser(w, 'admin')">
-                      Admin
+                      {{ $t('Admin') }}
                     </button>
-                    <button type="button" class="p-1 flex items-center justify-center hover:bg-soft rounded-lg transition-colors text-text-muted hover:text-text-main" @click="activeSetupWebsite = w" title="API Keys">
+                    <button type="button" class="p-1 flex items-center justify-center hover:bg-soft rounded-lg transition-colors text-text-muted hover:text-text-main" @click="activeSetupWebsite = w" :title="$t('API Keys')">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
                     </button>
                   </div>
                 </div>
               </div>
               <div v-else class="py-12 text-center text-text-muted text-sm italic">
-                <p>No websites registered.</p>
+                <p>{{ $t('No websites registered.') }}</p>
                 <RouterLink to="/websites/new" class="btn-secondary py-1 px-3 text-xs rounded-lg mt-2 inline-block">
-                  + Add Website
+                  {{ $t('+ Add Website') }}
                 </RouterLink>
               </div>
             </section>
@@ -303,16 +303,16 @@
         <div v-else class="cms-browser-stage">
           <!-- Browser Toolbar -->
           <div class="app-browser-toolbar">
-            <button type="button" class="btn-browser-action btn-browser-close" @click="closeBrowser" title="Close Workspace (Esc)">
+            <button type="button" class="btn-browser-action btn-browser-close" @click="closeBrowser" :title="$t('Close Workspace (Esc)')">
               ×
             </button>
 
             <!-- Navigation Controls -->
             <div class="browser-nav-group">
-              <button type="button" class="btn-browser-action" @click="resetToHome" title="Home">
+              <button type="button" class="btn-browser-action" @click="resetToHome" :title="$t('Home')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               </button>
-              <button type="button" class="btn-browser-action" @click="reloadIframe" title="Reload View (F5)">
+              <button type="button" class="btn-browser-action" @click="reloadIframe" :title="$t('Reload View (F5)')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
               </button>
             </div>
@@ -325,7 +325,7 @@
                 :class="{ 'active': activeBrowserMode === 'live' }"
                 @click="activeBrowserMode = 'live'"
               >
-                Live View
+                {{ $t('Live View') }}
               </button>
               <div class="browser-mode-tab-split">
                 <button
@@ -334,9 +334,9 @@
                   :class="{ 'active': activeBrowserMode === 'admin' }"
                   @click="activeBrowserMode = 'admin'"
                 >
-                  Admin Panel
+                  {{ $t('Admin Panel') }}
                 </button>
-                <button type="button" class="btn-edit-admin-path" @click="toggleEditAdminPath" title="Edit Admin Path">
+                <button type="button" class="btn-edit-admin-path" @click="toggleEditAdminPath" :title="$t('Edit Admin Path')">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 </button>
               </div>
@@ -345,29 +345,29 @@
             <!-- Custom Admin Path Edit Popover -->
             <Transition name="fade">
               <div v-if="editAdminPath" class="admin-path-popover">
-                <label class="popover-label">Configure Admin Route Path:</label>
+                <label class="popover-label">{{ $t('Configure Admin Route Path:') }}</label>
                 <div class="popover-row">
-                  <input v-model="adminPathInput" type="text" class="input input-sm popover-input" placeholder="/admin" @keyup.enter="saveAdminPath" />
-                  <button type="button" class="btn-primary btn-sm" @click="saveAdminPath">Save</button>
+                  <input v-model="adminPathInput" type="text" class="input input-sm popover-input" :placeholder="$t('/admin')" @keyup.enter="saveAdminPath" />
+                  <button type="button" class="btn-primary btn-sm" @click="saveAdminPath">{{ $t('Save') }}</button>
                 </div>
               </div>
             </Transition>
 
             <!-- SSL & Address Bar -->
             <div class="browser-address-bar">
-              <span class="ssl-lock" title="Connection Secured (SSL)" style="display: flex; align-items: center; justify-content: center; color: #16a34a;">
+              <span class="ssl-lock" :title="$t('Connection Secured (SSL)')" style="display: flex; align-items: center; justify-content: center; color: #16a34a;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </span>
               <input type="text" readonly :value="currentBrowserUrl" class="browser-url-input" />
-              <button type="button" class="btn-address-copy flex items-center justify-center gap-1 min-w-[70px]" @click="copyText(currentBrowserUrl, 'url')" title="Copy URL">
+              <button type="button" class="btn-address-copy flex items-center justify-center gap-1 min-w-[70px]" @click="copyText(currentBrowserUrl, 'url')" :title="$t('Copy URL')">
                 <Transition name="scale-fade" mode="out-in">
                   <span v-if="copiedField === 'url'" class="flex items-center gap-1 text-green-500 font-bold">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span>Copied</span>
+                    <span>{{ $t('Copied') }}</span>
                   </span>
                   <span v-else class="flex items-center gap-1 text-primary">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                    <span>Copy</span>
+                    <span>{{ $t('Copy') }}</span>
                   </span>
                 </Transition>
               </button>
@@ -375,29 +375,29 @@
 
             <!-- Responsive Device Selectors -->
             <div class="browser-device-toggles">
-              <button type="button" class="btn-device-toggle" :class="{ 'active': activeDevice === 'desktop' }" @click="activeDevice = 'desktop'" title="Desktop Preview">
+              <button type="button" class="btn-device-toggle" :class="{ 'active': activeDevice === 'desktop' }" @click="activeDevice = 'desktop'" :title="$t('Desktop Preview')">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                <span class="device-label">Desktop</span>
+                <span class="device-label">{{ $t('Desktop') }}</span>
               </button>
-              <button type="button" class="btn-device-toggle" :class="{ 'active': activeDevice === 'tablet' }" @click="activeDevice = 'tablet'" title="Tablet Preview">
+              <button type="button" class="btn-device-toggle" :class="{ 'active': activeDevice === 'tablet' }" @click="activeDevice = 'tablet'" :title="$t('Tablet Preview')">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                <span class="device-label">Tablet</span>
+                <span class="device-label">{{ $t('Tablet') }}</span>
               </button>
-              <button type="button" class="btn-device-toggle" :class="{ 'active': activeDevice === 'mobile' }" @click="activeDevice = 'mobile'" title="Mobile Preview">
+              <button type="button" class="btn-device-toggle" :class="{ 'active': activeDevice === 'mobile' }" @click="activeDevice = 'mobile'" :title="$t('Mobile Preview')">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                <span class="device-label">Mobile</span>
+                <span class="device-label">{{ $t('Mobile') }}</span>
               </button>
             </div>
 
             <!-- Context Actions -->
             <div class="browser-utility-group">
-              <button v-if="selectedWebsite.isFramework" type="button" class="btn-browser-action" :class="{ 'active': showCredsDrawer }" @click="showCredsDrawer = !showCredsDrawer" title="View Supabase Keys">
+              <button v-if="selectedWebsite.isFramework" type="button" class="btn-browser-action" :class="{ 'active': showCredsDrawer }" @click="showCredsDrawer = !showCredsDrawer" :title="$t('View Supabase Keys')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-                Credentials
+                {{ $t('Credentials') }}
               </button>
-              <button type="button" class="btn-browser-action btn-open-external" @click="openExternally" title="Open in System Browser">
+              <button type="button" class="btn-browser-action btn-open-external" @click="openExternally" :title="$t('Open in System Browser')">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                Open External
+                {{ $t('Open External') }}
               </button>
             </div>
           </div>
@@ -407,23 +407,23 @@
             <div v-if="showCredsDrawer && selectedWebsite.isFramework" class="browser-creds-drawer">
               <div class="creds-drawer-content">
                 <div class="creds-field">
-                  <span class="creds-label">SUPABASE_WEBSITE_ID:</span>
+                  <span class="creds-label">{{ $t('SUPABASE_WEBSITE_ID:') }}</span>
                   <code class="creds-code">{{ selectedWebsite.id }}</code>
                   <button type="button" class="btn-secondary btn-xs btn-creds-copy min-w-[76px]" @click="copyText(selectedWebsite.id, 'drawerId')">
                     <Transition name="scale-fade" mode="out-in">
                       <span v-if="copiedField === 'drawerId'" class="flex items-center justify-center gap-1 text-green-500 font-bold">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span>Copied</span>
+                        <span>{{ $t('Copied') }}</span>
                       </span>
                       <span v-else class="flex items-center justify-center gap-1">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                        <span>Copy</span>
+                        <span>{{ $t('Copy') }}</span>
                       </span>
                     </Transition>
                   </button>
                 </div>
                 <div class="creds-status-ping-row">
-                  <span class="creds-label">Status check:</span>
+                  <span class="creds-label">{{ $t('Status check:') }}</span>
                   <span class="cms-status-badge" :class="getConnectionStatus(selectedWebsite).dotClass">
                     <span class="cms-status-dot" /> {{ getConnectionStatus(selectedWebsite).text }}
                   </span>
@@ -448,11 +448,10 @@
               <div class="flex items-center gap-2">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-amber-500"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 <span class="text-xs text-text-muted">
-                  <strong>Security Note:</strong> If the website refuses to load or shows a blank page, it is blocked by security frame headers (X-Frame-Options/CSP).
-                  Click the <a href="#" @click.prevent="openExternally" class="inline-flex items-center gap-1 font-bold text-primary hover:underline">Open External <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a> button in the toolbar to access it.
+                  <strong>{{ $t('Security Note:') }}</strong> {{ $t('If the website refuses to load or shows a blank page, it is blocked by security frame headers (X-Frame-Options/CSP). Click the') }} <a href="#" @click.prevent="openExternally" class="inline-flex items-center gap-1 font-bold text-primary hover:underline">{{ $t('Open External') }} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a> {{ $t('button in the toolbar to access it.') }}
                 </span>
               </div>
-              <button type="button" class="btn-dismiss-csp hover:text-text-main text-text-soft" @click="cspNoticeDismissed = true" title="Dismiss note">
+              <button type="button" class="btn-dismiss-csp hover:text-text-main text-text-soft" @click="cspNoticeDismissed = true" :title="$t('Dismiss note')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
@@ -494,22 +493,22 @@
 
             <div class="modal-body">
               <p class="modal-desc">
-                Copy this Website ID into your framework website's environment configuration (usually the <code>.env</code> file) as <code>SUPABASE_WEBSITE_ID</code> to link it to the CMS.
+                {{ $t('Copy this Website ID into your framework website\'s environment configuration (usually the') }} <code>{{ $t('.env') }}</code> {{ $t('file) as') }} <code>{{ $t('SUPABASE_WEBSITE_ID') }}</code> {{ $t('to link it to the CMS.') }}
               </p>
 
               <div class="modal-copy-field">
-                <label class="modal-copy-label">SUPABASE_WEBSITE_ID</label>
+                <label class="modal-copy-label">{{ $t('SUPABASE_WEBSITE_ID') }}</label>
                 <div class="modal-copy-row">
                   <input type="text" readonly :value="activeSetupWebsite.id" class="input modal-copy-input" />
                   <button type="button" class="btn-secondary modal-copy-btn min-w-[84px]" @click="copyText(activeSetupWebsite.id, 'id')">
                     <Transition name="scale-fade" mode="out-in">
                       <span v-if="copiedField === 'id'" class="flex items-center justify-center gap-1 text-green-500 font-bold">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span>Copied</span>
+                        <span>{{ $t('Copied') }}</span>
                       </span>
                       <span v-else class="flex items-center justify-center gap-1">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                        <span>Copy</span>
+                        <span>{{ $t('Copy') }}</span>
                       </span>
                     </Transition>
                   </button>
@@ -518,8 +517,8 @@
 
               <div class="modal-guide-note" style="display: flex; flex-direction: column; gap: 0.5rem;">
                 <div>
-                  <strong>Test the connection:</strong>
-                  <p style="margin-top: 0.15rem; font-size: 0.76rem;">Send a test connection ping to the CMS to verify the website is reachable.</p>
+                  <strong>{{ $t('Test the connection:') }}</strong>
+                  <p style="margin-top: 0.15rem; font-size: 0.76rem;">{{ $t('Send a test connection ping to the CMS to verify the website is reachable.') }}</p>
                 </div>
                 <button type="button" class="btn-secondary btn-sm" :disabled="testingConnection" @click="testConnection(activeSetupWebsite.id)">
                   {{ testingConnection ? 'Sending ping…' : 'Send Test Connection Ping' }}
@@ -530,13 +529,13 @@
               </div>
 
               <div class="modal-guide-note">
-                <strong>First time setup?</strong>
-                <p>Refer to your project's integration documentation in <code>docs/AI-PROMPT-LARAVEL.md</code> for step-by-step instructions on setting up your routes, controllers, and services.</p>
+                <strong>{{ $t('First time setup?') }}</strong>
+                <p>{{ $t('Refer to your project\'s integration documentation in') }} <code>{{ $t('docs/AI-PROMPT-LARAVEL.md') }}</code> {{ $t('for step-by-step instructions on setting up your routes, controllers, and services.') }}</p>
               </div>
             </div>
 
             <footer class="modal-foot">
-              <button type="button" class="btn-primary" style="width: 100%;" @click="activeSetupWebsite = null">Got it</button>
+              <button type="button" class="btn-primary" style="width: 100%;" @click="activeSetupWebsite = null">{{ $t('Got it') }}</button>
             </footer>
           </div>
         </div>
@@ -933,7 +932,7 @@ const onNewPost = async () => {
   height: 30px;
   border-radius: 8px;
   background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
-  color: white;
+  color: #f8fbff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1446,7 +1445,7 @@ const onNewPost = async () => {
 
 /* Device Viewports & Bezels */
 .device-frame-container {
-  background: white;
+  background: var(--card-elevated-bg);
   box-shadow: var(--shadow-lg);
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -1543,7 +1542,7 @@ const onNewPost = async () => {
   width: 100%;
   height: 100%;
   border: none;
-  background: white;
+  background: var(--bg-page);
 }
 
 /* Glassmorphic tags in website cards */
@@ -1713,9 +1712,9 @@ const onNewPost = async () => {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.08) 30%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0.08) 70%,
+    rgba(248, 251, 255, 0.08) 30%,
+    rgba(248, 251, 255, 0.2) 50%,
+    rgba(248, 251, 255, 0.08) 70%,
     transparent 100%
   );
   transform: skewX(-25deg);
@@ -1726,9 +1725,9 @@ const onNewPost = async () => {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.02) 30%,
-    rgba(255, 255, 255, 0.06) 50%,
-    rgba(255, 255, 255, 0.02) 70%,
+    rgba(248, 251, 255, 0.02) 30%,
+    rgba(248, 251, 255, 0.06) 50%,
+    rgba(248, 251, 255, 0.02) 70%,
     transparent 100%
   );
 }

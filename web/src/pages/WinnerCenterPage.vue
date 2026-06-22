@@ -9,26 +9,26 @@
           </svg>
         </div>
         <div>
-          <span class="wc-kicker">Monthly Team Reward</span>
-          <h1 class="wc-title">Winner Center</h1>
-          <p class="wc-subtitle">Select monthly winners, manage prizes, and reward team performance.</p>
+          <span class="wc-kicker">{{ $t('Monthly Team Reward') }}</span>
+          <h1 class="wc-title">{{ $t('Winner Center') }}</h1>
+          <p class="wc-subtitle">{{ $t('Select monthly winners, manage prizes, and reward team performance.') }}</p>
         </div>
       </div>
       <div class="wc-header-right">
         <MonthSelector v-model="selectedMonth" />
-        <span v-if="store.testingModeEnabled" class="wc-testing-badge">🧪 Testing Mode Enabled</span>
+        <span v-if="store.testingModeEnabled" class="wc-testing-badge">{{ $t('🧪 Testing Mode Enabled') }}</span>
         <div class="wc-header-actions">
           <button type="button" class="wc-btn-ghost" @click="openPreviewWheel">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-            Preview Wheel
+            {{ $t('Preview Wheel') }}
           </button>
           <button type="button" class="wc-btn-ghost" @click="openCreatePrize">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-            Create Prize
+            {{ $t('Create Prize') }}
           </button>
           <button type="button" class="wc-btn-primary" @click="scrollToReview">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            Select Winner
+            {{ $t('Select Winner') }}
           </button>
         </div>
       </div>
@@ -36,9 +36,9 @@
 
     <!-- Retroactive warning banner -->
     <div v-if="isPastMonth && !currentWinner" class="wc-retroactive-banner">
-      <div class="wc-retroactive-banner-icon">⚠️</div>
+      <div class="wc-retroactive-banner-icon">{{ $t('⚠️') }}</div>
       <div class="wc-retroactive-banner-text">
-        <strong>Month completed retroactively:</strong> This month is completed. You can retroactively select and approve a winner.
+        <strong>{{ $t('Month completed retroactively:') }}</strong> {{ $t('This month is completed. You can retroactively select and approve a winner.') }}
       </div>
     </div>
 
@@ -46,10 +46,10 @@
     <section class="wc-card wc-settings">
       <div class="wc-card-head">
         <div>
-          <h2 class="wc-card-title">Winner Center Settings</h2>
-          <p class="wc-card-sub">Testing mode keeps spin tests separate from production winner history.</p>
+          <h2 class="wc-card-title">{{ $t('Winner Center Settings') }}</h2>
+          <p class="wc-card-sub">{{ $t('Testing mode keeps spin tests separate from production winner history.') }}</p>
         </div>
-        <span v-if="store.testingModeEnabled" class="wc-testing-badge wc-testing-badge--inline">🧪 Testing Mode Enabled</span>
+        <span v-if="store.testingModeEnabled" class="wc-testing-badge wc-testing-badge--inline">{{ $t('🧪 Testing Mode Enabled') }}</span>
       </div>
 
       <div class="wc-settings-grid">
@@ -61,7 +61,7 @@
             @change="onToggleTestingMode"
           />
           <span>
-            <strong>Enable Testing Mode</strong>
+            <strong>{{ $t('Enable Testing Mode') }}</strong>
             <span class="wc-setting-note">{{ canControlTesting ? 'Owner/Admin/Head/Supervisor control' : 'You do not have permission to change this' }}</span>
           </span>
         </label>
@@ -73,7 +73,7 @@
             :disabled="!store.testingModeEnabled"
             @click="sendTestNotification"
           >
-            Test Notification
+            {{ $t('Test Notification') }}
           </button>
           <button
             type="button"
@@ -81,7 +81,7 @@
             :disabled="!store.testingModeEnabled || !canControlTesting"
             @click="clearTestSpins"
           >
-            Clear Test Spins
+            {{ $t('Clear Test Spins') }}
           </button>
         </div>
       </div>
@@ -90,7 +90,7 @@
     <!-- ══ 2. Selected Winner Card ══ -->
     <section v-if="currentWinner" class="wc-winner-card">
       <div class="wc-winner-glow" aria-hidden="true"></div>
-      <div class="wc-winner-crown" aria-hidden="true">👑</div>
+      <div class="wc-winner-crown" aria-hidden="true">{{ $t('👑') }}</div>
       <div class="wc-winner-main">
         <span class="wc-winner-avatar">
           <img v-if="winnerProfile?.avatarUrl" :src="winnerProfile.avatarUrl" :alt="winnerProfile.fullName" />
@@ -102,32 +102,32 @@
           <p class="wc-winner-role">{{ winnerProfile?.position || roleLabel(winnerProfile?.role) }}</p>
           <p class="wc-winner-summary">{{ currentWinner.achievementSummary || 'Outstanding work this month.' }}</p>
           <div class="wc-winner-meta">
-            <span><strong>{{ formatNumber(currentWinner.scoreSnapshot) }}</strong> points</span>
+            <span><strong>{{ formatNumber(currentWinner.scoreSnapshot) }}</strong> {{ $t('points') }}</span>
             <span>Selected by {{ selectedByLabel(currentWinner) }}</span>
             <span>{{ formatDate(currentWinner.selectedAt) }}</span>
           </div>
 
           <!-- Official Reward Setup panel -->
           <div v-if="currentWinner.status === 'selected' || currentWinner.status === 'approved_retroactively'" class="wc-official-setup-panel">
-            <h3 class="wc-setup-heading">Official Reward Setup</h3>
-            <p class="wc-setup-hint">Assign the reward first — the winner then spins to reveal it.</p>
+            <h3 class="wc-setup-heading">{{ $t('Official Reward Setup') }}</h3>
+            <p class="wc-setup-hint">{{ $t('Assign the reward first — the winner then spins to reveal it.') }}</p>
 
             <div class="wc-setup-options-row">
               <label class="wc-setup-radio-label">
                 <input type="radio" value="exact" v-model="officialPrizeMode" />
-                <span>Owner Assigned Prize <em class="wc-setup-rec">Recommended</em></span>
+                <span>{{ $t('Owner Assigned Prize') }} <em class="wc-setup-rec">{{ $t('Recommended') }}</em></span>
               </label>
 
               <label class="wc-setup-radio-label">
                 <input type="radio" value="random" v-model="officialPrizeMode" />
-                <span>Random Equal Mode</span>
+                <span>{{ $t('Random Equal Mode') }}</span>
               </label>
             </div>
 
             <div v-if="officialPrizeMode === 'exact'" class="wc-setup-select-container">
-              <label class="wc-setup-select-label">Reward to assign:</label>
+              <label class="wc-setup-select-label">{{ $t('Reward to assign:') }}</label>
               <select v-model="exactPrizeId" class="wc-setup-select">
-                <option :value="null" disabled>Choose a reward…</option>
+                <option :value="null" disabled>{{ $t('Choose a reward…') }}</option>
                 <option v-for="prize in activePrizes" :key="prize.id" :value="prize.id">
                   {{ prize.name }}
                 </option>
@@ -145,7 +145,7 @@
           </div>
           <div v-else class="wc-official-setup-locked">
             <span class="wc-setup-locked-text">
-              Official setup locked: <strong>{{ currentWinner.officialPrizeMode === 'exact' ? 'Owner Assigned Prize' : 'Random Equal Mode' }}</strong>
+              {{ $t('Official setup locked:') }} <strong>{{ currentWinner.officialPrizeMode === 'exact' ? 'Owner Assigned Prize' : 'Random Equal Mode' }}</strong>
             </span>
           </div>
         </div>
@@ -154,11 +154,11 @@
       <div class="wc-winner-side">
         <!-- Prize state -->
         <div v-if="currentWinner.status !== 'selected'" class="wc-prize-won">
-          <span class="wc-prize-won-label">Prize won</span>
+          <span class="wc-prize-won-label">{{ $t('Prize won') }}</span>
           <div class="wc-prize-won-row">
             <span class="wc-prize-won-img">
               <img v-if="wonPrizeImage(currentWinner)" :src="wonPrizeImage(currentWinner)!" :alt="wonPrizeName(currentWinner)" />
-              <span v-else>🎁</span>
+              <span v-else>{{ $t('🎁') }}</span>
             </span>
             <span class="wc-prize-won-name">{{ wonPrizeName(currentWinner) }}</span>
           </div>
@@ -175,7 +175,7 @@
             @click="openLiveWheel"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
-            Spin Prize Wheel
+            {{ $t('Spin Prize Wheel') }}
           </button>
           <button
             v-if="store.testingModeEnabled"
@@ -184,7 +184,7 @@
             :disabled="activePrizes.length < 2"
             @click="onReSpin"
           >
-            Re-Spin Wheel
+            {{ $t('Re-Spin Wheel') }}
           </button>
           <button
             v-if="!store.testingModeEnabled && currentWinner.status === 'prize_spun'"
@@ -193,13 +193,13 @@
             @click="confirmMarkGiven"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-            Mark Prize as Given
+            {{ $t('Mark Prize as Given') }}
           </button>
           <span v-if="!store.testingModeEnabled && currentWinner.status === 'prize_given'" class="wc-given-note">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-            Prize delivered
+            {{ $t('Prize delivered') }}
           </span>
-          <button type="button" class="wc-btn-ghost" @click="changeWinner">Change Winner</button>
+          <button type="button" class="wc-btn-ghost" @click="changeWinner">{{ $t('Change Winner') }}</button>
           <button
             v-if="canControlTesting"
             type="button"
@@ -208,7 +208,7 @@
             :title="store.testingModeEnabled ? '' : 'Enable Testing Mode to reset winners'"
             @click="onResetWinner"
           >
-            Reset Winner
+            {{ $t('Reset Winner') }}
           </button>
         </div>
       </div>
@@ -218,9 +218,9 @@
     <section ref="reviewRef" class="wc-card wc-review">
       <div class="wc-card-head">
         <div>
-          <h2 class="wc-card-title">Monthly Leaderboard Review</h2>
+          <h2 class="wc-card-title">{{ $t('Monthly Leaderboard Review') }}</h2>
           <p class="wc-card-sub">
-            {{ monthLabel(selectedMonth) }} · Leaderboard score is a <strong>reference only</strong> — you choose the official winner.
+            {{ monthLabel(selectedMonth) }} · Leaderboard score is a <strong>{{ $t('reference only') }}</strong> {{ $t('— you choose the official winner.') }}
           </p>
         </div>
         <span v-if="!lbLoading" class="wc-count">{{ leaderboardRows.length }} member{{ leaderboardRows.length === 1 ? '' : 's' }}</span>
@@ -232,7 +232,7 @@
 
       <div v-else-if="lbError" class="wc-empty">
         <p>{{ lbError }}</p>
-        <button type="button" class="wc-btn-ghost" @click="loadLeaderboard">Retry</button>
+        <button type="button" class="wc-btn-ghost" @click="loadLeaderboard">{{ $t('Retry') }}</button>
       </div>
 
       <div v-else-if="leaderboardRows.length === 0" class="wc-empty">
@@ -254,17 +254,17 @@
           <div class="wc-review-id">
             <div class="wc-review-name">
               {{ row.fullName }}
-              <span v-if="currentWinner?.winnerUserId === row.userId" class="wc-review-tag">Current winner</span>
+              <span v-if="currentWinner?.winnerUserId === row.userId" class="wc-review-tag">{{ $t('Current winner') }}</span>
             </div>
             <div class="wc-review-position">{{ row.position || roleLabel(row.role) }}</div>
           </div>
 
           <div class="wc-review-stats">
-            <div class="wc-stat wc-stat--score"><strong>{{ formatNumber(row.totalPoints) }}</strong><span>score</span></div>
-            <div class="wc-stat"><strong>{{ row.approvedCount }}</strong><span>approved</span></div>
-            <div class="wc-stat"><strong>{{ row.submittedCount }}</strong><span>completed</span></div>
-            <div class="wc-stat"><strong>{{ row.followupsCount }}</strong><span>followups</span></div>
-            <div class="wc-stat" :class="{ 'wc-stat--warn': penalties(row) > 0 }"><strong>{{ penalties(row) }}</strong><span>penalties</span></div>
+            <div class="wc-stat wc-stat--score"><strong>{{ formatNumber(row.totalPoints) }}</strong><span>{{ $t('score') }}</span></div>
+            <div class="wc-stat"><strong>{{ row.approvedCount }}</strong><span>{{ $t('approved') }}</span></div>
+            <div class="wc-stat"><strong>{{ row.submittedCount }}</strong><span>{{ $t('completed') }}</span></div>
+            <div class="wc-stat"><strong>{{ row.followupsCount }}</strong><span>{{ $t('followups') }}</span></div>
+            <div class="wc-stat" :class="{ 'wc-stat--warn': penalties(row) > 0 }"><strong>{{ penalties(row) }}</strong><span>{{ $t('penalties') }}</span></div>
           </div>
 
           <button
@@ -283,8 +283,8 @@
     <section class="wc-card">
       <div class="wc-card-head">
         <div>
-          <h2 class="wc-card-title">Prize Library</h2>
-          <p class="wc-card-sub">An image and a title — that's a prize. The image is the focus.</p>
+          <h2 class="wc-card-title">{{ $t('Prize Library') }}</h2>
+          <p class="wc-card-sub">{{ $t('An image and a title — that\'s a prize. The image is the focus.') }}</p>
         </div>
         <div class="wc-card-head-actions">
           <button
@@ -295,15 +295,15 @@
             @click="openPreviewWheel"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            Preview Wheel
+            {{ $t('Preview Wheel') }}
           </button>
-          <button type="button" class="wc-btn-primary" @click="openCreatePrize">+ New Prize</button>
+          <button type="button" class="wc-btn-primary" @click="openCreatePrize">{{ $t('+ New Prize') }}</button>
         </div>
       </div>
 
       <div v-if="store.prizes.length === 0 && !store.loading" class="wc-empty">
-        <p>No prizes yet. Create your first reward to get started.</p>
-        <button type="button" class="wc-btn-primary" @click="openCreatePrize">Create Prize</button>
+        <p>{{ $t('No prizes yet. Create your first reward to get started.') }}</p>
+        <button type="button" class="wc-btn-primary" @click="openCreatePrize">{{ $t('Create Prize') }}</button>
       </div>
 
       <!-- Collectible reward cards: large image, title -->
@@ -314,15 +314,15 @@
           class="wc-prize-card"
           @click="openEditPrize(prize)"
         >
-          <button type="button" class="wc-prize-edit" title="Edit prize" @click.stop="openEditPrize(prize)">
+          <button type="button" class="wc-prize-edit" :title="$t('Edit prize')" @click.stop="openEditPrize(prize)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
           </button>
           <div class="wc-prize-img" @click.stop="triggerPrizePreview(prize)">
             <img v-if="prize.imageUrl" :src="prize.imageUrl" :alt="prize.name" />
-            <span v-else class="wc-prize-img-fallback">🎁</span>
+            <span v-else class="wc-prize-img-fallback">{{ $t('🎁') }}</span>
             <div class="wc-prize-img-overlay">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <span>Preview</span>
+              <span>{{ $t('Preview') }}</span>
             </div>
           </div>
           <h3 class="wc-prize-title">{{ prize.name }}</h3>
@@ -334,33 +334,33 @@
     <section class="wc-card">
       <div class="wc-card-head">
         <div>
-          <h2 class="wc-card-title">Winner History</h2>
-          <p class="wc-card-sub">Permanent monthly reward record.</p>
+          <h2 class="wc-card-title">{{ $t('Winner History') }}</h2>
+          <p class="wc-card-sub">{{ $t('Permanent monthly reward record.') }}</p>
         </div>
         <span class="wc-count">{{ store.winners.length }} month{{ store.winners.length === 1 ? '' : 's' }}</span>
       </div>
 
       <div v-if="store.winners.length === 0" class="wc-empty">
-        <p>No winners recorded yet.</p>
+        <p>{{ $t('No winners recorded yet.') }}</p>
       </div>
 
       <div v-else class="wc-history-wrap">
         <table class="wc-history">
           <thead>
             <tr>
-              <th>Month</th>
-              <th>Winner</th>
-              <th>Prize won</th>
-              <th class="wc-num">Score</th>
-              <th>Selected by</th>
-              <th>Awarded date</th>
-              <th>Status</th>
+              <th>{{ $t('Month') }}</th>
+              <th>{{ $t('Winner') }}</th>
+              <th>{{ $t('Prize won') }}</th>
+              <th class="wc-num">{{ $t('Score') }}</th>
+              <th>{{ $t('Selected by') }}</th>
+              <th>{{ $t('Awarded date') }}</th>
+              <th>{{ $t('Status') }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="w in sortedHistory" :key="w.id">
-              <td data-label="Month">{{ monthLabel(w.monthKey) }}</td>
-              <td data-label="Winner">
+              <td data-:label="$t('Month')">{{ monthLabel(w.monthKey) }}</td>
+              <td data-:label="$t('Winner')">
                 <div class="wc-history-winner">
                   <span class="wc-history-avatar">
                     <img v-if="w.winnerUserId && profileMap[w.winnerUserId]?.avatarUrl" :src="profileMap[w.winnerUserId]?.avatarUrl" :alt="profileMap[w.winnerUserId]?.fullName" />
@@ -369,11 +369,11 @@
                   {{ w.winnerUserId ? (profileMap[w.winnerUserId]?.fullName || 'Member') : 'Retroactive Reward (No Winner)' }}
                 </div>
               </td>
-              <td data-label="Prize won">{{ wonPrizeName(w) || '—' }}</td>
-              <td data-label="Score" class="wc-num">{{ formatNumber(w.scoreSnapshot) }}</td>
-              <td data-label="Selected by">{{ selectedByLabel(w) }}</td>
-              <td data-label="Awarded date">{{ awardedDate(w) }}</td>
-              <td data-label="Status">
+              <td data-:label="$t('Prize won')">{{ wonPrizeName(w) || '—' }}</td>
+              <td data-:label="$t('Score')" class="wc-num">{{ formatNumber(w.scoreSnapshot) }}</td>
+              <td data-:label="$t('Selected by')">{{ selectedByLabel(w) }}</td>
+              <td data-:label="$t('Awarded date')">{{ awardedDate(w) }}</td>
+              <td data-:label="$t('Status')">
                 <span class="wc-status-pill" :class="`wc-status-${w.status}`">{{ statusLabel(w.status) }}</span>
               </td>
             </tr>
@@ -391,18 +391,18 @@
       @close="closePrizeModal"
     >
       <div class="wc-form">
-        <label class="wc-label">Prize name</label>
-        <input v-model="prizeForm.name" type="text" class="wc-input" placeholder="e.g. $20 Bonus" />
+        <label class="wc-label">{{ $t('Prize name') }}</label>
+        <input v-model="prizeForm.name" type="text" class="wc-input" :placeholder="$t('e.g. $20 Bonus')" />
 
-        <label class="wc-label">Prize image URL <span class="wc-optional">(optional)</span></label>
+        <label class="wc-label">{{ $t('Prize image URL') }} <span class="wc-optional">{{ $t('(optional)') }}</span></label>
         <input v-model="prizeForm.imageUrl" type="text" class="wc-input" placeholder="https://…" />
 
         <p v-if="prizeError" class="wc-error">{{ prizeError }}</p>
       </div>
 
       <template #footer>
-        <button v-if="editingPrize" type="button" class="wc-btn-danger" :disabled="prizeSaving" @click="onDeletePrize">Delete</button>
-        <button type="button" class="wc-btn-ghost" @click="closePrizeModal">Cancel</button>
+        <button v-if="editingPrize" type="button" class="wc-btn-danger" :disabled="prizeSaving" @click="onDeletePrize">{{ $t('Delete') }}</button>
+        <button type="button" class="wc-btn-ghost" @click="closePrizeModal">{{ $t('Cancel') }}</button>
         <button type="button" class="wc-btn-primary" :disabled="prizeSaving" @click="onSavePrize">
           {{ prizeSaving ? 'Saving…' : (editingPrize ? 'Save Changes' : 'Create Prize') }}
         </button>
@@ -421,7 +421,7 @@
         <!-- Left Column: Pool control panel -->
         <div class="wc-pool-panel">
           <div class="wc-pool-head">
-            <span>Prize Pool</span>
+            <span>{{ $t('Prize Pool') }}</span>
             <span class="wc-pool-hint">{{ selectedPoolPrizes.length }} selected</span>
           </div>
           
@@ -435,7 +435,7 @@
               :disabled="spinning"
               @click="togglePool(prize.id)"
             >
-              <span class="wc-pool-chip-icon">🎁</span>
+              <span class="wc-pool-chip-icon">{{ $t('🎁') }}</span>
               <span class="wc-pool-chip-name">{{ prize.name }}</span>
             </button>
           </div>
@@ -443,7 +443,7 @@
           <div class="wc-pool-options-footer">
             <label class="wc-pool-toggle">
               <input type="checkbox" v-model="exactLandingMode" :disabled="spinning" />
-              <span>Exact Landing Mode</span>
+              <span>{{ $t('Exact Landing Mode') }}</span>
             </label>
 
             <div v-if="exactLandingMode" class="wc-exact-select-wrap">
@@ -459,7 +459,7 @@
               type="button"
               class="wc-audio-toggle"
               @click="toggleSound"
-              title="Toggle spin sounds"
+              :title="$t('Toggle spin sounds')"
             >
               <svg v-if="soundEnabled" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
@@ -501,7 +501,7 @@
                 <path d="M20 50 L10 18 A10 10 0 1 1 30 18 Z" fill="#0f172a" />
                 <circle cx="20" cy="18" r="7" fill="url(#peg-grad)" stroke="#ca8a04" stroke-width="1.5" />
                 <circle cx="20" cy="18" r="4" fill="#ef4444" />
-                <circle cx="20" cy="18" r="1.5" fill="#ffffff" />
+                <circle cx="20" cy="18" r="1.5" fill="#f8fbff" />
               </svg>
             </div>
 
@@ -535,8 +535,8 @@
                   <stop offset="100%" stop-color="#1e3a8a" />
                 </linearGradient>
                 <linearGradient id="wheel-shine" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="rgba(255, 255, 255, 0.2)" />
-                  <stop offset="40%" stop-color="rgba(255, 255, 255, 0)" />
+                  <stop offset="0%" stop-color="rgba(248, 251, 255, 0.2)" />
+                  <stop offset="40%" stop-color="rgba(248, 251, 255, 0)" />
                   <stop offset="100%" stop-color="rgba(0, 0, 0, 0.25)" />
                 </linearGradient>
               </defs>
@@ -563,8 +563,8 @@
                   />
 
                   <!-- Slice Separators Trim (Inner ring details for better structure) -->
-                  <circle cx="150" cy="150" r="95" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
-                  <circle cx="150" cy="150" r="137" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+                  <circle cx="150" cy="150" r="95" fill="none" stroke="rgba(248,251,255,0.08)" stroke-width="1.5" />
+                  <circle cx="150" cy="150" r="137" fill="none" stroke="rgba(248,251,255,0.12)" stroke-width="1" />
 
                   <!-- Slice Contents (Rotated Groups) - Rounded Cards, no text -->
                   <g
@@ -592,7 +592,7 @@
                       :height="imageSize"
                       rx="8"
                       ry="8"
-                      fill="#ffffff"
+                      fill="#f8fbff"
                       stroke="#fbbf24"
                       stroke-width="2"
                       filter="url(#card-shadow)"
@@ -618,7 +618,7 @@
                         font-size="28"
                         text-anchor="middle"
                         dominant-baseline="middle"
-                      >🎁</text>
+                      >{{ $t('🎁') }}</text>
                     </g>
                   </g>
 
@@ -679,13 +679,13 @@
             </svg>
 
             <!-- Preview Mode Badge -->
-            <span v-if="wheelMode === 'preview'" class="wc-preview-badge">Preview Mode</span>
+            <span v-if="wheelMode === 'preview'" class="wc-preview-badge">{{ $t('Preview Mode') }}</span>
           </div>
         </div>
       </div>
 
       <template #footer>
-        <button type="button" class="wc-btn-ghost" :disabled="spinning" @click="closeWheel">Cancel</button>
+        <button type="button" class="wc-btn-ghost" :disabled="spinning" @click="closeWheel">{{ $t('Cancel') }}</button>
         <button
           type="button"
           class="wc-btn-primary wc-btn-spin"
@@ -700,7 +700,7 @@
     <!-- ══ Immersive Celebratory Result Modal (Side-by-Side Premium Layout) ══ -->
     <Modal
       :open="resultModalOpen"
-      title="Victory Spin Complete!"
+      :title="$t('Victory Spin Complete!')"
       subtitle="The wheel has chosen the reward!"
       size="lg"
       @close="closeResultModal"
@@ -714,23 +714,23 @@
         <!-- Left Showcase Panel -->
         <div class="wc-result-showcase">
           <div class="wc-result-halo" />
-          <div class="wc-result-floating-box" @click="triggerPrizePreview(spinResult!)" style="cursor: pointer;" title="Click to view larger image">
+          <div class="wc-result-floating-box" @click="triggerPrizePreview(spinResult!)" style="cursor: pointer;" :title="$t('Click to view larger image')">
             <img v-if="spinResult?.imageUrl" :src="spinResult.imageUrl" :alt="spinResult.name" class="wc-result-box-img" />
-            <span v-else class="wc-result-box-fallback">🎁</span>
+            <span v-else class="wc-result-box-fallback">{{ $t('🎁') }}</span>
           </div>
         </div>
 
         <!-- Right Info Panel -->
         <div class="wc-result-details">
           <div class="wc-result-crown-row">
-            <span class="wc-result-crown-icon">👑</span>
+            <span class="wc-result-crown-icon">{{ $t('👑') }}</span>
             <span class="wc-result-kicker-badge">{{ monthLabel(selectedMonth) }}</span>
           </div>
           <h2 class="wc-result-winner-name">{{ resultWinnerName }}</h2>
-          <p class="wc-result-congrats-text">has been awarded the monthly prize!</p>
+          <p class="wc-result-congrats-text">{{ $t('has been awarded the monthly prize!') }}</p>
           
           <div class="wc-result-prize-tag">
-            <span class="wc-result-prize-label">OFFICIAL REWARD</span>
+            <span class="wc-result-prize-label">{{ $t('OFFICIAL REWARD') }}</span>
             <h3 class="wc-result-prize-title-text">{{ spinResult?.name }}</h3>
           </div>
 
@@ -756,7 +756,7 @@
           class="wc-btn-ghost"
           @click="handleResultReSpin"
         >
-          🧪 Re-Spin
+          {{ $t('🧪 Re-Spin') }}
         </button>
         <button
           v-if="wheelMode === 'live' && !store.testingModeEnabled && currentWinner?.status === 'prize_spun'"
@@ -764,10 +764,10 @@
           class="wc-btn-ghost"
           @click="handleResultMarkGiven"
         >
-          Mark Given
+          {{ $t('Mark Given') }}
         </button>
         <button type="button" class="wc-btn-primary" @click="closeResultModal">
-          Confirm Prize
+          {{ $t('Confirm Prize') }}
         </button>
       </template>
     </Modal>
@@ -775,28 +775,28 @@
     <!-- ══ Retroactive Winner Approval Modal ══ -->
     <Modal
       :open="retroactiveModalOpen"
-      title="Retroactive Winner Approval"
+      :title="$t('Retroactive Winner Approval')"
       subtitle="Approve reward retroactively for a past month"
       size="md"
       @close="retroactiveModalOpen = false"
     >
       <div class="wc-form">
         <p class="wc-retroactive-modal-intro">
-          You are selecting <strong>{{ pendingRetroactiveRow?.fullName }}</strong> as the winner for the completed month of <strong>{{ monthLabel(selectedMonth) }}</strong>. Please provide an approval reason.
+          {{ $t('You are selecting') }} <strong>{{ pendingRetroactiveRow?.fullName }}</strong> {{ $t('as the winner for the completed month of') }} <strong>{{ monthLabel(selectedMonth) }}</strong>{{ $t('. Please provide an approval reason.') }}
         </p>
 
-        <label class="wc-label">Retroactive Approval Reason</label>
+        <label class="wc-label">{{ $t('Retroactive Approval Reason') }}</label>
         <textarea
           v-model="retroactiveReasonInput"
           rows="3"
           class="wc-input wc-textarea"
-          placeholder="e.g. retroactively approved for June leaderboard effort"
+          :placeholder="$t('e.g. retroactively approved for June leaderboard effort')"
         ></textarea>
       </div>
       <template #footer>
-        <button type="button" class="wc-btn-ghost" @click="retroactiveModalOpen = false">Cancel</button>
+        <button type="button" class="wc-btn-ghost" @click="retroactiveModalOpen = false">{{ $t('Cancel') }}</button>
         <button type="button" class="wc-btn-primary" :disabled="!retroactiveReasonInput.trim()" @click="submitRetroactiveWinner">
-          Approve & Select Winner
+          {{ $t('Approve & Select Winner') }}
         </button>
       </template>
     </Modal>
@@ -804,7 +804,7 @@
     <!-- ══ Prize Preview Modal ══ -->
     <Modal
       :open="previewModalOpen"
-      title="Prize Preview"
+      :title="$t('Prize Preview')"
       subtitle="Reward details"
       size="md"
       @close="closePreviewModal"
@@ -812,12 +812,12 @@
       <div class="wc-preview-modal-body">
         <div class="wc-preview-modal-image-container">
           <img v-if="previewPrize?.imageUrl" :src="previewPrize.imageUrl" :alt="previewPrize.name" class="wc-preview-modal-img" />
-          <div v-else class="wc-preview-modal-fallback">🎁</div>
+          <div v-else class="wc-preview-modal-fallback">{{ $t('🎁') }}</div>
         </div>
         <h2 class="wc-preview-modal-title">{{ previewPrize?.name }}</h2>
       </div>
       <template #footer>
-        <button type="button" class="wc-btn-primary" @click="closePreviewModal">Close</button>
+        <button type="button" class="wc-btn-primary" @click="closePreviewModal">{{ $t('Close') }}</button>
       </template>
     </Modal>
   </div>
@@ -827,8 +827,8 @@
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--status-needs-fix-fg, #dc2626)" stroke-width="2">
       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
     </svg>
-    <h2>Access Restricted</h2>
-    <p>The Winner Center is available only to Owner, Admin, Head, and Supervisor roles.</p>
+    <h2>{{ $t('Access Restricted') }}</h2>
+    <p>{{ $t('The Winner Center is available only to Owner, Admin, Head, and Supervisor roles.') }}</p>
   </div>
 </template>
 
@@ -1423,14 +1423,14 @@ const onDeletePrize = async () => {
 
 // ── Prize Wheel ───────────────────────────────────────────────────────────────
 const WHEEL_PALETTE = [
-  { bg: '#2563eb', text: '#ffffff' }, // Bright Blue (KiuQ Blue)
+  { bg: '#2563eb', text: '#f8fbff' }, // Bright Blue (KiuQ Blue)
   { bg: '#fbbf24', text: '#0f172a' }, // Yellow
   { bg: '#15D6C2', text: '#0f172a' }, // KiuQ Teal
-  { bg: '#f97316', text: '#ffffff' }, // Orange
-  { bg: '#a855f7', text: '#ffffff' }, // Purple
+  { bg: '#f97316', text: '#f8fbff' }, // Orange
+  { bg: '#a855f7', text: '#f8fbff' }, // Purple
   { bg: '#38bdf8', text: '#0f172a' }, // Sky Blue
-  { bg: '#ec4899', text: '#ffffff' }, // Pink
-  { bg: '#10b981', text: '#ffffff' }, // Emerald Green
+  { bg: '#ec4899', text: '#f8fbff' }, // Pink
+  { bg: '#10b981', text: '#f8fbff' }, // Emerald Green
 ];
 
 const wheelOpen = ref(false);
@@ -2227,7 +2227,7 @@ onMounted(async () => {
     0 0 55px color-mix(in srgb, var(--primary) 65%, transparent),
     0 0 95px color-mix(in srgb, var(--primary) 32%, transparent),
     0 20px 50px rgba(15, 23, 42, 0.4),
-    inset 0 0 25px rgba(255, 255, 255, 0.14);
+    inset 0 0 25px rgba(248, 251, 255, 0.14);
 }
 .wc-wheel-pointer-container {
   position: absolute;
@@ -2250,7 +2250,7 @@ onMounted(async () => {
   box-shadow: 
     0 0 35px var(--primary-ring),
     0 20px 50px rgba(15, 23, 42, 0.35),
-    inset 0 0 25px rgba(255, 255, 255, 0.12);
+    inset 0 0 25px rgba(248, 251, 255, 0.12);
   transition: transform 4.8s cubic-bezier(0.1, 0.8, 0.1, 1);
 }
 .wc-wheel-svg--spinning {
@@ -2288,7 +2288,7 @@ onMounted(async () => {
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #ffffff;
+  color: #f8fbff;
   font-size: 0.7rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -2309,7 +2309,7 @@ onMounted(async () => {
   animation: wc-slice-shimmer 0.15s ease-in-out infinite alternate;
 }
 @keyframes wc-slice-shimmer {
-  0% { fill: #ffffff; filter: brightness(1.6); }
+  0% { fill: #f8fbff; filter: brightness(1.6); }
   100% { filter: brightness(1); }
 }
 .wc-pointer-flash {
@@ -2401,7 +2401,7 @@ onMounted(async () => {
   }
   100% {
     box-shadow: 0 0 35px var(--primary), 0 10px 25px rgba(15, 23, 42, 0.3);
-    border-color: #ffffff;
+    border-color: #f8fbff;
   }
 }
 
@@ -2827,7 +2827,7 @@ onMounted(async () => {
   justify-content: center;
   flex-direction: column;
   gap: 0.25rem;
-  color: #fff;
+  color: #f8fbff;
   font-size: 0.75rem;
   font-weight: 700;
   transition: opacity 140ms ease;

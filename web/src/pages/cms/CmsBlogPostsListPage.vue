@@ -6,9 +6,9 @@
       <!-- ── Header ──────────────────────────────────────────────── -->
       <header class="bl-head">
         <div class="bl-head-text">
-          <span class="eyebrow">Editorial</span>
-          <h1 class="bl-title">Blog Posts</h1>
-          <p class="bl-sub">Write, manage, and publish articles — organized by website.</p>
+          <span class="eyebrow">{{ $t('Editorial') }}</span>
+          <h1 class="bl-title">{{ $t('Blog Posts') }}</h1>
+          <p class="bl-sub">{{ $t('Write, manage, and publish articles — organized by website.') }}</p>
         </div>
         <div class="bl-head-actions">
           <button
@@ -30,17 +30,17 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
         </span>
         <div class="bl-folder-field">
-          <span class="bl-folder-label">Pick a website</span>
+          <span class="bl-folder-label">{{ $t('Pick a website') }}</span>
           <div class="bl-site-tiles">
             <button
               type="button"
               class="bl-site-tile"
               :class="{ 'bl-site-tile--active': websiteFilter === 'all' }"
-              title="All websites"
+              :title="$t('All websites')"
               @click="websiteFilter = 'all'"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              <span class="bl-site-tile-label">All</span>
+              <span class="bl-site-tile-label">{{ $t('All') }}</span>
             </button>
             <button
               v-for="w in websites"
@@ -59,17 +59,17 @@
               type="button"
               class="bl-site-tile"
               :class="{ 'bl-site-tile--active': websiteFilter === 'unassigned' }"
-              title="Unassigned posts"
+              :title="$t('Unassigned posts')"
               @click="websiteFilter = 'unassigned'"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              <span class="bl-site-tile-label">None</span>
+              <span class="bl-site-tile-label">{{ $t('None') }}</span>
             </button>
           </div>
         </div>
         <span class="bl-folder-hint">
-          <template v-if="canCreate">New posts go to <b>{{ selectedWebsite?.name || selectedWebsite?.domain }}</b></template>
-          <template v-else>Pick a website to start a new post</template>
+          <template v-if="canCreate">{{ $t('New posts go to') }} <b>{{ selectedWebsite?.name || selectedWebsite?.domain }}</b></template>
+          <template v-else>{{ $t('Pick a website to start a new post') }}</template>
         </span>
         <span class="bl-folder-count">{{ filtered.length }} {{ filtered.length === 1 ? 'post' : 'posts' }}</span>
       </div>
@@ -93,25 +93,25 @@
         <div class="bl-toolbar">
           <div class="bl-search">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input v-model="search" type="search" placeholder="Search posts…" />
+            <input v-model="search" type="search" :placeholder="$t('Search posts…')" />
           </div>
-          <select v-model="categoryFilter" class="bl-select" aria-label="Filter by category">
-            <option value="all">All categories</option>
+          <select v-model="categoryFilter" class="bl-select" aria-:label="$t('Filter by category')">
+            <option value="all">{{ $t('All categories') }}</option>
             <option v-for="c in categoryOptions" :key="c" :value="c">{{ c }}</option>
           </select>
-          <select v-model="sortBy" class="bl-select" aria-label="Sort posts">
-            <option value="updated">Recently edited</option>
-            <option value="published">Newest published</option>
-            <option value="title">Title A–Z</option>
+          <select v-model="sortBy" class="bl-select" aria-:label="$t('Sort posts')">
+            <option value="updated">{{ $t('Recently edited') }}</option>
+            <option value="published">{{ $t('Newest published') }}</option>
+            <option value="title">{{ $t('Title A–Z') }}</option>
           </select>
         </div>
       </div>
 
       <!-- ── Error ───────────────────────────────────────────────── -->
       <div v-if="store.error" class="bl-error">
-        <p class="bl-error-title">Couldn't load posts.</p>
+        <p class="bl-error-title">{{ $t('Couldn\'t load posts.') }}</p>
         <p class="bl-error-msg">{{ store.error }}</p>
-        <button class="btn-secondary" type="button" @click="store.fetchPosts">Try again</button>
+        <button class="btn-secondary" type="button" @click="store.fetchPosts">{{ $t('Try again') }}</button>
       </div>
 
       <!-- ── Loading ─────────────────────────────────────────────── -->
@@ -127,9 +127,9 @@
         <p class="bl-empty-title">{{ emptyTitle }}</p>
         <p class="bl-empty-sub">{{ emptySub }}</p>
         <button v-if="canCreate && !hasActiveFilters" type="button" class="btn-primary mt-1" :disabled="creating" @click="onCreateNew">
-          Write your first post
+          {{ $t('Write your first post') }}
         </button>
-        <button v-else-if="hasActiveFilters" type="button" class="btn-secondary mt-1" @click="clearFilters">Clear filters</button>
+        <button v-else-if="hasActiveFilters" type="button" class="btn-secondary mt-1" @click="clearFilters">{{ $t('Clear filters') }}</button>
       </div>
 
       <!-- ── Post list ───────────────────────────────────────────── -->
@@ -172,7 +172,7 @@
           </div>
 
           <div class="bl-row-actions" @click.stop>
-            <RouterLink :to="`/cms/blog/${p.id}`" class="bl-action" title="Edit post">
+            <RouterLink :to="`/cms/blog/${p.id}`" class="bl-action" :title="$t('Edit post')">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             </RouterLink>
             <button
@@ -186,7 +186,7 @@
               <svg v-if="p.status === 'published'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
               <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </button>
-            <button type="button" class="bl-action" title="Copy public link" @click="copyLink(p)">
+            <button type="button" class="bl-action" :title="$t('Copy public link')" @click="copyLink(p)">
               <svg v-if="copiedId === p.id" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             </button>
@@ -194,7 +194,7 @@
               v-if="store.canDelete()"
               type="button"
               class="bl-action bl-action--danger"
-              title="Delete post"
+              :title="$t('Delete post')"
               :disabled="busyId === p.id"
               @click="onDelete(p)"
             >

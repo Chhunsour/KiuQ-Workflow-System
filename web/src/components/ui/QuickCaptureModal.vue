@@ -1,5 +1,5 @@
 <template>
-  <Modal :open="open" title="Quick Capture" size="lg" @close="handleClose">
+  <Modal :open="open" :title="$t('Quick Capture')" size="lg" @close="handleClose">
     <div class="quick-capture-modal flex flex-col gap-5 select-none" @keydown="handleKeyDown">
       
       <!-- Premium Sliding Segmented Control Tab Bar -->
@@ -71,14 +71,14 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-text-soft">
                   <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>
                 </svg>
-                <span class="text-text-muted text-xs mr-0.5 select-none">Priority:</span>
+                <span class="text-text-muted text-xs mr-0.5 select-none">{{ $t('Priority:') }}</span>
                 <select
                   v-model="form.priority"
                   class="bg-transparent border-0 p-0 text-xs font-semibold focus:ring-0 cursor-pointer text-text-main focus:outline-none"
                 >
-                  <option value="low">Low</option>
-                  <option value="normal">Normal</option>
-                  <option value="high">High</option>
+                  <option value="low">{{ $t('Low') }}</option>
+                  <option value="normal">{{ $t('Normal') }}</option>
+                  <option value="high">{{ $t('High') }}</option>
                 </select>
               </div>
 
@@ -87,14 +87,14 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-text-soft">
                   <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
                 </svg>
-                <span class="text-text-muted text-xs mr-0.5 select-none">Status:</span>
+                <span class="text-text-muted text-xs mr-0.5 select-none">{{ $t('Status:') }}</span>
                 <select
                   v-model="form.status"
                   class="bg-transparent border-0 p-0 text-xs font-semibold focus:ring-0 cursor-pointer text-text-main focus:outline-none"
                 >
-                  <option value="active">Active</option>
-                  <option value="draft">Draft</option>
-                  <option value="archived">Archived</option>
+                  <option value="active">{{ $t('Active') }}</option>
+                  <option value="draft">{{ $t('Draft') }}</option>
+                  <option value="archived">{{ $t('Archived') }}</option>
                 </select>
               </div>
             </div>
@@ -115,7 +115,7 @@
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
                   </svg>
-                  Tags:
+                  {{ $t('Tags:') }}
                 </span>
 
                 <!-- Display active tag pills -->
@@ -130,7 +130,7 @@
                     class="hover:text-status-needs-fix-fg font-black text-xs ml-0.5 leading-none"
                     @click="removeTag(tag)"
                   >
-                    &times;
+                    {{ $t('&times;') }}
                   </button>
                 </span>
 
@@ -139,7 +139,7 @@
                   v-model="tagInput"
                   type="text"
                   class="bg-transparent border-0 p-0 text-xs focus:ring-0 focus:outline-none w-24 text-text-main placeholder:text-text-soft/40"
-                  placeholder="+ Add tag..."
+                  :placeholder="$t('+ Add tag...')"
                   @keydown.enter.prevent="addTag"
                   @blur="addTag"
                 />
@@ -147,7 +147,7 @@
 
               <!-- Suggested tags row -->
               <div class="suggested-tags flex items-center gap-2 text-[10px] text-text-soft px-1.5" v-if="suggestedTags.length">
-                <span>Suggested:</span>
+                <span>{{ $t('Suggested:') }}</span>
                 <div class="flex gap-2 flex-wrap">
                   <button
                     v-for="st in suggestedTags"
@@ -184,15 +184,15 @@
     <template #footer>
       <div class="w-full flex items-center justify-between pt-2">
         <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-text-soft select-none">
-          <kbd class="px-1.5 py-0.5 bg-soft border border-border rounded text-[10px] font-mono shadow-sm">Ctrl</kbd>
+          <kbd class="px-1.5 py-0.5 bg-soft border border-border rounded text-[10px] font-mono shadow-sm">{{ $t('Ctrl') }}</kbd>
           <span>+</span>
-          <kbd class="px-1.5 py-0.5 bg-soft border border-border rounded text-[10px] font-mono shadow-sm">Enter</kbd>
-          <span>to save</span>
+          <kbd class="px-1.5 py-0.5 bg-soft border border-border rounded text-[10px] font-mono shadow-sm">{{ $t('Enter') }}</kbd>
+          <span>{{ $t('to save') }}</span>
         </span>
 
         <div class="flex gap-3 ml-auto">
           <button class="btn-ghost px-5 rounded-xl font-medium" type="button" @click="handleClose">
-            Cancel
+            {{ $t('Cancel') }}
           </button>
           <button
             class="btn-primary min-w-[130px] rounded-xl font-medium shadow-sm hover:shadow"

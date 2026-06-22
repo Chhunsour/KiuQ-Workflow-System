@@ -4,7 +4,7 @@
     <div class="fpt-header">
       <RouterLink to="/followup/speed-optimization" class="fpt-back">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-        All Websites
+        {{ $t('All Websites') }}
       </RouterLink>
 
       <div v-if="website" class="fpt-site-info">
@@ -21,8 +21,8 @@
 
     <!-- Error -->
     <div v-if="error" class="fpt-error card card-pad">
-      <p class="font-semibold text-status-needs-fix-fg">Could not load. Please try again.</p>
-      <button class="btn-primary mt-3 w-fit" type="button" @click="load">Retry</button>
+      <p class="font-semibold text-status-needs-fix-fg">{{ $t('Could not load. Please try again.') }}</p>
+      <button class="btn-primary mt-3 w-fit" type="button" @click="load">{{ $t('Retry') }}</button>
     </div>
 
     <!-- Loading -->
@@ -35,7 +35,7 @@
 
     <!-- Not found -->
     <div v-else-if="!website" class="card card-pad text-sm text-text-muted">
-      Website not found.
+      {{ $t('Website not found.') }}
     </div>
 
     <template v-else>
@@ -43,15 +43,15 @@
       <div class="fpt-summary">
         <div class="fpt-sum-item fpt-sum--done">
           <span class="fpt-sum-num">{{ viewStats.done }}</span>
-          <span class="fpt-sum-lbl">Done</span>
+          <span class="fpt-sum-lbl">{{ $t('Done') }}</span>
         </div>
         <div class="fpt-sum-item fpt-sum--missed">
           <span class="fpt-sum-num">{{ viewStats.missed }}</span>
-          <span class="fpt-sum-lbl">Missed</span>
+          <span class="fpt-sum-lbl">{{ $t('Missed') }}</span>
         </div>
         <div class="fpt-sum-item fpt-sum--pending">
           <span class="fpt-sum-num">{{ viewStats.pending }}</span>
-          <span class="fpt-sum-lbl">Pending</span>
+          <span class="fpt-sum-lbl">{{ $t('Pending') }}</span>
         </div>
         <div class="fpt-sum-progress">
           <div class="fpt-sum-prog-track">
@@ -72,20 +72,20 @@
           :class="{ 'fpt-vtab--active': viewMode === 'week' }"
           type="button"
           @click="viewMode = 'week'"
-        >This Week</button>
+        >{{ $t('This Week') }}</button>
         <button
           class="fpt-vtab"
           :class="{ 'fpt-vtab--active': viewMode === 'month' }"
           type="button"
           @click="viewMode = 'month'"
-        >This Month</button>
+        >{{ $t('This Month') }}</button>
       </div>
 
       <!-- ── THIS WEEK VIEW ── -->
       <div v-if="viewMode === 'week'" class="fpt-week-view">
         <!-- Speed optimization checklist (informational — does not block Done) -->
         <div class="fpt-checklist">
-          <div class="fpt-checklist-head">Speed optimization checklist</div>
+          <div class="fpt-checklist-head">{{ $t('Speed optimization checklist') }}</div>
           <ul class="fpt-checklist-list">
             <li v-for="item in CHECKLIST" :key="item">• {{ item }}</li>
           </ul>
@@ -99,7 +99,7 @@
           <div class="fpt-wcard-top">
             <div>
               <div class="fpt-wcard-range">{{ currentWeekRangeLabel }}</div>
-              <div class="fpt-wcard-hint">Weekly speed-optimization check</div>
+              <div class="fpt-wcard-hint">{{ $t('Weekly speed-optimization check') }}</div>
             </div>
             <span class="fpt-wcard-badge" :class="`wbadge--${thisWeekSlot?.status ?? 'pending'}`">
               {{ statusLabel(thisWeekSlot?.status ?? 'pending') }}
@@ -135,7 +135,7 @@
               type="button"
               :disabled="!!savingWeek"
               @click="undoWeek"
-            >Undo</button>
+            >{{ $t('Undo') }}</button>
           </div>
 
           <!-- Completed info -->
@@ -158,30 +158,30 @@
               <div class="fpt-details-inner">
                 <div class="fpt-row2">
                   <label class="fpt-field">
-                    <span>Before score</span>
-                    <input v-model.number="detail.beforeScore" type="number" min="0" max="100" class="fpt-input" placeholder="e.g. 62" />
+                    <span>{{ $t('Before score') }}</span>
+                    <input v-model.number="detail.beforeScore" type="number" min="0" max="100" class="fpt-input" :placeholder="$t('e.g. 62')" />
                   </label>
                   <label class="fpt-field">
-                    <span>After score</span>
-                    <input v-model.number="detail.afterScore" type="number" min="0" max="100" class="fpt-input" placeholder="e.g. 89" />
+                    <span>{{ $t('After score') }}</span>
+                    <input v-model.number="detail.afterScore" type="number" min="0" max="100" class="fpt-input" :placeholder="$t('e.g. 89')" />
                   </label>
                 </div>
                 <label class="fpt-field">
-                  <span>Notes</span>
-                  <textarea v-model="detail.notes" rows="3" class="fpt-input" placeholder="What did you optimize? Any issues?" />
+                  <span>{{ $t('Notes') }}</span>
+                  <textarea v-model="detail.notes" rows="3" class="fpt-input" :placeholder="$t('What did you optimize? Any issues?')" />
                 </label>
                 <label class="fpt-field">
-                  <span>Screenshot URL</span>
+                  <span>{{ $t('Screenshot URL') }}</span>
                   <input v-model="detail.screenshotUrl" type="url" class="fpt-input" placeholder="https://…" />
                 </label>
                 <div class="fpt-flags">
                   <label class="fpt-flag">
                     <input v-model="detail.issueFound" type="checkbox" />
-                    <span>Issue found</span>
+                    <span>{{ $t('Issue found') }}</span>
                   </label>
                   <label class="fpt-flag">
                     <input v-model="detail.needsAdminHelp" type="checkbox" />
-                    <span>Needs admin help</span>
+                    <span>{{ $t('Needs admin help') }}</span>
                   </label>
                 </div>
                 <div class="fpt-details-actions">
@@ -220,7 +220,7 @@
           >
             <div class="fpt-wrow-left">
               <span class="fpt-wrow-range">{{ week.rangeLabel }}</span>
-              <span v-if="week.isCurrent" class="fpt-wrow-current-tag">Current</span>
+              <span v-if="week.isCurrent" class="fpt-wrow-current-tag">{{ $t('Current') }}</span>
             </div>
 
             <div class="fpt-wrow-mid">
@@ -261,17 +261,17 @@
               type="button"
               :disabled="savingWeek === week.weekStart"
               @click="undoWeekRow(week)"
-            >Undo</button>
+            >{{ $t('Undo') }}</button>
           </div>
         </div>
       </div>
 
       <!-- Legend -->
       <div class="fpt-legend">
-        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--done" /> Done</span>
-        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--missed" /> Missed</span>
-        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--pending" /> Pending</span>
-        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--attn" /> Needs Attention</span>
+        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--done" /> {{ $t('Done') }}</span>
+        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--missed" /> {{ $t('Missed') }}</span>
+        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--pending" /> {{ $t('Pending') }}</span>
+        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--attn" /> {{ $t('Needs Attention') }}</span>
       </div>
     </template>
   </div>
@@ -863,7 +863,7 @@ onMounted(load);
   justify-content: center;
   flex-shrink: 0;
   transition: border-color 140ms, background 140ms;
-  color: #fff;
+  color: #f8fbff;
 }
 .fpt-checkbox-label:hover .fpt-checkbox-box { border-color: #16a34a; }
 .check--done .fpt-checkbox-box { background: #16a34a; border-color: #16a34a; }
@@ -871,8 +871,8 @@ onMounted(load);
 .check--done .fpt-check-text { color: #16a34a; }
 .fpt-saving-dot {
   width: 8px; height: 8px; border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.4);
-  border-top-color: #fff;
+  border: 2px solid rgba(248,251,255,0.4);
+  border-top-color: #f8fbff;
   animation: fpt-spin 0.6s linear infinite;
 }
 @keyframes fpt-spin { to { transform: rotate(360deg); } }

@@ -1,15 +1,15 @@
 <template>
   <div>
     <PageHeader
-      title="Prompt Templates"
+      :title="$t('Prompt Templates')"
       subtitle="Per-website featured image prompt templates. Select a website to manage brand colors, prompts, and workflow guides."
     />
 
     <!-- Filters -->
     <div class="bic-filters">
-      <input v-model="search" class="input bic-search" type="search" placeholder="Search by name or domain…" />
+      <input v-model="search" class="input bic-search" type="search" :placeholder="$t('Search by name or domain…')" />
       <select v-if="auth.isAdmin" v-model="filterMemberId" class="input bic-select">
-        <option value="">All members</option>
+        <option value="">{{ $t('All members') }}</option>
         <option v-for="m in data.members" :key="m.id" :value="m.id">{{ m.fullName }}</option>
       </select>
     </div>
@@ -42,7 +42,7 @@
                   rel="noopener"
                   class="bic-card-domain"
                 >{{ displayDomain(w.domain) }}</a>
-                <span v-else class="bic-card-domain bic-card-domain--empty">No domain</span>
+                <span v-else class="bic-card-domain bic-card-domain--empty">{{ $t('No domain') }}</span>
               </div>
             </div>
 
@@ -77,7 +77,7 @@
 
           <!-- Actions -->
           <RouterLink :to="`/blog-center/templates/${w.id}`" class="bic-card-open-btn">
-            Open
+            {{ $t('Open') }}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
@@ -87,7 +87,7 @@
 
       <EmptyState
         v-else
-        title="No websites found"
+        :title="$t('No websites found')"
         :description="search || filterMemberId ? 'No websites match your current filters.' : 'No websites have been created yet.'"
       />
     </LoadingBlock>
@@ -296,7 +296,7 @@ onMounted(() => {
   flex-shrink: 0;
 }
 :root[data-theme='dark-gray'] .bic-meta-dot {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(248, 251, 255, 0.1);
 }
 
 .bic-meta-color-label {

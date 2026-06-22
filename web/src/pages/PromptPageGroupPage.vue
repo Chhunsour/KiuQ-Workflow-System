@@ -2,14 +2,14 @@
   <div>
     <LoadingBlock :loading="loading" :error="error" :retry="load">
       <div v-if="!website" class="card card-pad text-center">
-        <h2 class="section-title">Website not found</h2>
-        <RouterLink to="/prompt" class="btn-primary mt-4">Back to Prompt Dashboard</RouterLink>
+        <h2 class="section-title">{{ $t('Website not found') }}</h2>
+        <RouterLink to="/prompt" class="btn-primary mt-4">{{ $t('Back to Prompt Dashboard') }}</RouterLink>
       </div>
 
       <template v-else>
         <!-- Breadcrumb -->
-        <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-text-muted" aria-label="Breadcrumb">
-          <RouterLink to="/prompt" class="hover:text-text-main">Prompt Dashboard</RouterLink>
+        <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-text-muted" aria-:label="$t('Breadcrumb')">
+          <RouterLink to="/prompt" class="hover:text-text-main">{{ $t('Prompt Dashboard') }}</RouterLink>
           <span>›</span>
           <RouterLink :to="`/prompt/website/${website.id}`" class="hover:text-text-main">{{ website.name }}</RouterLink>
           <span>›</span>
@@ -32,10 +32,10 @@
           </div>
           <div class="ppg-header-actions">
             <RouterLink :to="`/prompt/website/${website.id}`" class="btn-secondary ppg-btn">
-              ← Page Groups
+              {{ $t('← Page Groups') }}
             </RouterLink>
             <RouterLink v-if="auth.isAdmin" to="/prompt/library" class="btn-ghost ppg-btn">
-              Manage Prompts
+              {{ $t('Manage Prompts') }}
             </RouterLink>
           </div>
         </div>
@@ -46,14 +46,14 @@
             v-model="search"
             type="search"
             class="input flex-1 min-w-[200px]"
-            placeholder="Search prompts…"
+            :placeholder="$t('Search prompts…')"
           />
           <select v-model="filterPromptType" class="input w-44">
-            <option value="">All types</option>
+            <option value="">{{ $t('All types') }}</option>
             <option v-for="opt in promptTypeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
           </select>
           <select v-model="filterOutputType" class="input w-44">
-            <option value="">All outputs</option>
+            <option value="">{{ $t('All outputs') }}</option>
             <option v-for="opt in outputTypeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
           </select>
         </div>
@@ -87,7 +87,7 @@
               </span>
               <span v-if="t.requiredProductDocs" class="ppt-meta-item ppt-meta-item--product">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/></svg>
-                Needs product doc
+                {{ $t('Needs product doc') }}
               </span>
             </div>
 
@@ -97,7 +97,7 @@
                 :to="`/prompt/builder/${t.id}?websiteId=${website.id}`"
                 class="btn-primary ppt-use-btn"
               >
-                Use Prompt
+                {{ $t('Use Prompt') }}
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
@@ -106,7 +106,7 @@
                 v-if="auth.isAdmin"
                 :to="`/prompt/library?edit=${t.id}`"
                 class="btn-ghost ppt-edit-btn"
-                title="Edit prompt"
+                :title="$t('Edit prompt')"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
               </RouterLink>
@@ -116,11 +116,11 @@
 
         <EmptyState
           v-else-if="!loading"
-          title="No prompts in this group"
+          :title="$t('No prompts in this group')"
           :description="auth.isAdmin ? 'Create prompts in the Prompt Library and assign them to this page group.' : 'No approved prompts are available for this page group yet.'"
         >
           <template v-if="auth.isAdmin" #action>
-            <RouterLink to="/prompt/library" class="btn-primary">Open Prompt Library</RouterLink>
+            <RouterLink to="/prompt/library" class="btn-primary">{{ $t('Open Prompt Library') }}</RouterLink>
           </template>
         </EmptyState>
       </template>
@@ -244,7 +244,7 @@ onMounted(load);
   height: 3rem;
   border-radius: 50%;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   flex-shrink: 0;
 }
 .ppg-group-name {

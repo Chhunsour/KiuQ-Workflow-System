@@ -1,9 +1,9 @@
 <template>
   <div class="task-alerts-page">
-    <PageHeader title="Task Alerts & Notifications" subtitle="Create and push targeted task alerts to specific team members and track acknowledgements.">
+    <PageHeader :title="$t('Task Alerts & Notifications')" subtitle="Create and push targeted task alerts to specific team members and track acknowledgements.">
       <template #actions>
         <button class="btn-primary" type="button" @click="activeTab = 'create'">
-          Create Alert
+          {{ $t('Create Alert') }}
         </button>
       </template>
     </PageHeader>
@@ -14,46 +14,46 @@
         :class="{ 'tab-btn--active': activeTab === 'create' }"
         @click="activeTab = 'create'"
       >
-        Create Task Alert
+        {{ $t('Create Task Alert') }}
       </button>
       <button
         class="tab-btn"
         :class="{ 'tab-btn--active': activeTab === 'list' }"
         @click="activeTab = 'list'"
       >
-        Published Alerts & Tracking
+        {{ $t('Published Alerts & Tracking') }}
       </button>
       <button
         class="tab-btn"
         :class="{ 'tab-btn--active': activeTab === 'drafts' }"
         @click="activeTab = 'drafts'"
       >
-        Drafts
+        {{ $t('Drafts') }}
       </button>
     </div>
 
     <!-- CREATE ALERT TAB -->
     <div v-if="activeTab === 'create'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 card p-6">
-        <h3 class="section-title mb-4">New Task Alert Form</h3>
+        <h3 class="section-title mb-4">{{ $t('New Task Alert Form') }}</h3>
         
         <form @submit.prevent="saveAlert(true)" class="flex flex-col gap-4">
           <!-- Alert Source selector -->
           <div class="grid grid-cols-1 gap-4">
             <div class="form-group">
-              <label class="label mb-1 font-semibold text-xs text-text-muted">ALERT SOURCE <span class="text-status-needs-fix-fg">*</span></label>
+              <label class="label mb-1 font-semibold text-xs text-text-muted">{{ $t('ALERT SOURCE') }} <span class="text-status-needs-fix-fg">*</span></label>
               <select v-model="alertSource" class="input" @change="onAlertSourceChange" required>
-                <option value="custom">Custom Alert</option>
-                <option value="workboard">Workboard Task</option>
-                <option value="quality_check">Quality Check Task</option>
+                <option value="custom">{{ $t('Custom Alert') }}</option>
+                <option value="workboard">{{ $t('Workboard Task') }}</option>
+                <option value="quality_check">{{ $t('Quality Check Task') }}</option>
               </select>
             </div>
           </div>
 
           <div v-if="alertSource === 'workboard'" class="form-group">
-            <label class="label mb-1 font-semibold text-xs text-text-muted">SELECT WORKBOARD CARD <span class="text-status-needs-fix-fg">*</span></label>
+            <label class="label mb-1 font-semibold text-xs text-text-muted">{{ $t('SELECT WORKBOARD CARD') }} <span class="text-status-needs-fix-fg">*</span></label>
             <select v-model="selectedWorkboardCardId" class="input" required>
-              <option :value="null">-- Select a Card --</option>
+              <option :value="null">{{ $t('-- Select a Card --') }}</option>
               <option v-for="card in activeWorkboardCards" :key="card.id" :value="card.id">
                 {{ getCardLabel(card) }}
               </option>
@@ -61,9 +61,9 @@
           </div>
 
           <div v-if="alertSource === 'quality_check'" class="form-group">
-            <label class="label mb-1 font-semibold text-xs text-text-muted">SELECT QUALITY CHECK CARD <span class="text-status-needs-fix-fg">*</span></label>
+            <label class="label mb-1 font-semibold text-xs text-text-muted">{{ $t('SELECT QUALITY CHECK CARD') }} <span class="text-status-needs-fix-fg">*</span></label>
             <select v-model="selectedQualityIssueId" class="input" required>
-              <option :value="null">-- Select an Issue --</option>
+              <option :value="null">{{ $t('-- Select an Issue --') }}</option>
               <option v-for="issue in activeQualityIssues" :key="issue.id" :value="issue.id">
                 {{ issue.title }} ({{ websiteName(issue.websiteId) }})
               </option>
@@ -72,46 +72,46 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="form-group">
-              <label class="label mb-1 font-semibold text-xs text-text-muted">ALERT ID (Unique ID) <span class="text-status-needs-fix-fg">*</span></label>
-              <input v-model="form.alertId" class="input" placeholder="e.g. quality-check-homepage-v1" required />
+              <label class="label mb-1 font-semibold text-xs text-text-muted">{{ $t('ALERT ID (Unique ID)') }} <span class="text-status-needs-fix-fg">*</span></label>
+              <input v-model="form.alertId" class="input" :placeholder="$t('e.g. quality-check-homepage-v1')" required />
             </div>
 
             <div class="form-group">
-              <label class="label mb-1 font-semibold text-xs text-text-muted">ALERT TYPE <span class="text-status-needs-fix-fg">*</span></label>
+              <label class="label mb-1 font-semibold text-xs text-text-muted">{{ $t('ALERT TYPE') }} <span class="text-status-needs-fix-fg">*</span></label>
               <select v-model="form.alertType" class="input" required>
-                <option value="New Task">New Task</option>
-                <option value="Quality Check">Quality Check</option>
-                <option value="Follow Up">Follow Up</option>
-                <option value="Urgent Fix">Urgent Fix</option>
-                <option value="Reminder">Reminder</option>
-                <option value="Website Review">Website Review</option>
-                <option value="Deadline Alert">Deadline Alert</option>
+                <option value="New Task">{{ $t('New Task') }}</option>
+                <option value="Quality Check">{{ $t('Quality Check') }}</option>
+                <option value="Follow Up">{{ $t('Follow Up') }}</option>
+                <option value="Urgent Fix">{{ $t('Urgent Fix') }}</option>
+                <option value="Reminder">{{ $t('Reminder') }}</option>
+                <option value="Website Review">{{ $t('Website Review') }}</option>
+                <option value="Deadline Alert">{{ $t('Deadline Alert') }}</option>
               </select>
             </div>
           </div>
 
           <div v-if="alertSource === 'custom'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="form-group">
-              <label class="label mb-1 font-semibold text-xs text-text-muted">PRIORITY <span class="text-status-needs-fix-fg">*</span></label>
+              <label class="label mb-1 font-semibold text-xs text-text-muted">{{ $t('PRIORITY') }} <span class="text-status-needs-fix-fg">*</span></label>
               <select v-model="form.priority" class="input" required>
-                <option value="Critical">Critical</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+                <option value="Critical">{{ $t('Critical') }}</option>
+                <option value="High">{{ $t('High') }}</option>
+                <option value="Medium">{{ $t('Medium') }}</option>
+                <option value="Low">{{ $t('Low') }}</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="label mb-1 font-semibold text-xs text-text-muted">RELATED ITEM LINK (OPTIONAL)</label>
+              <label class="label mb-1 font-semibold text-xs text-text-muted">{{ $t('RELATED ITEM LINK (OPTIONAL)') }}</label>
               <div class="flex gap-2">
                 <select v-model="form.relatedType" class="input w-1/3">
-                  <option :value="null">None</option>
-                  <option value="workboard_task">Task</option>
-                  <option value="quality_check_item">Quality Issue</option>
-                  <option value="followup_item">Follow Up</option>
+                  <option :value="null">{{ $t('None') }}</option>
+                  <option value="workboard_task">{{ $t('Task') }}</option>
+                  <option value="quality_check_item">{{ $t('Quality Issue') }}</option>
+                  <option value="followup_item">{{ $t('Follow Up') }}</option>
                 </select>
                 <select v-model="form.relatedId" class="input flex-1" :disabled="!form.relatedType">
-                  <option :value="null">— Select Item —</option>
+                  <option :value="null">{{ $t('— Select Item —') }}</option>
                   <option v-for="item in relatedOptions" :key="item.value" :value="item.value">
                     {{ item.label }}
                   </option>
@@ -121,20 +121,20 @@
           </div>
 
           <div v-if="alertSource === 'custom'" class="form-group">
-            <label class="label mb-1 font-semibold text-xs text-text-muted">TITLE <span class="text-status-needs-fix-fg">*</span></label>
-            <input v-model="form.title" class="input" placeholder="e.g. QUALITY ISSUE FOUND ON PRODUCT PAGE" required />
+            <label class="label mb-1 font-semibold text-xs text-text-muted">{{ $t('TITLE') }} <span class="text-status-needs-fix-fg">*</span></label>
+            <input v-model="form.title" class="input" :placeholder="$t('e.g. QUALITY ISSUE FOUND ON PRODUCT PAGE')" required />
           </div>
 
           <div class="form-group">
-            <label class="label mb-1 font-semibold text-xs text-text-muted">MESSAGE <span class="text-status-needs-fix-fg">*</span></label>
-            <textarea v-model="form.message" class="input min-h-[100px]" placeholder="Provide task context, page issues or fix instructions..." required />
+            <label class="label mb-1 font-semibold text-xs text-text-muted">{{ $t('MESSAGE') }} <span class="text-status-needs-fix-fg">*</span></label>
+            <textarea v-model="form.message" class="input min-h-[100px]" :placeholder="$t('Provide task context, page issues or fix instructions...')" required />
           </div>
 
           <!-- RECIPIENT SELECTION -->
           <div v-if="alertSource === 'custom'" class="form-group border-t border-border/60 pt-4 mt-2">
             <label class="label mb-2 font-bold text-xs text-text-main flex justify-between items-center">
-              <span>TARGET RECIPIENTS (Total selected: <strong class="text-primary">{{ selectedRecipients.length }}</strong>)</span>
-              <span class="text-text-muted text-[11px] font-normal">Choose specific members, department or leads</span>
+              <span>{{ $t('TARGET RECIPIENTS (Total selected:') }} <strong class="text-primary">{{ selectedRecipients.length }}</strong>)</span>
+              <span class="text-text-muted text-[11px] font-normal">{{ $t('Choose specific members, department or leads') }}</span>
             </label>
 
             <!-- Quick Selection Filters -->
@@ -158,7 +158,7 @@
                 + {{ deptLabel(dept) }} Leads
               </button>
               <button type="button" class="btn-filter-clear ml-auto" @click="selectedRecipients = []">
-                Clear All
+                {{ $t('Clear All') }}
               </button>
             </div>
 
@@ -206,7 +206,7 @@
               :disabled="saving"
               @click="saveAlert(false)"
             >
-              Save Draft
+              {{ $t('Save Draft') }}
             </button>
             <button
               type="submit"
@@ -222,8 +222,8 @@
       <!-- PREVIEW PANEL -->
       <div class="card p-6 flex flex-col justify-between" :class="{ 'opacity-50': !togglePreview }">
         <div>
-          <h3 class="section-title mb-1.5">Live Preview</h3>
-          <p class="text-xs text-text-muted mb-4">Exactly how the employee will see the alert popup upon logging in.</p>
+          <h3 class="section-title mb-1.5">{{ $t('Live Preview') }}</h3>
+          <p class="text-xs text-text-muted mb-4">{{ $t('Exactly how the employee will see the alert popup upon logging in.') }}</p>
         </div>
 
         <div class="preview-banner-container border border-dashed border-border/80 rounded-2xl p-6 bg-soft/10 flex items-center justify-center min-h-[300px]">
@@ -246,15 +246,15 @@
               <p class="preview-message">{{ form.message || 'Write a message to see description preview...' }}</p>
             </div>
             <div class="preview-footer-info">
-              <span class="preview-author">Assigned by <strong>{{ auth.profile?.fullName || 'Admin' }}</strong></span>
-              <span class="preview-date">Today</span>
+              <span class="preview-author">{{ $t('Assigned by') }} <strong>{{ auth.profile?.fullName || 'Admin' }}</strong></span>
+              <span class="preview-date">{{ $t('Today') }}</span>
             </div>
             <div class="preview-actions">
-              <button v-if="form.relatedType" class="preview-btn-open" :class="`preview-btn-open--${form.priority.toLowerCase()}`" type="button">Open Task</button>
-              <button class="preview-btn-gotit" type="button">Got It</button>
+              <button v-if="form.relatedType" class="preview-btn-open" :class="`preview-btn-open--${form.priority.toLowerCase()}`" type="button">{{ $t('Open Task') }}</button>
+              <button class="preview-btn-gotit" type="button">{{ $t('Got It') }}</button>
             </div>
           </div>
-          <span v-else class="text-xs text-text-muted">Click 'Preview Banner' to visualize overlay.</span>
+          <span v-else class="text-xs text-text-muted">{{ $t('Click \'Preview Banner\' to visualize overlay.') }}</span>
         </div>
       </div>
     </div>
@@ -263,7 +263,7 @@
     <div v-if="activeTab === 'list'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Alerts Sidebar List -->
       <div class="card p-4 flex flex-col gap-3 h-[600px]">
-        <h3 class="section-title">Active Alerts</h3>
+        <h3 class="section-title">{{ $t('Active Alerts') }}</h3>
         <div class="alerts-list overflow-y-auto flex-1 flex flex-col gap-2">
           <button
             v-for="alert in publishedAlerts"
@@ -282,7 +282,7 @@
             </div>
           </button>
           <div v-if="publishedAlerts.length === 0" class="text-center text-text-muted text-sm py-10">
-            No published alerts yet.
+            {{ $t('No published alerts yet.') }}
           </div>
         </div>
       </div>
@@ -297,7 +297,7 @@
             </div>
             <div class="flex gap-2">
               <button class="btn-secondary h-9 text-xs px-3" type="button" @click="repushAlertFlow(null)">
-                Repush All Pending
+                {{ $t('Repush All Pending') }}
               </button>
             </div>
           </div>
@@ -305,15 +305,15 @@
           <!-- Stats Bar -->
           <div class="grid grid-cols-3 gap-4">
             <div class="metric-box bg-soft/40">
-              <span class="metric-label">Total Recipients</span>
+              <span class="metric-label">{{ $t('Total Recipients') }}</span>
               <strong class="metric-value">{{ receipts.length }}</strong>
             </div>
             <div class="metric-box bg-status-approved-bg/10 border-status-approved-bg/25">
-              <span class="metric-label text-status-approved-fg">Acknowledged</span>
+              <span class="metric-label text-status-approved-fg">{{ $t('Acknowledged') }}</span>
               <strong class="metric-value text-status-approved-fg">{{ acknowledgedReceipts.length }}</strong>
             </div>
             <div class="metric-box bg-status-needs-fix-bg/10 border-status-needs-fix-bg/25">
-              <span class="metric-label text-status-needs-fix-fg">Pending</span>
+              <span class="metric-label text-status-needs-fix-fg">{{ $t('Pending') }}</span>
               <strong class="metric-value text-status-needs-fix-fg">{{ pendingReceipts.length }}</strong>
             </div>
           </div>
@@ -331,7 +331,7 @@
                     </span>
                     <div>
                       <strong class="text-xs block text-text-main">{{ memberName(r.userId) }}</strong>
-                      <span class="text-[10px] text-text-muted">Got It</span>
+                      <span class="text-[10px] text-text-muted">{{ $t('Got It') }}</span>
                     </div>
                   </div>
                   <div class="text-right text-[10px] text-text-muted">
@@ -339,7 +339,7 @@
                   </div>
                 </div>
                 <div v-if="acknowledgedReceipts.length === 0" class="text-center text-text-muted text-xs py-8">
-                  No acknowledgements yet.
+                  {{ $t('No acknowledgements yet.') }}
                 </div>
               </div>
             </div>
@@ -355,34 +355,34 @@
                     </span>
                     <div>
                       <strong class="text-xs block text-text-main">{{ memberName(r.userId) }}</strong>
-                      <span class="text-[10px] text-status-needs-fix-fg">Not Acknowledged</span>
+                      <span class="text-[10px] text-status-needs-fix-fg">{{ $t('Not Acknowledged') }}</span>
                     </div>
                   </div>
                   <div class="flex items-center gap-2">
                     <span v-if="r.escalationLevel > 0" class="badge badge--critical text-[9px] px-1 py-0.5">
                       Escalated L{{ r.escalationLevel }}
                     </span>
-                    <button class="btn-repush-single" title="Repush to user" @click="repushAlertFlow(r.userId)">
-                      Repush
+                    <button class="btn-repush-single" :title="$t('Repush to user')" @click="repushAlertFlow(r.userId)">
+                      {{ $t('Repush') }}
                     </button>
                   </div>
                 </div>
                 <div v-if="pendingReceipts.length === 0" class="text-center text-text-muted text-xs py-8">
-                  All users acknowledged.
+                  {{ $t('All users acknowledged.') }}
                 </div>
               </div>
             </div>
           </div>
         </template>
         <div v-else class="text-center text-text-muted text-sm py-20 flex-1 flex items-center justify-center">
-          Select an active task alert from the sidebar to track its receipts and delivery status.
+          {{ $t('Select an active task alert from the sidebar to track its receipts and delivery status.') }}
         </div>
       </div>
     </div>
 
     <!-- DRAFTS TAB -->
     <div v-if="activeTab === 'drafts'" class="card p-6">
-      <h3 class="section-title mb-4">Saved Draft Alerts</h3>
+      <h3 class="section-title mb-4">{{ $t('Saved Draft Alerts') }}</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div v-for="draft in draftAlerts" :key="draft.id" class="card p-4 flex flex-col gap-3 justify-between border-border/80">
           <div>
@@ -397,13 +397,13 @@
             <span class="text-[10px] text-text-muted">Saved: {{ formattedDate(draft.createdAt) }}</span>
             <div class="flex gap-2">
               <button class="btn-secondary h-8 px-3 text-xs" type="button" @click="editDraft(draft)">
-                Edit / Publish
+                {{ $t('Edit / Publish') }}
               </button>
             </div>
           </div>
         </div>
         <div v-if="draftAlerts.length === 0" class="text-center text-text-muted text-sm py-10 w-full col-span-full">
-          No saved draft alerts.
+          {{ $t('No saved draft alerts.') }}
         </div>
       </div>
     </div>
@@ -875,7 +875,7 @@ onMounted(async () => {
   width: 100%;
   max-width: 380px;
   background: rgba(30, 41, 59, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(248, 251, 255, 0.08);
   border-radius: 20px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.3);
   padding: 1.25rem;
@@ -953,7 +953,7 @@ onMounted(async () => {
 
 .preview-type {
   font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(248, 251, 255, 0.4);
   display: block;
   margin-top: 0.15rem;
 }
@@ -967,14 +967,14 @@ onMounted(async () => {
 .preview-title {
   font-size: 0.95rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #f8fbff;
   margin: 0;
 }
 
 .preview-message {
   font-size: 0.78rem;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(248, 251, 255, 0.7);
   margin: 0;
 }
 
@@ -982,10 +982,10 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(248, 251, 255, 0.06);
   padding-top: 0.55rem;
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(248, 251, 255, 0.45);
 }
 
 .preview-actions {
@@ -998,9 +998,9 @@ onMounted(async () => {
 .preview-btn-gotit {
   font-size: 0.78rem;
   font-weight: 700;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(248, 251, 255, 0.15);
   background: transparent;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(248, 251, 255, 0.85);
   padding: 0.35rem 0.85rem;
   border-radius: 8px;
 }
@@ -1011,7 +1011,7 @@ onMounted(async () => {
   border: none;
   padding: 0.35rem 0.85rem;
   border-radius: 8px;
-  color: #ffffff;
+  color: #f8fbff;
 }
 .preview-btn-open--critical { background: #ef4444; }
 .preview-btn-open--high { background: #f97316; }
@@ -1112,6 +1112,6 @@ onMounted(async () => {
 
 .btn-repush-single:hover {
   background: var(--primary);
-  color: white;
+  color: #f8fbff;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="fp-page">
-    <PageHeader title="Full Profile" subtitle="Team member profile, work status, and recent activity." />
+    <PageHeader :title="$t('Full Profile')" subtitle="Team member profile, work status, and recent activity." />
 
     <div v-if="loadingPage" class="fp-skeleton">
       <section class="fp-hero fp-hero-loading">
@@ -23,27 +23,27 @@
     </div>
 
     <div v-else-if="profileError" class="fp-error">
-      <div class="fp-error-title">Could not load profile. Please try again.</div>
+      <div class="fp-error-title">{{ $t('Could not load profile. Please try again.') }}</div>
       <p>{{ profileError }}</p>
-      <button class="btn-primary" type="button" @click="loadPageData">Retry</button>
+      <button class="btn-primary" type="button" @click="loadPageData">{{ $t('Retry') }}</button>
     </div>
 
     <template v-else>
       <div v-if="!profile" class="fp-empty-card">
-        <h3>Profile not found</h3>
-        <p>This profile does not exist or you do not have permission to view it.</p>
+        <h3>{{ $t('Profile not found') }}</h3>
+        <p>{{ $t('This profile does not exist or you do not have permission to view it.') }}</p>
       </div>
 
       <div v-else class="fp-stack">
         <section class="fp-hero">
           <div class="fp-hero-actions">
-            <button class="btn-secondary" type="button" @click="router.back()">Back</button>
+            <button class="btn-secondary" type="button" @click="router.back()">{{ $t('Back') }}</button>
             <RouterLink
               v-if="canEditProfile"
               class="btn-primary"
               :to="`/members/${profile.id}/profile`"
             >
-              Edit Profile
+              {{ $t('Edit Profile') }}
             </RouterLink>
           </div>
 
@@ -60,7 +60,7 @@
             </div>
 
             <div class="fp-identity">
-              <div class="fp-brand">KiuQ Website System</div>
+              <div class="fp-brand">{{ $t('KiuQ Website System') }}</div>
               <h1>{{ displayName }}</h1>
               <div class="fp-meta-line">
                 <span v-if="profile.username" class="fp-username">@{{ profile.username }}</span>
@@ -83,27 +83,27 @@
 
         <template v-if="publicOnly">
           <section class="fp-stats-grid">
-            <ProfileStatCard label="Leaderboard Points" :value="publicRankRow?.totalPoints ?? 0" :icon="icons.rank" />
-            <ProfileStatCard label="Team Rank" :value="publicRankLabel" :icon="icons.rank" />
-            <ProfileStatCard label="Completed Tasks" :value="publicRankRow?.tasksCompleted ?? 0" :icon="icons.completed" />
-            <ProfileStatCard label="Current Streak" :value="`${publicRankRow?.currentStreak ?? 0} days`" :icon="icons.activity" />
+            <ProfileStatCard :label="$t('Leaderboard Points')" :value="publicRankRow?.totalPoints ?? 0" :icon="icons.rank" />
+            <ProfileStatCard :label="$t('Team Rank')" :value="publicRankLabel" :icon="icons.rank" />
+            <ProfileStatCard :label="$t('Completed Tasks')" :value="publicRankRow?.tasksCompleted ?? 0" :icon="icons.completed" />
+            <ProfileStatCard :label="$t('Current Streak')" :value="`${publicRankRow?.currentStreak ?? 0} days`" :icon="icons.activity" />
           </section>
 
           <section class="fp-panel">
             <div class="fp-panel-head">
-              <h2>Public Activity Summary</h2>
-              <p>Private submissions, notes, resources, and admin feedback are hidden.</p>
+              <h2>{{ $t('Public Activity Summary') }}</h2>
+              <p>{{ $t('Private submissions, notes, resources, and admin feedback are hidden.') }}</p>
             </div>
             <div class="fp-mini-grid">
-              <MiniInfo label="Prompts copied" :value="publicRankRow?.promptsCopied ?? 0" />
-              <MiniInfo label="Approved work" :value="publicRankRow?.approvedSubmissions ?? 0" />
-              <MiniInfo label="Resources created" :value="publicRankRow?.resourcesCreated ?? 0" />
+              <MiniInfo :label="$t('Prompts copied')" :value="publicRankRow?.promptsCopied ?? 0" />
+              <MiniInfo :label="$t('Approved work')" :value="publicRankRow?.approvedSubmissions ?? 0" />
+              <MiniInfo :label="$t('Resources created')" :value="publicRankRow?.resourcesCreated ?? 0" />
             </div>
           </section>
 
           <section class="fp-panel">
             <div class="fp-panel-head">
-              <h2>Badges</h2>
+              <h2>{{ $t('Badges') }}</h2>
             </div>
             <BadgeGrid :badges="earnedBadges" empty-text="No public badges earned yet." />
           </section>
@@ -122,7 +122,7 @@
           </section>
 
           <section class="fp-tabs-shell">
-            <div class="fp-tabs" role="tablist" aria-label="Profile sections">
+            <div class="fp-tabs" role="tablist" aria-:label="$t('Profile sections')">
               <button
                 v-for="tab in tabs"
                 :key="tab.key"
@@ -137,37 +137,37 @@
 
             <div class="fp-tab-body">
               <section v-if="activeTab === 'overview'" class="fp-overview-grid">
-                <InfoPanel title="Basic Information">
-                  <InfoRow label="Full name" :value="profile.fullName || '-'" />
-                  <InfoRow label="Username" :value="profile.username ? `@${profile.username}` : '-'" />
-                  <InfoRow label="Email" :value="emailText" />
-                  <InfoRow label="Role" :value="roleLabel(profile.role)" />
-                  <InfoRow label="Status" :value="profile.status" />
+                <InfoPanel :title="$t('Basic Information')">
+                  <InfoRow :label="$t('Full name')" :value="profile.fullName || '-'" />
+                  <InfoRow :label="$t('Username')" :value="profile.username ? `@${profile.username}` : '-'" />
+                  <InfoRow :label="$t('Email')" :value="emailText" />
+                  <InfoRow :label="$t('Role')" :value="roleLabel(profile.role)" />
+                  <InfoRow :label="$t('Status')" :value="profile.status" />
 
-                  <InfoRow label="Position" :value="profile.position || '-'" />
-                  <InfoRow label="Phone" :value="profile.phone || '-'" />
-                  <InfoRow label="Bio" :value="profile.bio || '-'" />
-                  <InfoRow v-if="auth.isAdmin" label="Notes" :value="profile.notes || '-'" />
+                  <InfoRow :label="$t('Position')" :value="profile.position || '-'" />
+                  <InfoRow :label="$t('Phone')" :value="profile.phone || '-'" />
+                  <InfoRow :label="$t('Bio')" :value="profile.bio || '-'" />
+                  <InfoRow v-if="auth.isAdmin" :label="$t('Notes')" :value="profile.notes || '-'" />
                 </InfoPanel>
 
-                <InfoPanel title="Work Summary">
-                  <InfoRow label="Total tasks" :value="workSummary.totalTasks" />
-                  <InfoRow label="In progress" :value="workSummary.inProgressTasks" />
-                  <InfoRow label="Waiting review" :value="workSummary.waitingReviewTasks" />
-                  <InfoRow label="Needs fix" :value="workSummary.tasksNeedingFix" />
-                  <InfoRow label="Completed" :value="workSummary.completedTasks" />
-                  <InfoRow label="Websites" :value="memberWebsites.length" />
-                  <InfoRow label="Monthly reports" :value="memberReports.length" />
+                <InfoPanel :title="$t('Work Summary')">
+                  <InfoRow :label="$t('Total tasks')" :value="workSummary.totalTasks" />
+                  <InfoRow :label="$t('In progress')" :value="workSummary.inProgressTasks" />
+                  <InfoRow :label="$t('Waiting review')" :value="workSummary.waitingReviewTasks" />
+                  <InfoRow :label="$t('Needs fix')" :value="workSummary.tasksNeedingFix" />
+                  <InfoRow :label="$t('Completed')" :value="workSummary.completedTasks" />
+                  <InfoRow :label="$t('Websites')" :value="memberWebsites.length" />
+                  <InfoRow :label="$t('Monthly reports')" :value="memberReports.length" />
                 </InfoPanel>
 
 
 
-                <InfoPanel title="Assigned Websites">
+                <InfoPanel :title="$t('Assigned Websites')">
                   <CompactWebsiteList v-if="memberWebsites.length > 0" :websites="memberWebsites.slice(0, 4)" />
                   <EmptyLine v-else text="No websites assigned yet." />
                 </InfoPanel>
 
-                <InfoPanel title="Latest Tasks">
+                <InfoPanel :title="$t('Latest Tasks')">
                   <div v-if="recentTasks.length > 0" class="fp-compact-list">
                     <div v-for="task in recentTasks.slice(0, 4)" :key="task.id" class="fp-compact-row">
                       <div>
@@ -180,7 +180,7 @@
                   <EmptyLine v-else text="No tasks assigned yet." />
                 </InfoPanel>
 
-                <InfoPanel title="Latest Feedback">
+                <InfoPanel :title="$t('Latest Feedback')">
                   <div v-if="latestFeedback.length > 0" class="fp-compact-list">
                     <div v-for="item in latestFeedback" :key="item.submission.id" class="fp-feedback-row">
                       <strong>{{ item.title }}</strong>
@@ -202,7 +202,7 @@
                     <StatusBadge :status="task.status" />
                     <span>Due {{ task.dueDate || 'no date' }}</span>
                     <span>{{ task.boardMonth }}</span>
-                    <RouterLink :to="task.link" class="btn-secondary h-8 px-3 text-xs">Open Task</RouterLink>
+                    <RouterLink :to="task.link" class="btn-secondary h-8 px-3 text-xs">{{ $t('Open Task') }}</RouterLink>
                   </div>
                 </div>
               </section>
@@ -227,10 +227,10 @@
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Open Website
+                      {{ $t('Open Website') }}
                     </a>
                     <RouterLink class="btn-primary h-8 px-3 text-xs" :to="`/websites/${website.id}/edit`">
-                      View Details
+                      {{ $t('View Details') }}
                     </RouterLink>
                   </div>
                 </article>
@@ -246,7 +246,7 @@
                   </div>
                   <div class="fp-task-meta">
                     <StatusBadge :status="item.submission.status" />
-                    <RouterLink :to="submissionLink" class="btn-secondary h-8 px-3 text-xs">View Submission</RouterLink>
+                    <RouterLink :to="submissionLink" class="btn-secondary h-8 px-3 text-xs">{{ $t('View Submission') }}</RouterLink>
                   </div>
                 </div>
               </section>
@@ -260,10 +260,10 @@
                     <strong>{{ report.month }}</strong>
                     <StatusBadge :status="report.status" />
                   </div>
-                  <InfoText label="Completed" :value="report.completedSummary" />
-                  <InfoText label="Struggles" :value="report.struggles" />
-                  <InfoText label="Help needed" :value="report.helpNeeded" />
-                  <InfoText label="Next month plan" :value="report.nextMonthPlan" />
+                  <InfoText :label="$t('Completed')" :value="report.completedSummary" />
+                  <InfoText :label="$t('Struggles')" :value="report.struggles" />
+                  <InfoText :label="$t('Help needed')" :value="report.helpNeeded" />
+                  <InfoText :label="$t('Next month plan')" :value="report.nextMonthPlan" />
                 </article>
               </section>
 
@@ -1119,7 +1119,7 @@ const BadgeGrid = defineComponent({
 
 .fp-tab-active {
   background: var(--primary);
-  color: white;
+  color: #f8fbff;
   box-shadow: 0 4px 16px rgba(21, 214, 194, 0.08);
 }
 

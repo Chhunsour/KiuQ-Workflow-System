@@ -3,14 +3,14 @@
     <CmsLockedScreen
       v-if="true"
       badge="Under Review"
-      title="Product Catalog CMS is Locked"
+      :title="$t('Product Catalog CMS is Locked')"
       description="The Product CMS dashboard is currently disabled while the management team reviews its implementation scope and guidelines."
       :hint="null"
     />
 
     <template v-else>
     <PageHeader
-      title="Products"
+      :title="$t('Products')"
       subtitle="Manage product content for the public website. Published rows are visible to the framework site; drafts stay private."
     >
       <template #actions>
@@ -31,24 +31,24 @@
     <div class="cms-filters">
       <div class="cms-search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input v-model="search" type="search" placeholder="Search products by name or slug…" />
+        <input v-model="search" type="search" :placeholder="$t('Search products by name or slug…')" />
       </div>
       <select v-model="statusFilter" class="cms-select">
-        <option value="all">All statuses</option>
-        <option value="draft">Draft</option>
-        <option value="published">Published</option>
+        <option value="all">{{ $t('All statuses') }}</option>
+        <option value="draft">{{ $t('Draft') }}</option>
+        <option value="published">{{ $t('Published') }}</option>
       </select>
       <select v-model="categoryFilter" class="cms-select">
-        <option value="all">All categories</option>
+        <option value="all">{{ $t('All categories') }}</option>
         <option v-for="c in categoryOptions" :key="c" :value="c">{{ c }}</option>
       </select>
     </div>
 
     <!-- Error -->
     <div v-if="store.error" class="cms-error card card-pad">
-      <p class="font-semibold text-status-needs-fix-fg">Failed to load products.</p>
+      <p class="font-semibold text-status-needs-fix-fg">{{ $t('Failed to load products.') }}</p>
       <p class="text-sm text-text-muted mt-1">{{ store.error }}</p>
-      <button class="btn-primary mt-3 w-fit" type="button" @click="store.fetchProducts">Retry</button>
+      <button class="btn-primary mt-3 w-fit" type="button" @click="store.fetchProducts">{{ $t('Retry') }}</button>
     </div>
 
     <!-- Loading skeleton -->
@@ -58,7 +58,7 @@
 
     <!-- Empty state -->
     <div v-else-if="filtered.length === 0" class="cms-empty card card-pad">
-      <p class="cms-empty-title">No products yet.</p>
+      <p class="cms-empty-title">{{ $t('No products yet.') }}</p>
       <p class="cms-empty-sub">
         {{ hasActiveFilters ? 'No products match your filters.' : 'Click “New Product” to add your first one.' }}
       </p>
@@ -69,11 +69,11 @@
       <table class="cms-table">
         <thead>
           <tr>
-            <th>Product</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Updated</th>
-            <th class="cms-actions-col">Actions</th>
+            <th>{{ $t('Product') }}</th>
+            <th>{{ $t('Category') }}</th>
+            <th>{{ $t('Status') }}</th>
+            <th>{{ $t('Updated') }}</th>
+            <th class="cms-actions-col">{{ $t('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -104,7 +104,7 @@
             <td>
               <div class="cms-row-actions">
                 <RouterLink :to="`/cms/products/${p.id}`" class="btn-secondary cms-row-btn">
-                  Edit
+                  {{ $t('Edit') }}
                 </RouterLink>
                 <button
                   v-if="store.canPublish()"
@@ -122,7 +122,7 @@
                   :disabled="busyId === p.id"
                   @click="onDelete(p)"
                 >
-                  Delete
+                  {{ $t('Delete') }}
                 </button>
               </div>
             </td>

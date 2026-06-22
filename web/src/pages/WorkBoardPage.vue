@@ -1,8 +1,8 @@
 <template>
   <div class="wb-page">
     <PageHeader
-      title="Work Board"
-      subtitle="Manage task assignments and track team progress."
+      :title="$t('workBoard.title')"
+      :subtitle="$t('workBoard.subtitle')"
     />
 
     <div class="wb-cards">
@@ -15,24 +15,24 @@
           </svg>
         </div>
         <div class="wb-card-body">
-          <h2 class="wb-card-title">My Work Board</h2>
-          <p class="wb-card-desc">View and manage only your assigned tasks — across all columns and priorities.</p>
+          <h2 class="wb-card-title">{{ $t('workBoard.myTitle') }}</h2>
+          <p class="wb-card-desc">{{ $t('workBoard.myDesc') }}</p>
           <ul class="wb-card-details">
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-              Only your assigned tasks
+              {{ $t('workBoard.myDetail1') }}
             </li>
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-              Columns: To Do · In Progress · Waiting Review · Needs Fix · Completed
+              {{ $t('workBoard.myDetail2') }}
             </li>
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Update status and track your progress
+              {{ $t('workBoard.myDetail3') }}
             </li>
           </ul>
           <RouterLink to="/work-board/my" class="wb-card-btn">
-            Open My Work Board
+            {{ $t('workBoard.myBtn') }}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </RouterLink>
         </div>
@@ -49,24 +49,24 @@
           </svg>
         </div>
         <div class="wb-card-body">
-          <h2 class="wb-card-title">Team Work Board</h2>
-          <p class="wb-card-desc">View all members' work boards, assign tasks, and monitor team progress.</p>
+          <h2 class="wb-card-title">{{ $t('workBoard.teamTitle') }}</h2>
+          <p class="wb-card-desc">{{ $t('workBoard.teamDesc') }}</p>
           <ul class="wb-card-details">
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-              See every member and their active tasks
+              {{ $t('workBoard.teamDetail1') }}
             </li>
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-              Assign new tasks to any member
+              {{ $t('workBoard.teamDetail2') }}
             </li>
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Click any member to open their board
+              {{ $t('workBoard.teamDetail3') }}
             </li>
           </ul>
           <RouterLink to="/work-board/members" class="wb-card-btn wb-card-btn--team">
-            Open Team Work Board
+            {{ $t('workBoard.teamBtn') }}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </RouterLink>
         </div>
@@ -184,7 +184,7 @@ const auth = useAuthStore();
   gap: 0.5rem;
   border-radius: 12px;
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   padding: 0.6rem 1.1rem;
   font-family: 'Jost Numbers', 'Google Sans', Arial, sans-serif;
   font-size: 0.84rem;

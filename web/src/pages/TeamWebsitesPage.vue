@@ -9,14 +9,14 @@
           </svg>
         </span>
         <div>
-          <h1 class="tw-title">Team Websites</h1>
-          <p class="tw-subtitle">View all websites created, assigned, and managed by the team.</p>
+          <h1 class="tw-title">{{ $t('websites.teamWebsites') }}</h1>
+          <p class="tw-subtitle">{{ $t('websites.teamWebsitesDesc') }}</p>
         </div>
       </div>
       <div class="tw-header-right">
         <RouterLink v-if="!auth.isViewer" to="/websites/new" class="tw-btn-new">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          New Website
+          {{ $t('websites.addNewWebsite') }}
         </RouterLink>
       </div>
     </header>
@@ -25,31 +25,31 @@
     <div class="tw-stats">
       <div class="tw-stat">
         <span class="tw-stat-num">{{ summary.total }}</span>
-        <span class="tw-stat-label">Total</span>
+        <span class="tw-stat-label">{{ $t('websites.total') }}</span>
       </div>
       <div class="tw-stat">
         <span class="tw-stat-num">{{ summary.newCount }}</span>
-        <span class="tw-stat-label">New</span>
+        <span class="tw-stat-label">{{ $t('websites.new') }}</span>
       </div>
       <div class="tw-stat">
         <span class="tw-stat-num">{{ summary.existing }}</span>
-        <span class="tw-stat-label">Existing</span>
+        <span class="tw-stat-label">{{ $t('websites.existing') }}</span>
       </div>
       <div class="tw-stat">
         <span class="tw-stat-num tw-stat-num--accent">{{ summary.inDev }}</span>
-        <span class="tw-stat-label">In Dev</span>
+        <span class="tw-stat-label">{{ $t('websites.inDev') }}</span>
       </div>
       <div class="tw-stat">
         <span class="tw-stat-num" :class="{ 'tw-stat-num--warn': summary.needsQC > 0 }">{{ summary.needsQC }}</span>
-        <span class="tw-stat-label">Needs QC</span>
+        <span class="tw-stat-label">{{ $t('websites.needsQc') }}</span>
       </div>
       <div class="tw-stat">
         <span class="tw-stat-num tw-stat-num--wp">{{ summary.wordpress }}</span>
-        <span class="tw-stat-label">WordPress</span>
+        <span class="tw-stat-label">{{ $t('websites.wordpress') }}</span>
       </div>
       <div class="tw-stat">
         <span class="tw-stat-num tw-stat-num--fw">{{ summary.framework }}</span>
-        <span class="tw-stat-label">Framework</span>
+        <span class="tw-stat-label">{{ $t('websites.framework') }}</span>
       </div>
     </div>
 
@@ -58,44 +58,44 @@
       <div class="tw-toolbar-left">
         <div class="tw-search-wrap">
           <svg class="tw-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input v-model="search" type="search" class="tw-search" placeholder="Search by name or domain…" />
+          <input v-model="search" type="search" class="tw-search" :placeholder="$t('websites.searchPlaceholder')" />
         </div>
         <select v-model="filterMemberId" class="tw-select">
-          <option value="">All members</option>
+          <option value="">{{ $t('websites.allMembers') }}</option>
           <option v-for="m in eligibleMembers" :key="m.id" :value="m.id">{{ m.fullName || m.email }}</option>
         </select>
         <select v-model="filterType" class="tw-select">
-          <option value="">All types</option>
+          <option value="">{{ $t('websites.allTypes') }}</option>
           <option v-for="t in websiteTypes" :key="t" :value="t">{{ typeLabel(t) }}</option>
         </select>
         <select v-model="filterStatus" class="tw-select">
-          <option value="">All statuses</option>
-          <option v-for="s in websiteStatuses" :key="s" :value="s">{{ s }}</option>
+          <option value="">{{ $t('websites.allStatuses') }}</option>
+          <option v-for="s in websiteStatuses" :key="s" :value="s">{{ $t(`common.statuses.${s}`) || s }}</option>
         </select>
         <select v-if="qc.classes.length > 0" v-model="filterClassId" class="tw-select">
-          <option value="">All folders</option>
+          <option value="">{{ $t('websites.allFolders') }}</option>
           <option v-for="c in qc.classes" :key="c.id" :value="c.id">{{ c.name }}</option>
-          <option value="__none__">Unclassified</option>
+          <option value="__none__">{{ $t('websites.unclassified') }}</option>
         </select>
         <select v-model="filterPlatform" class="tw-select">
-          <option value="">All Platforms</option>
-          <option value="wordpress">WordPress</option>
-          <option value="framework">Framework</option>
-          <option value="unknown">Unknown</option>
+          <option value="">{{ $t('websites.allPlatforms') }}</option>
+          <option value="wordpress">{{ $t('websites.wordpress') }}</option>
+          <option value="framework">{{ $t('websites.framework') }}</option>
+          <option value="unknown">{{ $t('performance.unknown') }}</option>
         </select>
         <select v-model="sortBy" class="tw-select">
-          <option value="newest">Newest first</option>
-          <option value="oldest">Oldest first</option>
-          <option value="az">A → Z</option>
-          <option value="za">Z → A</option>
+          <option value="newest">{{ $t('websites.newestFirst') }}</option>
+          <option value="oldest">{{ $t('websites.oldestFirst') }}</option>
+          <option value="az">{{ $t('websites.az') }}</option>
+          <option value="za">{{ $t('websites.za') }}</option>
         </select>
       </div>
       <div class="tw-toolbar-right">
         <div class="tw-view-toggle">
-          <button type="button" class="tw-view-btn" :class="{ 'tw-view-btn--active': viewMode === 'grid' }" @click="viewMode = 'grid'" title="Grid View">
+          <button type="button" class="tw-view-btn" :class="{ 'tw-view-btn--active': viewMode === 'grid' }" @click="viewMode = 'grid'" :title="$t('qualityCheck.boardView') || 'Grid View'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
           </button>
-          <button type="button" class="tw-view-btn" :class="{ 'tw-view-btn--active': viewMode === 'list' }" @click="viewMode = 'list'" title="List View">
+          <button type="button" class="tw-view-btn" :class="{ 'tw-view-btn--active': viewMode === 'list' }" @click="viewMode = 'list'" :title="$t('pageIndexing.viewModes.table') || 'List View'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
           </button>
         </div>
@@ -120,7 +120,7 @@
               <div class="tw-card-info">
                 <h3 class="tw-card-name">{{ w.name }}</h3>
                 <a v-if="w.domain" :href="liveUrl(w.domain)" target="_blank" rel="noopener noreferrer" class="tw-card-domain">{{ displayDomain(w.domain) }}</a>
-                <span v-else class="tw-card-domain tw-card-domain--empty">No domain</span>
+                <span v-else class="tw-card-domain tw-card-domain--empty">{{ $t('websites.noDomain') }}</span>
               </div>
               <div class="tw-card-status">
                 <StatusBadge :status="w.status" />
@@ -131,15 +131,15 @@
             <div class="tw-card-body">
               <!-- Meta row -->
               <div class="tw-card-meta">
-                <div v-if="creatorName(w)" class="tw-meta-item" title="Assigned Member">
+                <div v-if="creatorName(w)" class="tw-meta-item" :title="$t('websites.assignedMember')">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
                   <span>{{ creatorName(w) }}</span>
                 </div>
-                <div v-if="w.createdAt" class="tw-meta-item" title="Created Date">
+                <div v-if="w.createdAt" class="tw-meta-item" :title="$t('websites.createdDate')">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                   <span>{{ formatDate(w.createdAt) }}</span>
                 </div>
-                <div v-if="className(w)" class="tw-meta-item" title="QC Folder">
+                <div v-if="className(w)" class="tw-meta-item" :title="$t('websites.allFolders')">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                   <span>{{ className(w) }}</span>
                 </div>
@@ -150,7 +150,7 @@
                 <span class="tw-platform-badge" :class="`tw-platform-badge--${w.platformType || 'unknown'}`">{{ platformLabel(w.platformType) }}</span>
                 <span v-if="openIssuesCount(w.id) > 0" class="tw-qc-badge">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-                  {{ openIssuesCount(w.id) }} QC open
+                  {{ $t('websites.qcOpen', { count: openIssuesCount(w.id) }) }}
                 </span>
               </div>
             </div>
@@ -159,11 +159,11 @@
             <div class="tw-card-actions">
               <RouterLink :to="`/websites/${w.id}/edit`" class="tw-action tw-action--secondary">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-                <span>View Details</span>
+                <span>{{ $t('websites.viewDetails') }}</span>
               </RouterLink>
               <a v-if="w.domain" :href="liveUrl(w.domain)" target="_blank" rel="noopener noreferrer" class="tw-action tw-action--primary">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                <span>Open</span>
+                <span>{{ $t('websites.open') }}</span>
               </a>
             </div>
           </article>
@@ -173,12 +173,12 @@
       <!-- ── List View ── -->
       <div v-else-if="sorted.length && viewMode === 'list'" class="tw-list">
         <div class="tw-list-header">
-          <span class="tw-lh-name">Website</span>
-          <span class="tw-lh-type">Type</span>
-          <span class="tw-lh-status">Status</span>
-          <span class="tw-lh-creator">Creator</span>
-          <span class="tw-lh-date">Created</span>
-          <span class="tw-lh-actions">Actions</span>
+          <span class="tw-lh-name">{{ $t('websites.website') }}</span>
+          <span class="tw-lh-type">{{ $t('websites.type') }}</span>
+          <span class="tw-lh-status">{{ $t('websites.status') }}</span>
+          <span class="tw-lh-creator">{{ $t('websites.creator') }}</span>
+          <span class="tw-lh-date">{{ $t('websites.created') }}</span>
+          <span class="tw-lh-actions">{{ $t('websites.actions') }}</span>
         </div>
         <div v-for="w in sorted" :key="w.id" class="tw-list-row">
           <div class="tw-lr-name">
@@ -189,7 +189,7 @@
             <div class="tw-lr-nameblock">
               <span class="tw-lr-title">{{ w.name }}</span>
               <a v-if="w.domain" :href="liveUrl(w.domain)" target="_blank" rel="noopener noreferrer" class="tw-lr-domain">{{ displayDomain(w.domain) }}</a>
-              <span v-else class="tw-lr-domain tw-lr-domain--empty">No domain</span>
+              <span v-else class="tw-lr-domain tw-lr-domain--empty">{{ $t('websites.noDomain') }}</span>
             </div>
           </div>
           <span class="tw-lr-type">
@@ -202,10 +202,10 @@
           <span class="tw-lr-creator">{{ creatorName(w) || '—' }}</span>
           <span class="tw-lr-date">{{ formatDate(w.createdAt) }}</span>
           <div class="tw-lr-actions">
-            <RouterLink :to="`/websites/${w.id}/edit`" class="tw-action-icon" title="Details">
+            <RouterLink :to="`/websites/${w.id}/edit`" class="tw-action-icon" :title="$t('websites.viewDetails')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
             </RouterLink>
-            <a v-if="w.domain" :href="liveUrl(w.domain)" target="_blank" rel="noopener noreferrer" class="tw-action-icon tw-action-icon--primary" title="Open">
+            <a v-if="w.domain" :href="liveUrl(w.domain)" target="_blank" rel="noopener noreferrer" class="tw-action-icon tw-action-icon--primary" :title="$t('websites.open')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
           </div>
@@ -219,11 +219,11 @@
             <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
         </div>
-        <h3 class="tw-empty-title">{{ hasActiveFilters ? 'No websites match your filters' : 'No team websites yet' }}</h3>
-        <p class="tw-empty-desc">{{ hasActiveFilters ? 'Try adjusting your search or filters.' : 'Create a website profile to start managing team domains.' }}</p>
+        <h3 class="tw-empty-title">{{ hasActiveFilters ? $t('websites.noWebsitesMatch') : $t('websites.noTeamWebsites') }}</h3>
+        <p class="tw-empty-desc">{{ hasActiveFilters ? $t('websites.adjustFilters') : $t('websites.createTeamDesc') }}</p>
         <div class="tw-empty-actions">
-          <button v-if="hasActiveFilters" class="tw-action tw-action--secondary" @click="clearFilters">Clear Filters</button>
-          <RouterLink v-if="!auth.isViewer" to="/websites/new" class="tw-action tw-action--primary">New Website</RouterLink>
+          <button v-if="hasActiveFilters" class="tw-action tw-action--secondary" @click="clearFilters">{{ $t('websites.clearFilters') }}</button>
+          <RouterLink v-if="!auth.isViewer" to="/websites/new" class="tw-action tw-action--primary">{{ $t('websites.addNewWebsite') }}</RouterLink>
         </div>
       </div>
     </LoadingBlock>
@@ -233,12 +233,15 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
 import LoadingBlock from '@/components/ui/LoadingBlock.vue';
 import { useDataStore, type Website } from '@/stores/data';
 import { useAuthStore } from '@/stores/auth';
 import { useQualityCheckStore } from '@/stores/qualityCheck';
 import { usePageRealtime } from '@/services/realtimeService';
+
+const { t } = useI18n();
 
 usePageRealtime(['websites', 'quality_issues', 'quality_classes']);
 
@@ -358,20 +361,20 @@ const summary = computed(() => {
 });
 
 // ── Helpers ──
-const typeLabel = (t: string) => {
+const typeLabel = (tVal: string) => {
   const map: Record<string, string> = {
-    existing: 'Existing',
-    ecommerce: 'E-commerce',
-    landing: 'Landing Page',
-    catalog: 'Catalog',
-    blog: 'Blog / Guide',
-    service: 'Service',
-    brand: 'Brand',
-    normal_ecommerce: 'E-commerce',
-    product_landing: 'Landing Page',
-    blog_guide: 'Blog / Guide',
+    existing: t('websites.existing'),
+    ecommerce: t('websites.ecommerce'),
+    landing: t('websites.landing'),
+    catalog: t('websites.catalog'),
+    blog: t('websites.blog'),
+    service: t('websites.service'),
+    brand: t('websites.brand'),
+    normal_ecommerce: t('websites.ecommerce'),
+    product_landing: t('websites.landing'),
+    blog_guide: t('websites.blog'),
   };
-  return map[t] || t || 'Website';
+  return map[tVal] || tVal || 'Website';
 };
 
 const platformLabel = (p: string) => {
@@ -451,7 +454,7 @@ onMounted(() => {
 .tw-btn-new {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 16px; font-size: 0.78rem; font-weight: 700;
-  color: #fff; background: var(--primary); border: none; border-radius: 10px;
+  color: #f8fbff; background: var(--primary); border: none; border-radius: 10px;
   cursor: pointer; text-decoration: none; font-family: inherit;
   transition: filter 0.15s, transform 0.1s;
 }
@@ -531,7 +534,7 @@ onMounted(() => {
 }
 .tw-view-btn:first-child { border-right: 1px solid var(--border); }
 .tw-view-btn:hover { color: var(--text-main); }
-.tw-view-btn--active { background: var(--primary); color: #fff; }
+.tw-view-btn--active { background: var(--primary); color: #f8fbff; }
 
 /* ── Grid ── */
 .tw-grid-container { container-type: inline-size; }
@@ -712,13 +715,13 @@ onMounted(() => {
 }
 .tw-action--primary {
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
   border-color: var(--primary);
 }
 .tw-action--primary:hover {
   filter: brightness(1.08);
   background: var(--primary);
-  color: #fff;
+  color: #f8fbff;
 }
 .tw-action--secondary { }
 

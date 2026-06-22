@@ -7,7 +7,7 @@
       <button
         type="button"
         class="topbar-hamburger btn-ghost h-9 w-9 px-0"
-        aria-label="Open menu"
+        :aria-label="$t('Open menu')"
         @click="$emit('open-sidebar')"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -17,15 +17,16 @@
       <h1 class="topbar-title ui-font truncate text-lg font-semibold text-text-main">{{ pageTitle }}</h1>
     </div>
     <div class="topbar-actions flex items-center gap-3">
+      <LanguageSwitcher />
       <button
         type="button"
         class="topbar-search"
-        aria-label="Search (Cmd/Ctrl + K)"
-        title="Search — ⌘K"
+        :aria-label="$t('Search (Cmd/Ctrl + K)')"
+        :title="$t('Search — ⌘K')"
         @click="openCommandPalette"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <span class="topbar-search-text">Search</span>
+        <span class="topbar-search-text">{{ $t('Search') }}</span>
         <kbd class="topbar-search-kbd">{{ modKey }}K</kbd>
       </button>
 
@@ -34,8 +35,8 @@
       <button
         class="btn-secondary h-9 px-3"
         type="button"
-        :aria-label="`Switch to ${theme.isDarkGray ? 'Light Mode' : 'Dark Gray Mode'}`"
-        :title="theme.label"
+        :aria-label="theme.isDarkGray ? $t('Switch to Light Mode') : $t('Switch to Dark Gray Mode')"
+        :title="$t(theme.label)"
         @click="theme.toggle"
       >
         <svg
@@ -65,7 +66,7 @@
         >
           <path d="M12 3a6 6 0 0 0 9 7.5A9 9 0 1 1 12 3z" />
         </svg>
-        <span class="hidden lg:inline">{{ theme.label }}</span>
+        <span class="hidden lg:inline">{{ $t(theme.label) }}</span>
       </button>
 
       <div class="relative">
@@ -73,7 +74,7 @@
           class="relative flex h-9 w-9 items-center justify-center rounded-full bg-soft text-primary ui-font text-sm font-semibold hover:bg-soft/70"
           type="button"
           @click="open = !open"
-          aria-label="User menu"
+          :aria-label="$t('User menu')"
         >
           <div class="h-full w-full rounded-full overflow-hidden flex items-center justify-center">
             <img
@@ -122,7 +123,7 @@
                   <path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/>
                 </svg>
               </span>
-              View Full
+              {{ $t('nav.viewFull') }}
             </RouterLink>
             <RouterLink to="/profile" class="nav-item w-full" @click="open = false">
               <span class="flex h-5 w-5 items-center justify-center">
@@ -131,7 +132,7 @@
                   <circle cx="12" cy="7" r="4"/>
                 </svg>
               </span>
-              Profile
+              {{ $t('nav.profile') }}
             </RouterLink>
             <RouterLink v-if="auth.isAdmin || auth.isQualityChecker" to="/settings" class="nav-item w-full" @click="open = false">
               <span class="flex h-5 w-5 items-center justify-center">
@@ -140,7 +141,7 @@
                   <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>
                 </svg>
               </span>
-              Settings
+              {{ $t('nav.settings') }}
             </RouterLink>
             <button class="nav-item w-full" type="button" @click="onLogout">
               <span class="flex h-5 w-5 items-center justify-center">
@@ -150,7 +151,7 @@
                   <path d="M21 12H9"/>
                 </svg>
               </span>
-              Sign out
+              {{ $t('nav.signout') }}
             </button>
           </div>
         </div>
@@ -162,6 +163,79 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import LanguageSwitcher from '@/components/layout/LanguageSwitcher.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+
+const getNavTranslationKey = (label: string) => {
+  const mapping: Record<string, string> = {
+    'Dashboard': 'nav.dashboard',
+    'My Dashboard': 'nav.dashboard',
+    'Command Center': 'nav.commandCenter',
+    'Winner Center': 'nav.winnerCenter',
+    'Work Board': 'nav.workBoard',
+    'My Work Board': 'nav.myWorkBoard',
+    'Member Board': 'nav.memberBoard',
+    'Quality Check': 'nav.qualityCheck',
+    'Quality Check Board': 'nav.qualityCheck',
+    'Followup': 'nav.followup',
+    'Followup Center': 'nav.followup',
+    'Blog Followup': 'nav.blogFollowup',
+    'Plugin Update': 'nav.pluginUpdate',
+    'eBay Click Followup': 'nav.ebayClickFollowup',
+    'Website Optimization': 'nav.websiteOptimization',
+    'Calendar': 'nav.calendar',
+    'Reports': 'nav.reports',
+    'Projects': 'nav.projects',
+    'Folders': 'nav.folders',
+    'Websites': 'nav.websites',
+    'My Websites': 'nav.myWebsites',
+    'Team Websites': 'nav.teamWebsites',
+    'New Website': 'nav.newWebsite',
+    'Performance': 'nav.performance',
+    'Overview': 'nav.overview',
+    'Page Indexing': 'nav.pageIndexing',
+    'CMS': 'nav.cms',
+    'Products': 'nav.products',
+    'Blog Posts': 'nav.blogPosts',
+    'Blog Center': 'nav.blogCenter',
+    'Images': 'nav.images',
+    'Prompt': 'nav.prompt',
+    'Prompt Dashboard': 'nav.promptDashboard',
+    'Prompt Library': 'nav.promptLibrary',
+    'Prompt Builder': 'nav.promptBuilder',
+    'Old Prompt Library': 'nav.oldPromptLibrary',
+    'Members': 'nav.members',
+    'Team Members': 'nav.members',
+    'Reviews': 'nav.reviews',
+    'Leaderboard': 'nav.leaderboard',
+    'Activity': 'nav.activity',
+    'Notes': 'nav.notes',
+    'Docs': 'nav.docs',
+    'Resources': 'nav.resources',
+    'Settings': 'nav.settings',
+    'Account Settings': 'nav.settings',
+    'Task Alerts': 'nav.taskAlerts',
+    'Profile': 'nav.profile',
+    'My Profile': 'nav.myProfile',
+    'Member Profile': 'nav.memberProfile',
+    'Quality Checker Dashboard': 'nav.dashboard',
+    'OverviewSection': 'nav.overviewSection',
+    'ExecutiveSection': 'nav.executiveSection',
+    'OperationsSection': 'nav.operationsSection',
+    'ContentSection': 'nav.contentSection',
+    'TeamSection': 'nav.teamSection',
+    'LibrarySection': 'nav.librarySection',
+    'SystemSection': 'nav.systemSection'
+  };
+  return mapping[label] || '';
+};
+
+const translateLabel = (label: string) => {
+  const key = getNavTranslationKey(label);
+  return key ? t(key) : label;
+};
 import { adminNavItems, memberNavItems, qualityCheckerNavItems } from './navItems';
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
@@ -206,29 +280,33 @@ const visibleNavItems = computed(() => {
 });
 
 const pageTitle = computed(() => {
-  if (route.path === '/dashboard') return 'Quality Checker Dashboard';
-  if (route.path === '/profile') return 'My Profile';
-  if (route.path === '/profile/me') return 'My Profile';
-  if (route.path === '/settings') return auth.isQualityChecker ? 'Account Settings' : 'Settings';
-  if (route.path === '/notifications') return 'Notifications';
-  if (route.path === '/quality-checker-dashboard') return 'Quality Checker Dashboard';
-  if (route.path === '/quality-check') return 'Quality Check Board';
-  if (route.path.startsWith('/quality-check/')) return 'Quality Check Board';
-  if (route.path === '/work-board') return 'Work Board';
-  if (route.path === '/work-board/my') return 'My Work Board';
-  if (route.path === '/work-board/members') return 'Member Board';
-  if (route.path.startsWith('/work-board/members/')) return 'Member Board';
-  if (route.path === '/followup') return 'Followup';
-  if (route.path === '/followup/blog') return 'Blog Followup';
-  if (route.path === '/followup/plugins') return 'Plugin Update';
-  if (route.path.startsWith('/followup/blog/')) return 'Blog Tracker';
-  if (route.path.startsWith('/followup/plugins/')) return 'Plugin Tracker';
-  if (route.path.startsWith('/members/') && route.path.endsWith('/profile')) return 'Member Profile';
-  const match = visibleNavItems.value.find((item) => {
-    if (item.to === '/') return route.path === '/';
-    return route.path === item.to || route.path.startsWith(item.to + '/');
-  });
-  return match?.label ?? 'Dashboard';
+  let title = 'Dashboard';
+  if (route.path === '/dashboard') title = 'Quality Checker Dashboard';
+  else if (route.path === '/profile') title = 'My Profile';
+  else if (route.path === '/profile/me') title = 'My Profile';
+  else if (route.path === '/settings') title = auth.isQualityChecker ? 'Account Settings' : 'Settings';
+  else if (route.path === '/notifications') title = 'Notifications';
+  else if (route.path === '/quality-checker-dashboard') title = 'Quality Checker Dashboard';
+  else if (route.path === '/quality-check') title = 'Quality Check Board';
+  else if (route.path.startsWith('/quality-check/')) title = 'Quality Check Board';
+  else if (route.path === '/work-board') title = 'Work Board';
+  else if (route.path === '/work-board/my') title = 'My Work Board';
+  else if (route.path === '/work-board/members') title = 'Member Board';
+  else if (route.path.startsWith('/work-board/members/')) title = 'Member Board';
+  else if (route.path === '/followup') title = 'Followup';
+  else if (route.path === '/followup/blog') title = 'Blog Followup';
+  else if (route.path === '/followup/plugins') title = 'Plugin Update';
+  else if (route.path.startsWith('/followup/blog/')) title = 'Blog Tracker';
+  else if (route.path.startsWith('/followup/plugins/')) title = 'Plugin Tracker';
+  else if (route.path.startsWith('/members/') && route.path.endsWith('/profile')) title = 'Member Profile';
+  else {
+    const match = visibleNavItems.value.find((item) => {
+      if (item.to === '/') return route.path === '/';
+      return route.path === item.to || route.path.startsWith(item.to + '/');
+    });
+    title = match?.label ?? 'Dashboard';
+  }
+  return translateLabel(title);
 });
 
 const initials = computed(() => {

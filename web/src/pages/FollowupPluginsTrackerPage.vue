@@ -4,7 +4,7 @@
     <div class="fpt-header">
       <RouterLink to="/followup/plugins" class="fpt-back">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-        All Websites
+        {{ $t('All Websites') }}
       </RouterLink>
 
       <div v-if="website" class="fpt-site-info">
@@ -21,8 +21,8 @@
 
     <!-- Error -->
     <div v-if="error" class="fpt-error card card-pad">
-      <p class="font-semibold text-status-needs-fix-fg">Could not load. Please try again.</p>
-      <button class="btn-primary mt-3 w-fit" type="button" @click="load">Retry</button>
+      <p class="font-semibold text-status-needs-fix-fg">{{ $t('Could not load. Please try again.') }}</p>
+      <button class="btn-primary mt-3 w-fit" type="button" @click="load">{{ $t('Retry') }}</button>
     </div>
 
     <!-- Loading -->
@@ -35,7 +35,7 @@
 
     <!-- Not found -->
     <div v-else-if="!website" class="card card-pad text-sm text-text-muted">
-      Website not found.
+      {{ $t('Website not found.') }}
     </div>
 
     <template v-else>
@@ -43,15 +43,15 @@
       <div class="fpt-summary">
         <div class="fpt-sum-item fpt-sum--done">
           <span class="fpt-sum-num">{{ viewStats.done }}</span>
-          <span class="fpt-sum-lbl">Done</span>
+          <span class="fpt-sum-lbl">{{ $t('Done') }}</span>
         </div>
         <div class="fpt-sum-item fpt-sum--missed">
           <span class="fpt-sum-num">{{ viewStats.missed }}</span>
-          <span class="fpt-sum-lbl">Missed</span>
+          <span class="fpt-sum-lbl">{{ $t('Missed') }}</span>
         </div>
         <div class="fpt-sum-item fpt-sum--pending">
           <span class="fpt-sum-num">{{ viewStats.pending }}</span>
-          <span class="fpt-sum-lbl">Pending</span>
+          <span class="fpt-sum-lbl">{{ $t('Pending') }}</span>
         </div>
         <div class="fpt-sum-progress">
           <div class="fpt-sum-prog-track">
@@ -72,13 +72,13 @@
           :class="{ 'fpt-vtab--active': viewMode === 'week' }"
           type="button"
           @click="viewMode = 'week'"
-        >This Week</button>
+        >{{ $t('This Week') }}</button>
         <button
           class="fpt-vtab"
           :class="{ 'fpt-vtab--active': viewMode === 'month' }"
           type="button"
           @click="viewMode = 'month'"
-        >This Month</button>
+        >{{ $t('This Month') }}</button>
       </div>
 
       <!-- ── THIS WEEK VIEW ── -->
@@ -91,7 +91,7 @@
           <div class="fpt-wcard-top">
             <div>
               <div class="fpt-wcard-range">{{ currentWeekRangeLabel }}</div>
-              <div class="fpt-wcard-hint">Plugin update check for this week</div>
+              <div class="fpt-wcard-hint">{{ $t('Plugin update check for this week') }}</div>
             </div>
             <span class="fpt-wcard-badge" :class="`wbadge--${thisWeekSlot?.status ?? 'pending'}`">
               {{ statusLabel(thisWeekSlot?.status ?? 'pending') }}
@@ -128,7 +128,7 @@
               type="button"
               :disabled="!!savingWeek"
               @click="undoWeek"
-            >Undo</button>
+            >{{ $t('Undo') }}</button>
           </div>
 
           <!-- Completed info -->
@@ -168,7 +168,7 @@
           >
             <div class="fpt-wrow-left">
               <span class="fpt-wrow-range">{{ week.rangeLabel }}</span>
-              <span v-if="week.isCurrent" class="fpt-wrow-current-tag">Current</span>
+              <span v-if="week.isCurrent" class="fpt-wrow-current-tag">{{ $t('Current') }}</span>
             </div>
 
             <div class="fpt-wrow-mid">
@@ -211,16 +211,16 @@
               type="button"
               :disabled="savingWeek === week.weekStart"
               @click="undoWeekRow(week)"
-            >Undo</button>
+            >{{ $t('Undo') }}</button>
           </div>
         </div>
       </div>
 
       <!-- Legend -->
       <div class="fpt-legend">
-        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--done" /> Done</span>
-        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--missed" /> Missed</span>
-        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--pending" /> Pending</span>
+        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--done" /> {{ $t('Done') }}</span>
+        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--missed" /> {{ $t('Missed') }}</span>
+        <span class="fpt-leg-item"><span class="fpt-leg-dot dot--pending" /> {{ $t('Pending') }}</span>
       </div>
     </template>
   </div>
@@ -786,7 +786,7 @@ onMounted(load);
   justify-content: center;
   flex-shrink: 0;
   transition: border-color 140ms, background 140ms;
-  color: #fff;
+  color: #f8fbff;
 }
 
 .fpt-checkbox-label:hover .fpt-checkbox-box {
@@ -810,8 +810,8 @@ onMounted(load);
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.4);
-  border-top-color: #fff;
+  border: 2px solid rgba(248,251,255,0.4);
+  border-top-color: #f8fbff;
   animation: fpt-spin 0.6s linear infinite;
 }
 @keyframes fpt-spin { to { transform: rotate(360deg); } }

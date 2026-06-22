@@ -209,7 +209,7 @@ export const websiteRowToWebsite = (r: WebsiteRow): Website => ({
   primaryColor: r.primary_color,
   secondaryColor: r.secondary_color,
   accentColor: r.accent_color,
-  backgroundColor: r.background_color ?? '#ffffff',
+  backgroundColor: r.background_color ?? '#fbfbfb',
   textColor: r.text_color ?? '#0f172a',
   fontFamily: r.font_family,
   buttonFontFamily: r.button_font_family,

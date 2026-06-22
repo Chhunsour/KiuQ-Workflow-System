@@ -1,15 +1,15 @@
 <template>
   <form class="space-y-4" @submit.prevent="$emit('submit', model)">
-    <FormInput v-model="model.fullName" label="Full name" placeholder="Jane Smith" />
-    <FormInput v-model="model.email" label="Email" type="email" placeholder="jane@team.io" />
+    <FormInput v-model="model.fullName" :label="$t('Full name')" :placeholder="$t('Jane Smith')" />
+    <FormInput v-model="model.email" :label="$t('Email')" type="email" placeholder="jane@team.io" />
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <FormInput v-model="model.position" label="Role or position" placeholder="Content Builder" />
-      <FormInput v-model="model.phone" label="Phone" placeholder="Optional" />
+      <FormInput v-model="model.position" :label="$t('Role or position')" :placeholder="$t('Content Builder')" />
+      <FormInput v-model="model.phone" :label="$t('Phone')" :placeholder="$t('Optional')" />
     </div>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <FormSelect
         v-model="model.role"
-        label="Role"
+        :label="$t('Role')"
         :options="[
           { value: 'head', label: 'Head' },
           { value: 'supervisor', label: 'Supervisor' },
@@ -24,7 +24,7 @@
       />
       <FormSelect
         v-model="model.status"
-        label="Status"
+        :label="$t('Status')"
         :options="[
           { value: 'pending', label: 'Pending approval' },
           { value: 'active', label: 'Active' },
@@ -33,8 +33,8 @@
         ]"
       />
     </div>
-    <FormTextarea v-model="model.bio" label="Bio" helper="Short profile note shown on the user's profile." />
-    <FormTextarea v-model="model.notes" label="Notes" helper="Anything the admin should remember." />
+    <FormTextarea v-model="model.bio" :label="$t('Bio')" helper="Short profile note shown on the user's profile." />
+    <FormTextarea v-model="model.notes" :label="$t('Notes')" helper="Anything the admin should remember." />
     <slot name="extra" />
   </form>
 </template>

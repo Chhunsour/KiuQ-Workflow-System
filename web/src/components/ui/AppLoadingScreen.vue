@@ -5,7 +5,7 @@
     timer that flips this into an error+retry screen, so this component
     never has to manage its own infinite-loading guard.
   -->
-  <div class="kls-screen" role="status" aria-live="polite" aria-label="Loading KiuQ Website System">
+  <div class="kls-screen" role="status" aria-live="polite" aria-:label="$t('Loading KiuQ Website System')">
     <div class="kls-stack">
       <!-- Logo with soft glow + gentle scale pulse -->
       <div class="kls-logo-wrap">
@@ -19,8 +19,8 @@
         />
       </div>
 
-      <h1 class="kls-title">Loading KiuQ Website System</h1>
-      <p class="kls-subtitle">Preparing your workspace…</p>
+      <h1 class="kls-title">{{ $t('Loading KiuQ Website System') }}</h1>
+      <p class="kls-subtitle">{{ $t('Preparing your workspace…') }}</p>
 
       <!-- Animated loading dots -->
       <div class="kls-dots" aria-hidden="true">

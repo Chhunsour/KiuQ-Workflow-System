@@ -4,10 +4,15 @@ import App from './App.vue';
 import { router } from './router';
 import { useAuthStore } from '@/stores/auth';
 import { useThemeStore } from '@/stores/theme';
+import { i18n, loadCachedTranslations } from '@/i18n';
 import './assets/main.css';
 
 const app = createApp(App);
 app.use(createPinia());
+app.use(i18n);
+
+// Load dynamic cached translations asynchronously
+void loadCachedTranslations();
 
 const theme = useThemeStore();
 theme.init();
@@ -17,3 +22,4 @@ void auth.init();
 
 app.use(router);
 app.mount('#app');
+

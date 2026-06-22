@@ -7,6 +7,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 export type Status =
   | 'not_started'
@@ -36,6 +37,8 @@ export type Status =
 
 const props = defineProps<{ status: Status; label?: string }>();
 
+const { te, t } = useI18n();
+
 const map: Record<Status, { label: string; variant: string }> = {
   not_started:      { label: 'Not Started',      variant: 'neutral'  },
   pending:          { label: 'Pending',           variant: 'neutral'  },
@@ -63,7 +66,11 @@ const map: Record<Status, { label: string; variant: string }> = {
   postponed:        { label: 'Postponed',         variant: 'purple'   },
 };
 
-const labelText = computed(() => props.label ?? map[props.status].label);
+const labelText = computed(() => {
+  if (props.label) return props.label;
+  const translationKey = `common.statuses.${props.status}`;
+  return te(translationKey) ? t(translationKey) : map[props.status].label;
+});
 </script>
 
 <style scoped>

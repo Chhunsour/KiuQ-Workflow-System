@@ -15,7 +15,8 @@
       <main
         class="app-main mx-auto"
         :class="{
-          'max-w-7xl px-7 py-6': route.path !== '/cms',
+          'max-w-7xl px-7 py-6': route.path !== '/cms' && route.path !== '/performance',
+          'w-full max-w-none px-7 py-6': route.path === '/performance',
           'cms-full-stage': route.path === '/cms'
         }"
       >
@@ -54,14 +55,14 @@
         class="executive-floating-quick-capture"
         type="button"
         @click="isQuickCaptureOpen = true"
-        title="Quick Capture"
+        :title="$t('Quick Capture')"
       >
         <span class="btn-icon text-primary">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
         </span>
-        <span class="btn-text">Quick Capture</span>
+        <span class="btn-text">{{ $t('Quick Capture') }}</span>
       </button>
 
       <QuickCaptureModal
@@ -76,7 +77,7 @@
         class="admin-floating-assign-task"
         type="button"
         @click="isQuickAddOpen = true"
-        title="Assign a new task"
+        :title="$t('Assign a new task')"
       >
         <span class="btn-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -84,7 +85,7 @@
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
         </span>
-        <span class="btn-text">Assign Task</span>
+        <span class="btn-text">{{ $t('Assign Task') }}</span>
       </button>
 
       <QuickAddTaskModal

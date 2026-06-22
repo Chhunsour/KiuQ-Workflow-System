@@ -8,7 +8,7 @@
             alt="KiuQ Website System"
             class="h-auto w-full max-w-[180px] object-contain"
           />
-          <div class="text-[10px] uppercase tracking-wider text-text-muted opacity-80">KiuQ Website System</div>
+          <div class="text-[10px] uppercase tracking-wider text-text-muted opacity-80">{{ $t('KiuQ Website System') }}</div>
         </div>
         <RouterView />
       </div>

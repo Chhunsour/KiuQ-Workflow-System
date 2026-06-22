@@ -1,5 +1,5 @@
 <template>
-  <Modal :open="open" title="Assign Task" subtitle="Create and assign a new task to your team" size="lg" @close="$emit('close')">
+  <Modal :open="open" :title="$t('Assign Task')" subtitle="Create and assign a new task to your team" size="lg" @close="$emit('close')">
     <div class="task-create-flow" @paste="handleTaskPaste" @dragover.prevent @drop.prevent="handleTaskDrop">
       <div v-if="taskToast" class="task-toast mb-3 text-sm font-medium text-primary flex items-center gap-2">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="animate-spin"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
@@ -11,21 +11,21 @@
         <!-- Left Column -->
         <div class="task-col flex flex-col gap-4" style="--stagger: 0">
           <div class="form-group">
-            <label class="label text-sm font-semibold text-text-main mb-1.5">Task title <span class="text-status-needs-fix-fg">*</span></label>
-            <input v-model="newTask.title" class="input rounded-xl border-border/80 focus:ring-2 focus:ring-primary/20 transition-all px-4 py-2.5" placeholder="Example: Update hero section copy" />
+            <label class="label text-sm font-semibold text-text-main mb-1.5">{{ $t('Task title') }} <span class="text-status-needs-fix-fg">*</span></label>
+            <input v-model="newTask.title" class="input rounded-xl border-border/80 focus:ring-2 focus:ring-primary/20 transition-all px-4 py-2.5" :placeholder="$t('Example: Update hero section copy')" />
           </div>
 
           <div class="form-group" style="position: relative; z-index: 30;">
-            <label class="label text-sm font-semibold text-text-main mb-1.5">Assign to members <span class="text-status-needs-fix-fg">*</span></label>
+            <label class="label text-sm font-semibold text-text-main mb-1.5">{{ $t('Assign to members') }} <span class="text-status-needs-fix-fg">*</span></label>
             <MemberMultiSelect v-model="newTask.memberIds" />
           </div>
 
           <div class="form-group">
-            <label class="label text-sm font-semibold text-text-main mb-1.5">Task description <span class="text-status-needs-fix-fg">*</span></label>
+            <label class="label text-sm font-semibold text-text-main mb-1.5">{{ $t('Task description') }} <span class="text-status-needs-fix-fg">*</span></label>
             <textarea
               v-model="newTask.description"
               class="input rounded-xl border-border/80 focus:ring-2 focus:ring-primary/20 transition-all px-4 py-3 task-textarea"
-              placeholder="Explain what needs to be done..."
+              :placeholder="$t('Explain what needs to be done...')"
             />
           </div>
 
@@ -37,7 +37,7 @@
               class="w-4 h-4 rounded text-primary focus:ring-primary/20 accent-primary cursor-pointer"
             />
             <label for="push-banner" class="text-xs font-semibold text-text-main cursor-pointer">
-              Send Alert To Assignee?
+              {{ $t('Send Alert To Assignee?') }}
             </label>
           </div>
         </div>
@@ -55,13 +55,13 @@
             
             <div v-if="showMonthChanger" class="flex gap-2 mb-2 p-2.5 bg-soft/50 rounded-xl border border-border/40 month-picker-enter">
               <div class="flex-1">
-                <label class="text-[10px] text-text-muted mb-0.5 block font-medium uppercase tracking-wider">Month</label>
+                <label class="text-[10px] text-text-muted mb-0.5 block font-medium uppercase tracking-wider">{{ $t('Month') }}</label>
                 <select v-model="newTask.dueMonthNum" class="input rounded-lg border-border/80 text-sm py-1.5 px-2">
                   <option v-for="(name, index) in monthNamesFull" :key="index" :value="index + 1">{{ name }}</option>
                 </select>
               </div>
               <div class="w-20">
-                <label class="text-[10px] text-text-muted mb-0.5 block font-medium uppercase tracking-wider">Year</label>
+                <label class="text-[10px] text-text-muted mb-0.5 block font-medium uppercase tracking-wider">{{ $t('Year') }}</label>
                 <input v-model="newTask.dueYearNum" type="number" class="input rounded-lg border-border/80 text-sm py-1.5 px-2" />
               </div>
             </div>
@@ -69,7 +69,7 @@
             <div class="flex items-center gap-2">
               <div class="flex-1 relative">
                 <select v-model="newTask.dueDay" class="input rounded-xl border-border/80 focus:ring-2 focus:ring-primary/20 transition-all px-4 py-2.5">
-                  <option value="" disabled>Day</option>
+                  <option value="" disabled>{{ $t('Day') }}</option>
                   <option v-for="d in dueDaysInMonth" :key="d" :value="d">{{ d }}</option>
                 </select>
               </div>
@@ -80,7 +80,7 @@
           </div>
 
           <div class="form-group">
-            <label class="label text-sm font-semibold text-text-main mb-1.5">Image / Screenshot <span class="text-text-soft font-normal text-xs">(Optional)</span></label>
+            <label class="label text-sm font-semibold text-text-main mb-1.5">{{ $t('Image / Screenshot') }} <span class="text-text-soft font-normal text-xs">{{ $t('(Optional)') }}</span></label>
             <label class="drop-zone border-2 border-dashed border-border/60 hover:border-primary/50 bg-soft/20 hover:bg-soft/50 rounded-xl transition-all cursor-pointer flex items-center gap-3 py-3 px-4">
               <input type="file" multiple accept="image/*" @change="uploadNewTaskInput" class="hidden" />
               <div class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -88,7 +88,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <strong class="text-xs font-semibold text-text-main block">{{ attachmentUploading ? 'Uploading...' : 'Upload, drag, or paste' }}</strong>
-                <span class="text-[10px] text-text-muted block mt-0.5">⌘V to paste a screenshot</span>
+                <span class="text-[10px] text-text-muted block mt-0.5">{{ $t('⌘V to paste a screenshot') }}</span>
               </div>
             </label>
             <div v-if="newTask.attachments.length" class="attachment-grid mt-2.5">
@@ -107,7 +107,7 @@
                     </div>
                     <div v-else class="text-[10px] text-text-muted mt-0.5">{{ formatFileSize(attachment.fileSize) }}</div>
                   </div>
-                  <button class="btn-secondary h-7 px-2.5 text-[10px] rounded-lg flex-shrink-0" type="button" @click="removeNewAttachment(attachment.id)">Remove</button>
+                  <button class="btn-secondary h-7 px-2.5 text-[10px] rounded-lg flex-shrink-0" type="button" @click="removeNewAttachment(attachment.id)">{{ $t('Remove') }}</button>
                 </article>
             </div>
           </div>
@@ -123,11 +123,11 @@
     <template #footer>
       <div class="w-full flex items-center justify-between gap-3">
         <span class="text-[10px] text-text-soft font-mono hidden sm:inline-flex items-center gap-1.5">
-          <kbd class="bg-soft border border-border rounded px-1.5 py-0.5 text-[9px] font-bold">⌘ Enter</kbd>
-          to submit
+          <kbd class="bg-soft border border-border rounded px-1.5 py-0.5 text-[9px] font-bold">{{ $t('⌘ Enter') }}</kbd>
+          {{ $t('to submit') }}
         </span>
         <div class="flex items-center gap-2 ml-auto">
-          <button class="btn-ghost px-4 rounded-xl font-medium text-sm" type="button" @click="$emit('close')">Cancel</button>
+          <button class="btn-ghost px-4 rounded-xl font-medium text-sm" type="button" @click="$emit('close')">{{ $t('Cancel') }}</button>
           <button
             class="btn-primary px-5 rounded-xl font-medium text-sm shadow-sm hover:shadow flex items-center gap-2"
             type="button"
@@ -141,7 +141,7 @@
       </div>
     </template>
     
-    <Modal :open="!!imagePreviewUrl" title="Image preview" size="lg" @close="imagePreviewUrl = ''">
+    <Modal :open="!!imagePreviewUrl" :title="$t('Image preview')" size="lg" @close="imagePreviewUrl = ''">
       <img v-if="imagePreviewUrl" class="preview-image" :src="imagePreviewUrl" alt="Task preview" />
     </Modal>
   </Modal>

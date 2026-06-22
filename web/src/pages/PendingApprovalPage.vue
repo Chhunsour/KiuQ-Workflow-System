@@ -10,19 +10,18 @@
 
       <span class="pa-badge">{{ statusLabel }}</span>
 
-      <h1 class="pa-title">Your account is waiting for approval</h1>
+      <h1 class="pa-title">{{ $t('Your account is waiting for approval') }}</h1>
       <p class="pa-subtitle">
-        Please contact <strong>Sour</strong> to activate your access. Once your
-        role is assigned you can sign in again and start working.
+        {{ $t('Please contact') }} <strong>{{ $t('Sour') }}</strong> {{ $t('to activate your access. Once your role is assigned you can sign in again and start working.') }}
       </p>
 
       <div v-if="auth.profile" class="pa-info">
         <div class="pa-info-row">
-          <span class="pa-info-label">Signed in as</span>
+          <span class="pa-info-label">{{ $t('Signed in as') }}</span>
           <span class="pa-info-value">{{ auth.profile.fullName || auth.profile.email }}</span>
         </div>
         <div class="pa-info-row">
-          <span class="pa-info-label">Email</span>
+          <span class="pa-info-label">{{ $t('Email') }}</span>
           <span class="pa-info-value">{{ auth.profile.email }}</span>
         </div>
       </div>

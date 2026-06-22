@@ -37,8 +37,7 @@ serve(async (req) => {
   if (error || !user) return json({ error: 'unauthorized' }, 401);
 
   const { data: prof } = await admin.from('profiles').select('role, status').eq('id', user.id).single();
-  const role = String(prof?.role ?? '').toLowerCase();
-  if (!['admin', 'owner', 'head', 'supervisor'].includes(role) || prof?.status !== 'active') {
+  if (prof?.status !== 'active') {
     return json({ error: 'forbidden' }, 403);
   }
 

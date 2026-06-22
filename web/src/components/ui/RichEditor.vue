@@ -5,7 +5,7 @@
       <button
         type="button"
         class="tool-btn"
-        title="Bold"
+        :title="$t('Bold')"
         @click="format('bold')"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -17,7 +17,7 @@
       <button
         type="button"
         class="tool-btn"
-        title="Italic"
+        :title="$t('Italic')"
         @click="format('italic')"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -30,25 +30,25 @@
       <button
         type="button"
         class="tool-btn text-xs font-bold px-1"
-        title="Heading 2"
+        :title="$t('Heading 2')"
         @click="formatBlock('h2')"
       >
-        H2
+        {{ $t('H2') }}
       </button>
 
       <button
         type="button"
         class="tool-btn text-xs font-bold px-1"
-        title="Heading 3"
+        :title="$t('Heading 3')"
         @click="formatBlock('h3')"
       >
-        H3
+        {{ $t('H3') }}
       </button>
 
       <button
         type="button"
         class="tool-btn"
-        title="Bullet List"
+        :title="$t('Bullet List')"
         @click="format('insertUnorderedList')"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -64,7 +64,7 @@
       <button
         type="button"
         class="tool-btn"
-        title="Clear Format"
+        :title="$t('Clear Format')"
         @click="format('removeFormat')"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -73,10 +73,10 @@
       </button>
 
       <span class="text-[10px] text-text-muted ml-auto mr-2 font-mono hidden sm:inline" v-if="saving">
-        Saving...
+        {{ $t('Saving...') }}
       </span>
       <span class="text-[10px] text-text-muted ml-auto mr-2 font-mono hidden sm:inline" v-else-if="modelValue">
-        Saved
+        {{ $t('Saved') }}
       </span>
     </div>
 
@@ -85,7 +85,7 @@
       ref="editorRef"
       contenteditable="true"
       class="editor-area p-4 min-h-[160px] text-sm text-text-main focus:outline-none overflow-y-auto"
-      :data-placeholder="placeholder || 'Type your notes here...'"
+      :data-:placeholder="$t('placeholder || \'Type your notes here...\'')"
       @input="handleInput"
       @blur="handleBlur"
     ></div>

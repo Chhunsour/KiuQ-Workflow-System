@@ -1,17 +1,17 @@
 <template>
   <div>
     <PageHeader
-      title="Prompt Builder"
+      :title="$t('Prompt Builder')"
       subtitle="Select website, choose prompt, fill fields, copy final prompt."
     />
 
     <div v-if="!assignmentId && !directPromptId" class="card card-pad">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h3 class="section-title">Choose an assigned prompt</h3>
-          <p class="mt-1 text-sm text-text-muted">Pick one task or open the website-first Prompt Library.</p>
+          <h3 class="section-title">{{ $t('Choose an assigned prompt') }}</h3>
+          <p class="mt-1 text-sm text-text-muted">{{ $t('Pick one task or open the website-first Prompt Library.') }}</p>
         </div>
-        <RouterLink to="/prompt-library" class="btn-primary">Open Prompt Library</RouterLink>
+        <RouterLink to="/prompt-library" class="btn-primary">{{ $t('Open Prompt Library') }}</RouterLink>
       </div>
       <div class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
         <RouterLink
@@ -30,9 +30,9 @@
         </RouterLink>
       </div>
       <div v-if="data.myAssignments.length === 0" class="mt-6 text-center text-sm text-text-muted">
-        Your admin has not assigned work yet.
+        {{ $t('Your admin has not assigned work yet.') }}
         <div class="mt-3">
-          <RouterLink to="/prompt-library" class="btn-primary">Open Prompt Library</RouterLink>
+          <RouterLink to="/prompt-library" class="btn-primary">{{ $t('Open Prompt Library') }}</RouterLink>
         </div>
       </div>
     </div>
@@ -40,9 +40,9 @@
     <LoadingBlock v-else-if="loadingCurrent" :loading="true" :error="null" :retry="loadPageData" />
 
     <div v-else-if="!selectedPrompt || !promptAllowed" class="card card-pad text-center text-sm text-text-muted">
-      This prompt was not found or is not available to your account.
+      {{ $t('This prompt was not found or is not available to your account.') }}
       <div class="mt-3">
-        <RouterLink to="/prompt-library" class="btn-primary">Back to Prompt Library</RouterLink>
+        <RouterLink to="/prompt-library" class="btn-primary">{{ $t('Back to Prompt Library') }}</RouterLink>
       </div>
     </div>
 
@@ -65,7 +65,7 @@
           <div class="card card-pad">
             <div class="flex items-start justify-between gap-3">
               <div>
-                <div class="ui-font text-xs font-semibold uppercase text-primary">Step 1: Choose</div>
+                <div class="ui-font text-xs font-semibold uppercase text-primary">{{ $t('Step 1: Choose') }}</div>
                 <h3 class="mt-1 section-title">{{ selectedPrompt.title }}</h3>
                 <p class="mt-1 text-sm text-text-muted">
                   {{ promptPageGroupLabel(selectedPrompt) }} · {{ promptModeLabel(selectedPrompt.promptMode) }}
@@ -78,13 +78,13 @@
             <div class="mt-5 rounded-card border border-border bg-soft/40 p-4">
               <div class="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div class="ui-font text-sm font-semibold text-text-main">Selected Website Profile</div>
+                  <div class="ui-font text-sm font-semibold text-text-main">{{ $t('Selected Website Profile') }}</div>
                   <p class="mt-1 text-xs text-text-muted">
                     {{ selectedWebsite ? `Final prompt will use ${selectedWebsite.name}.` : 'Choose a website profile to build the final prompt.' }}
                   </p>
                 </div>
                 <RouterLink v-if="!selectedAssignment" to="/prompt-library" class="btn-secondary h-8 px-3 text-xs">
-                  Change Website
+                  {{ $t('Change Website') }}
                 </RouterLink>
               </div>
 
@@ -92,24 +92,24 @@
                 v-if="!selectedAssignment"
                 v-model="selectedWebsiteId"
                 class="mt-4"
-                label="Website profile"
-                placeholder="Select website"
+                :label="$t('Website profile')"
+                :placeholder="$t('Select website')"
                 :options="websiteOptions"
               />
 
               <div v-if="selectedWebsite" class="mt-4 grid grid-cols-2 gap-3 text-sm md:grid-cols-3">
-                <Info label="Website" :value="selectedWebsite.name" />
-                <Info label="Domain" :value="selectedWebsite.domain || '—'" />
-                <Info label="Type" :value="websiteTypeLabel(selectedWebsite.websiteType)" />
-                <Info label="Industry" :value="selectedWebsite.industry || '—'" />
-                <Info label="Goal" :value="selectedWebsite.websiteGoal || '—'" />
-                <Info label="Main keyword" :value="selectedWebsite.mainKeyword || '—'" />
-                <Info label="Primary" :value="selectedWebsite.primaryColor || '—'" />
-                <Info label="Font" :value="selectedWebsite.fontFamily || '—'" />
-                <Info label="Max width" :value="selectedWebsite.maxWidth || '—'" />
-                <Info label="Phone" :value="selectedWebsite.phoneNumber || '—'" />
-                <Info label="Email" :value="selectedWebsite.email || '—'" />
-                <Info label="Country" :value="selectedWebsite.targetCountry || '—'" />
+                <Info :label="$t('Website')" :value="selectedWebsite.name" />
+                <Info :label="$t('Domain')" :value="selectedWebsite.domain || '—'" />
+                <Info :label="$t('Type')" :value="websiteTypeLabel(selectedWebsite.websiteType)" />
+                <Info :label="$t('Industry')" :value="selectedWebsite.industry || '—'" />
+                <Info :label="$t('Goal')" :value="selectedWebsite.websiteGoal || '—'" />
+                <Info :label="$t('Main keyword')" :value="selectedWebsite.mainKeyword || '—'" />
+                <Info :label="$t('Primary')" :value="selectedWebsite.primaryColor || '—'" />
+                <Info :label="$t('Font')" :value="selectedWebsite.fontFamily || '—'" />
+                <Info :label="$t('Max width')" :value="selectedWebsite.maxWidth || '—'" />
+                <Info :label="$t('Phone')" :value="selectedWebsite.phoneNumber || '—'" />
+                <Info :label="$t('Email')" :value="selectedWebsite.email || '—'" />
+                <Info :label="$t('Country')" :value="selectedWebsite.targetCountry || '—'" />
               </div>
             </div>
 
@@ -117,9 +117,9 @@
               v-if="promptNeedsProduct"
               class="mt-5 rounded-card border border-border bg-soft/40 p-4"
             >
-              <div class="ui-font text-sm font-semibold text-text-main">Product selector</div>
+              <div class="ui-font text-sm font-semibold text-text-main">{{ $t('Product selector') }}</div>
               <p class="mt-1 text-xs text-text-muted">
-                This prompt needs product data. Select the product details to include in the final prompt.
+                {{ $t('This prompt needs product data. Select the product details to include in the final prompt.') }}
               </p>
               <div v-if="selectedWebsite?.products.length" class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <label
@@ -140,7 +140,7 @@
                 </label>
               </div>
               <div v-else class="mt-3 rounded-card border border-dashed border-border p-4 text-center text-sm text-text-muted">
-                No product details are saved for this website yet.
+                {{ $t('No product details are saved for this website yet.') }}
               </div>
             </div>
 
@@ -148,7 +148,7 @@
               v-if="missingRequirementMessages.length"
               class="mt-5 rounded-card border border-status-needs-fix-bg bg-status-needs-fix-bg/20 p-4 text-sm text-status-needs-fix-fg"
             >
-              <div class="ui-font font-semibold">Missing required data</div>
+              <div class="ui-font font-semibold">{{ $t('Missing required data') }}</div>
               <ul class="mt-2 list-disc space-y-1 pl-5">
                 <li v-for="message in missingRequirementMessages" :key="message">{{ message }}</li>
               </ul>
@@ -157,13 +157,13 @@
 
           <div class="card card-pad space-y-4">
             <div>
-              <div class="ui-font text-xs font-semibold uppercase text-primary">Step 2: Fill</div>
-              <h3 class="mt-1 section-title">Fill allowed fields</h3>
-              <p class="mt-1 text-sm text-text-muted">Locked admin rules and master template text cannot be edited.</p>
+              <div class="ui-font text-xs font-semibold uppercase text-primary">{{ $t('Step 2: Fill') }}</div>
+              <h3 class="mt-1 section-title">{{ $t('Fill allowed fields') }}</h3>
+              <p class="mt-1 text-sm text-text-muted">{{ $t('Locked admin rules and master template text cannot be edited.') }}</p>
             </div>
 
             <div v-if="selectedPrompt.editableFields.length === 0" class="rounded-card border border-dashed border-border bg-soft/40 p-4 text-center text-sm text-text-muted">
-              This prompt has no editable fields.
+              {{ $t('This prompt has no editable fields.') }}
             </div>
 
             <div v-for="field in selectedPrompt.editableFields" :key="field.id">
@@ -188,7 +188,7 @@
                 :label="field.label || field.key"
                 :helper="field.helper"
                 :options="field.options ?? []"
-                placeholder="Select..."
+                :placeholder="$t('Select...')"
                 @update:model-value="(v) => updateField(field.key, v)"
               />
             </div>
@@ -202,12 +202,12 @@
 
           <div v-if="selectedAssignment" class="card card-pad space-y-4">
             <div>
-              <div class="ui-font text-xs font-semibold uppercase text-primary">Step 4: Submit</div>
-              <h3 class="mt-1 section-title">Paste AI output</h3>
-              <p class="mt-1 text-sm text-text-muted">Use ChatGPT, Claude, Gemini, or Codex manually, then paste the result here.</p>
+              <div class="ui-font text-xs font-semibold uppercase text-primary">{{ $t('Step 4: Submit') }}</div>
+              <h3 class="mt-1 section-title">{{ $t('Paste AI output') }}</h3>
+              <p class="mt-1 text-sm text-text-muted">{{ $t('Use ChatGPT, Claude, Gemini, or Codex manually, then paste the result here.') }}</p>
             </div>
-            <FormTextarea v-model="pastedResult" label="AI output / code" :rows="10" />
-            <FormInput v-model="screenshotUrl" label="Screenshot link (optional)" placeholder="https://..." />
+            <FormTextarea v-model="pastedResult" :label="$t('AI output / code')" :rows="10" />
+            <FormInput v-model="screenshotUrl" :label="$t('Screenshot link (optional)')" placeholder="https://..." />
             <div v-if="data.errors.submissions" class="text-sm text-status-needs-fix-fg">
               {{ data.errors.submissions }}
             </div>
@@ -222,9 +222,9 @@
         <div class="card card-pad">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <div class="ui-font text-xs font-semibold uppercase text-primary">Step 3: Copy</div>
-              <h3 class="mt-1 section-title">Final prompt</h3>
-              <p class="mt-1 text-sm text-text-muted">Copy this prompt into your AI tool.</p>
+              <div class="ui-font text-xs font-semibold uppercase text-primary">{{ $t('Step 3: Copy') }}</div>
+              <h3 class="mt-1 section-title">{{ $t('Final prompt') }}</h3>
+              <p class="mt-1 text-sm text-text-muted">{{ $t('Copy this prompt into your AI tool.') }}</p>
             </div>
             <button class="btn-secondary h-9 px-3 text-xs" type="button" :disabled="!selectedWebsite" @click="copyPrompt">
               {{ copied ? 'Copied!' : 'Copy Prompt' }}
