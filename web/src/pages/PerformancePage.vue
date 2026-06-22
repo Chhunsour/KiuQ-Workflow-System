@@ -98,33 +98,6 @@
       </button>
     </div>
 
-    <!-- Connected status widget/card -->
-    <div v-else class="mb-4 rounded-xl border border-border bg-card px-4 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-soft border border-border/60 flex items-center justify-center flex-shrink-0 overflow-hidden">
-          <img src="https://www.google.com/s2/favicons?domain=google.com&sz=64" class="w-5 h-5 object-contain" alt="Google" />
-        </div>
-        <div class="grid gap-0.5">
-          <div class="font-bold text-text-main flex items-center flex-wrap gap-2">
-            <span>{{ $t('performance.googleAccount') }}:</span>
-            <span class="text-primary font-mono font-medium">{{ perf.connectionInfo.google_email }}</span>
-            <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-status-approved-bg/20 text-status-approved-fg uppercase tracking-wider">{{ $t('performance.connected') }}</span>
-          </div>
-          <div class="text-[10px] text-text-muted">
-            <span>{{ $t('performance.lastConnectedTime') }}: <span class="font-mono text-text-main font-semibold">{{ fmtDateTime(perf.connectionInfo.connected_at) }}</span></span>
-          </div>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <button class="btn-secondary h-8 px-3 font-semibold font-sans text-xs" type="button" @click="onConnect">
-          {{ $t('performance.reconnect') }}
-        </button>
-        <button class="btn-secondary h-8 px-3 font-semibold font-sans text-xs text-status-needs-fix-fg hover:text-status-needs-fix-fg/80" type="button" @click="onDisconnectGoogle">
-          {{ $t('performance.disconnect') }}
-        </button>
-      </div>
-    </div>
-
     <!-- 2-Column layout wrapper -->
     <div class="perf-layout-grid">
       <!-- Desktop Left Sidebar -->
