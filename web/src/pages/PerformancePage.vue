@@ -679,7 +679,7 @@
                   {{ $t('Search Console Connections') }}
                 </h3>
                 <p class="text-xs text-text-muted font-sans leading-relaxed">
-                  {{ isManagement ? $t('Map each project site to its Search Console property format (e.g. sc-domain:example.com or https://example.com/) to query metrics.') : $t('Select a website to view its search console performance.') }}
+                  {{ canManageAnyConnection ? $t('Map each project site to its Search Console property format (e.g. sc-domain:example.com or https://example.com/) to query metrics.') : $t('Select a website to view its search console performance.') }}
                 </p>
               </div>
               <div v-if="scopeFilter === 'single' && websiteFilter" class="text-xs font-semibold text-primary font-sans bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg">
@@ -713,7 +713,7 @@
                     </td>
                     <td>
                       <input
-                        v-if="isManagement"
+                        v-if="canManageConnection(w.id)"
                         v-model="propInputs[w.id]"
                         class="input h-8 text-xs font-sans max-w-sm w-full bg-input"
                         :placeholder="`sc-domain:${bareDomain(w.domain)}`"
@@ -732,7 +732,7 @@
                     <td class="text-text-muted font-sans text-xs">{{ fmtDateTime(perf.connectionByWebsite.get(w.id)?.last_synced_at) }}</td>
                     <td class="whitespace-nowrap text-right">
                       <div class="flex justify-end gap-1.5" @click.stop>
-                        <template v-if="isManagement">
+                        <template v-if="canManageConnection(w.id)">
                           <button class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold" type="button" @click="onSaveConnection(w.id)">{{ $t('Save') }}</button>
                           <button
                             class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold"
@@ -1194,6 +1194,21 @@ const canSyncWebsite = (websiteId: string): boolean => {
   const w = data.websites.find((x) => x.id === websiteId);
   return !!w && w.createdBy === (auth.user?.id ?? '');
 };
+
+/** True if the current user can map / save / remove the GSC connection for this website.
+ *  Mirrors the RLS policy on website_gsc_connections (management OR website creator). */
+const canManageConnection = (websiteId: string): boolean => {
+  if (isManagement.value) return true;
+  const w = data.websites.find((x) => x.id === websiteId);
+  return !!w && w.createdBy === (auth.user?.id ?? '');
+};
+
+/** True if user can manage at least one connection — used to swap helper copy. */
+const canManageAnyConnection = computed(() => {
+  if (isManagement.value) return true;
+  const uid = auth.user?.id ?? '';
+  return !!uid && data.websites.some((w) => w.createdBy === uid);
+});
 
 /** True if the current user can trigger 'Sync All' (management only). */
 const canSyncAllWebsites = computed(() => isManagement.value);
@@ -2179,8 +2194,21 @@ const onSaveConnection = async (websiteId: string) => {
     return;
   }
   const ok = await perf.saveConnection(websiteId, cleaned);
-  connectMsg.value = ok ? 'Connection saved.' : (perf.error || 'Failed to save connection.');
-  connectOk.value = ok;
+  if (!ok) {
+    connectMsg.value = perf.error || 'Failed to save connection.';
+    connectOk.value = false;
+    return;
+  }
+  connectMsg.value = 'Connection saved. Syncing data…';
+  connectOk.value = true;
+  const syncOk = await perf.syncWebsite(websiteId);
+  if (syncOk) {
+    connectMsg.value = 'Connection saved and data synced.';
+    connectOk.value = true;
+  } else {
+    connectMsg.value = `Connection saved, but sync failed: ${perf.error || 'unknown error'}`;
+    connectOk.value = false;
+  }
 };
 
 const onRemoveConnection = async (websiteId: string) => {

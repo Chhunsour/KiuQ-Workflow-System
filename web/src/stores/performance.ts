@@ -378,22 +378,9 @@ export const usePerformanceStore = defineStore('performance', () => {
     const url = propertyUrl.trim();
     if (!url) return false;
 
-    // 1. Verify GSC property access via Edge Function
-    const { data: verifyData, error: verifyErr } = await supabase.functions.invoke('gsc-verify-property', {
-      body: { website_id: websiteId, gsc_property_url: url }
-    });
-
-    if (verifyErr) {
-      error.value = verifyErr.message || 'Could not verify Search Console property access.';
-      return false;
-    }
-
-    if (verifyData && verifyData.error) {
-      error.value = verifyData.message || 'This Google account does not have access to this Search Console property.';
-      return false;
-    }
-
-    // 2. Save mapping if verified
+    // 1. Save the mapping first so users aren't blocked by their personal Google
+    //    account lacking GSC access (admin often owns the GSC property). Sync will
+    //    surface any access issue as a row status afterwards.
     const { error: err } = await supabase
       .from('website_gsc_connections')
       .upsert(
@@ -402,6 +389,23 @@ export const usePerformanceStore = defineStore('performance', () => {
       );
     if (err) { error.value = err.message; return false; }
     await fetchConnections();
+
+    // 2. Best-effort verify — surface a warning if the calling user's Google
+    //    account can't see this property, but the mapping is already saved.
+    try {
+      const { data: verifyData, error: verifyErr } = await supabase.functions.invoke('gsc-verify-property', {
+        body: { website_id: websiteId, gsc_property_url: url }
+      });
+      if (verifyErr) {
+        error.value = `Saved, but could not verify access: ${verifyErr.message}`;
+      } else if (verifyData && verifyData.error) {
+        error.value = `Saved. ${verifyData.message || 'Your Google account does not have access to this property — sync may fail.'}`;
+      } else {
+        error.value = null;
+      }
+    } catch (e: any) {
+      error.value = `Saved, but verification failed: ${e?.message || 'unknown error'}`;
+    }
     return true;
   };
 
