@@ -8,7 +8,7 @@
       <template #actions>
         <div class="flex items-center gap-2">
           <button
-            v-if="isManagement"
+            v-if="canSyncAllWebsites"
             class="btn-secondary font-sans font-semibold text-xs px-3 h-9"
             type="button"
             :disabled="perf.syncAllRunning"
@@ -18,7 +18,17 @@
             {{ perf.syncAllRunning ? $t('performance.syncing') : $t('performance.syncData') }}
           </button>
           <button
-            v-if="isManagement"
+            v-else-if="canSyncMyWebsites && scopeFilter === 'my'"
+            class="btn-secondary font-sans font-semibold text-xs px-3 h-9"
+            type="button"
+            :disabled="perf.syncAllRunning"
+            @click="onSyncMyWebsites"
+          >
+            <span v-if="perf.syncAllRunning" class="inline-block animate-spin mr-1">●</span>
+            {{ perf.syncAllRunning ? $t('performance.syncing') : $t('performance.syncMyWebsites') }}
+          </button>
+          <button
+            v-if="canSyncAllWebsites"
             class="btn-secondary font-sans font-semibold text-xs px-3 h-9"
             type="button"
             @click="showLogsModal = true"
@@ -411,7 +421,16 @@
 
         <div v-else-if="scopeFilter === 'single' && websiteFilter && filteredDaily.length === 0" class="card card-pad py-16 text-center border border-dashed border-border/80 rounded-2xl bg-card mt-4">
           <div class="text-base font-bold text-text-main mb-2">{{ $t('performance.noSearchConsoleDataTitle') }}</div>
-          <p class="text-xs text-text-muted max-w-sm mx-auto">{{ $t('performance.noSearchConsoleDataSub') }}</p>
+          <p class="text-xs text-text-muted max-w-sm mx-auto mb-4">{{ $t('performance.noSearchConsoleDataSub') }}</p>
+          <button
+            v-if="canSyncWebsite(websiteFilter) && perf.connectionByWebsite.has(websiteFilter)"
+            class="btn-primary font-sans font-semibold text-xs h-9 px-4"
+            type="button"
+            :disabled="perf.syncingIds.has(websiteFilter)"
+            @click="perf.syncWebsite(websiteFilter)"
+          >
+            {{ perf.syncingIds.has(websiteFilter) ? $t('performance.syncing') : $t('Sync Website') }}
+          </button>
         </div>
 
         <!-- Normal Layout -->
@@ -460,8 +479,11 @@
           <div v-if="rangeShortfall" class="flex flex-wrap items-center gap-2 rounded-xl border border-status-submitted-bg bg-status-submitted-bg/15 px-4 py-3 text-xs text-text-muted">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             <span>{{ $t('Only') }} <strong class="text-text-main font-semibold">{{ storedDayCount }}</strong> {{ $t('days of statistics exist locally (back to') }} {{ oldestStoredDate }}). {{ $t('Synchronize data to load historical days.') }}</span>
-            <button v-if="isManagement" class="btn-secondary ml-auto h-7 px-3 py-0 text-xs font-sans font-semibold" type="button" :disabled="perf.syncAllRunning" @click="onSyncAll">
+            <button v-if="canSyncAllWebsites" class="btn-secondary ml-auto h-7 px-3 py-0 text-xs font-sans font-semibold" type="button" :disabled="perf.syncAllRunning" @click="onSyncAll">
               {{ perf.syncAllRunning ? $t('performance.syncing') : $t('Sync Range') }}
+            </button>
+            <button v-else-if="canSyncMyWebsites && scopeFilter === 'my'" class="btn-secondary ml-auto h-7 px-3 py-0 text-xs font-sans font-semibold" type="button" :disabled="perf.syncAllRunning" @click="onSyncMyWebsites">
+              {{ perf.syncAllRunning ? $t('performance.syncing') : $t('performance.syncMyWebsites') }}
             </button>
           </div>
 
@@ -559,7 +581,7 @@
                     <th v-if="activeTabMeta.extra && activeTab !== 'websites'" class="num font-bold font-sans text-xs tracking-wider">
                       {{ activeTabMeta.extra }}
                     </th>
-                    <th v-if="activeTab === 'websites' && isManagement" class="text-right font-bold font-sans text-xs tracking-wider">{{ $t('Actions') }}</th>
+                    <th v-if="activeTab === 'websites'" class="text-right font-bold font-sans text-xs tracking-wider">{{ $t('Actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -605,8 +627,9 @@
                     <td v-if="activeTabMeta.extra && activeTab !== 'websites'" class="num text-text-muted font-sans">
                       {{ r.extra }}
                     </td>
-                    <td v-if="activeTab === 'websites' && isManagement" class="whitespace-nowrap text-right" @click.stop>
+                    <td v-if="activeTab === 'websites'" class="whitespace-nowrap text-right" @click.stop>
                       <button
+                        v-if="canSyncWebsite(r.key)"
                         class="btn-secondary py-1 px-2.5 h-7 text-[10px] font-sans font-semibold"
                         type="button"
                         :disabled="perf.syncingIds.has(r.key)"
@@ -753,6 +776,16 @@
                             @click="onRemoveConnection(w.id)"
                           >
                             {{ $t('Remove') }}
+                          </button>
+                        </template>
+                        <template v-else-if="canSyncWebsite(w.id)">
+                          <button
+                            class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold"
+                            type="button"
+                            :disabled="perf.syncingIds.has(w.id) || !perf.connectionByWebsite.get(w.id)"
+                            @click="perf.syncWebsite(w.id)"
+                          >
+                            {{ perf.syncingIds.has(w.id) ? $t('Syncing…') : $t('Sync') }}
                           </button>
                         </template>
                         <button class="btn-secondary h-7 px-3 py-0 text-[10px] font-sans font-semibold" type="button" @click="openDetail(w.id)">
@@ -1089,7 +1122,7 @@
       <template #footer>
         <button class="btn-secondary font-sans font-semibold text-xs px-4" type="button" @click="closeDetail">{{ $t('Close') }}</button>
         <button
-          v-if="isManagement && perf.connectionByWebsite.get(detailId || '')"
+          v-if="detailId && canSyncWebsite(detailId) && perf.connectionByWebsite.get(detailId || '')"
           class="btn-primary font-sans font-semibold text-xs px-4"
           type="button"
           :disabled="!!detailId && perf.syncingIds.has(detailId)"
@@ -1179,6 +1212,26 @@ watch(activePerformanceView, () => {
 const isManagement = computed(() => {
   const role = auth.profile?.role;
   return role === 'admin' || role === 'owner' || role === 'head' || role === 'supervisor';
+});
+
+// ── Team Member Sync Permission Helpers ────────────────────────────────
+/** True if the current user can sync this specific website (management OR website creator). */
+const canSyncWebsite = (websiteId: string): boolean => {
+  if (isManagement.value) return true;
+  const w = data.websites.find((x) => x.id === websiteId);
+  return !!w && w.createdBy === (auth.user?.id ?? '');
+};
+
+/** True if the current user can trigger 'Sync All' (management only). */
+const canSyncAllWebsites = computed(() => isManagement.value);
+
+/** True if the user can sync their own assigned websites (has Google connected + has websites). */
+const canSyncMyWebsites = computed(() => {
+  if (!perf.connectionInfo.connected) return false;
+  const userId = auth.user?.id ?? '';
+  if (!userId) return false;
+  const assignedIds = data.getUserAssignedWebsiteIds(userId);
+  return assignedIds.length > 0;
 });
 
 // ── Scope & Filters ────────────────────────────────────────────────────
@@ -2209,6 +2262,37 @@ const onSyncAll = async () => {
   const ok = await perf.syncAll();
   connectMsg.value = perf.lastSyncMessage || (ok ? 'Sync completed.' : 'Sync failed.');
   connectOk.value = ok;
+};
+
+const onSyncMyWebsites = async () => {
+  const userId = auth.user?.id ?? '';
+  if (!userId) return;
+  const assignedIds = data.getUserAssignedWebsiteIds(userId);
+  const connectedIds = assignedIds.filter((id) => perf.connectionByWebsite.has(id));
+  if (connectedIds.length === 0) {
+    connectMsg.value = 'No mapped Search Console connections found for your websites.';
+    connectOk.value = false;
+    return;
+  }
+  perf.syncAllRunning = true;
+  let okCount = 0;
+  let errCount = 0;
+  try {
+    for (const wid of connectedIds) {
+      const ok = await perf.syncWebsite(wid);
+      if (ok) okCount++;
+      else errCount++;
+    }
+  } finally {
+    perf.syncAllRunning = false;
+  }
+  if (errCount === 0) {
+    connectMsg.value = `Sync complete for ${okCount} website(s).`;
+    connectOk.value = true;
+  } else {
+    connectMsg.value = `Synced ${okCount} website(s); ${errCount} had errors.`;
+    connectOk.value = okCount > 0;
+  }
 };
 
 // ── Formatters ─────────────────────────────────────────────────────────
