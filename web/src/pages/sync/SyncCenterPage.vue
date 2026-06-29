@@ -86,6 +86,29 @@
           </select>
 
           <span class="sync-toolbar-spacer" />
+
+          <!-- view options -->
+          <div class="sync-view" :class="{ open: viewOpen }">
+            <button type="button" class="btn-ghost sync-view-btn" :aria-expanded="viewOpen" @click.stop="viewOpen = !viewOpen">
+              <span class="sync-ico" v-html="ICON.view" /> {{ $t('View') }}
+            </button>
+            <div v-if="viewOpen" class="sync-view-pop" @click.stop>
+              <p class="sync-view-h">{{ $t('Row density') }}</p>
+              <div class="sync-seg">
+                <button type="button" :class="{ active: view.density === 'comfortable' }" @click="view.density = 'comfortable'">{{ $t('Comfortable') }}</button>
+                <button type="button" :class="{ active: view.density === 'compact' }" @click="view.density = 'compact'">{{ $t('Compact') }}</button>
+              </div>
+              <label class="sync-view-row"><input type="checkbox" v-model="view.thumbs" /> {{ $t('Product thumbnails') }}</label>
+              <div class="sync-menu-sep" />
+              <p class="sync-view-h">{{ $t('Columns') }}</p>
+              <label class="sync-view-row"><input type="checkbox" v-model="view.cols.sku" /> {{ $t('SKU') }}</label>
+              <label class="sync-view-row"><input type="checkbox" v-model="view.cols.price" /> {{ $t('Price') }}</label>
+              <label class="sync-view-row"><input type="checkbox" v-model="view.cols.category" /> {{ $t('Category') }}</label>
+              <label class="sync-view-row"><input type="checkbox" v-model="view.cols.status" /> {{ $t('Per-site status') }}</label>
+              <label class="sync-view-row"><input type="checkbox" v-model="view.cols.lastSynced" /> {{ $t('Last synced') }}</label>
+            </div>
+          </div>
+
           <span class="sync-count">{{ filteredProducts.length }} / {{ products.length }}</span>
         </div>
 
@@ -117,39 +140,47 @@
       </transition>
 
       <div class="sync-table-wrap">
-        <table class="sync-table">
+        <table class="sync-table" :class="{ 'sync-table--compact': view.density === 'compact' }">
           <thead>
             <tr>
               <th class="sync-col-check"><input type="checkbox" :checked="pageAllSelected" :aria-label="$t('Select all')" @change="togglePage" /></th>
               <th>{{ $t('Product') }}</th>
-              <th class="sync-hide-sm">{{ $t('SKU') }}</th>
-              <th class="sync-hide-sm">{{ $t('Price') }}</th>
-              <th class="sync-hide-md">{{ $t('Category') }}</th>
-              <th>{{ siteScope === 'all' ? $t('Per-site status') : $t('Status') }}</th>
-              <th class="sync-hide-md">{{ $t('Last synced') }}</th>
+              <th v-if="view.cols.sku" class="sync-hide-sm">{{ $t('SKU') }}</th>
+              <th v-if="view.cols.price" class="sync-hide-sm">{{ $t('Price') }}</th>
+              <th v-if="view.cols.category" class="sync-hide-md">{{ $t('Category') }}</th>
+              <th v-if="view.cols.status">{{ siteScope === 'all' ? $t('Per-site status') : $t('Status') }}</th>
+              <th v-if="view.cols.lastSynced" class="sync-hide-md">{{ $t('Last synced') }}</th>
               <th class="text-right">{{ $t('Actions') }}</th>
             </tr>
           </thead>
           <tbody>
             <template v-if="loading">
               <tr v-for="n in 6" :key="`sk-${n}`" class="sync-skel-row">
-                <td v-for="c in 8" :key="c"><span class="sync-skel" /></td>
+                <td v-for="c in visibleColCount" :key="c"><span class="sync-skel" /></td>
               </tr>
             </template>
             <template v-else>
               <tr v-for="p in pagedProducts" :key="p.id" :class="{ 'sync-row-sel': selected.has(p.id) }">
                 <td><input type="checkbox" :checked="selected.has(p.id)" :aria-label="`Select ${p.name}`" @change="toggleOne(p.id)" /></td>
                 <td>
-                  <p class="sync-strong">{{ p.name || $t('Untitled') }}</p>
-                  <p class="sync-mono">/{{ p.product_slug || '—' }}</p>
+                  <div class="sync-prod">
+                    <span v-if="view.thumbs" class="sync-thumb">
+                      <img v-if="imgFor(p) && !imgError.has(p.id)" :src="imgFor(p)!" alt="" loading="lazy" decoding="async" @error="onImgError(p.id)" />
+                      <span v-else class="sync-thumb-fallback" v-html="ICON.cube" />
+                    </span>
+                    <span class="min-w-0">
+                      <p class="sync-strong">{{ p.name || $t('Untitled') }}</p>
+                      <p class="sync-mono sync-slug" :title="p.product_slug || ''">/{{ p.product_slug || '—' }}</p>
+                    </span>
+                  </div>
                 </td>
-                <td class="sync-mono sync-hide-sm">{{ p.sku || '—' }}</td>
-                <td class="sync-num sync-hide-sm">{{ p.product_price || '—' }}</td>
-                <td class="sync-hide-md">
+                <td v-if="view.cols.sku" class="sync-mono sync-hide-sm">{{ p.sku || '—' }}</td>
+                <td v-if="view.cols.price" class="sync-num sync-hide-sm">{{ p.product_price || '—' }}</td>
+                <td v-if="view.cols.category" class="sync-hide-md">
                   <span v-if="p.product_category" class="sync-tag">{{ p.product_category }}</span>
                   <span v-else class="sync-muted">—</span>
                 </td>
-                <td>
+                <td v-if="view.cols.status">
                   <div class="sync-dots">
                     <span v-if="scopedSites.length === 0" class="sync-muted text-xs">{{ $t('No sites') }}</span>
                     <span
@@ -162,7 +193,7 @@
                     </span>
                   </div>
                 </td>
-                <td class="sync-mono sync-hide-md">{{ lastSyncedFor(p) }}</td>
+                <td v-if="view.cols.lastSynced" class="sync-mono sync-hide-md">{{ lastSyncedFor(p) }}</td>
                 <td class="text-right">
                   <div class="sync-row-actions">
                     <button type="button" class="btn-secondary sync-btn" @click="syncOne(p, 'full')">
@@ -184,7 +215,7 @@
                 </td>
               </tr>
               <tr v-if="filteredProducts.length === 0">
-                <td colspan="8" class="sync-empty">
+                <td :colspan="visibleColCount" class="sync-empty">
                   <span class="sync-ico sync-empty-ico" v-html="ICON.cube" />
                   <p class="sync-strong">{{ products.length === 0 ? $t('No products in the master catalog yet.') : $t('No products match your filters.') }}</p>
                   <button v-if="products.length > 0" type="button" class="btn-ghost sync-btn" @click="resetFilters">{{ $t('Reset filters') }}</button>
@@ -276,7 +307,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import SyncBadge from '@/components/sync/SyncBadge.vue';
@@ -310,6 +341,8 @@ const ICON = {
   text: svg('<path d="M4 7V5h16v2"/><path d="M9 5v14"/><path d="M7 19h4"/>'),
   copy: svg('<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'),
   sliders: svg('<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>'),
+  view: svg('<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>'),
+  rows: svg('<rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/>'),
 };
 
 /* ── state ──────────────────────────────────────────────────────────────── */
@@ -334,6 +367,30 @@ const sortBy = ref<'updated' | 'name' | 'price' | 'status'>('updated');
 const statusFilter = ref<'' | StatusKind>('');
 const page = ref(1);
 const pageSize = ref(25);
+
+/* ── view preferences (persisted) ───────────────────────────────────────── */
+type ColKey = 'sku' | 'price' | 'category' | 'status' | 'lastSynced';
+const VIEW_KEY = 'kiuq.syncCenter.view';
+const view = reactive({
+  density: 'comfortable' as 'comfortable' | 'compact',
+  thumbs: true,
+  cols: { sku: true, price: true, category: true, status: true, lastSynced: true } as Record<ColKey, boolean>,
+});
+try {
+  const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || 'null');
+  if (saved && typeof saved === 'object') {
+    if (saved.density === 'compact' || saved.density === 'comfortable') view.density = saved.density;
+    if (typeof saved.thumbs === 'boolean') view.thumbs = saved.thumbs;
+    if (saved.cols) Object.assign(view.cols, saved.cols);
+  }
+} catch { /* ignore corrupt prefs */ }
+watch(view, () => { try { localStorage.setItem(VIEW_KEY, JSON.stringify(view)); } catch { /* quota */ } }, { deep: true });
+const viewOpen = ref(false);
+
+/* ── product thumbnails ─────────────────────────────────────────────────── */
+const imgError = ref<Set<string>>(new Set());
+const imgFor = (p: SourceProduct): string | null => store.productImages[p.id] ?? null;
+const onImgError = (id: string) => { const n = new Set(imgError.value); n.add(id); imgError.value = n; };
 
 const products = computed(() => store.sourceProducts);
 const activeSites = computed(() => store.websites.filter((w) => w.active));
@@ -435,6 +492,10 @@ const pagedProducts = computed(() => filteredProducts.value.slice(pageStart.valu
 watch([filteredProducts, pageSize], () => { if (page.value > totalPages.value) page.value = totalPages.value; });
 watch([search, categoryFilter, statusFilter, siteScope], () => { page.value = 1; });
 
+const visibleColCount = computed(() =>
+  3 + Number(view.cols.sku) + Number(view.cols.price) + Number(view.cols.category) + Number(view.cols.status) + Number(view.cols.lastSynced)
+);
+
 const statusFilters = computed(() => [
   { value: '' as const, label: 'All', count: products.value.length },
   { value: 'waiting' as const, label: 'Waiting', count: null },
@@ -479,11 +540,12 @@ const loadAll = async () => {
       store.fetchStates(),
       store.fetchLogs(50),
     ]);
+    if (Object.keys(store.productImages).length === 0) await store.fetchProductImages();
     if (store.error) errorMsg.value = store.error;
   } finally { loading.value = false; }
 };
 
-const onClickAway = () => { openMenuId.value = null; };
+const onClickAway = () => { openMenuId.value = null; viewOpen.value = false; };
 onMounted(() => { loadAll(); window.addEventListener('click', onClickAway); });
 onBeforeUnmount(() => window.removeEventListener('click', onClickAway));
 
@@ -598,6 +660,32 @@ const testConnection = async (w: ConnectedWebsite) => {
 .sync-muted { color: var(--text-muted); }
 .sync-tag { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; background: var(--soft-bg); border: 1px solid var(--border); font-size: 0.7rem; color: var(--text-secondary); }
 .sync-btn { font-size: 0.74rem; padding: 0.3rem 0.6rem; height: auto; display: inline-flex; align-items: center; gap: 0.3rem; }
+
+/* product cell + thumbnail */
+.sync-prod { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+.sync-thumb { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; flex-shrink: 0; border-radius: 9px; overflow: hidden; background: var(--soft-bg); border: 1px solid var(--border); }
+.sync-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sync-thumb-fallback { display: inline-flex; color: var(--text-muted); }
+.sync-thumb-fallback :deep(svg) { width: 18px; height: 18px; }
+.sync-slug { max-width: 30rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* compact density */
+.sync-table--compact th, .sync-table--compact td { padding-top: 0.34rem; padding-bottom: 0.34rem; }
+.sync-table--compact .sync-thumb { width: 1.7rem; height: 1.7rem; border-radius: 7px; }
+.sync-table--compact .sync-thumb-fallback :deep(svg) { width: 13px; height: 13px; }
+.sync-table--compact .sync-slug { display: none; }
+.sync-table--compact .sync-mono { font-size: 0.68rem; }
+
+/* view menu */
+.sync-view { position: relative; }
+.sync-view-btn { font-size: 0.78rem; padding: 0.4rem 0.6rem; height: auto; display: inline-flex; align-items: center; gap: 0.35rem; }
+.sync-view-pop { position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; min-width: 14rem; padding: 0.6rem; border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg); box-shadow: 0 12px 34px rgba(0,0,0,0.18); }
+.sync-view-h { font-size: 0.64rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0.2rem 0 0.4rem; }
+.sync-view-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.2rem; font-size: 0.82rem; color: var(--text-main); cursor: pointer; border-radius: 7px; }
+.sync-view-row:hover { background: var(--soft-bg); }
+.sync-seg { display: flex; gap: 0.3rem; margin-bottom: 0.55rem; }
+.sync-seg button { flex: 1; padding: 0.38rem 0.4rem; border: 1px solid var(--border); border-radius: 8px; background: var(--card-bg); color: var(--text-secondary); font-size: 0.76rem; font-weight: 700; cursor: pointer; transition: border-color 140ms, color 140ms, background 140ms; }
+.sync-seg button.active { border-color: var(--primary); color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); }
 
 /* per-site dots */
 .sync-dots { display: flex; align-items: center; gap: 0.3rem; }

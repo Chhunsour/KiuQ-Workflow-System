@@ -279,6 +279,9 @@ const visibleNavItems = computed(() => {
   const isHead = auth.normalizedRole === 'head';
   items = items.filter((item) => !item.isHeadOnly || isHead);
 
+  const isAdminRole = auth.normalizedRole === 'admin';
+  items = items.filter((item) => !item.hideFromAdmin || !isAdminRole);
+
   return items;
 });
 

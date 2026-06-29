@@ -144,6 +144,32 @@ export const useProductSyncStore = defineStore('productSync', () => {
     sourceProducts.value = (data ?? []) as SourceProduct[];
   };
 
+  /** Featured (or first-by-sort) image per product folder, for thumbnails. */
+  const fetchProductImages = async () => {
+    guard();
+    const ids = sourceProducts.value.map((p) => p.id);
+    if (ids.length === 0) { productImages.value = {}; return; }
+    const { data, error: err } = await supabase
+      .from('team_images')
+      .select('folder_id,url,is_feature_image,sort_order')
+      .in('folder_id', ids);
+    if (err) { error.value = err.message; return; }
+    const byFolder = new Map<string, { url: string; feat: boolean; sort: number }[]>();
+    for (const r of (data ?? []) as { folder_id: string; url: string; is_feature_image: boolean; sort_order: number | null }[]) {
+      if (!r.url) continue;
+      const arr = byFolder.get(r.folder_id) ?? [];
+      arr.push({ url: r.url, feat: !!r.is_feature_image, sort: r.sort_order ?? 0 });
+      byFolder.set(r.folder_id, arr);
+    }
+    const map: Record<string, string> = {};
+    for (const [fid, arr] of byFolder) {
+      arr.sort((a, b) => a.sort - b.sort);
+      const pick = arr.find((a) => a.feat) ?? arr[0];
+      if (pick?.url) map[fid] = pick.url;
+    }
+    productImages.value = map;
+  };
+
   // ── Connected websites ──────────────────────────────────────────────────
   const fetchWebsites = async () => {
     guard();
@@ -272,8 +298,8 @@ export const useProductSyncStore = defineStore('productSync', () => {
   };
 
   return {
-    websites, logs, states, settings, sourceProducts, loading, error,
-    fetchSourceProducts,
+    websites, logs, states, settings, sourceProducts, productImages, loading, error,
+    fetchSourceProducts, fetchProductImages,
     fetchWebsites, createWebsite, updateWebsite, deleteWebsite,
     fetchOverrides, upsertOverride, deleteOverride,
     fetchStates, fetchLogs, clearLogs,

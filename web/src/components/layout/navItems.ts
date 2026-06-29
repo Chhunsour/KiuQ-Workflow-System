@@ -12,6 +12,7 @@ export interface NavItem {
   isLocked?: boolean;
   isTaskAlertManagerOnly?: boolean;
   isHeadOnly?: boolean;
+  hideFromAdmin?: boolean;
 }
 
 
@@ -129,35 +130,35 @@ export const adminNavItems: NavItem[] = [
 
   // ── EXECUTIVE ──
   { section: 'Executive', label: 'Command Center', to: '/command-center', icon: ICON.commandCenter, isExecutiveOnly: true },
-  { section: 'Executive', label: 'Winner Center', to: '/winner-center', icon: ICON.winnerCenter, isWinnerCenterOnly: true },
+  { section: 'Executive', label: 'Winner Center', to: '/winner-center', icon: ICON.winnerCenter, isWinnerCenterOnly: true, hideFromAdmin: true },
 
   // ── OPERATIONS ──
-  { section: 'Operations', label: 'Work Board', to: '/work-board', icon: ICON.board, children: workBoardChildren },
+  { section: 'Operations', label: 'Work Board', to: '/work-board', icon: ICON.board, children: workBoardChildren, hideFromAdmin: true },
   { label: 'Followup', to: '/followup', icon: ICON.checkDoc, children: followupChildren },
   { label: 'Calendar', to: '/calendar', icon: ICON.calendar },
-  { label: 'Reports', to: '/reports', icon: ICON.activity },
-  { label: 'Projects', to: '/projects', icon: ICON.projects },
-  { label: 'Folders', to: '/folders', icon: ICON.folders },
+  { label: 'Reports', to: '/reports', icon: ICON.activity, hideFromAdmin: true },
+  { label: 'Projects', to: '/projects', icon: ICON.projects, hideFromAdmin: true },
+  { label: 'Folders', to: '/folders', icon: ICON.folders, hideFromAdmin: true },
 
   // ── CONTENT ──
   { section: 'Content', label: 'Websites', to: '/websites', icon: ICON.globe, children: websiteChildren },
   { label: 'Performance', to: '/performance', icon: ICON.performance, children: performanceChildren },
-  { label: 'CMS', to: '/cms', icon: ICON.cms, children: cmsChildren, isHeadOnly: true },
+  { label: 'CMS', to: '/cms', icon: ICON.cms, children: cmsChildren, isHeadOnly: true, hideFromAdmin: true },
   { label: 'Framework Website', to: '/framework', icon: ICON.globe, children: frameworkChildren },
-  { label: 'Blog Center', to: '/blog-center', icon: ICON.bolt },
+  { label: 'Blog Center', to: '/blog-center', icon: ICON.bolt, hideFromAdmin: true },
   { label: 'Images', to: '/images', icon: ICON.image },
-  { label: 'Prompt', to: '/prompt', icon: ICON.chat, children: promptChildren },
-  { label: 'Old Prompt Library', to: '/prompt-library', icon: ICON.book },
+  { label: 'Prompt', to: '/prompt', icon: ICON.chat, children: promptChildren, hideFromAdmin: true },
+  { label: 'Old Prompt Library', to: '/prompt-library', icon: ICON.book, hideFromAdmin: true },
 
   // ── TEAM ──
   { section: 'Team', label: 'Members', to: '/members', icon: ICON.members },
-  { label: 'Reviews', to: '/reviews', icon: ICON.checkDoc },
-  { label: 'Leaderboard', to: '/leaderboard', icon: ICON.trophy },
-  { label: 'Activity', to: '/activity', icon: ICON.activity },
-  { label: 'Notes', to: '/notes', icon: ICON.note },
+  { label: 'Reviews', to: '/reviews', icon: ICON.checkDoc, hideFromAdmin: true },
+  { label: 'Leaderboard', to: '/leaderboard', icon: ICON.trophy, hideFromAdmin: true },
+  { label: 'Activity', to: '/activity', icon: ICON.activity, hideFromAdmin: true },
+  { label: 'Notes', to: '/notes', icon: ICON.note, hideFromAdmin: true },
 
   // ── LIBRARY ──
-  { section: 'Library', label: 'Docs', to: '/docs', icon: ICON.docs },
+  { section: 'Library', label: 'Docs', to: '/docs', icon: ICON.docs, hideFromAdmin: true },
   { label: 'Resources', to: '/resources', icon: ICON.download },
 
   // ── SYSTEM ──

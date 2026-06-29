@@ -81,32 +81,32 @@ const routes: RouteRecordRaw[] = [
       { path: 'admin/work-board/member/:memberId', name: 'admin-member-work-board', meta: adminOrMember, component: () => import('@/pages/MemberBoardPage.vue') },
       { path: 'members', name: 'members', meta: adminOnly, component: () => import('@/pages/MembersPage.vue') },
       { path: 'members/:id/profile', name: 'member-profile', meta: adminOnly, component: () => import('@/pages/ProfilePage.vue') },
-      { path: 'projects', name: 'projects', meta: adminOnly, component: () => import('@/pages/ProjectsPage.vue') },
-      { path: 'folders', name: 'folders', meta: adminOrMember, component: () => import('@/pages/FoldersPage.vue') },
-      { path: 'folders/:id', name: 'folder-detail', meta: adminOrMember, component: () => import('@/pages/FolderDetailPage.vue') },
+      { path: 'projects', name: 'projects', meta: { ...adminOnly, hideFromAdmin: true }, component: () => import('@/pages/ProjectsPage.vue') },
+      { path: 'folders', name: 'folders', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/FoldersPage.vue') },
+      { path: 'folders/:id', name: 'folder-detail', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/FolderDetailPage.vue') },
       { path: 'websites', name: 'websites', redirect: '/websites/my' },
       { path: 'websites/my', name: 'websites-my', meta: adminOrMember, component: () => import('@/pages/MyWebsitesPage.vue') },
       { path: 'websites/team', name: 'websites-team', meta: adminOrMember, component: () => import('@/pages/TeamWebsitesPage.vue') },
       { path: 'websites/new', name: 'website-new', meta: adminOrMember, component: () => import('@/pages/NewWebsitePage.vue') },
       { path: 'websites/:id/edit', name: 'website-edit', meta: adminOrMember, component: () => import('@/pages/NewWebsitePage.vue') },
       { path: 'performance', name: 'performance', meta: adminOrMember, component: () => import('@/pages/PerformancePage.vue') },
-      { path: 'notes', name: 'notes', meta: adminOnly, component: () => import('@/pages/NotesPage.vue') },
-      { path: 'prompt-library', name: 'prompt-library', meta: adminOrMember, component: () => import('@/pages/PromptLibraryPage.vue') },
-      { path: 'prompt-library/website/:websiteId', name: 'prompt-library-website', meta: adminOrMember, component: () => import('@/pages/PromptLibraryPage.vue') },
-      { path: 'prompt-library/website/:websiteId/:pageGroup', name: 'prompt-library-website-group', meta: adminOrMember, component: () => import('@/pages/PromptLibraryPage.vue') },
-      { path: 'prompt-library/website/:websiteId/:pageGroup/:promptId', name: 'prompt-library-website-detail', meta: adminOrMember, component: () => import('@/pages/PromptLibraryPage.vue') },
-      { path: 'prompt-library/:pageGroup', name: 'prompt-library-group', meta: adminOrMember, component: () => import('@/pages/PromptLibraryPage.vue') },
-      { path: 'prompt-library/:pageGroup/:promptId', name: 'prompt-library-detail', meta: adminOrMember, component: () => import('@/pages/PromptLibraryPage.vue') },
+      { path: 'notes', name: 'notes', meta: { ...adminOnly, hideFromAdmin: true }, component: () => import('@/pages/NotesPage.vue') },
+      { path: 'prompt-library', name: 'prompt-library', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptLibraryPage.vue') },
+      { path: 'prompt-library/website/:websiteId', name: 'prompt-library-website', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptLibraryPage.vue') },
+      { path: 'prompt-library/website/:websiteId/:pageGroup', name: 'prompt-library-website-group', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptLibraryPage.vue') },
+      { path: 'prompt-library/website/:websiteId/:pageGroup/:promptId', name: 'prompt-library-website-detail', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptLibraryPage.vue') },
+      { path: 'prompt-library/:pageGroup', name: 'prompt-library-group', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptLibraryPage.vue') },
+      { path: 'prompt-library/:pageGroup/:promptId', name: 'prompt-library-detail', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptLibraryPage.vue') },
       { path: 'library', name: 'library', redirect: '/prompt-library' },
       { path: 'prompt-builder/use/:promptId', name: 'prompt-builder-use', meta: adminOrMember, component: () => import('@/pages/MemberPromptBuilderPage.vue') },
-      { path: 'reviews', name: 'reviews', meta: adminOnly, component: () => import('@/pages/ReviewsPage.vue') },
-      { path: 'docs/folders/:id', name: 'docs-folder-detail', meta: adminOrMember, component: () => import('@/pages/DocsFolderDetailPage.vue') },
-      { path: 'docs', name: 'docs', meta: adminOrMember, component: () => import('@/pages/DocsPage.vue') },
+      { path: 'reviews', name: 'reviews', meta: { ...adminOnly, hideFromAdmin: true }, component: () => import('@/pages/ReviewsPage.vue') },
+      { path: 'docs/folders/:id', name: 'docs-folder-detail', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/DocsFolderDetailPage.vue') },
+      { path: 'docs', name: 'docs', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/DocsPage.vue') },
       { path: 'resources', name: 'resources', meta: adminOrMember, component: () => import('@/pages/ResourcesPage.vue') },
       { path: 'resources/:id', name: 'resource-detail', meta: adminOrMember, component: () => import('@/pages/ResourceDetailPage.vue') },
-      { path: 'leaderboard', name: 'leaderboard', meta: authenticated, component: () => import('@/pages/LeaderboardPage.vue') },
+      { path: 'leaderboard', name: 'leaderboard', meta: { ...authenticated, hideFromAdmin: true }, component: () => import('@/pages/LeaderboardPage.vue') },
       { path: 'calendar', name: 'calendar', meta: adminOrMember, component: () => import('@/pages/CalendarPage.vue') },
-      { path: 'activity', name: 'activity', meta: adminOnly, component: () => import('@/pages/ActivityPage.vue') },
+      { path: 'activity', name: 'activity', meta: { ...adminOnly, hideFromAdmin: true }, component: () => import('@/pages/ActivityPage.vue') },
       { path: 'settings', name: 'settings', meta: adminOrQualityChecker, component: () => import('@/pages/SettingsPage.vue') },
       { path: 'settings/translations', name: 'translations-review', meta: adminOnly, component: () => import('@/pages/TranslationReviewPage.vue') },
       { path: 'my-dashboard', name: 'member-dashboard', meta: memberOnly, component: () => import('@/pages/MemberDashboardPage.vue') },
@@ -114,11 +114,11 @@ const routes: RouteRecordRaw[] = [
       { path: 'quality-check', name: 'quality-check-direct', meta: qualityCheckAccess, component: () => import('@/pages/QualityCheckPage.vue') },
       { path: 'quality-check/:websiteId', name: 'quality-check-board-direct', meta: qualityCheckAccess, component: () => import('@/pages/QualityBoardPage.vue') },
       { path: 'work-board', name: 'work-board', redirect: '/work-board/my' },
-      { path: 'work-board/my', name: 'work-board-my', meta: adminOrMember, component: () => import('@/pages/TodaysWorkPage.vue') },
-      { path: 'work-board/members', name: 'work-board-members', meta: adminOrMember, component: () => import('@/pages/MemberBoardPage.vue') },
-      { path: 'work-board/members/:memberId', name: 'work-board-member-detail', meta: adminOrMember, component: () => import('@/pages/MemberBoardPage.vue') },
-      { path: 'work-board/quality-check', name: 'quality-check', meta: qualityCheckAccess, component: () => import('@/pages/QualityCheckPage.vue') },
-      { path: 'work-board/quality-check/:websiteId', name: 'quality-check-board', meta: qualityCheckAccess, component: () => import('@/pages/QualityBoardPage.vue') },
+      { path: 'work-board/my', name: 'work-board-my', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/TodaysWorkPage.vue') },
+      { path: 'work-board/members', name: 'work-board-members', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/MemberBoardPage.vue') },
+      { path: 'work-board/members/:memberId', name: 'work-board-member-detail', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/MemberBoardPage.vue') },
+      { path: 'work-board/quality-check', name: 'quality-check', meta: { ...qualityCheckAccess, hideFromAdmin: true }, component: () => import('@/pages/QualityCheckPage.vue') },
+      { path: 'work-board/quality-check/:websiteId', name: 'quality-check-board', meta: { ...qualityCheckAccess, hideFromAdmin: true }, component: () => import('@/pages/QualityBoardPage.vue') },
       { path: 'today', name: 'today', redirect: '/work-board/my' },
       { path: 'my-assigned-prompts', name: 'my-assigned-prompts', meta: memberOnly, component: () => import('@/pages/MyAssignedPromptsPage.vue') },
       { path: 'prompt-builder', name: 'prompt-builder', meta: memberOnly, component: () => import('@/pages/MemberPromptBuilderPage.vue') },
@@ -178,30 +178,30 @@ const routes: RouteRecordRaw[] = [
 
       // ── Blog Center ────────────────────────────────────────────────────────
       // Main fast-workflow page (pick brand → title → machine → copy prompt).
-      { path: 'blog-center', name: 'blog-center', meta: adminOrMember, component: () => import('@/pages/BlogCenterPage.vue') },
+      { path: 'blog-center', name: 'blog-center', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/BlogCenterPage.vue') },
       // Per-website template management — accessed via "Manage Templates" link
       // from inside Blog Center. Head/Supervisor/Assistant Head only.
-      { path: 'blog-center/templates', name: 'blog-center-templates', meta: adminOrMember, component: () => import('@/pages/BlogImageCenterPage.vue') },
-      { path: 'blog-center/templates/:websiteId', name: 'blog-center-templates-detail', meta: adminOrMember, component: () => import('@/pages/BlogImageCenterDetailPage.vue') },
+      { path: 'blog-center/templates', name: 'blog-center-templates', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/BlogImageCenterPage.vue') },
+      { path: 'blog-center/templates/:websiteId', name: 'blog-center-templates-detail', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/BlogImageCenterDetailPage.vue') },
       // Legacy redirects so old links continue to work.
       { path: 'blog-image-center', redirect: '/blog-center' },
       { path: 'blog-image-center/:websiteId', redirect: (to) => `/blog-center/templates/${to.params.websiteId}` },
       { path: 'blog-image-library', redirect: '/blog-center' },
 
       // ── Prompt Workflow System ──────────────────────────────────────────────
-      { path: 'prompt', name: 'prompt-dashboard', meta: adminOrMember, component: () => import('@/pages/PromptDashboardPage.vue') },
-      { path: 'prompt/library', name: 'prompt-workflow-library', meta: adminOrMember, component: () => import('@/pages/PromptWorkflowLibraryPage.vue') },
-      { path: 'prompt/builder', name: 'prompt-workflow-builder', meta: adminOrMember, component: () => import('@/pages/PromptWorkflowBuilderPage.vue') },
-      { path: 'prompt/builder/:promptId', name: 'prompt-workflow-builder-prompt', meta: adminOrMember, component: () => import('@/pages/PromptWorkflowBuilderPage.vue') },
-      { path: 'prompt/website/:websiteId', name: 'prompt-website', meta: adminOrMember, component: () => import('@/pages/PromptWebsitePage.vue') },
-      { path: 'prompt/website/:websiteId/page/:pageType', name: 'prompt-page-group', meta: adminOrMember, component: () => import('@/pages/PromptPageGroupPage.vue') },
+      { path: 'prompt', name: 'prompt-dashboard', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptDashboardPage.vue') },
+      { path: 'prompt/library', name: 'prompt-workflow-library', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptWorkflowLibraryPage.vue') },
+      { path: 'prompt/builder', name: 'prompt-workflow-builder', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptWorkflowBuilderPage.vue') },
+      { path: 'prompt/builder/:promptId', name: 'prompt-workflow-builder-prompt', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptWorkflowBuilderPage.vue') },
+      { path: 'prompt/website/:websiteId', name: 'prompt-website', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptWebsitePage.vue') },
+      { path: 'prompt/website/:websiteId/page/:pageType', name: 'prompt-page-group', meta: { ...adminOrMember, hideFromAdmin: true }, component: () => import('@/pages/PromptPageGroupPage.vue') },
 
       // ── Reports Dashboard ──────────────────────────────────────────────────
       {
         path: 'reports',
         name: 'reports-dashboard',
         component: () => import('@/pages/reports/PerformanceDocumentationPage.vue'),
-        meta: authenticated
+        meta: { ...authenticated, hideFromAdmin: true }
       },
 
       // ── Command Center (Executive OS) ───────────────────────────────────────
@@ -214,12 +214,12 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'winner-center',
         name: 'winner-center',
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, hideFromAdmin: true },
         component: () => import('@/pages/WinnerCenterPage.vue'),
         beforeEnter: (to, from, next) => {
           const auth = useAuthStore();
           const role = normalizeRole(auth.profile?.role);
-          if (role === 'admin' || role === 'owner' || role === 'head') {
+          if (role === 'owner' || role === 'head') {
             next();
           } else {
             next(homePathForRole(auth.profile?.role || null));
@@ -257,6 +257,10 @@ router.beforeEach(async (to) => {
   // Wait for the real Supabase session/profile initialization.
   if (!auth.initialized || auth.initializing) {
     await auth.init();
+  }
+
+  if (to.meta.hideFromAdmin && auth.normalizedRole === 'admin') {
+    return redirectUnlessCurrent(to.path, homePathForRole(auth.currentRole));
   }
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
