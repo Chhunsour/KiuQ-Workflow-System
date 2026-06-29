@@ -201,7 +201,13 @@ const routes: RouteRecordRaw[] = [
         path: 'reports',
         name: 'reports-dashboard',
         component: () => import('@/pages/reports/PerformanceDocumentationPage.vue'),
-        meta: { ...authenticated, hideFromAdmin: true }
+        meta: { ...authenticated }
+      },
+      {
+        path: 'reports/monthly',
+        name: 'monthly-summary',
+        component: () => import('@/pages/reports/MonthlyReportPage.vue'),
+        meta: { ...authenticated }
       },
 
       // ── Command Center (Executive OS) ───────────────────────────────────────

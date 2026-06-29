@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { supabase, supabaseConfigured } from '@/lib/supabase';
+import { useAuthStore } from '@/stores/auth';
+import { optimizeImage } from '@/utils/imageOptimizer';
 
 // ── Types (mirror <ts>_product_sync.sql) ─────────────────────────────────
 
@@ -75,9 +77,30 @@ export interface SourceProduct {
   product_category: string | null;
   product_slug: string | null;
   short_description: string | null;
+  description: string | null;
+  product_gtin: string | null;
+  product_type: string | null;
   button_url: string | null;
   updated_at: string;
 }
+
+/** Master product fields editable from the Sync Center. */
+export type SourceProductPatch = Partial<Pick<SourceProduct,
+  'name' | 'sku' | 'product_price' | 'product_category' | 'product_slug' |
+  'short_description' | 'description' | 'product_gtin' | 'product_type' | 'button_url'>>;
+
+export const SOURCE_PRODUCT_COLUMNS =
+  'id,name,sku,product_price,product_category,product_slug,short_description,description,product_gtin,product_type,button_url,updated_at';
+
+/** An image in a product folder (public.team_images). */
+export interface FolderImage {
+  id: string;
+  url: string;
+  is_feature_image: boolean;
+  sort_order: number | null;
+  storage_path: string | null;
+}
+const FOLDER_IMAGE_COLUMNS = 'id,url,is_feature_image,sort_order,storage_path';
 
 export interface SyncSettings {
   id: number;
@@ -118,6 +141,7 @@ export interface SyncArgs {
 // ── Store ─────────────────────────────────────────────────────────────────
 
 export const useProductSyncStore = defineStore('productSync', () => {
+  const auth = useAuthStore();
   const websites = ref<ConnectedWebsite[]>([]);
   const logs = ref<SyncLog[]>([]);
   const states = ref<ProductSyncStateRow[]>([]);
@@ -137,11 +161,27 @@ export const useProductSyncStore = defineStore('productSync', () => {
     guard();
     const { data, error: err } = await supabase
       .from('team_folders')
-      .select('id,name,sku,product_price,product_category,product_slug,short_description,button_url,updated_at')
+      .select(SOURCE_PRODUCT_COLUMNS)
       .is('deleted_at', null)
       .order('updated_at', { ascending: false });
     if (err) { error.value = err.message; return; }
-    sourceProducts.value = (data ?? []) as SourceProduct[];
+    sourceProducts.value = (data ?? []) as unknown as SourceProduct[];
+  };
+
+  /** Edit a master product's details (writes to team_folders). */
+  const updateSourceProduct = async (id: string, patch: SourceProductPatch): Promise<SourceProduct | null> => {
+    guard();
+    const { data, error: err } = await supabase
+      .from('team_folders').update(patch).eq('id', id).select(SOURCE_PRODUCT_COLUMNS).single();
+    if (err) { error.value = err.message; return null; }
+    const updated = data as unknown as SourceProduct;
+    const idx = sourceProducts.value.findIndex((p) => p.id === id);
+    if (idx !== -1) sourceProducts.value[idx] = updated;
+
+    // Log the product update activity
+    void auth.recordActivity('product_updated', 'resource', id, `Updated master product "${updated.name}" details.`);
+
+    return updated;
   };
 
   /** Featured (or first-by-sort) image per product folder, for thumbnails. */
@@ -297,9 +337,70 @@ export const useProductSyncStore = defineStore('productSync', () => {
     return data as TestConnectionResult;
   };
 
+  // ── Product images (team_images, bucket 'team-images') ──────────────────
+  const fetchFolderImages = async (folderId: string): Promise<FolderImage[]> => {
+    guard();
+    const { data, error: err } = await supabase
+      .from('team_images').select(FOLDER_IMAGE_COLUMNS).eq('folder_id', folderId);
+    if (err) { error.value = err.message; return []; }
+    const list = (data ?? []) as unknown as FolderImage[];
+    return list.sort((a, b) =>
+      (Number(b.is_feature_image) - Number(a.is_feature_image)) || ((a.sort_order ?? 0) - (b.sort_order ?? 0)));
+  };
+
+  /** Make one image the folder's featured image (clears the others). */
+  const setFeaturedImage = async (folderId: string, imageId: string): Promise<boolean> => {
+    guard();
+    const { error: e1 } = await supabase.from('team_images').update({ is_feature_image: false }).eq('folder_id', folderId);
+    if (e1) { error.value = e1.message; return false; }
+    const { error: e2 } = await supabase.from('team_images').update({ is_feature_image: true }).eq('id', imageId);
+    if (e2) { error.value = e2.message; return false; }
+    await fetchProductImages();
+    return true;
+  };
+
+  /** Upload a new image into a product folder (optimized → 'team-images'). */
+  const uploadFolderImage = async (folderId: string, file: File, makeFeatured = false): Promise<FolderImage | null> => {
+    guard();
+    const uid = auth.user?.id ?? null;
+    let upload: File = file;
+    try {
+      const r = await optimizeImage(file, { maxWidth: 1600, maxHeight: 1600, targetSizeKB: 300, maxSizeKB: 600 });
+      upload = r.file;
+    } catch { /* fall back to original file */ }
+    const safe = (upload.name || 'image.webp').replace(/[^a-zA-Z0-9._-]+/g, '-').toLowerCase();
+    const storagePath = `${uid ?? 'product-sync'}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safe}`;
+    const { error: upErr } = await supabase.storage.from('team-images').upload(storagePath, upload, { cacheControl: '31536000', upsert: false });
+    if (upErr) { error.value = upErr.message; return null; }
+    const { data: pub } = supabase.storage.from('team-images').getPublicUrl(storagePath);
+    const url = pub?.publicUrl;
+    if (!url) { error.value = 'Could not generate the image URL.'; return null; }
+    const record = {
+      url, name: (upload.name || 'image').replace(/\.[^/.]+$/, ''), folder_id: folderId, uploaded_by: uid,
+      source: 'upload', file_type: upload.type || null, file_size: upload.size || null,
+      file_size_bytes: upload.size || 0, storage_path: storagePath, is_feature_image: makeFeatured,
+    };
+    const { data, error: dbErr } = await supabase.from('team_images').insert(record).select(FOLDER_IMAGE_COLUMNS).single();
+    if (dbErr) { error.value = dbErr.message; return null; }
+    if (makeFeatured) await setFeaturedImage(folderId, (data as unknown as FolderImage).id);
+    else await fetchProductImages();
+    return data as unknown as FolderImage;
+  };
+
+  const deleteFolderImage = async (image: FolderImage, folderId: string): Promise<boolean> => {
+    guard();
+    if (image.storage_path) { await supabase.storage.from('team-images').remove([image.storage_path]); }
+    const { error: err } = await supabase.from('team_images').delete().eq('id', image.id);
+    if (err) { error.value = err.message; return false; }
+    void folderId;
+    await fetchProductImages();
+    return true;
+  };
+
   return {
     websites, logs, states, settings, sourceProducts, productImages, loading, error,
-    fetchSourceProducts, fetchProductImages,
+    fetchSourceProducts, fetchProductImages, updateSourceProduct,
+    fetchFolderImages, setFeaturedImage, uploadFolderImage, deleteFolderImage,
     fetchWebsites, createWebsite, updateWebsite, deleteWebsite,
     fetchOverrides, upsertOverride, deleteOverride,
     fetchStates, fetchLogs, clearLogs,

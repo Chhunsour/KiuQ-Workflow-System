@@ -87,25 +87,55 @@
 
           <span class="sync-toolbar-spacer" />
 
+          <!-- layout toggle -->
+          <div class="sync-seg sync-seg--toolbar" role="group" :aria-label="$t('Layout')">
+            <button type="button" :class="{ active: view.mode === 'table' }" :aria-pressed="view.mode === 'table'" :title="$t('Table view')" @click="view.mode = 'table'">
+              <span class="sync-ico" v-html="ICON.table" />
+            </button>
+            <button type="button" :class="{ active: view.mode === 'grid' }" :aria-pressed="view.mode === 'grid'" :title="$t('Grid view')" @click="view.mode = 'grid'">
+              <span class="sync-ico" v-html="ICON.grid" />
+            </button>
+          </div>
+
           <!-- view options -->
           <div class="sync-view" :class="{ open: viewOpen }">
             <button type="button" class="btn-ghost sync-view-btn" :aria-expanded="viewOpen" @click.stop="viewOpen = !viewOpen">
               <span class="sync-ico" v-html="ICON.view" /> {{ $t('View') }}
             </button>
             <div v-if="viewOpen" class="sync-view-pop" @click.stop>
-              <p class="sync-view-h">{{ $t('Row density') }}</p>
+              <p class="sync-view-h">{{ $t('Layout') }}</p>
               <div class="sync-seg">
-                <button type="button" :class="{ active: view.density === 'comfortable' }" @click="view.density = 'comfortable'">{{ $t('Comfortable') }}</button>
-                <button type="button" :class="{ active: view.density === 'compact' }" @click="view.density = 'compact'">{{ $t('Compact') }}</button>
+                <button type="button" :class="{ active: view.mode === 'table' }" @click="view.mode = 'table'">{{ $t('Table') }}</button>
+                <button type="button" :class="{ active: view.mode === 'grid' }" @click="view.mode = 'grid'">{{ $t('Grid') }}</button>
               </div>
-              <label class="sync-view-row"><input type="checkbox" v-model="view.thumbs" /> {{ $t('Product thumbnails') }}</label>
-              <div class="sync-menu-sep" />
-              <p class="sync-view-h">{{ $t('Columns') }}</p>
-              <label class="sync-view-row"><input type="checkbox" v-model="view.cols.sku" /> {{ $t('SKU') }}</label>
-              <label class="sync-view-row"><input type="checkbox" v-model="view.cols.price" /> {{ $t('Price') }}</label>
-              <label class="sync-view-row"><input type="checkbox" v-model="view.cols.category" /> {{ $t('Category') }}</label>
-              <label class="sync-view-row"><input type="checkbox" v-model="view.cols.status" /> {{ $t('Per-site status') }}</label>
-              <label class="sync-view-row"><input type="checkbox" v-model="view.cols.lastSynced" /> {{ $t('Last synced') }}</label>
+
+              <template v-if="view.mode === 'grid'">
+                <label class="sync-view-row sync-view-range">
+                  <span>{{ $t('Cards per row') }}</span>
+                  <span class="sync-range-ctrl">
+                    <button type="button" :disabled="view.gridCols <= 2" @click="view.gridCols = Math.max(2, view.gridCols - 1)">−</button>
+                    <b>{{ view.gridCols }}</b>
+                    <button type="button" :disabled="view.gridCols >= 6" @click="view.gridCols = Math.min(6, view.gridCols + 1)">+</button>
+                  </span>
+                </label>
+                <label class="sync-view-row"><input type="checkbox" v-model="view.thumbs" /> {{ $t('Product images') }}</label>
+              </template>
+
+              <template v-else>
+                <p class="sync-view-h">{{ $t('Row density') }}</p>
+                <div class="sync-seg">
+                  <button type="button" :class="{ active: view.density === 'comfortable' }" @click="view.density = 'comfortable'">{{ $t('Comfortable') }}</button>
+                  <button type="button" :class="{ active: view.density === 'compact' }" @click="view.density = 'compact'">{{ $t('Compact') }}</button>
+                </div>
+                <label class="sync-view-row"><input type="checkbox" v-model="view.thumbs" /> {{ $t('Product thumbnails') }}</label>
+                <div class="sync-menu-sep" />
+                <p class="sync-view-h">{{ $t('Columns') }}</p>
+                <label class="sync-view-row"><input type="checkbox" v-model="view.cols.sku" /> {{ $t('SKU') }}</label>
+                <label class="sync-view-row"><input type="checkbox" v-model="view.cols.price" /> {{ $t('Price') }}</label>
+                <label class="sync-view-row"><input type="checkbox" v-model="view.cols.category" /> {{ $t('Category') }}</label>
+                <label class="sync-view-row"><input type="checkbox" v-model="view.cols.status" /> {{ $t('Per-site status') }}</label>
+                <label class="sync-view-row"><input type="checkbox" v-model="view.cols.lastSynced" /> {{ $t('Last synced') }}</label>
+              </template>
             </div>
           </div>
 
@@ -139,7 +169,7 @@
         </div>
       </transition>
 
-      <div class="sync-table-wrap">
+      <div v-if="view.mode === 'table'" class="sync-table-wrap">
         <table class="sync-table" :class="{ 'sync-table--compact': view.density === 'compact' }">
           <thead>
             <tr>
@@ -204,6 +234,8 @@
                         <span class="sync-ico" v-html="ICON.dots" />
                       </button>
                       <div v-if="openMenuId === p.id" class="sync-menu-pop" @click.stop>
+                        <button type="button" @click="editProduct(p)"><span class="sync-ico" v-html="ICON.pen" /> {{ $t('Edit product') }}</button>
+                        <div class="sync-menu-sep" />
                         <button type="button" @click="syncOne(p, 'price')"><span class="sync-ico" v-html="ICON.tag" /> {{ $t('Sync price only') }}</button>
                         <button type="button" @click="syncOne(p, 'images')"><span class="sync-ico" v-html="ICON.image" /> {{ $t('Sync images only') }}</button>
                         <button type="button" @click="syncOne(p, 'descriptions')"><span class="sync-ico" v-html="ICON.text" /> {{ $t('Sync descriptions') }}</button>
@@ -224,6 +256,50 @@
             </template>
           </tbody>
         </table>
+      </div>
+
+      <!-- GRID VIEW -->
+      <div v-else class="sync-grid-wrap">
+        <div v-if="loading" class="sync-grid" :style="gridStyle">
+          <div v-for="n in view.gridCols * 2" :key="`gsk-${n}`" class="sync-gcard sync-gcard--skel">
+            <span class="sync-skel" style="height: 9rem; border-radius: 10px;" />
+            <span class="sync-skel" style="width: 80%;" />
+            <span class="sync-skel" style="width: 50%;" />
+          </div>
+        </div>
+        <div v-else-if="filteredProducts.length === 0" class="sync-empty">
+          <span class="sync-ico sync-empty-ico" v-html="ICON.cube" />
+          <p class="sync-strong">{{ products.length === 0 ? $t('No products in the master catalog yet.') : $t('No products match your filters.') }}</p>
+          <button v-if="products.length > 0" type="button" class="btn-ghost sync-btn" @click="resetFilters">{{ $t('Reset filters') }}</button>
+        </div>
+        <div v-else class="sync-grid" :style="gridStyle">
+          <article v-for="p in pagedProducts" :key="p.id" class="sync-gcard" :class="{ 'sync-gcard--sel': selected.has(p.id) }">
+            <div class="sync-gcard-media">
+              <input type="checkbox" class="sync-gcard-check" :checked="selected.has(p.id)" :aria-label="`Select ${p.name}`" @change="toggleOne(p.id)" />
+              <img v-if="view.thumbs && imgFor(p) && !imgError.has(p.id)" :src="imgFor(p)!" alt="" loading="lazy" decoding="async" @error="onImgError(p.id)" />
+              <span v-else class="sync-gcard-fallback" v-html="ICON.cube" />
+              <span class="sync-gcard-status" :class="`sync-status-text--${productStatus(p).overall}`" :title="$t('Per-site status')">
+                <span class="sync-dot" :class="`sync-dot--${productStatus(p).overall}`" /> {{ statusLabel(productStatus(p).overall) }}
+              </span>
+            </div>
+            <div class="sync-gcard-body">
+              <p class="sync-gcard-name" :title="p.name">{{ p.name || $t('Untitled') }}</p>
+              <p class="sync-gcard-meta">
+                <span class="sync-mono">{{ p.sku || '—' }}</span>
+                <span class="sync-gcard-price">{{ p.product_price ? `$${p.product_price}` : '—' }}</span>
+              </p>
+              <span v-if="p.product_category" class="sync-tag sync-gcard-tag">{{ p.product_category }}</span>
+            </div>
+            <footer class="sync-gcard-actions">
+              <button type="button" class="btn-secondary sync-btn" @click="editProduct(p)">
+                <span class="sync-ico" v-html="ICON.pen" /> {{ $t('Edit') }}
+              </button>
+              <button type="button" class="btn-primary sync-btn" @click="syncOne(p, 'full')">
+                <span class="sync-ico" v-html="ICON.sync" /> {{ $t('Sync') }}
+              </button>
+            </footer>
+          </article>
+        </div>
       </div>
 
       <!-- pagination -->
@@ -300,6 +376,7 @@
 
     <SyncProductModal v-if="syncTarget" :target="syncTarget" @close="syncTarget = null" @done="onSyncDone" />
     <OverridesModal v-if="overridesSite" :website="overridesSite" @close="overridesSite = null" />
+    <EditProductModal v-if="editTarget" :product="editTarget" @close="editTarget = null" @saved="onProductSaved" />
     <transition name="sync-fade">
       <p v-if="toast" class="sync-toast" role="status">{{ toast }}</p>
     </transition>
@@ -313,6 +390,7 @@ import PageHeader from '@/components/ui/PageHeader.vue';
 import SyncBadge from '@/components/sync/SyncBadge.vue';
 import SyncProductModal, { type SyncTarget } from '@/components/sync/SyncProductModal.vue';
 import OverridesModal from '@/components/sync/OverridesModal.vue';
+import EditProductModal from '@/components/sync/EditProductModal.vue';
 import {
   useProductSyncStore, type SyncResult, type SourceProduct, type SyncType,
   type ConnectedWebsite, type TestConnectionResult,
@@ -343,6 +421,9 @@ const ICON = {
   sliders: svg('<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>'),
   view: svg('<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>'),
   rows: svg('<rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/>'),
+  grid: svg('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'),
+  table: svg('<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>'),
+  pen: svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'),
 };
 
 /* ── state ──────────────────────────────────────────────────────────────── */
@@ -355,6 +436,7 @@ const toast = ref<string | null>(null);
 const selected = ref<Set<string>>(new Set());
 const syncTarget = ref<SyncTarget | null>(null);
 const overridesSite = ref<ConnectedWebsite | null>(null);
+const editTarget = ref<SourceProduct | null>(null);
 const openMenuId = ref<string | null>(null);
 const testingId = ref<string | null>(null);
 const testResults = ref<Record<string, TestConnectionResult>>({});
@@ -372,6 +454,8 @@ const pageSize = ref(25);
 type ColKey = 'sku' | 'price' | 'category' | 'status' | 'lastSynced';
 const VIEW_KEY = 'kiuq.syncCenter.view';
 const view = reactive({
+  mode: 'table' as 'table' | 'grid',
+  gridCols: 5,
   density: 'comfortable' as 'comfortable' | 'compact',
   thumbs: true,
   cols: { sku: true, price: true, category: true, status: true, lastSynced: true } as Record<ColKey, boolean>,
@@ -379,6 +463,8 @@ const view = reactive({
 try {
   const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || 'null');
   if (saved && typeof saved === 'object') {
+    if (saved.mode === 'grid' || saved.mode === 'table') view.mode = saved.mode;
+    if (typeof saved.gridCols === 'number') view.gridCols = Math.min(6, Math.max(2, saved.gridCols));
     if (saved.density === 'compact' || saved.density === 'comfortable') view.density = saved.density;
     if (typeof saved.thumbs === 'boolean') view.thumbs = saved.thumbs;
     if (saved.cols) Object.assign(view.cols, saved.cols);
@@ -495,6 +581,7 @@ watch([search, categoryFilter, statusFilter, siteScope], () => { page.value = 1;
 const visibleColCount = computed(() =>
   3 + Number(view.cols.sku) + Number(view.cols.price) + Number(view.cols.category) + Number(view.cols.status) + Number(view.cols.lastSynced)
 );
+const gridStyle = computed(() => ({ '--grid-cols': String(view.gridCols) }));
 
 const statusFilters = computed(() => [
   { value: '' as const, label: 'All', count: products.value.length },
@@ -555,6 +642,8 @@ const syncOne = (p: SourceProduct, type: SyncType) => {
   openMenuId.value = null;
   syncTarget.value = { productIds: [p.id], label: p.name || 'product', defaultType: type, websiteIds: targetWebsiteIds() };
 };
+const editProduct = (p: SourceProduct) => { openMenuId.value = null; editTarget.value = p; };
+const onProductSaved = () => { flash('Product updated'); };
 const syncSelected = (type: SyncType) => {
   syncTarget.value = { productIds: [...selected.value], label: `${selected.value.size} selected product(s)`, defaultType: type, websiteIds: targetWebsiteIds() };
 };
@@ -686,6 +775,39 @@ const testConnection = async (w: ConnectedWebsite) => {
 .sync-seg { display: flex; gap: 0.3rem; margin-bottom: 0.55rem; }
 .sync-seg button { flex: 1; padding: 0.38rem 0.4rem; border: 1px solid var(--border); border-radius: 8px; background: var(--card-bg); color: var(--text-secondary); font-size: 0.76rem; font-weight: 700; cursor: pointer; transition: border-color 140ms, color 140ms, background 140ms; }
 .sync-seg button.active { border-color: var(--primary); color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); }
+.sync-seg--toolbar { margin-bottom: 0; }
+.sync-seg--toolbar button { flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0.4rem 0.5rem; }
+.sync-view-range { justify-content: space-between; }
+.sync-range-ctrl { display: inline-flex; align-items: center; gap: 0.5rem; }
+.sync-range-ctrl button { width: 1.5rem; height: 1.5rem; border: 1px solid var(--border); border-radius: 7px; background: var(--card-bg); color: var(--text-main); font-weight: 800; cursor: pointer; line-height: 1; }
+.sync-range-ctrl button:disabled { opacity: 0.4; cursor: not-allowed; }
+.sync-range-ctrl b { min-width: 1ch; text-align: center; font-family: 'Jost Numbers', monospace; }
+
+/* GRID VIEW */
+.sync-grid-wrap { padding: 0.95rem; }
+.sync-grid { display: grid; grid-template-columns: repeat(var(--grid-cols, 5), minmax(0, 1fr)); gap: 0.85rem; }
+.sync-gcard { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg); overflow: hidden; transition: border-color 160ms, box-shadow 160ms; }
+.sync-gcard:hover { box-shadow: 0 6px 20px rgba(16,24,40,0.10); }
+.sync-gcard--sel { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary) inset; }
+.sync-gcard--skel { padding: 0.7rem; gap: 0.5rem; }
+.sync-gcard-media { position: relative; aspect-ratio: 1 / 1; background: var(--soft-bg); display: flex; align-items: center; justify-content: center; }
+.sync-gcard-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sync-gcard-fallback { color: var(--text-muted); }
+.sync-gcard-fallback :deep(svg) { width: 36px; height: 36px; }
+.sync-gcard-check { position: absolute; top: 0.5rem; left: 0.5rem; width: 1.1rem; height: 1.1rem; cursor: pointer; accent-color: var(--primary); }
+.sync-gcard-status { position: absolute; bottom: 0.5rem; left: 0.5rem; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.15rem 0.45rem; border-radius: 999px; font-size: 0.66rem; font-weight: 800; background: var(--card-bg); border: 1px solid var(--border); }
+.sync-gcard-body { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.65rem 0.7rem 0.4rem; flex: 1; }
+.sync-gcard-name { font-weight: 700; color: var(--text-main); font-size: 0.85rem; margin: 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sync-gcard-meta { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; margin: 0; }
+.sync-gcard-price { font-family: 'Jost Numbers', monospace; font-weight: 800; color: var(--text-main); font-size: 0.82rem; }
+.sync-gcard-tag { align-self: flex-start; }
+.sync-gcard-actions { display: flex; gap: 0.4rem; padding: 0.5rem 0.7rem 0.7rem; }
+.sync-gcard-actions .sync-btn { flex: 1; justify-content: center; }
+
+@media (max-width: 1280px) { .sync-grid { grid-template-columns: repeat(min(var(--grid-cols, 5), 4), minmax(0, 1fr)); } }
+@media (max-width: 1000px) { .sync-grid { grid-template-columns: repeat(min(var(--grid-cols, 5), 3), minmax(0, 1fr)); } }
+@media (max-width: 720px) { .sync-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 440px) { .sync-grid { grid-template-columns: 1fr; } }
 
 /* per-site dots */
 .sync-dots { display: flex; align-items: center; gap: 0.3rem; }
