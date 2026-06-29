@@ -754,6 +754,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     currentUser,
     currentRole,
+    normalizedRole,
     isAdmin,
     isHeadOrSupervisor,
     canAccessWinnerCenter,

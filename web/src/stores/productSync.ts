@@ -123,6 +123,8 @@ export const useProductSyncStore = defineStore('productSync', () => {
   const states = ref<ProductSyncStateRow[]>([]);
   const settings = ref<SyncSettings | null>(null);
   const sourceProducts = ref<SourceProduct[]>([]);
+  /** folder_id → first/featured image URL (for product thumbnails). */
+  const productImages = ref<Record<string, string>>({});
   const loading = ref(false);
   const error = ref<string | null>(null);
 

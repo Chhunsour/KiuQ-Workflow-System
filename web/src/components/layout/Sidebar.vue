@@ -301,6 +301,9 @@ const visibleNavItems = computed(() => {
     items = items.filter((item) => !item.isTaskAlertManagerOnly);
   }
 
+  const isHead = auth.normalizedRole === 'head';
+  items = items.filter((item) => !item.isHeadOnly || isHead);
+
   if (auth.isViewer) {
     items = items.map((item) => {
       if (item.children) {

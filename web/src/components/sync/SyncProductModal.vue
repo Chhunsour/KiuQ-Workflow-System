@@ -88,6 +88,10 @@ import { useProductSyncStore, type SyncResult, type SyncType } from '@/stores/pr
 export interface SyncTarget {
   productIds: string[] | 'all';
   label: string;
+  /** Optional preset for the "what to sync" selector (defaults to 'full'). */
+  defaultType?: SyncType;
+  /** Optional preset list of target website ids (defaults to all active). */
+  websiteIds?: string[];
 }
 
 const props = defineProps<{ target: SyncTarget }>();
@@ -103,8 +107,10 @@ const SYNC_TYPES: { value: SyncType; label: string; hint: string }[] = [
 ];
 
 const loadingSites = ref(true);
-const syncType = ref<SyncType>('full');
-const selectedSites = ref<'all' | Set<string>>('all');
+const syncType = ref<SyncType>(props.target.defaultType ?? 'full');
+const selectedSites = ref<'all' | Set<string>>(
+  props.target.websiteIds && props.target.websiteIds.length ? new Set(props.target.websiteIds) : 'all'
+);
 const force = ref(false);
 const running = ref(false);
 const errorMsg = ref<string | null>(null);

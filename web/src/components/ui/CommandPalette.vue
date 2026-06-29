@@ -102,6 +102,9 @@ const navSource = computed<NavItem[]>(() => {
     items = items.filter((item) => !item.isTaskAlertManagerOnly);
   }
 
+  const isHead = auth.normalizedRole === 'head';
+  items = items.filter((item) => !item.isHeadOnly || isHead);
+
   return items;
 });
 

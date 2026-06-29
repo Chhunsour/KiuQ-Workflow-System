@@ -14,6 +14,7 @@ const adminOrQualityChecker = { requiresAuth: true, roles: ['admin', 'quality_ch
 // roleIsAllowed gate doesn't bounce them off their own home page.
 const qualityCheckAccess = { requiresAuth: true, roles: ['admin', 'member', 'quality_checker'] as Role[] };
 const authenticated = { requiresAuth: true };
+const headOnly = { requiresAuth: true, roles: ['head'] as Role[] };
 
 /**
  * `roleIsAllowed` maps abstract role buckets to concrete user roles:
@@ -150,17 +151,21 @@ const routes: RouteRecordRaw[] = [
       { path: 'followup/speed-optimization/:websiteId', name: 'followup-speed-optimization-tracker', meta: adminOrMember, component: () => import('@/pages/FollowupSpeedOptimizationTrackerPage.vue') },
 
       // ── CMS ──────────────────────────────────────────────────────────────
-      // adminOrMember meta admits Head/Supervisor/AH/Team Member; the
-      // existing roleIsAllowed logic excludes Quality Checker.
-      { path: 'cms',              name: 'cms-home',          meta: adminOrMember, component: () => import('@/pages/cms/CmsHomePage.vue') },
-      { path: 'cms/products',     name: 'cms-products',      meta: adminOrMember, component: () => import('@/pages/cms/CmsProductsListPage.vue') },
-      { path: 'cms/products/:id', name: 'cms-product-edit',  meta: adminOrMember, component: () => import('@/pages/cms/CmsProductEditPage.vue') },
-      { path: 'cms/blog',         name: 'cms-blog',          meta: adminOrMember, component: () => import('@/pages/cms/CmsBlogPostsListPage.vue') },
-      { path: 'cms/blog/:id',     name: 'cms-blog-edit',     meta: adminOrMember, component: () => import('@/pages/cms/CmsBlogPostEditPage.vue') },
+      // Restricted to 'head' role only.
+      { path: 'cms',              name: 'cms-home',          meta: headOnly, component: () => import('@/pages/cms/CmsHomePage.vue') },
+      { path: 'cms/products',     name: 'cms-products',      meta: headOnly, component: () => import('@/pages/cms/CmsProductsListPage.vue') },
+      { path: 'cms/products/:id', name: 'cms-product-edit',  meta: headOnly, component: () => import('@/pages/cms/CmsProductEditPage.vue') },
+      { path: 'cms/blog',         name: 'cms-blog',          meta: headOnly, component: () => import('@/pages/cms/CmsBlogPostsListPage.vue') },
+      { path: 'cms/blog/:id',     name: 'cms-blog-edit',     meta: headOnly, component: () => import('@/pages/cms/CmsBlogPostEditPage.vue') },
+
+      // ── Framework Website (umbrella for the product distribution layer) ────
+      // Admin-class only. /framework is the overview dashboard; the Product Sync
+      // pages below nest under it in the sidebar but keep their /product-sync URLs.
+      { path: 'framework',             name: 'framework',             meta: adminOnly, component: () => import('@/pages/sync/FrameworkOverviewPage.vue') },
 
       // ── Product Sync (master controller → e-commerce framework receivers) ──
-      // Admin-class only. The Sync Center pushes cms_products out to connected
-      // receiver sites; Connected Websites manages the receivers + secrets.
+      // The Sync Center pushes cms_products out to connected receiver sites;
+      // Connected Websites manages the receivers + secrets.
       { path: 'product-sync',          name: 'product-sync',          meta: adminOnly, component: () => import('@/pages/sync/SyncCenterPage.vue') },
       { path: 'product-sync/websites', name: 'product-sync-websites', meta: adminOnly, component: () => import('@/pages/sync/ConnectedWebsitesPage.vue') },
       { path: 'product-sync/logs',     name: 'product-sync-logs',     meta: adminOnly, component: () => import('@/pages/sync/SyncLogsPage.vue') },
