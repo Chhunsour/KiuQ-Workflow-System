@@ -13,6 +13,16 @@
         <div class="bl-head-actions">
           <button
             type="button"
+            class="btn-secondary bl-write"
+            :disabled="syncing"
+            title="Push all published posts to your connected framework sites"
+            @click="onSyncToSites"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+            {{ syncing ? 'Syncing…' : 'Sync to sites' }}
+          </button>
+          <button
+            type="button"
             class="btn-primary bl-write"
             :disabled="creating || !canCreate"
             :title="canCreate ? '' : 'Choose a website first'"
@@ -23,6 +33,8 @@
           </button>
         </div>
       </header>
+
+      <p v-if="syncMsg" class="bl-sync-toast" role="status">{{ syncMsg }}</p>
 
       <!-- ── Website folder selector ─────────────────────────────── -->
       <div class="bl-folderbar">
@@ -232,6 +244,25 @@ const sortBy         = ref<'updated' | 'published' | 'title'>('updated');
 const creating       = ref(false);
 const busyId         = ref<string | null>(null);
 const copiedId       = ref<string | null>(null);
+const syncing        = ref(false);
+const syncMsg        = ref<string | null>(null);
+
+const onSyncToSites = async () => {
+  syncing.value = true;
+  syncMsg.value = null;
+  try {
+    const r = await store.syncBlogs();
+    const failed = r.results.filter((s) => !s.ok);
+    syncMsg.value = failed.length
+      ? `Synced ${r.posts} post(s) — ${r.success} site(s) ok, ${failed.length} failed: ${failed.map((s) => `${s.website} (${s.error})`).join('; ')}`
+      : `Synced ${r.posts} post(s) to ${r.success} site(s). ✓`;
+  } catch (e) {
+    syncMsg.value = `Sync error: ${e instanceof Error ? e.message : String(e)}`;
+  } finally {
+    syncing.value = false;
+    setTimeout(() => { syncMsg.value = null; }, 8000);
+  }
+};
 
 onMounted(() => {
   if (auth.isQualityChecker) return;
@@ -379,6 +410,7 @@ const onDelete = async (p: CmsBlogPost) => {
 
 <style scoped>
 .bl-page { display: flex; flex-direction: column; gap: 1rem; }
+.bl-sync-toast { margin: 0; padding: 0.6rem 0.9rem; border: 1px solid var(--border); border-radius: 10px; background: var(--soft-bg); color: var(--text-main); font-size: 0.83rem; }
 
 /* ── Header ───────────────────────────────────────────────────────── */
 .bl-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }

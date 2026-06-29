@@ -155,8 +155,10 @@ const routes: RouteRecordRaw[] = [
       { path: 'cms',              name: 'cms-home',          meta: headOnly, component: () => import('@/pages/cms/CmsHomePage.vue') },
       { path: 'cms/products',     name: 'cms-products',      meta: headOnly, component: () => import('@/pages/cms/CmsProductsListPage.vue') },
       { path: 'cms/products/:id', name: 'cms-product-edit',  meta: headOnly, component: () => import('@/pages/cms/CmsProductEditPage.vue') },
-      { path: 'cms/blog',         name: 'cms-blog',          meta: headOnly, component: () => import('@/pages/cms/CmsBlogPostsListPage.vue') },
-      { path: 'cms/blog/:id',     name: 'cms-blog-edit',     meta: headOnly, component: () => import('@/pages/cms/CmsBlogPostEditPage.vue') },
+      // Blog admin is opened to admin-class users (it powers Framework Website
+      // blog distribution); the rest of CMS stays Head-only.
+      { path: 'cms/blog',         name: 'cms-blog',          meta: adminOnly, component: () => import('@/pages/cms/CmsBlogPostsListPage.vue') },
+      { path: 'cms/blog/:id',     name: 'cms-blog-edit',     meta: adminOnly, component: () => import('@/pages/cms/CmsBlogPostEditPage.vue') },
 
       // ── Framework Website (umbrella for the product distribution layer) ────
       // Admin-class only. /framework is the overview dashboard; the Product Sync

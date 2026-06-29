@@ -92,6 +92,7 @@ const cmsChildren: NavItem[] = [
 const frameworkChildren: NavItem[] = [
   { label: 'Overview',           to: '/framework',                       icon: ICON.dashboard },
   { label: 'Sync Center',        to: '/product-sync',                    icon: ICON.cube      },
+  { label: 'Blog Posts',         to: '/cms/blog',                        icon: ICON.pen       },
   { label: 'Connected Websites', to: '/product-sync/websites',           icon: ICON.globe     },
   { label: 'Sync Logs',          to: '/product-sync/logs',               icon: ICON.activity  },
   { label: 'Failed Syncs',       to: '/product-sync/logs?status=failed', icon: ICON.alert     },

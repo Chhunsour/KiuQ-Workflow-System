@@ -49,12 +49,23 @@ const sha256 = async (s: string): Promise<string> => {
 // ── build canonical payload from a team_folders row + its images + override ─
 // Master source = the Image/Product Content Dashboard (public.team_folders +
 // public.team_images). Featured image = the row flagged is_feature_image;
-// gallery = all images ordered by sort_order.
+// gallery = featured first, then the rest by sort_order — IDENTICAL ordering to
+// the Image Dashboard, so galleryImages[0] is what the user arranged to be first.
 // deno-lint-ignore no-explicit-any
 const buildPayload = (f: any, images: any[], ov: any, force: boolean) => {
   const pick = (field: string, master: unknown) =>
     !force && ov && ov[field] != null && ov[field] !== "" ? ov[field] : master;
-  const sorted = [...images].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  // Treat 0 / null / 9999 (the dashboard's "unset" markers) as last, like the dashboard.
+  // deno-lint-ignore no-explicit-any
+  const orderKey = (i: any) =>
+    (i.sort_order === 9999 || i.sort_order === 0 || i.sort_order == null) ? 999999 : i.sort_order;
+  const sorted = [...images].sort((a, b) => {
+    // Featured image is pinned first (matches the Image Dashboard), then sort_order.
+    const fa = a.is_feature_image ? 0 : 1;
+    const fb = b.is_feature_image ? 0 : 1;
+    if (fa !== fb) return fa - fb;
+    return orderKey(a) - orderKey(b);
+  });
   const gallery: string[] = sorted.map((i) => i.url).filter(Boolean);
   const feature = sorted.find((i) => i.is_feature_image)?.url ?? gallery[0] ?? null;
   return {

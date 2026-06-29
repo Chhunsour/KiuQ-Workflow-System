@@ -277,6 +277,21 @@ export const useCmsBlogPostsStore = defineStore('cmsBlogPosts', () => {
     }
   };
 
+  // ── Distribution: push published posts to connected sites (blog-sync) ──
+  const syncBlogs = async (
+    websiteIds?: string[]
+  ): Promise<{ ok: boolean; success: number; failed: number; posts: number; results: Array<{ website: string; ok: boolean; count?: number; error?: string }> }> => {
+    if (!supabaseConfigured) throw new Error('Supabase is not configured.');
+    const { data, error: err } = await supabase.functions.invoke('blog-sync', {
+      body: { action: 'sync', postIds: 'all', websiteIds: websiteIds ?? 'all' },
+    });
+    if (err) {
+      const ctx = (err as { context?: { error?: string } })?.context;
+      throw new Error(ctx?.error || err.message || 'Blog sync failed.');
+    }
+    return data as { ok: boolean; success: number; failed: number; posts: number; results: Array<{ website: string; ok: boolean; count?: number; error?: string }> };
+  };
+
   return {
     posts,
     loading,
@@ -292,6 +307,7 @@ export const useCmsBlogPostsStore = defineStore('cmsBlogPosts', () => {
     publishPost,
     unpublishPost,
     uploadPostImage,
+    syncBlogs,
     handleRealtimePayload,
   };
 });
