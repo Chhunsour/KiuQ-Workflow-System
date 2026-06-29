@@ -33,7 +33,10 @@ web/src-tauri/gen/
 web/src-tauri/WixTools/
 
 # WhatsApp Session Cache
-.wwebjs_auth/
-.wwebjs_cache/
 notification-service/.wwebjs_auth/
 notification-service/.wwebjs_cache/
+
+# Large binaries / archives
+supabase-go
+supabase.tar.gz
+

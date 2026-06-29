@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { supabase, supabaseConfigured } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/auth';
 import { optimizeImage } from '@/utils/imageOptimizer';
+import type { ProductType } from '@/lib/productIdentity';
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -33,7 +34,9 @@ export interface CmsProduct {
   id: string;
   productName: string;
   slug: string;
+  productType: ProductType | null;
   category: string;
+  compatibleWith: string[];
   shortDescription: string;
   fullDescription: string;
   productImages: CmsProductImage[];
@@ -63,7 +66,9 @@ const rowToProduct = (r: any): CmsProduct => ({
   id:               r.id,
   productName:      r.product_name ?? '',
   slug:             r.slug ?? '',
+  productType:      (r.product_type === 'equipment' || r.product_type === 'attachment') ? r.product_type : null,
   category:         r.category ?? '',
+  compatibleWith:   Array.isArray(r.compatible_with) ? r.compatible_with : [],
   shortDescription: r.short_description ?? '',
   fullDescription:  r.full_description ?? '',
   productImages:    Array.isArray(r.product_images) ? r.product_images : [],
@@ -89,7 +94,9 @@ const inputToRow = (input: CmsProductInput): Record<string, unknown> => {
   const row: Record<string, unknown> = {};
   if (input.productName      !== undefined) row['product_name']      = input.productName;
   if (input.slug             !== undefined) row['slug']              = input.slug;
+  if (input.productType      !== undefined) row['product_type']      = input.productType;
   if (input.category         !== undefined) row['category']          = input.category;
+  if (input.compatibleWith   !== undefined) row['compatible_with']   = input.compatibleWith;
   if (input.shortDescription !== undefined) row['short_description'] = input.shortDescription;
   if (input.fullDescription  !== undefined) row['full_description']  = input.fullDescription;
   if (input.productImages    !== undefined) row['product_images']    = input.productImages;
@@ -151,7 +158,7 @@ export const useCmsProductsStore = defineStore('cmsProducts', () => {
     try {
       const { data, error: err } = await supabase
         .from('cms_products')
-        .select('id,product_name,slug,category,short_description,full_description,product_images,price,specs,features,attachments,faq,seo_title,seo_description,status,created_by,updated_by,created_at,updated_at,published_at')
+        .select('id,product_name,slug,product_type,category,compatible_with,short_description,full_description,product_images,price,specs,features,attachments,faq,seo_title,seo_description,status,created_by,updated_by,created_at,updated_at,published_at')
         .order('updated_at', { ascending: false });
       if (err) { error.value = err.message; return; }
       products.value = (data ?? []).map(rowToProduct);
@@ -166,7 +173,7 @@ export const useCmsProductsStore = defineStore('cmsProducts', () => {
     if (!supabaseConfigured) return null;
     const { data, error: err } = await supabase
       .from('cms_products')
-      .select('id,product_name,slug,category,short_description,full_description,product_images,price,specs,features,attachments,faq,seo_title,seo_description,status,created_by,updated_by,created_at,updated_at,published_at')
+      .select('id,product_name,slug,product_type,category,compatible_with,short_description,full_description,product_images,price,specs,features,attachments,faq,seo_title,seo_description,status,created_by,updated_by,created_at,updated_at,published_at')
       .eq('id', id)
       .maybeSingle();
     if (err) {

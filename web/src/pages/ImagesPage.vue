@@ -105,6 +105,32 @@
             </svg>
             {{ $t('mediaLibrary.exportCsvFile') }}
           </button>
+          <button 
+            v-if="!auth.isQualityChecker"
+            type="button"
+            class="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="selectedFolderIds.length === 0"
+            :title="selectedFolderIds.length === 0 ? 'Select at least one product to export.' : ''"
+            @click="triggerSelectedCsvExport"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Export Selected ({{ selectedFolderIds.length }})
+          </button>
+          <button
+            v-if="!auth.isQualityChecker"
+            type="button"
+            class="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1.5"
+            @click="showImportModal = true"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><circle cx="12" cy="12" r="3" />
+            </svg>
+            Scan &amp; Import
+          </button>
           <button type="button" class="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1.5" @click="uploaderExpanded = !uploaderExpanded">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
@@ -157,24 +183,329 @@
     <!-- ════════ MEDIA MANAGER PANEL ════════ -->
     <div class="img-manager-layout">
       <!-- ─── Left Folder Sidebar ─── -->
-      <aside class="card p-3 shrink-0 w-full md:w-[280px] md:max-h-[700px] flex flex-col gap-3">
+      <aside class="card p-3 shrink-0 w-full md:w-[280px] md:max-h-[calc(100vh-2rem)] flex flex-col gap-3">
         <!-- Desktop sidebar header: hidden on mobile -->
         <div class="hidden md:flex items-center justify-between border-b border-border pb-2">
           <h3 class="text-xs font-bold uppercase tracking-wider text-text-soft">{{ $t('mediaLibrary.folders') }}</h3>
-          <button type="button" class="text-xs text-primary font-bold flex items-center gap-0.5 hover:underline" @click="onAddFolderClick">
-            + {{ $t('mediaLibrary.new') }}
-          </button>
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              class="text-xs font-bold flex items-center gap-0.5 hover:underline"
+              :class="folderSelectMode ? 'text-status-needs-fix-fg' : 'text-text-soft hover:text-text-main'"
+              @click="toggleFolderSelectMode"
+            >
+              {{ folderSelectMode ? $t('mediaLibrary.cancel') : $t('mediaLibrary.select') }}
+            </button>
+            <button v-if="!folderSelectMode" type="button" class="text-xs text-primary font-bold flex items-center gap-0.5 hover:underline" @click="onAddFolderClick">
+              + {{ $t('mediaLibrary.new') }}
+            </button>
+          </div>
         </div>
 
-        <!-- Folder Search: hidden on mobile -->
-        <div class="hidden md:block">
+        <!-- Select-mode action bar (desktop & mobile responsive) -->
+        <div v-if="folderSelectMode" class="flex flex-col gap-2 bg-soft/30 border border-border rounded-xl p-2 text-left shrink-0">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-text-main">
+              {{ selectedFolderIds.length }} {{ selectedFolderIds.length === 1 ? 'product selected' : 'products selected' }}
+            </span>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                class="text-[10px] font-bold text-primary hover:underline cursor-pointer"
+                @click="selectAllVisibleFolders"
+              >
+                Select All Visible
+              </button>
+              <span class="text-text-muted text-[10px]">•</span>
+              <button
+                type="button"
+                class="text-[10px] font-bold text-text-soft hover:underline cursor-pointer"
+                @click="selectedFolderIds = []"
+              >
+                Clear Selection
+              </button>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-1.5">
+            <!-- Export Selected Products Button -->
+            <button
+              type="button"
+              class="flex items-center justify-center gap-1 text-[10px] font-bold px-2 py-1.5 rounded-lg bg-primary text-white hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 cursor-pointer"
+              :disabled="selectedFolderIds.length === 0"
+              :title="selectedFolderIds.length === 0 ? 'Select at least one product to export.' : ''"
+              @click="triggerSelectedCsvExport"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Export Selected
+            </button>
+            
+            <!-- Move to Trash Button -->
+            <button
+              type="button"
+              class="flex items-center justify-center gap-1 text-[10px] font-bold px-2 py-1.5 rounded-lg border border-status-needs-fix-bg/60 text-status-needs-fix-fg hover:bg-status-needs-fix-bg/15 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 cursor-pointer"
+              :disabled="selectedFolderIds.length === 0 || processingTrash"
+              @click="moveSelectedToTrash"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              </svg>
+              Move to Trash
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Search & Collapsible Filter Panel -->
+        <div class="md:hidden flex flex-col gap-2 shrink-0 p-1">
+          <div class="flex items-center justify-between gap-2">
+            <input
+              v-model="folderSearchQuery"
+              type="text"
+              placeholder="Search folders..."
+              class="flex-1 bg-soft text-xs border border-border/80 rounded-full px-3 py-1.5 focus:outline-none text-text-main placeholder:text-text-soft"
+            />
+            <button
+              type="button"
+              class="px-3 py-1.5 rounded-full border text-[11px] font-bold flex items-center gap-1 transition-all"
+              :class="hasActiveFolderFilters ? 'bg-primary-soft text-primary border-primary/20' : 'bg-soft/40 border-border text-text-muted hover:text-text-main'"
+              @click="showMobileFilters = !showMobileFilters"
+            >
+              <span>Filters</span>
+              <span v-if="activeFiltersCount > 0" class="bg-primary text-white text-[9px] px-1 rounded-full font-bold font-mono">{{ activeFiltersCount }}</span>
+            </button>
+          </div>
+
+          <!-- Mobile Filters Drawer Content -->
+          <div v-if="showMobileFilters" class="flex flex-col gap-2.5 p-3 bg-soft/10 border border-border/60 rounded-xl mt-1 text-left transition-all">
+            <div class="flex items-center justify-between text-[10px] font-bold text-text-soft uppercase tracking-wider">
+              <span>Filter Options</span>
+              <button
+                v-if="hasActiveFolderFilters"
+                type="button"
+                class="text-primary hover:underline text-[9px] font-bold lowercase"
+                @click="clearFolderFilters"
+              >
+                Clear Filters
+              </button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+              <!-- Type Dropdown -->
+              <div class="space-y-1">
+                <label class="block font-bold text-text-soft uppercase tracking-wider text-[8px]">Type</label>
+                <div class="custom-dropdown-container relative w-full">
+                  <button
+                    type="button"
+                    class="w-full flex items-center justify-between gap-1.5 px-2 py-1.5 bg-soft/60 border border-border/80 rounded-lg text-[11px] text-text-main font-semibold hover:border-primary/40 focus:outline-none"
+                    @click.stop="openProductTypeDropdown = !openProductTypeDropdown; openMachineCategoryDropdown = false"
+                  >
+                    <span class="truncate">{{ getProductTypeFilterLabel(filterFolderProductType) }}</span>
+                    <svg class="w-2.5 h-2.5 text-text-soft shrink-0 transition-transform" :class="openProductTypeDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+                  </button>
+                  <div v-if="openProductTypeDropdown" class="absolute z-50 mt-1 w-full rounded-lg border border-border bg-[#f6f8fa] dark:bg-[#1b1c1e] p-1 shadow-lg max-h-48 overflow-y-auto">
+                    <button
+                      v-for="opt in productTypeFilterOptions"
+                      :key="opt.value"
+                      type="button"
+                      class="w-full text-left px-2 py-1 rounded text-[11px] font-semibold text-text-main hover:bg-soft transition-colors flex items-center gap-1.5"
+                      @click.stop="selectFilterProductType(opt.value)"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="getProductTypeMarkerClass(opt.value)"></span>
+                      <span>{{ opt.label }}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Category Dropdown -->
+              <div class="space-y-1">
+                <label class="block font-bold text-text-soft uppercase tracking-wider text-[8px]">Category</label>
+                <div class="custom-dropdown-container relative w-full">
+                  <button
+                    type="button"
+                    class="w-full flex items-center justify-between gap-1.5 px-2 py-1.5 bg-soft/60 border border-border/80 rounded-lg text-[11px] text-text-main font-semibold hover:border-primary/40 focus:outline-none disabled:opacity-40"
+                    :disabled="filterFolderProductType === 'all'"
+                    @click.stop="openMachineCategoryDropdown = !openMachineCategoryDropdown; openProductTypeDropdown = false"
+                  >
+                    <span class="truncate">{{ getMachineCategoryFilterLabel(filterFolderMachineCategory) }}</span>
+                    <svg class="w-2.5 h-2.5 text-text-soft shrink-0 transition-transform" :class="openMachineCategoryDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+                  </button>
+                  <div v-if="openMachineCategoryDropdown" class="absolute z-50 mt-1 w-full rounded-lg border border-border bg-[#f6f8fa] dark:bg-[#1b1c1e] p-1 shadow-lg flex flex-col gap-1 min-w-[160px]">
+                    <div class="px-1.5 py-1 flex items-center gap-1 bg-soft/40 border border-border/40 rounded m-1">
+                      <input
+                        v-model="machineCategorySearch"
+                        type="text"
+                        placeholder="Search..."
+                        class="bg-transparent border-none text-[9px] outline-none text-text-main w-full"
+                        @click.stop
+                      />
+                    </div>
+                    <div class="max-h-40 overflow-y-auto p-0.5 flex flex-col gap-0.5 scrollbar-thin">
+                      <button
+                        v-for="opt in filteredMachineCategoryOptions"
+                        :key="opt.value"
+                        type="button"
+                        class="w-full text-left px-2 py-1 rounded text-[11px] font-semibold text-text-main hover:bg-soft transition-colors"
+                        @click.stop="selectFilterMachineCategory(opt.value)"
+                      >
+                        <span>{{ opt.label }}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Search & Redesigned Filters Panel -->
+        <div class="hidden md:flex flex-col gap-2.5">
+          <!-- Search folders -->
           <input
             v-model="folderSearchQuery"
             type="text"
             :placeholder="$t('mediaLibrary.searchFolders')"
             class="w-full bg-soft text-xs border border-border/80 rounded px-2.5 py-1.5 focus:outline-none focus:border-primary placeholder:text-text-soft"
           />
+
+          <!-- Clean Filters Header -->
+          <div class="flex items-center justify-between text-[10px] font-bold text-text-soft uppercase tracking-wider border-b border-border/30 pb-1">
+            <span>Folder Filters</span>
+            <button
+              v-if="hasActiveFolderFilters"
+              type="button"
+              class="text-primary hover:underline text-[9px] font-bold lowercase transition-all"
+              @click="clearFolderFilters"
+            >
+              Clear Filters
+            </button>
+          </div>
+
+          <!-- Product Type custom dropdown trigger -->
+          <div class="space-y-1">
+            <label class="block font-bold text-text-soft uppercase tracking-wider text-[8px]">Product Type</label>
+            <div class="custom-dropdown-container relative w-full">
+              <button
+                type="button"
+                class="w-full flex items-center justify-between gap-1.5 px-2.5 py-1.5 bg-soft/50 hover:bg-soft border border-border/80 hover:border-primary/40 rounded-lg text-xs text-text-main font-semibold focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer"
+                @click.stop="openProductTypeDropdown = !openProductTypeDropdown; openMachineCategoryDropdown = false"
+              >
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="getProductTypeMarkerClass(filterFolderProductType)"></span>
+                  <span class="truncate">{{ getProductTypeFilterLabel(filterFolderProductType) }}</span>
+                </div>
+                <svg class="w-2.5 h-2.5 text-text-soft shrink-0 transition-transform" :class="openProductTypeDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+              
+              <!-- Product Type dropdown popover -->
+              <div v-if="openProductTypeDropdown" class="absolute z-50 mt-1 w-full rounded-lg border border-border bg-[#f6f8fa] dark:bg-[#1b1c1e] p-1 shadow-lg max-h-60 overflow-y-auto">
+                <button
+                  v-for="opt in productTypeFilterOptions"
+                  :key="opt.value"
+                  type="button"
+                  class="w-full text-left px-2 py-1.5 rounded text-xs font-semibold text-text-main hover:bg-soft transition-colors flex items-center gap-1.5"
+                  :class="filterFolderProductType === opt.value ? 'bg-primary-soft/10 text-primary font-bold' : ''"
+                  @click.stop="selectFilterProductType(opt.value)"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="getProductTypeMarkerClass(opt.value)"></span>
+                  <span>{{ opt.label }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Machine Category custom dropdown trigger -->
+          <div class="space-y-1">
+            <label class="block font-bold text-text-soft uppercase tracking-wider text-[8px]">Machine Category</label>
+            <div class="custom-dropdown-container relative w-full">
+              <button
+                type="button"
+                class="w-full flex items-center justify-between gap-1.5 px-2.5 py-1.5 bg-soft/50 hover:bg-soft border border-border/80 hover:border-primary/40 rounded-lg text-xs text-text-main font-semibold focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                :disabled="filterFolderProductType === 'all'"
+                @click.stop="openMachineCategoryDropdown = !openMachineCategoryDropdown; openProductTypeDropdown = false"
+              >
+                <span class="truncate">{{ getMachineCategoryFilterLabel(filterFolderMachineCategory) }}</span>
+                <svg class="w-2.5 h-2.5 text-text-soft shrink-0 transition-transform" :class="openMachineCategoryDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+              
+              <!-- Machine Category dropdown popover with search inside -->
+              <div v-if="openMachineCategoryDropdown" class="absolute z-50 mt-1 w-full min-w-[200px] rounded-lg border border-border bg-[#f6f8fa] dark:bg-[#1b1c1e] p-1 shadow-lg flex flex-col gap-1">
+                <div class="px-2 py-1 flex items-center gap-1 bg-soft/40 border border-border/40 rounded m-1">
+                  <input
+                    v-model="machineCategorySearch"
+                    type="text"
+                    placeholder="Search categories..."
+                    class="bg-transparent border-none text-[10px] outline-none text-text-main w-full placeholder:text-text-soft"
+                    @click.stop
+                  />
+                  <button v-if="machineCategorySearch" type="button" class="text-text-soft hover:text-text-main text-[9px] font-bold" @click.stop="machineCategorySearch = ''">✕</button>
+                </div>
+                <div class="max-h-48 overflow-y-auto p-0.5 flex flex-col gap-0.5 scrollbar-thin">
+                  <button
+                    v-for="opt in filteredMachineCategoryOptions"
+                    :key="opt.value"
+                    type="button"
+                    class="w-full text-left px-2 py-1.5 rounded text-xs font-semibold text-text-main hover:bg-soft transition-colors flex items-center justify-between"
+                    :class="filterFolderMachineCategory === opt.value ? 'bg-primary-soft/10 text-primary font-bold' : ''"
+                    @click.stop="selectFilterMachineCategory(opt.value)"
+                  >
+                    <span>{{ opt.label }}</span>
+                    <span v-if="filterFolderMachineCategory === opt.value" class="text-primary text-[10px]">✓</span>
+                  </button>
+                  <div v-if="filteredMachineCategoryOptions.length === 0" class="px-2 py-3 text-center text-text-soft text-[10px] italic">
+                    No results found
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Filter Badges Container -->
+          <div v-if="hasActiveFolderFilters" class="flex flex-wrap gap-1 border-t border-border/30 pt-2 transition-all">
+            <span
+              v-if="filterFolderProductType !== 'all'"
+              class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-wider transition-colors hover:bg-primary/15"
+            >
+              <span>Type: {{ filterFolderProductType }}</span>
+              <button type="button" class="hover:text-primary-hover font-bold text-[8px] cursor-pointer" @click="filterFolderProductType = 'all'">✕</button>
+            </span>
+            <span
+              v-if="filterFolderMachineCategory !== 'all'"
+              class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-wider transition-colors hover:bg-primary/15"
+            >
+              <span>MC: {{ filterFolderMachineCategory === 'not_set' ? 'Not Set' : filterFolderMachineCategory }}</span>
+              <button type="button" class="hover:text-primary-hover font-bold text-[8px] cursor-pointer" @click="filterFolderMachineCategory = 'all'">✕</button>
+            </span>
+          </div>
         </div>
+
+        <!-- Missing-info filter: surfaces folders missing any product field -->
+        <button
+          type="button"
+          class="hidden md:flex items-center justify-between gap-2 w-full rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition-colors"
+          :class="folderMissingFilter
+            ? 'border-amber-500/60 bg-amber-500/15 text-amber-500'
+            : 'border-border text-text-muted hover:text-text-main hover:bg-soft/20'"
+          @click="folderMissingFilter = !folderMissingFilter"
+        >
+          <span class="flex items-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            {{ folderMissingFilter ? $t('mediaLibrary.missingFilterOn') : $t('mediaLibrary.missingFilter') }}
+          </span>
+          <span
+            v-if="incompleteFolderCount > 0"
+            class="shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none"
+            :class="folderMissingFilter ? 'bg-amber-500 text-white' : 'bg-amber-500/20 text-amber-500'"
+          >{{ incompleteFolderCount }}</span>
+        </button>
 
         <!-- Inline Folder Creator on Desktop -->
         <div v-if="showNewFolderInput" class="hidden md:flex border border-border/60 rounded bg-soft/50 p-2 flex-col gap-2">
@@ -194,7 +525,10 @@
         </div>
 
         <!-- Folder list -->
-        <ul class="folder-list-scroll flex md:flex-col gap-1.5 md:gap-0.5 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-none whitespace-nowrap md:whitespace-normal">
+        <ul
+          class="folder-list-scroll flex md:flex-col gap-1.5 md:gap-0.5 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-none whitespace-nowrap md:whitespace-normal"
+          :class="{ 'scroll-active': shouldScrollFolders }"
+        >
           <!-- New Folder button on mobile -->
           <li
             class="md:hidden inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer border border-dashed border-border text-text-muted bg-soft/30 hover:bg-soft shrink-0"
@@ -248,32 +582,88 @@
 
           <!-- Custom User Folders -->
           <li
-            v-for="folder in filteredFolders"
+            v-for="(folder, index) in filteredFolders"
             :key="folder.id"
             class="folder-row relative group"
-            :class="{ active: currentFolder === folder.id, 'drag-over': dragOverFolderId === folder.id }"
-            @click="currentFolder = folder.id"
+            :class="{ active: !folderSelectMode && currentFolder === folder.id, 'drag-over': dragOverFolderId === folder.id, 'folder-selected': folderSelectMode && selectedFolderIds.includes(folder.id) }"
+            @click="folderSelectMode ? toggleFolderSelection(folder.id) : (currentFolder = folder.id)"
             @dragover.prevent
-            @dragenter.prevent="dragOverFolderId = folder.id"
+            @dragenter.prevent="!folderSelectMode && (dragOverFolderId = folder.id)"
             @dragleave="onDragLeaveFolder(folder.id)"
-            @drop="onImageDrop($event, folder.id)"
+            @drop="!folderSelectMode && onImageDrop($event, folder.id)"
             :title="folder.name"
           >
+            <!-- Selection checkbox (select mode) -->
+            <input
+              v-if="folderSelectMode"
+              type="checkbox"
+              class="shrink-0 w-3.5 h-3.5 accent-primary cursor-pointer"
+              :checked="selectedFolderIds.includes(folder.id)"
+              :disabled="!canManageFolder(folder)"
+              :title="!canManageFolder(folder) ? $t('mediaLibrary.deleteSelectNoneHint') : ''"
+              @click.stop="canManageFolder(folder) && toggleFolderSelection(folder.id)"
+            />
             <span class="folder-icon" v-html="ICON_SVG.folder" />
             
-            <!-- Inline Folder Rename Input -->
-            <input
-              v-if="editingFolderId === folder.id"
-              ref="renameFolderInputRef"
-              v-model="editFolderInput"
-              type="text"
-              class="bg-card border border-primary text-[11px] rounded px-1.5 py-0.5 focus:outline-none text-text-main w-full"
-              @blur="saveFolderRename(folder.id)"
-              @keyup.enter="saveFolderRename(folder.id)"
-              @keyup.esc="editingFolderId = null"
-              @click.stop
-            />
-            <span v-else class="folder-name truncate">{{ folder.name }}</span>
+            <!-- Stacking folder details (desktop and mobile responsive) -->
+            <div class="flex flex-col min-w-0 py-1 text-left">
+              <!-- Inline Folder Rename Input -->
+              <input
+                v-if="editingFolderId === folder.id"
+                ref="renameFolderInputRef"
+                v-model="editFolderInput"
+                type="text"
+                class="bg-card border border-primary text-[11px] rounded px-1.5 py-0.5 focus:outline-none text-text-main w-full"
+                @blur="saveFolderRename(folder.id)"
+                @keyup.enter="saveFolderRename(folder.id)"
+                @keyup.esc="editingFolderId = null"
+                @click.stop
+              />
+              <span v-else class="folder-name truncate text-[11px] font-bold text-text-main leading-tight" :title="folder.name">{{ folder.name }}</span>
+              
+              <!-- Matched WooCommerce product name (if different) -->
+              <span v-if="folder.matched_product_title && folder.matched_product_title !== folder.name" class="text-[9px] text-text-soft truncate leading-tight font-semibold mt-0.5">
+                Prod: {{ folder.matched_product_title }}
+              </span>
+
+              <!-- SKU badge, Product Type & Machine Category path -->
+              <span class="text-[9px] text-text-soft mt-0.5 truncate leading-tight">
+                <span v-if="folder.sku" class="font-mono text-text-main bg-soft px-1 rounded-sm text-[8px] mr-1">SKU: {{ folder.sku }}</span>
+                <span v-else class="text-text-muted/60 mr-1">[No SKU]</span>
+                
+                <template v-if="folder.product_type">
+                  <span class="capitalize font-semibold">{{ folder.product_type }}</span> &gt; <span class="font-semibold">{{ folder.machine_category || 'Not Set' }}</span>
+                </template>
+                <template v-else>
+                  Machine Category: Not Set
+                </template>
+              </span>
+              
+              <!-- Completion Status Info -->
+              <span class="text-[9px] mt-0.5 flex items-center gap-1.5">
+                <span
+                  class="w-1.5 h-1.5 rounded-full shrink-0"
+                  :class="isFolderMissingInfo(folder) ? 'bg-amber-500' : 'bg-emerald-500'"
+                ></span>
+                <span class="text-[8px] text-text-muted font-semibold">
+                  {{ isFolderMissingInfo(folder) ? 'Incomplete' : 'Ready' }}
+                </span>
+                <span v-if="folder.match_verified_by_user" class="text-sky-400 font-extrabold text-[8px]">✓ Verified</span>
+              </span>
+            </div>
+
+            <!-- Missing-info indicator -->
+            <span
+              v-if="editingFolderId !== folder.id && !folderSelectMode && isFolderMissingInfo(folder)"
+              class="shrink-0 text-amber-500"
+              :title="folderMissingSummary(folder)"
+              aria-label="Missing product info"
+              @click.stop="currentFolder = folder.id"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </span>
 
             <!-- Folder count -->
             <span v-if="editingFolderId !== folder.id" class="folder-count">
@@ -289,49 +679,10 @@
                 type="button"
                 class="desktop-action-btn p-0.5 hover:text-text-main hover:bg-soft rounded text-text-soft transition-all duration-200"
                 :class="{ 'menu-open': activeFolderMenuId === folder.id }"
-                @click.stop="toggleFolderMenu(folder.id)"
+                @click.stop="toggleFolderMenu(folder, $event)"
               >
                 <span v-html="ICON_SVG.dots" />
               </button>
-
-              <!-- Folder Actions Dropdown (Desktop only) -->
-              <div
-                v-if="activeFolderMenuId === folder.id"
-                class="absolute right-0 top-7 z-10 w-44 bg-card border border-border shadow-lg rounded-btn py-1"
-                v-click-outside="closeFolderMenu"
-              >
-                <button
-                  v-if="canManageFolder(folder)"
-                  type="button"
-                  class="w-full text-left px-3 py-1.5 text-xs text-text-main hover:bg-soft flex items-center gap-1.5"
-                  @click.stop="startFolderRename(folder)"
-                >
-                  {{ $t('mediaLibrary.rename') }}
-                </button>
-                <button
-                  v-if="canManageFolder(folder)"
-                  type="button"
-                  class="w-full text-left px-3 py-1.5 text-xs text-status-needs-fix-fg hover:bg-soft flex items-center gap-1.5"
-                  @click.stop="deleteFolder(folder.id)"
-                >
-                  {{ $t('mediaLibrary.deleteFolder') }}
-                </button>
-                <button
-                  type="button"
-                  class="w-full text-left px-3 py-1.5 text-xs text-text-main hover:bg-soft flex items-center gap-1.5"
-                  @click.stop="copyFolderLink(folder.id)"
-                >
-                  {{ $t('mediaLibrary.copyLink') }}
-                </button>
-                <button
-                  v-if="selectedImageKeys.length > 0"
-                  type="button"
-                  class="w-full text-left px-3 py-1.5 text-xs text-primary hover:bg-soft flex items-center gap-1.5 font-bold border-t border-border/40 mt-1"
-                  @click.stop="bulkMoveToFolder(folder.id)"
-                >
-                  {{ $t('mediaLibrary.moveSelectedHere') }}
-                </button>
-              </div>
 
               <!-- Mobile Folder Actions Menu Trigger -->
               <button
@@ -343,6 +694,24 @@
                 <span v-html="ICON_SVG.dots" class="scale-90" />
               </button>
             </div>
+          </li>
+
+          <!-- Trash bin -->
+          <li
+            v-if="trashedFolders.length > 0"
+            class="folder-row select-none md:mt-1 md:border-t md:border-border/40 md:pt-2 shrink-0"
+            :class="{ active: showTrashModal }"
+            @click="showTrashModal = true"
+            :title="$t('mediaLibrary.trash')"
+          >
+            <span class="folder-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              </svg>
+            </span>
+            <span class="folder-name truncate">{{ $t('mediaLibrary.trash') }}</span>
+            <span class="folder-count">{{ trashedFolders.length }}</span>
+            <div class="w-[16px] h-5 hidden md:block"></div>
           </li>
         </ul>
       </aside>
@@ -1200,24 +1569,68 @@
           <!-- Content Details Preview -->
           <div v-if="hasFolderContent(activeFolderObj)" class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-border/40 pt-3 text-xs">
             <div class="md:col-span-2 space-y-3.5">
-              <div v-if="activeFolderObj.short_description">
+              <div v-if="activeFolderObj.short_description && !isMetadataOnlyText(activeFolderObj.short_description)">
                 <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.shortDescription') }}</span>
                 <p class="text-text-main font-medium leading-relaxed">
                   {{ activeFolderObj.short_description }}
                 </p>
               </div>
+              <div v-else-if="activeFolderObj.short_description && isMetadataOnlyText(activeFolderObj.short_description)">
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.shortDescription') }}</span>
+                <p class="text-status-needs-fix-fg font-semibold">Invalid Short Description</p>
+              </div>
 
               <!-- Full description View option (renders HTML from rich editor) -->
-              <div v-if="activeFolderObj.description">
+              <div v-if="activeFolderObj.description && !isMetadataOnlyText(activeFolderObj.description)">
                 <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.fullDescription') }}</span>
                 <div class="fde-preview text-text-main font-light leading-relaxed max-h-40 overflow-y-auto text-xs" v-html="activeFolderObj.description"></div>
+              </div>
+              <div v-else-if="activeFolderObj.description && isMetadataOnlyText(activeFolderObj.description)">
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.fullDescription') }}</span>
+                <p class="text-status-needs-fix-fg font-semibold">Invalid Description</p>
               </div>
             </div>
 
             <div class="space-y-3 md:border-l md:border-border/40 md:pl-4">
               <div>
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.productType') }}</span>
+                <span
+                  v-if="activeFolderObj.product_type"
+                  class="inline-block px-2 py-0.5 rounded-md bg-primary/10 text-primary font-bold text-[10px] uppercase tracking-wider"
+                >{{ productTypeLabel(activeFolderObj.product_type) }}</span>
+                <span v-else class="text-text-muted italic">{{ $t('mediaLibrary.notSet') }}</span>
+              </div>
+
+              <div>
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.machineCategory') }}</span>
+                <span
+                  v-if="activeFolderObj.machine_category"
+                  class="inline-block px-2 py-0.5 rounded-md bg-primary/10 text-primary font-bold text-[10px] uppercase tracking-wider"
+                >{{ activeFolderObj.machine_category }}</span>
+                <span v-else class="text-text-muted italic">{{ $t('mediaLibrary.notSet') }}</span>
+              </div>
+
+              <div>
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.sku') }}</span>
+                <span v-if="activeFolderObj.sku" class="text-text-main font-mono font-semibold break-all">{{ activeFolderObj.sku }}</span>
+                <span v-else class="text-text-muted italic">{{ $t('mediaLibrary.notSet') }}</span>
+              </div>
+
+              <div>
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">GTIN</span>
+                <span v-if="activeFolderObj.gtin || activeFolderObj.product_gtin" class="text-text-main font-mono font-semibold break-all">{{ activeFolderObj.gtin || activeFolderObj.product_gtin }}</span>
+                <span v-else class="text-text-muted italic">{{ $t('mediaLibrary.notSet') }}</span>
+              </div>
+
+              <div>
+                <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.price') }}</span>
+                <span v-if="activeFolderObj.product_price" class="text-text-main font-semibold break-words">{{ activeFolderObj.product_price }}</span>
+                <span v-else class="text-text-muted italic">{{ $t('mediaLibrary.notSet') }}</span>
+              </div>
+
+              <div>
                 <span class="text-text-muted font-bold block uppercase tracking-wider text-[9px] mb-0.5">{{ $t('mediaLibrary.buttonUrl') }}</span>
-                <div v-if="activeFolderObj.button_url" class="flex items-center gap-1.5">
+                <div v-if="activeFolderObj.button_url && isLinkLikeUrl(activeFolderObj.button_url)" class="flex items-center gap-1.5">
                   <a
                     :href="activeFolderObj.button_url"
                     target="_blank"
@@ -1230,6 +1643,7 @@
                     </svg>
                   </a>
                 </div>
+                <span v-else-if="activeFolderObj.button_url" class="text-text-main font-mono break-all">{{ activeFolderObj.button_url }}</span>
                 <span v-else class="text-text-muted italic">{{ $t('mediaLibrary.noLinkAdded') }}</span>
               </div>
 
@@ -1496,8 +1910,8 @@
     <!-- ════════ CSV EXPORT MODAL ════════ -->
     <Modal
       :open="showExportModal"
-      :title="$t('mediaLibrary.exportFoldersTitle')"
-      :subtitle="$t('mediaLibrary.exportFoldersSubtitle')"
+      :title="$t('mediaLibrary.manageFoldersTitle')"
+      :subtitle="$t('mediaLibrary.manageFoldersSubtitle')"
       size="xl"
       @close="showExportModal = false"
     >
@@ -1700,8 +2114,74 @@
                 <h4 class="font-bold text-[8.5px] text-text-soft uppercase tracking-wider">{{ $t('mediaLibrary.exportOptions') }}</h4>
                 
                 <div class="space-y-2">
+                  <!-- Option: Export Scope (Export Selected vs Filtered vs All) -->
+                  <div class="space-y-1 text-left">
+                    <span class="font-semibold text-text-main text-[10px] block leading-tight">Export Scope</span>
+                    <div class="flex flex-col gap-1 bg-soft/30 p-1.5 rounded-lg border border-border/40">
+                      <label class="flex items-center gap-1.5 cursor-pointer text-[10px] text-text-main">
+                        <input type="radio" value="selected" v-model="exportScope" class="accent-primary" />
+                        <span>Selected Products Only ({{ selectedExportFolderIds.length }} selected)</span>
+                      </label>
+                      <label class="flex items-center gap-1.5 cursor-pointer text-[10px] text-text-main">
+                        <input type="radio" value="filtered" v-model="exportScope" class="accent-primary" />
+                        <span>Filtered Dashboard Products ({{ filteredFolders.length }} visible)</span>
+                      </label>
+                      <label class="flex items-center gap-1.5 cursor-pointer text-[10px] text-text-main">
+                        <input type="radio" value="all" v-model="exportScope" class="accent-primary" />
+                        <span>All Products ({{ customFolders.length }} total)</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Option: Output format (CSV plain-text vs JSON HTML-preserving) -->
+                  <div class="space-y-1">
+                    <span class="font-semibold text-text-main text-[10px] block leading-tight">{{ $t('mediaLibrary.exportFormatLabel') }}</span>
+                    <div class="flex gap-1">
+                      <button
+                        type="button"
+                        @click="exportFormat = 'csv'"
+                        :class="exportFormat === 'csv' ? 'bg-primary text-white border-primary' : 'bg-card/30 text-text-muted border-border'"
+                        class="flex-1 px-2 py-1 text-[9px] font-bold uppercase tracking-wider rounded-lg border transition-colors"
+                      >CSV</button>
+                      <button
+                        type="button"
+                        @click="exportFormat = 'json'"
+                        :class="exportFormat === 'json' ? 'bg-primary text-white border-primary' : 'bg-card/30 text-text-muted border-border'"
+                        class="flex-1 px-2 py-1 text-[9px] font-bold uppercase tracking-wider rounded-lg border transition-colors"
+                      >JSON</button>
+                    </div>
+                  </div>
+
+                  <!-- CSV Specific Layout Options -->
+                  <div v-if="exportFormat === 'csv'" class="space-y-2 border-t border-border/30 pt-1.5">
+                    <!-- CSV Format Type -->
+                    <div class="space-y-1 text-left">
+                      <span class="font-semibold text-text-main text-[10px] block leading-tight">CSV Export Format</span>
+                      <select
+                        v-model="csvExportType"
+                        class="w-full bg-soft border border-border/80 rounded-lg px-2 py-1 text-[10px] text-text-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+                      >
+                        <option value="woocommerce">WordPress/WooCommerce CSV</option>
+                        <option value="framework">Framework CSV</option>
+                        <option value="simple">Simple CSV</option>
+                      </select>
+                    </div>
+
+                    <!-- Include Header Row Checkbox -->
+                    <label class="flex items-center gap-1.5 cursor-pointer select-none text-left">
+                      <input
+                        type="checkbox"
+                        v-model="exportIncludeHeaderRow"
+                        class="rounded border-border text-primary focus:ring-primary/20 accent-primary h-3.5 w-3.5"
+                      />
+                      <span class="font-semibold text-text-main text-[10px]">Include Header Row</span>
+                    </label>
+                  </div>
+
+                  <hr class="border-border/40 my-1.5" />
+
                   <!-- Option: Skip Empty -->
-                  <label class="flex items-start gap-1.5 cursor-pointer select-none group">
+                  <label class="flex items-start gap-1.5 cursor-pointer select-none group text-left">
                     <input
                       type="checkbox"
                       v-model="skipEmptyFolders"
@@ -1714,7 +2194,7 @@
                   </label>
                   
                   <!-- Option: Include folders without feature image -->
-                  <label class="flex items-start gap-1.5 cursor-pointer select-none group">
+                  <label class="flex items-start gap-1.5 cursor-pointer select-none group text-left">
                     <input
                       type="checkbox"
                       v-model="includeNoFeatureFolders"
@@ -1727,7 +2207,7 @@
                   </label>
 
                   <!-- Option: Include folder content fields -->
-                  <label class="flex items-start gap-1.5 cursor-pointer select-none group">
+                  <label class="flex items-start gap-1.5 cursor-pointer select-none group text-left">
                     <input
                       type="checkbox"
                       v-model="exportIncludeContentFields"
@@ -1742,7 +2222,7 @@
                   <hr class="border-border/40 my-1.5" />
 
                   <!-- Locked/Always-on features in premium representation -->
-                  <div class="space-y-1 bg-card/20 p-1.5 rounded-lg border border-border/40">
+                  <div class="space-y-1 bg-card/20 p-1.5 rounded-lg border border-border/40 text-left">
                     <div class="text-[8px] text-text-soft font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
                       <svg class="w-2.5 h-2.5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -1837,26 +2317,868 @@
               type="button"
               class="btn-ghost py-1 px-3.5 text-[11px] font-semibold h-8 rounded-lg transition-all"
               @click="showExportModal = false"
-              :disabled="exportingCsv"
+              :disabled="exportingCsv || processingTrash"
             >
               {{ $t('mediaLibrary.cancel') }}
             </button>
-            
+
+            <!-- Move selected folders to Trash (reversible) -->
+            <button
+              type="button"
+              class="py-1 px-4 text-[11px] font-bold h-8 rounded-lg flex items-center gap-1.5 border border-status-needs-fix-bg/60 text-status-needs-fix-fg hover:bg-status-needs-fix-bg/15 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              @click="deleteSelectedFolders"
+              :disabled="exportingCsv || processingTrash || deletableSelectedFolderIds.length === 0"
+              :title="deletableSelectedFolderIds.length === 0 ? $t('mediaLibrary.deleteSelectNoneHint') : ''"
+            >
+              <svg v-if="processingTrash" class="animate-spin -ml-0.5" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              </svg>
+              {{ $t('mediaLibrary.moveToTrashBtn', { count: deletableSelectedFolderIds.length }) }}
+            </button>
+
             <button
               type="button"
               class="btn-primary py-1 px-4 text-[11px] font-bold h-8 rounded-lg shadow-md flex items-center gap-1.5 hover:scale-[1.01] active:scale-[0.99] transition-all"
               @click="triggerCsvExport"
-              :disabled="exportingCsv || selectedExportFolderIds.length === 0 || selectedFoldersStats.readyFoldersCount === 0"
+              :disabled="exportingCsv || processingTrash || selectedExportFolderIds.length === 0 || selectedFoldersStats.readyFoldersCount === 0"
             >
               <svg v-if="exportingCsv" class="animate-spin -ml-0.5 mr-1" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {{ exportingCsv ? $t('mediaLibrary.exporting') : $t('mediaLibrary.exportSelectedCsv') }}
+              {{ exportingCsv ? $t('mediaLibrary.exporting') : (exportFormat === 'json' ? $t('mediaLibrary.exportSelectedJson') : $t('mediaLibrary.exportSelectedCsv')) }}
             </button>
           </div>
         </div>
       </template>
+    </Modal>
+
+    <!-- ════════ TRASH MODAL ════════ -->
+    <Modal
+      :open="showTrashModal"
+      :title="$t('mediaLibrary.trashTitle')"
+      :subtitle="$t('mediaLibrary.trashSubtitle')"
+      size="lg"
+      @close="showTrashModal = false"
+    >
+      <div v-if="trashedFolders.length === 0" class="py-10 text-center text-text-muted text-xs">
+        {{ $t('mediaLibrary.trashEmpty') }}
+      </div>
+      <ul v-else class="divide-y divide-border/40 max-h-[58vh] overflow-y-auto">
+        <li v-for="f in trashedFolders" :key="f.id" class="flex items-center gap-3 py-2.5">
+          <span class="shrink-0 w-7 h-7 rounded-lg bg-soft/40 border border-border/60 flex items-center justify-center text-text-soft">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7h18M5 7l1 14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-14M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
+            </svg>
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-bold text-text-main truncate" :title="f.name">{{ f.name }}</p>
+            <p class="text-[10px] text-text-muted">
+              {{ $t('mediaLibrary.imagesCount', { count: getFolderImageCount(f.id) }) }}
+              <span v-if="f.deleted_at"> · {{ $t('mediaLibrary.trashedOn', { date: fmtDateFull(f.deleted_at) }) }}</span>
+            </p>
+          </div>
+          <button
+            type="button"
+            class="shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-md border border-border hover:border-primary hover:text-primary disabled:opacity-40 transition-colors"
+            :disabled="processingTrash || !canManageFolder(f)"
+            @click="restoreFolder(f)"
+          >
+            {{ $t('mediaLibrary.restore') }}
+          </button>
+          <button
+            type="button"
+            class="shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-md border border-status-needs-fix-bg/60 text-status-needs-fix-fg hover:bg-status-needs-fix-bg/15 disabled:opacity-40 transition-colors"
+            :disabled="processingTrash || !canManageFolder(f)"
+            @click="deleteFolderPermanently(f)"
+          >
+            {{ $t('mediaLibrary.deletePermanently') }}
+          </button>
+        </li>
+      </ul>
+
+      <template #footer>
+        <div class="flex items-center justify-between gap-3 w-full">
+          <span class="text-[10px] text-text-muted">{{ $t('mediaLibrary.trashFooterHint') }}</span>
+          <button type="button" class="btn-ghost py-1 px-4 text-[11px] font-semibold h-8 rounded-lg" @click="showTrashModal = false">
+            {{ $t('mediaLibrary.cancel') }}
+          </button>
+        </div>
+      </template>
+    </Modal>
+
+    <!-- ════════ SCAN & IMPORT MODAL ════════ -->
+    <Modal
+      :open="showImportModal"
+      title="Scan & Import Product Data"
+      subtitle="Scan a WooCommerce product category and safely match SKU + descriptions to your folders. Nothing changes until you Apply."
+      size="xxl"
+      panelClass="h-[90vh] max-h-[90vh] flex flex-col overflow-hidden"
+      bodyClass="flex-1 min-h-0 overflow-hidden flex flex-col !p-0"
+      @close="showImportModal = false"
+    >
+      <div class="flex flex-col h-full overflow-hidden">
+        <!-- Sticky Top Panel -->
+        <div class="border-b border-border bg-card p-5 space-y-4 shrink-0 shadow-sm">
+          <!-- URL + Scan input -->
+          <div class="flex flex-col sm:flex-row gap-2 sm:items-end">
+            <div class="flex-1 min-w-0">
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-text-soft mb-1">Source category URL</label>
+              <input
+                v-model="importSourceUrl"
+                type="url"
+                placeholder="https://typhonmachinery.com/product-category/equipment/"
+                class="w-full px-3 py-2 bg-soft/20 border border-border rounded-xl text-[11px] focus:outline-none focus:border-primary/50 text-text-main placeholder-text-muted/50"
+              />
+            </div>
+            <button type="button" class="btn-primary py-2 px-5 text-xs flex items-center gap-2 shrink-0 font-bold" :disabled="importScanning" @click="runScan">
+              <svg v-if="importScanning" class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z" /></svg>
+              {{ importScanning ? 'Scanning…' : 'Scan Category' }}
+            </button>
+          </div>
+
+          <div v-if="importError" class="rounded-lg border border-status-needs-fix-bg bg-status-needs-fix-bg/15 text-status-needs-fix-fg px-3 py-2 text-xs">
+            {{ importError }}
+          </div>
+
+          <div v-if="importScanning && importProgress" class="rounded-lg border border-primary/30 bg-primary/10 text-primary px-3 py-2 text-xs flex items-center gap-2">
+            <svg class="animate-spin shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z" /></svg>
+            <span>{{ importProgress }}</span>
+          </div>
+
+          <!-- Summary Stats Cards -->
+          <div v-if="importRows.length" class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <!-- Scanned Card -->
+            <div class="bg-soft/20 border border-border/40 p-2.5 rounded-xl flex flex-col justify-between">
+              <span class="text-[9px] text-text-muted font-bold uppercase tracking-wider">Scanned</span>
+              <span class="text-xl font-bold text-text-main mt-1 leading-none font-mono">{{ importScannedCount }}</span>
+            </div>
+            <!-- Ready Card -->
+            <div class="bg-emerald-500/10 border border-emerald-500/25 p-2.5 rounded-xl flex flex-col justify-between cursor-pointer hover:bg-emerald-500/15 transition-all" @click="importStatusFilter = 'ready'">
+              <span class="text-[9px] text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Ready
+              </span>
+              <span class="text-xl font-bold text-emerald-400 mt-1 leading-none font-mono">{{ readyCount }}</span>
+            </div>
+            <!-- Needs Review Card -->
+            <div class="bg-amber-500/10 border border-amber-500/25 p-2.5 rounded-xl flex flex-col justify-between cursor-pointer hover:bg-amber-500/15 transition-all" @click="importStatusFilter = 'needs_review'">
+              <span class="text-[9px] text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span> Review
+              </span>
+              <span class="text-xl font-bold text-amber-400 mt-1 leading-none font-mono">{{ reviewCount }}</span>
+            </div>
+            <!-- No Match Card -->
+            <div class="bg-zinc-500/10 border border-zinc-500/25 p-2.5 rounded-xl flex flex-col justify-between cursor-pointer hover:bg-zinc-500/15 transition-all" @click="importStatusFilter = 'no_match'">
+              <span class="text-[9px] text-zinc-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-zinc-400"></span> No Match
+              </span>
+              <span class="text-xl font-bold text-zinc-400 mt-1 leading-none font-mono">{{ noMatchCount }}</span>
+            </div>
+            <!-- Conflicts Card -->
+            <div class="bg-rose-500/10 border border-rose-500/25 p-2.5 rounded-xl flex flex-col justify-between cursor-pointer hover:bg-rose-500/15 transition-all" @click="importStatusFilter = 'conflict'">
+              <span class="text-[9px] text-rose-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span> Conflicts
+              </span>
+              <span class="text-xl font-bold text-rose-400 mt-1 leading-none font-mono">{{ conflictCount }}</span>
+            </div>
+          </div>
+
+          <!-- Filters Row -->
+          <div v-if="importRows.length" class="flex flex-wrap items-center justify-between gap-3 text-[11px] pt-1">
+            <div class="flex items-center gap-1.5">
+              <span class="text-text-muted font-semibold mr-1.5">Status:</span>
+              <button
+                v-for="filter in importStatusFilterOptions"
+                :key="filter.value"
+                type="button"
+                class="h-7 rounded-lg border px-3 text-xs transition-all font-semibold"
+                :class="importStatusFilter === filter.value ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-muted hover:text-text-main hover:bg-soft/10'"
+                @click="importStatusFilter = filter.value"
+              >
+                {{ filter.label }}
+              </button>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-text-muted font-semibold mr-1.5">Type:</span>
+              <button
+                v-for="filter in importTypeFilterOptions"
+                :key="filter.value"
+                type="button"
+                class="h-7 rounded-lg border px-3 text-xs transition-all font-semibold"
+                :class="importTypeFilter === filter.value ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-muted hover:text-text-main hover:bg-soft/10'"
+                @click="importTypeFilter = filter.value"
+              >
+                {{ filter.label }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Body Workspace -->
+        <div v-if="importRows.length" class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 overflow-hidden bg-background">
+          <!-- LEFT SIDE: Folders / Matches list table (7/12 cols) -->
+          <div
+            v-show="isLargeScreen || activeMobileTab === 'list'"
+            class="lg:col-span-7 flex flex-col h-full border-r border-border/40 overflow-hidden"
+          >
+            <!-- Check/Action header of Left side -->
+            <div class="bg-soft/10 px-4 py-2 border-b border-border/40 flex items-center justify-between shrink-0 text-xs">
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  class="rounded border-border text-primary focus:ring-primary/20 accent-primary"
+                  :checked="selectedRowIds.length > 0 && selectedRowIds.length === filteredImportRows.filter(r => r.status === 'ready' || r.status === 'verified_match').length"
+                  :indeterminate="selectedRowIds.length > 0 && selectedRowIds.length < filteredImportRows.filter(r => r.status === 'ready' || r.status === 'verified_match').length"
+                  @change="(e) => {
+                    const checked = (e.target as HTMLInputElement).checked;
+                    if (checked) {
+                      selectedRowIds = filteredImportRows
+                        .filter(r => r.status === 'ready' || r.status === 'verified_match')
+                        .map(r => r.folderId);
+                    } else {
+                      selectedRowIds = [];
+                    }
+                  }"
+                />
+                <span class="text-text-muted font-medium">Select All Ready ({{ filteredImportRows.filter(r => r.status === 'ready' || r.status === 'verified_match').length }})</span>
+              </div>
+              <span class="text-text-muted font-mono">{{ filteredImportRows.length }} matching folders</span>
+            </div>
+
+            <!-- Table content -->
+            <div class="flex-1 overflow-auto">
+              <table class="w-full text-xs text-left border-collapse">
+                <thead>
+                  <tr class="bg-soft/20 text-text-soft border-b border-border/40 text-[10px] font-bold uppercase tracking-wider sticky top-0 z-10">
+                    <th class="w-10 px-4 py-2.5"></th>
+                    <th class="px-3 py-2.5">Folder</th>
+                    <th class="px-3 py-2.5">Matched Product</th>
+                    <th class="w-16 px-3 py-2.5 text-center">Conf.</th>
+                    <th class="w-24 px-3 py-2.5 text-center">Status</th>
+                    <th class="w-8 px-3 py-2.5"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border/20">
+                  <template v-for="row in filteredImportRows" :key="row.folderId">
+                  <tr
+                    class="hover:bg-soft/10 transition-colors align-middle cursor-pointer"
+                    :class="[selectedRow?.folderId === row.folderId ? 'bg-primary/5 border-l-2 border-l-primary' : '']"
+                    @click="() => {
+                      selectedRow = row;
+                      activeMobileTab = 'detail';
+                    }"
+                  >
+                    <!-- Checkbox column -->
+                    <td class="px-4 py-3" @click.stop>
+                      <input
+                        type="checkbox"
+                        v-model="selectedRowIds"
+                        :value="row.folderId"
+                        :disabled="row.status !== 'ready' && row.status !== 'verified_match'"
+                        class="rounded border-border text-primary focus:ring-primary/20 accent-primary disabled:opacity-40"
+                      />
+                    </td>
+                    <!-- Folder name & info -->
+                    <td class="px-3 py-3">
+                      <div class="font-bold text-text-main text-xs truncate max-w-[200px]" :title="row.folderName">{{ row.folderName }}</div>
+                      <div class="mt-0.5 text-[9px] text-text-muted flex items-center flex-wrap gap-1.5">
+                        <span class="bg-soft px-1 rounded-sm text-[8px] font-bold font-mono tracking-wide uppercase text-text-soft">
+                          {{ productTypeLabel(getFolderProductType(currentFolderObj(row.folderId) || { name: row.folderName })) }}
+                        </span>
+                        <span v-if="(currentFolderObj(row.folderId) || {}).machine_category" class="bg-soft px-1 rounded-sm text-[8px] font-bold font-mono tracking-wide uppercase text-text-soft">
+                          {{ (currentFolderObj(row.folderId) || {}).machine_category }}
+                        </span>
+                        <span v-if="completenessForRow(row).hasVerifiedMatch" class="text-sky-400 font-semibold flex items-center gap-0.5">
+                          ✓ Verified
+                        </span>
+                      </div>
+                    </td>
+                    <!-- Matched Product + "Select Related Product" toggle -->
+                    <td class="px-3 py-3">
+                      <div v-if="row.match" class="mb-1.5">
+                        <div class="font-semibold text-text-main text-xs truncate max-w-[240px]" :title="row.match.title">
+                          {{ row.match.title }}
+                        </div>
+                        <div class="text-[9px] text-text-muted mt-0.5 flex items-center flex-wrap gap-1 truncate max-w-[240px]">
+                          <span class="capitalize">{{ row.matchMethod }}</span> · <span>{{ matchReasonLabel(row.matchReason) }}</span>
+                          <span v-if="row.productSlug" class="text-[8.5px]">({{ row.productSlug }})</span>
+                          <span v-if="inferMachineCategory(row.match.title, row.productType || getProductType(row.match))" class="bg-primary/10 text-primary px-1 rounded-sm text-[8px] font-bold font-mono uppercase tracking-wide">
+                            {{ inferMachineCategory(row.match.title, row.productType || getProductType(row.match)) }}
+                          </span>
+                        </div>
+                      </div>
+                      <span v-else class="text-text-muted italic text-xs block mb-1.5">No Matched Product</span>
+
+                      <button
+                        type="button"
+                        class="w-full max-w-[260px] flex items-center justify-between gap-1 border rounded-lg px-2 py-1 text-[10px] font-bold transition-colors"
+                        :class="row.conflict ? 'bg-rose-500/15 hover:bg-rose-500/25 border-rose-500/40 text-rose-400' : row.showDropdown ? 'border-primary/50 bg-primary/5 text-text-main' : 'bg-soft/20 hover:bg-soft/40 border-border text-text-main'"
+                        @click.stop="row.showDropdown = !row.showDropdown"
+                      >
+                        <span class="truncate">{{ row.conflict ? `Resolve Conflict · ${(row.conflictCandidates || []).length} candidates` : 'Select Related Product' }}</span>
+                        <svg class="w-3 h-3 shrink-0 transition-transform" :class="row.showDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
+                      </button>
+                    </td>
+                    <!-- Confidence Column -->
+                    <td class="px-3 py-3 text-center font-bold font-mono text-[10px]">
+                      <span v-if="row.match" class="px-1.5 py-0.5 rounded" :class="confBadgeClass(row.tier)">
+                        {{ row.score }}%
+                      </span>
+                      <span v-else class="text-text-muted">—</span>
+                    </td>
+                    <!-- Status Badge -->
+                    <td class="px-3 py-3 text-center">
+                      <span class="px-2 py-0.5 rounded-full font-bold text-[9px] uppercase tracking-wider" :class="statusBadgeClass(row.status)">
+                        {{ statusLabel(row.status) }}
+                      </span>
+                    </td>
+                    <!-- Quick actions -->
+                    <td class="px-3 py-3 text-right" @click.stop>
+                      <div class="flex items-center justify-end gap-0.5">
+                        <button
+                          v-if="row.match"
+                          type="button"
+                          title="Preview & apply product data"
+                          class="btn-ghost p-1 h-7 w-7 inline-flex items-center justify-center text-text-muted hover:text-primary"
+                          @click="openPreview(row, 'missing')"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.5 12C4 7 8 4 12 4s8 3 9.5 8c-1.5 5-5.5 8-9.5 8s-8-3-9.5-8z" /></svg>
+                        </button>
+                        <a
+                          v-if="row.match?.url"
+                          :href="row.match.url"
+                          target="_blank"
+                          rel="noopener"
+                          title="Open source product page"
+                          class="btn-ghost p-1 h-7 w-7 inline-flex items-center justify-center text-text-muted hover:text-primary"
+                          @click.stop
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5h5v5M19 5l-7 7M10 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-4" /></svg>
+                        </a>
+                        <button
+                          v-if="row.match"
+                          type="button"
+                          title="Clear match"
+                          class="btn-ghost p-1 h-7 w-7 inline-flex items-center justify-center text-text-muted hover:text-rose-400"
+                          @click="setRowMatch(row, null)"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                        <svg class="w-4 h-4 text-text-muted/60 inline-block lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Inline "Select Related Product" expansion (normal flow → never clipped) -->
+                  <tr v-if="row.showDropdown" :class="selectedRow?.folderId === row.folderId ? 'bg-primary/5' : ''" @click.stop>
+                    <td></td>
+                    <td colspan="5" class="px-3 pb-3 pt-0">
+                      <div class="bg-card border border-border rounded-xl overflow-hidden max-w-[560px] shadow-sm">
+                        <div class="flex items-center gap-2 px-3 py-2 border-b border-border bg-soft/10">
+                          <input
+                            type="text"
+                            v-model="row.searchQuery"
+                            placeholder="Search title, SKU, model number, URL…"
+                            class="flex-1 bg-soft/20 border border-border rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-primary/50 text-text-main placeholder-text-muted/60"
+                          />
+                          <button type="button" class="text-text-muted hover:text-text-main text-[10px] font-bold px-2 py-1" @click="row.showDropdown = false">Close</button>
+                        </div>
+                        <div class="max-h-72 overflow-y-auto divide-y divide-border/30">
+                          <button type="button" class="w-full text-left px-3 py-2 text-[11px] hover:bg-soft/30 text-text-muted italic" @click="selectProductFromSearch(row, null)">— Clear Match —</button>
+                          <button
+                            v-for="p in getFilteredProducts(row)"
+                            :key="p.url"
+                            type="button"
+                            class="w-full text-left px-3 py-2 hover:bg-soft/35 flex flex-col gap-0.5 transition-colors"
+                            :class="row.match?.url === p.url ? 'bg-primary/5' : ''"
+                            @click="selectProductFromSearch(row, p)"
+                          >
+                            <div class="flex items-start justify-between gap-2">
+                              <span class="font-semibold text-text-main text-[11px] line-clamp-2 flex-1" :title="p.title">{{ p.title }}</span>
+                              <span class="shrink-0 text-[8.5px] font-mono font-bold px-1.5 py-0.5 rounded" :class="confBadgeClass(tierForConfidence(productMatchScore(row, p)))">{{ productMatchScore(row, p) }}%</span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-1.5 text-[9px] text-text-muted">
+                              <span class="bg-soft px-1 rounded-sm text-[8px] font-bold uppercase tracking-wider">{{ productTypeLabel(getProductType(p)) }}</span>
+                              <span>·</span>
+                              <span>SKU: <strong class="font-mono">{{ p.sku || 'missing' }}</strong></span>
+                              <span>·</span>
+                              <span>Short: {{ formatDescriptionStatus(p, 'short') }}</span>
+                              <span>·</span>
+                              <span>Full: {{ formatDescriptionStatus(p, 'full') }}</span>
+                            </div>
+                            <!-- Matched keywords / model tokens -->
+                            <div v-if="matchedKeywordsFor(row, p).length" class="flex flex-wrap gap-1 mt-0.5">
+                              <span v-for="kw in matchedKeywordsFor(row, p)" :key="kw" class="text-[8.5px] font-mono uppercase bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 px-1 rounded-sm tracking-wider">{{ kw }}</span>
+                            </div>
+                            <div class="text-[8.5px] text-text-muted/80 truncate" :title="p.url">{{ p.url }}</div>
+                          </button>
+                          <div v-if="getFilteredProducts(row).length === 0" class="px-3 py-4 text-center text-text-muted italic text-[11px]">No scanned products match "{{ row.searchQuery }}"</div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- RIGHT SIDE: Selected Detail Panel (5/12 cols) -->
+          <div
+            v-show="isLargeScreen || activeMobileTab === 'detail'"
+            class="lg:col-span-5 flex flex-col h-full bg-soft/5 overflow-hidden border-l border-border/40"
+          >
+            <!-- Mobile header to go back to list -->
+            <div class="bg-soft/10 px-4 py-2.5 border-b border-border/40 flex items-center lg:hidden shrink-0">
+              <button
+                type="button"
+                class="text-xs text-primary font-bold flex items-center gap-1"
+                @click="activeMobileTab = 'list'"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Folders List
+              </button>
+            </div>
+
+            <!-- Detail panel container -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-5 min-h-0">
+              <div v-if="selectedRow" class="space-y-5">
+                <!-- Header -->
+                <div>
+                  <h3 class="text-sm font-bold text-text-main leading-tight">{{ selectedRow.folderName }}</h3>
+                  <div class="flex items-center gap-2 mt-1.5">
+                    <span class="bg-primary/10 text-primary border border-primary/20 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                      Folder: {{ productTypeLabel(getFolderProductType(currentFolderObj(selectedRow.folderId) || { name: selectedRow.folderName })) }}
+                    </span>
+                    <span class="px-2 py-0.5 rounded-full font-bold text-[9px] uppercase tracking-wider" :class="statusBadgeClass(selectedRow.status)">
+                      Status: {{ statusLabel(selectedRow.status) }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Match Stats Card -->
+                <div class="bg-soft/20 border border-border/40 rounded-xl p-4 space-y-3.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] text-text-soft font-bold uppercase tracking-wider">Matched Product</span>
+                    <span v-if="selectedRow.match" class="text-xs font-mono font-bold px-2 py-0.5 rounded" :class="confBadgeClass(selectedRow.tier)">
+                      {{ selectedRow.score }}% Confidence
+                    </span>
+                  </div>
+
+                  <div v-if="selectedRow.match" class="space-y-3">
+                    <div>
+                      <div class="text-xs font-bold text-text-main leading-snug">{{ selectedRow.match.title }}</div>
+                      <div class="text-[10px] text-text-muted mt-0.5 capitalize">
+                        Method: {{ selectedRow.matchMethod }} · Reason: {{ matchReasonLabel(selectedRow.matchReason) }}
+                        <span v-if="selectedRow.verified" class="text-sky-400"> (Verified)</span>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div v-else class="text-xs text-text-muted italic">
+                    No product is currently mapped to this folder.
+                  </div>
+                </div>
+
+                <!-- Warnings explanation box -->
+                <div v-if="selectedRow.warnings.length || selectedRow.conflict" class="bg-status-needs-fix-bg/10 border border-status-needs-fix-bg/20 rounded-xl p-3.5 text-status-needs-fix-fg space-y-2">
+                  <div class="font-bold text-xs flex items-center gap-1.5">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Safety Warning & Reviews Needed:
+                  </div>
+                  <ul class="list-disc pl-5 text-[11px] space-y-1">
+                    <li v-if="selectedRow.conflict" class="font-bold">
+                      Conflict: This product is also matched to other folder(s). Verify mappings to avoid duplicating resources.
+                    </li>
+                    <li v-for="w in selectedRow.warnings" :key="w">
+                      {{ warningText(w) }}
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Comparison details -->
+                <div v-if="selectedRow.match" class="space-y-2">
+                  <span class="text-[10px] text-text-soft font-bold uppercase tracking-wider block">Field Comparisons</span>
+                  <div class="border border-border/40 rounded-xl overflow-hidden bg-card text-[11px]">
+                    <table class="w-full border-collapse">
+                      <thead>
+                        <tr class="bg-soft/30 text-text-soft font-bold text-[10px] uppercase border-b border-border/40">
+                          <th class="px-3 py-2 text-left w-20">Field</th>
+                          <th class="px-3 py-2 text-left border-l border-border/30">Current</th>
+                          <th class="px-3 py-2 text-left border-l border-border/30">Incoming</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-border/20">
+                        <!-- SKU -->
+                        <tr class="hover:bg-soft/10">
+                          <td class="px-3 py-2 font-semibold">SKU</td>
+                          <td class="px-3 py-2 border-l border-border/30 text-text-soft font-mono truncate max-w-[120px]" :title="currentFolderObj(selectedRow.folderId)?.sku || '—'">
+                            {{ currentFolderObj(selectedRow.folderId)?.sku || '—' }}
+                          </td>
+                          <td
+                            class="px-3 py-2 border-l border-border/30 font-mono truncate max-w-[120px]"
+                            :class="[!currentFolderObj(selectedRow.folderId)?.sku && selectedRow.match.sku ? 'text-emerald-400 font-bold bg-emerald-500/5' : '']"
+                            :title="selectedRow.match.sku || '—'"
+                          >
+                            {{ selectedRow.match.sku || '—' }}
+                          </td>
+                        </tr>
+                        <!-- Price -->
+                        <tr class="hover:bg-soft/10">
+                          <td class="px-3 py-2 font-semibold">Price</td>
+                          <td class="px-3 py-2 border-l border-border/30 text-text-soft font-mono truncate max-w-[120px]" :title="currentFolderObj(selectedRow.folderId)?.product_price || '—'">
+                            {{ currentFolderObj(selectedRow.folderId)?.product_price || '—' }}
+                          </td>
+                          <td class="px-3 py-2 border-l border-border/30 font-mono truncate max-w-[120px]" :title="selectedRow.match.price || '—'">
+                            {{ selectedRow.match.price || '—' }}
+                          </td>
+                        </tr>
+                        <!-- Category -->
+                        <tr class="hover:bg-soft/10">
+                          <td class="px-3 py-2 font-semibold">Category</td>
+                          <td class="px-3 py-2 border-l border-border/30 text-text-soft truncate max-w-[120px]" :title="currentFolderObj(selectedRow.folderId)?.product_category || '—'">
+                            {{ currentFolderObj(selectedRow.folderId)?.product_category || '—' }}
+                          </td>
+                          <td class="px-3 py-2 border-l border-border/30 truncate max-w-[120px]" :title="selectedRow.match.category || '—'">
+                            {{ selectedRow.match.category || '—' }}
+                          </td>
+                        </tr>
+                        <!-- Product Type -->
+                        <tr class="hover:bg-soft/10">
+                          <td class="px-3 py-2 font-semibold">Type</td>
+                          <td class="px-3 py-2 border-l border-border/30 text-text-soft truncate max-w-[120px]">
+                            {{ productTypeLabel(getFolderProductType(currentFolderObj(selectedRow.folderId) || { name: selectedRow.folderName })) }}
+                          </td>
+                          <td
+                            class="px-3 py-2 border-l border-border/30 truncate max-w-[120px]"
+                            :class="[getFolderProductType(currentFolderObj(selectedRow.folderId) || { name: selectedRow.folderName }) !== (selectedRow.productType || getProductType(selectedRow.match)) ? 'text-rose-400 font-bold bg-rose-500/5' : '']"
+                          >
+                            {{ productTypeLabel(selectedRow.productType || getProductType(selectedRow.match)) }}
+                          </td>
+                        </tr>
+                        <!-- Short Description -->
+                        <tr class="hover:bg-soft/10 align-top">
+                          <td class="px-3 py-2.5 font-semibold">Short Desc</td>
+                          <td
+                            class="px-3 py-2.5 border-l border-border/30 leading-relaxed max-h-20 max-w-[160px] truncate-3-lines"
+                            :class="isMetadataOnlyText(currentFolderObj(selectedRow.folderId)?.short_description) ? 'text-rose-400 font-bold bg-rose-500/5' : 'text-text-muted'"
+                            :title="isMetadataOnlyText(currentFolderObj(selectedRow.folderId)?.short_description) ? 'Invalid Short Description' : currentFolderObj(selectedRow.folderId)?.short_description || ''"
+                          >
+                            {{ isMetadataOnlyText(currentFolderObj(selectedRow.folderId)?.short_description) ? 'Invalid Short Description' : (currentFolderObj(selectedRow.folderId)?.short_description || '—') }}
+                          </td>
+                          <td
+                            class="px-3 py-2.5 border-l border-border/30 leading-relaxed max-h-20 max-w-[160px] truncate-3-lines"
+                            :class="[hasInvalidShortDescription(selectedRow.match) ? 'text-rose-400 font-bold bg-rose-500/5' : (!currentFolderObj(selectedRow.folderId)?.short_description && selectedRow.match.shortDescription ? 'text-emerald-400 bg-emerald-500/5' : 'text-text-muted')]"
+                            :title="hasInvalidShortDescription(selectedRow.match) ? 'Invalid Short Description' : stripHtml(selectedRow.match.shortDescription || '')"
+                          >
+                            {{ hasInvalidShortDescription(selectedRow.match) ? 'Invalid Short Description' : cleanDescriptionPreview(selectedRow.match.shortDescription) }}
+                          </td>
+                        </tr>
+                        <!-- Full Description -->
+                        <tr class="hover:bg-soft/10 align-top">
+                          <td class="px-3 py-2.5 font-semibold">Full Desc</td>
+                          <td
+                            class="px-3 py-2.5 border-l border-border/30 leading-relaxed max-h-24 max-w-[160px] truncate-3-lines"
+                            :class="isMetadataOnlyText(currentFolderObj(selectedRow.folderId)?.description) ? 'text-rose-400 font-bold bg-rose-500/5' : 'text-text-muted'"
+                            :title="isMetadataOnlyText(currentFolderObj(selectedRow.folderId)?.description) ? 'Invalid Description' : stripHtml(currentFolderObj(selectedRow.folderId)?.description || '')"
+                          >
+                            {{ isMetadataOnlyText(currentFolderObj(selectedRow.folderId)?.description) ? 'Invalid Description' : (stripHtml(currentFolderObj(selectedRow.folderId)?.description || '') || '—') }}
+                          </td>
+                          <td
+                            class="px-3 py-2.5 border-l border-border/30 leading-relaxed max-h-24 max-w-[160px] truncate-3-lines"
+                            :class="[hasInvalidFullDescription(selectedRow.match) ? 'text-rose-400 font-bold bg-rose-500/5' : (!currentFolderObj(selectedRow.folderId)?.description && selectedRow.match.description ? 'text-emerald-400 bg-emerald-500/5' : 'text-text-muted')]"
+                            :title="hasInvalidFullDescription(selectedRow.match) ? 'Invalid Description' : stripHtml(selectedRow.match.description || '')"
+                          >
+                            {{ hasInvalidFullDescription(selectedRow.match) ? 'Invalid Description' : (cleanDescriptionPreview(selectedRow.match.description, 'Missing full description')) }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div v-if="selectedRow.match" class="space-y-2">
+                  <span class="text-[10px] text-text-soft font-bold uppercase tracking-wider block">Full Scraped Description</span>
+                  <div
+                    class="border border-border/40 rounded-xl p-3 text-[11px] leading-relaxed max-h-56 overflow-auto"
+                    :class="hasInvalidFullDescription(selectedRow.match) || !selectedRow.match.description ? 'bg-status-needs-fix-bg/10 text-status-needs-fix-fg' : 'bg-card text-text-main'"
+                  >
+                    {{ hasInvalidFullDescription(selectedRow.match) ? 'Invalid Description' : cleanDescriptionPreview(selectedRow.match.description, 'Missing full description') }}
+                  </div>
+                </div>
+
+                <!-- Manual Mapping Section (Wide custom dropdown) -->
+                <div class="space-y-2">
+                  <span class="text-[10px] text-text-soft font-bold uppercase tracking-wider block">Manual Product Mapping</span>
+                  
+                  <div v-click-outside="() => selectedRow && closeSearchDropdown(selectedRow)" class="relative">
+                    <!-- Search Input Box -->
+                    <div class="relative flex items-center">
+                      <input
+                        type="text"
+                        v-model="selectedRow.searchQuery"
+                        placeholder="Search Scanned WooCommerce Products…"
+                        class="w-full bg-soft/20 border border-border rounded-xl pl-3 pr-8 py-2 text-xs focus:outline-none focus:border-primary/50 text-text-main placeholder-text-muted/60"
+                        @focus="selectedRow.showDropdown = true"
+                      />
+                      <!-- Clear mapping button -->
+                      <button
+                        v-if="selectedRow.match"
+                        type="button"
+                        class="absolute right-2 text-text-muted hover:text-text-main p-1 transition-colors"
+                        @click="setRowMatch(selectedRow, null)"
+                        title="Clear mapping"
+                      >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                      <span v-else class="absolute right-2.5 text-text-muted/40 pointer-events-none">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </span>
+                    </div>
+
+                    <!-- Custom Search Dropdown (Widescreen styling) -->
+                    <div
+                      v-if="selectedRow.showDropdown"
+                      class="absolute left-0 right-0 z-50 bg-card border border-border rounded-xl shadow-2xl divide-y divide-border/30 max-h-64 overflow-y-auto mt-1.5"
+                    >
+                      <button
+                        type="button"
+                        class="w-full text-left px-3 py-2 text-xs hover:bg-soft/30 transition-colors text-text-muted italic font-medium"
+                        @click="selectedRow && selectProductFromSearch(selectedRow, null)"
+                      >
+                        — No match (Clear Match) —
+                      </button>
+                      <button
+                        v-for="p in (selectedRow ? getFilteredProducts(selectedRow) : [])"
+                        :key="p.url"
+                        type="button"
+                        class="w-full text-left px-3 py-2.5 text-xs hover:bg-soft/35 transition-colors text-text-main flex flex-col gap-1"
+                        :class="selectedRow.match?.url === p.url ? 'bg-primary/5 text-primary font-bold' : ''"
+                        @click="selectedRow && selectProductFromSearch(selectedRow, p)"
+                      >
+                        <div class="flex items-start justify-between gap-3 w-full">
+                          <span class="font-semibold text-text-main break-words line-clamp-2 flex-1" :title="p.title">{{ p.title }}</span>
+                          <span class="shrink-0 text-[9px] font-mono px-1.5 py-0.5 rounded font-bold" :class="confBadgeClass(tierForConfidence(productMatchScore(selectedRow, p)))">
+                            {{ productMatchScore(selectedRow, p) }}% match
+                          </span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-1.5 text-[9.5px] text-text-muted mt-0.5">
+                          <span class="bg-soft px-1 rounded-sm text-[8px] font-bold uppercase tracking-wider">{{ productTypeLabel(getProductType(p)) }}</span>
+                          <span>·</span>
+                          <span>SKU: <strong class="font-mono">{{ p.sku || 'missing' }}</strong></span>
+                          <span>·</span>
+                          <span>Short Desc: {{ formatDescriptionStatus(p, 'short') }}</span>
+                          <span>·</span>
+                          <span>Full Desc: {{ formatDescriptionStatus(p, 'full') }}</span>
+                        </div>
+                        <div class="text-[9px] text-text-muted truncate w-full" :title="p.url">{{ p.url }}</div>
+                      </button>
+                      <div v-if="selectedRow && getFilteredProducts(selectedRow).length === 0" class="px-3 py-4 text-center text-text-muted italic text-xs">
+                        No scanned products match "{{ selectedRow.searchQuery }}"
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Actions card -->
+                <div class="pt-4 border-t border-border/40 flex flex-wrap gap-2">
+                  <template v-if="selectedRow.status === 'applied'">
+                    <div class="w-full py-2 bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/25 rounded-xl text-center flex items-center justify-center gap-1.5 text-xs">
+                      ✓ Changes Applied to Folder
+                    </div>
+                  </template>
+                  <template v-else-if="selectedRow.match">
+                    <!-- Accept Match / Verification -->
+                    <button
+                      v-if="!selectedRow.verified && selectedRow.status !== 'no_match'"
+                      type="button"
+                      class="btn-primary flex-1 py-2 px-3 text-xs font-bold rounded-xl shadow transition-all hover:scale-[1.01]"
+                      @click="selectedRow && saveMatchOnly(selectedRow, true)"
+                    >
+                      Accept Match
+                    </button>
+                    <!-- Apply Missing -->
+                    <button
+                      type="button"
+                      class="btn-secondary py-2 px-3 text-xs font-bold rounded-xl border border-border transition-all"
+                      :class="[!selectedRow.warnings.length ? 'bg-primary/10 text-primary border-primary/20' : '']"
+                      @click="selectedRow && openPreview(selectedRow, 'missing')"
+                    >
+                      Apply Missing Fields
+                    </button>
+                    <!-- Replace Existing -->
+                    <button
+                      type="button"
+                      class="btn-secondary py-2 px-3 text-xs font-bold rounded-xl border border-border transition-all"
+                      @click="selectedRow && openPreview(selectedRow, 'replace')"
+                    >
+                      Replace All Fields
+                    </button>
+                    <!-- Clear mapping -->
+                    <button
+                      type="button"
+                      class="btn-secondary py-2 px-3 text-xs font-semibold rounded-xl text-rose-400 hover:bg-rose-500/10 border-rose-500/20"
+                      @click="selectedRow && setRowMatch(selectedRow, null)"
+                    >
+                      Clear Match
+                    </button>
+                  </template>
+                  <!-- Skip / Ignore -->
+                  <button
+                    v-if="selectedRow.status !== 'ignored'"
+                    type="button"
+                    class="btn-secondary py-2 px-3 text-xs font-semibold rounded-xl border border-border"
+                    @click="selectedRow && (selectedRow.status = 'ignored')"
+                  >
+                    Skip Folder
+                  </button>
+                </div>
+              </div>
+
+              <!-- Detail panel empty state -->
+              <div v-else class="h-full flex flex-col items-center justify-center text-center p-8 space-y-3">
+                <div class="h-12 w-12 rounded-full bg-soft/20 flex items-center justify-center text-text-muted">
+                  <svg class="w-6 h-6 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-text-main">No Folder Selected</h4>
+                  <p class="text-[10px] text-text-muted max-w-[220px] mx-auto mt-1 leading-normal">
+                    Select a folder from the list on the left to review match details, compare fields, or resolve conflicts.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scan Modal Landing empty view -->
+        <div v-else-if="!importScanning" class="flex-1 flex flex-col items-center justify-center py-12 px-6 text-center space-y-4">
+          <div class="h-16 w-16 bg-soft/20 border border-border/40 rounded-full flex items-center justify-center text-text-muted shadow-inner">
+            <svg class="w-8 h-8 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-text-main">Import WooCommerce Products to Folders</h3>
+            <p class="text-xs text-text-muted max-w-md mx-auto mt-1.5 leading-relaxed">
+              Enter the target WooCommerce product-category URL at the top and click "Scan Category" to retrieve product pages. Match details will be displayed for validation before import.
+            </p>
+          </div>
+        </div>
+
+        <!-- Scan Scanning loader -->
+        <div v-else class="flex-1 flex flex-col items-center justify-center py-12 px-6 text-center space-y-4">
+          <svg class="animate-spin text-primary" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          <div>
+            <h4 class="text-xs font-bold text-text-main animate-pulse">Scanning WooCommerce Category Pages…</h4>
+            <p class="text-[10px] text-text-muted max-w-[280px] mx-auto mt-1">
+              Extracting SKUs, titles, URLs, short & full descriptions from WooCommerce. This might take a few moments.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="flex items-center justify-between w-full">
+          <!-- Bulk Mode configuration -->
+          <div class="flex items-center gap-3">
+            <div v-if="importRows.length && selectedRowIds.length > 0" class="flex items-center gap-2 text-xs">
+              <span class="text-text-muted font-semibold">Bulk Mode:</span>
+              <select
+                v-model="bulkApplyMode"
+                class="bg-soft/30 border border-border rounded-lg text-xs py-1 px-2.5 text-text-main focus:outline-none focus:border-primary/50"
+              >
+                <option value="missing">Apply Missing Fields (Safe)</option>
+                <option value="replace">Replace Existing Fields (Overwrite)</option>
+              </select>
+            </div>
+            <div v-else class="text-[10px] text-text-muted">
+              Select verified or ready folder matches to apply import actions in batch.
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="btn-ghost h-8 px-4 text-xs font-semibold rounded-lg"
+              @click="showImportModal = false"
+              :disabled="bulkApplying"
+            >
+              Close
+            </button>
+            <button
+              v-if="importRows.length"
+              type="button"
+              class="btn-primary h-8 px-5 text-xs font-bold rounded-lg shadow-md flex items-center gap-2"
+              :disabled="selectedRowIds.length === 0 || bulkApplying"
+              @click="triggerBulkApply"
+            >
+              <svg v-if="bulkApplying" class="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              {{ bulkApplying ? 'Applying Batch…' : 'Apply Selected Matches (' + selectedRowIds.length + ')' }}
+            </button>
+          </div>
+        </div>
+      </template>
+    </Modal>
+
+    <!-- ════════ IMPORT PREVIEW MODAL ════════ -->
+    <Modal
+      :open="!!previewRow"
+      title="Preview import"
+      :subtitle="previewRow ? `${previewRow.folderName}  ·  ${previewRow.score}% confidence` : ''"
+      size="xl"
+      @close="previewRow = null"
+    >
+      <div v-if="previewRow && previewRow.match" class="space-y-3 text-[11px]">
+        <div v-if="previewWarnings.length" class="rounded-lg border border-status-needs-fix-bg/40 bg-status-needs-fix-bg/10 px-3 py-2 text-status-needs-fix-fg">
+          <div class="font-bold text-[10px] mb-1">Warnings</div>
+          <ul class="list-disc pl-4 space-y-0.5">
+            <li v-for="warning in previewWarnings" :key="warning">{{ warning }}</li>
+          </ul>
+        </div>
+        <div class="grid grid-cols-[64px_1fr_1fr] gap-x-3 gap-y-2 items-start">
+          <div></div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-text-soft border-b border-border/40 pb-1">Current</div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-primary border-b border-primary/30 pb-1">Imported</div>
+          <template v-for="p in previewPairs" :key="p.label">
+            <div class="text-[10px] font-bold text-text-soft pt-1.5">{{ p.label }}</div>
+            <div class="text-text-main whitespace-pre-wrap break-words bg-soft/20 rounded p-1.5 min-h-[30px] max-h-[140px] overflow-auto">{{ p.current || '—' }}</div>
+            <div
+              class="whitespace-pre-wrap break-words rounded p-1.5 min-h-[30px] max-h-[140px] overflow-auto"
+              :class="p.imported && p.imported !== p.current ? 'bg-primary/10 text-text-main' : 'bg-soft/20 text-text-muted'"
+            >{{ p.imported || '—' }}</div>
+          </template>
+        </div>
+        <div class="flex flex-wrap justify-end gap-2 pt-2 border-t border-border/40">
+          <button type="button" class="btn-secondary py-1.5 px-3 text-xs" @click="previewRow = null">Cancel</button>
+          <button type="button" class="btn-secondary py-1.5 px-3 text-xs" @click="applyFromPreview('save')">Save Match Only</button>
+          <button type="button" class="btn-secondary py-1.5 px-3 text-xs" @click="applyFromPreview('missing')">Apply Missing Fields</button>
+          <button type="button" class="btn-primary py-1.5 px-3 text-xs" @click="applyFromPreview('replace')">Replace Existing Fields</button>
+        </div>
+      </div>
     </Modal>
 
     <!-- ════════ EDIT FOLDER INFO MODAL ════════ -->
@@ -1865,7 +3187,7 @@
       :title="$t('mediaLibrary.editFolderInfo')"
       :subtitle="$t('mediaLibrary.editFolderSubtitle')"
       size="lg"
-      @close="showEditFolderInfoModal = false"
+      @close="saveFolderInfo"
     >
       <div class="space-y-4 text-xs">
         <!-- Error Message -->
@@ -1905,16 +3227,86 @@
           <FolderDescriptionEditor v-model="editFolderDescription" />
         </div>
 
+        <!-- Product Type -->
+        <div class="space-y-1">
+          <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">{{ $t('mediaLibrary.productType') }}</label>
+          <div class="inline-flex rounded-xl border border-border bg-soft/20 p-0.5">
+            <button
+              type="button"
+              @click="editFolderProductType = 'equipment'"
+              :class="['px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors', editFolderProductType === 'equipment' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main']"
+            >{{ $t('mediaLibrary.equipment') }}</button>
+            <button
+              type="button"
+              @click="editFolderProductType = 'attachment'"
+              :class="['px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors', editFolderProductType === 'attachment' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:text-text-main']"
+            >{{ $t('mediaLibrary.attachment') }}</button>
+            <button
+              type="button"
+              @click="editFolderProductType = ''"
+              :class="['px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors', editFolderProductType === '' ? 'bg-soft text-text-main shadow-sm' : 'text-text-muted hover:text-text-main']"
+            >{{ $t('mediaLibrary.notSet') }}</button>
+          </div>
+        </div>
+
+        <!-- Machine Category -->
+        <div class="space-y-1">
+          <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">{{ $t('mediaLibrary.machineCategory') }}</label>
+          <select
+            v-model="editFolderMachineCategory"
+            :disabled="!editFolderProductType"
+            class="w-full px-3 py-2 bg-soft/20 border border-border rounded-xl text-xs text-text-main focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors disabled:opacity-50"
+          >
+            <option value="">{{ $t('mediaLibrary.notSet') }}</option>
+            <option
+              v-for="cat in availableMachineCategories"
+              :key="cat"
+              :value="cat"
+            >{{ cat }}</option>
+          </select>
+        </div>
+
+        <!-- SKU + GTIN + Price -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="space-y-1">
+            <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">{{ $t('mediaLibrary.sku') }}</label>
+            <input
+              type="text"
+              v-model="editFolderSku"
+              :placeholder="$t('mediaLibrary.skuPlaceholder')"
+              class="w-full px-3 py-2 bg-soft/20 border border-border rounded-xl text-xs text-text-main font-mono focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
+            />
+          </div>
+          <div class="space-y-1">
+            <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">GTIN</label>
+            <input
+              type="text"
+              v-model="editFolderGtin"
+              placeholder="Enter GTIN"
+              class="w-full px-3 py-2 bg-soft/20 border border-border rounded-xl text-xs text-text-main font-mono focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
+            />
+          </div>
+          <div class="space-y-1">
+            <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">{{ $t('mediaLibrary.price') }}</label>
+            <input
+              type="text"
+              v-model="editFolderPrice"
+              :placeholder="$t('mediaLibrary.pricePlaceholder')"
+              class="w-full px-3 py-2 bg-soft/20 border border-border rounded-xl text-xs text-text-main focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
+            />
+          </div>
+        </div>
+
         <!-- Button URL -->
         <div class="space-y-1">
           <label class="block font-bold text-text-soft uppercase tracking-wider text-[10px]">{{ $t('mediaLibrary.buttonUrl') }}</label>
           <input
             type="text"
             v-model="editFolderButtonUrl"
-            placeholder="https://example.com/product-page"
+            :placeholder="$t('mediaLibrary.buttonUrlPlaceholder')"
             class="w-full px-3 py-2 bg-soft/20 border border-border rounded-xl text-xs text-text-main focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
           />
-          <span class="text-[10px] text-text-muted block mt-0.5 font-normal">{{ $t('mediaLibrary.urlOptionalHint') }}</span>
+          <span class="text-[10px] text-text-muted block mt-0.5 font-normal">{{ $t('mediaLibrary.buttonUrlAnyHint') }}</span>
         </div>
       </div>
 
@@ -2004,6 +3396,45 @@
         </div>
       </div>
     </div>
+    <!-- Desktop Folder Actions Dropdown (Viewport fixed position to prevent parent container clipping) -->
+    <div
+      v-if="activeFolderMenuId && menuActiveFolder"
+      class="fixed z-50 w-44 bg-card border border-border shadow-lg rounded-btn py-1"
+      :style="{ top: folderMenuPosition.top + 'px', left: folderMenuPosition.left + 'px' }"
+      v-click-outside="closeFolderMenu"
+    >
+      <button
+        v-if="canManageFolder(menuActiveFolder)"
+        type="button"
+        class="w-full text-left px-3 py-1.5 text-xs text-text-main hover:bg-soft flex items-center gap-1.5"
+        @click.stop="startFolderRename(menuActiveFolder)"
+      >
+        {{ $t('mediaLibrary.rename') }}
+      </button>
+      <button
+        v-if="canManageFolder(menuActiveFolder)"
+        type="button"
+        class="w-full text-left px-3 py-1.5 text-xs text-status-needs-fix-fg hover:bg-soft flex items-center gap-1.5"
+        @click.stop="deleteFolder(menuActiveFolder.id)"
+      >
+        {{ $t('mediaLibrary.deleteFolder') }}
+      </button>
+      <button
+        type="button"
+        class="w-full text-left px-3 py-1.5 text-xs text-text-main hover:bg-soft flex items-center gap-1.5"
+        @click.stop="copyFolderLink(menuActiveFolder.id)"
+      >
+        {{ $t('mediaLibrary.copyLink') }}
+      </button>
+      <button
+        v-if="selectedImageKeys.length > 0"
+        type="button"
+        class="w-full text-left px-3 py-1.5 text-xs text-primary hover:bg-soft flex items-center gap-1.5 font-bold border-t border-border/40 mt-1"
+        @click.stop="bulkMoveToFolder(menuActiveFolder.id)"
+      >
+        {{ $t('mediaLibrary.moveSelectedHere') }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -2017,6 +3448,20 @@ import { debounceRealtime } from '@/services/realtimeService';
 import { optimizeImage, formatFileSize } from '@/utils/imageOptimizer';
 import Modal from '@/components/ui/Modal.vue';
 import FolderDescriptionEditor from '@/components/ui/FolderDescriptionEditor.vue';
+import {
+  exactIdentityConfidence,
+  getFolderProductType,
+  getProductIdentitySlug,
+  getProductType,
+  mappingForFolder,
+  normalizeProductType,
+  productTypeLabel,
+  productSlugFromUrl,
+  resolveExactProductMatch,
+  slugifyProductIdentity,
+  inferMachineCategory,
+  type ProductType
+} from '@/lib/productIdentity';
 
 const auth = useAuthStore();
 const route = useRoute();
@@ -2050,6 +3495,34 @@ interface CustomFolder {
   description: string | null;
   button_url: string | null;
   updated_at?: string | null;
+  // Product-import fields (migration 0139)
+  sku?: string | null;
+  product_gtin?: string | null;
+  gtin?: string | null;
+  product_price?: string | null;
+  product_category?: string | null;
+  imported_from_url?: string | null;
+  imported_product_title?: string | null;
+  import_confidence?: number | null;
+  imported_at?: string | null;
+  imported_by?: string | null;
+  matched_product_url?: string | null;
+  matched_product_title?: string | null;
+  matched_product_sku?: string | null;
+  match_method?: 'auto' | 'manual' | null;
+  match_confidence?: number | null;
+  match_verified_by_user?: boolean | null;
+  matched_at?: string | null;
+  product_id?: string | null;
+  product_type?: ProductType | null;
+  machine_category?: string | null;
+  product_slug?: string | null;
+  product_folder_path?: string | null;
+  image_folder_path?: string | null;
+  product_mapping_status?: 'mapped' | 'needs_manual_mapping' | 'unmapped' | null;
+  // Soft delete (Trash bin)
+  deleted_at?: string | null;
+  deleted_by?: string | null;
 }
 
 interface DBImage {
@@ -2105,6 +3578,15 @@ const ICON_SVG = {
 // ─── Store State & Local Cache ────────────────────────────────────────────────
 const dbImages = ref<DBImage[]>([]);
 const customFolders = ref<CustomFolder[]>([]);
+
+// ─── Folder selection + Trash (soft delete) ──────────────────────────────────
+const folderSelectMode = ref(false);
+const selectedFolderIds = ref<string[]>([]);
+const folderMissingFilter = ref(false);
+const trashedFolders = ref<CustomFolder[]>([]);
+const showTrashModal = ref(false);
+const processingTrash = ref(false);
+
 const libraryStats = ref<{
   total_images: number;
   total_folders: number;
@@ -2155,8 +3637,129 @@ const search = ref('');
 const folderSearchQuery = ref('');
 const filterUploadedBy = ref('all');
 const filterFileType = ref('all');
+
+// Machine Category constants
+const ALL_MACHINE_CATEGORIES = [
+  'Mini Excavator',
+  'Skid Steer',
+  'Forklift',
+  'Road Roller',
+  'Backhoe Loader',
+  'Towable Excavator',
+  'Wheel Loader',
+  'Scissor Lift',
+  'Stone Crusher',
+  'Dumper',
+  'Trencher'
+];
+
+const ATTACHMENT_MACHINE_CATEGORIES = [
+  'Mini Excavator',
+  'Skid Steer',
+  'Wheel Loader'
+];
+
+// Product Content Dashboard filters
+const filterFolderProductType = ref<'all' | 'equipment' | 'attachment'>('all');
+const filterFolderMachineCategory = ref<string>('all');
 const filterMyUploads = ref(false);
 const sortBy = ref('newest');
+
+// Redesigned Custom Dropdown States
+const openProductTypeDropdown = ref(false);
+const openMachineCategoryDropdown = ref(false);
+const machineCategorySearch = ref('');
+const showMobileFilters = ref(false);
+
+const productTypeFilterOptions = [
+  { value: 'all', label: 'All Types' },
+  { value: 'equipment', label: 'Equipment' },
+  { value: 'attachment', label: 'Attachment' }
+];
+
+const getProductTypeFilterLabel = (val: string) => {
+  if (val === 'equipment') return 'Equipment';
+  if (val === 'attachment') return 'Attachment';
+  return 'All Types';
+};
+
+const getProductTypeMarkerClass = (val: string) => {
+  if (val === 'equipment') return 'bg-emerald-500';
+  if (val === 'attachment') return 'bg-sky-500';
+  return 'bg-zinc-400';
+};
+
+const getMachineCategoryFilterLabel = (val: string) => {
+  if (val === 'all') return 'All Machine Categories';
+  if (val === 'not_set') return 'Not Set';
+  return val;
+};
+
+const selectFilterProductType = (val: any) => {
+  filterFolderProductType.value = val;
+  openProductTypeDropdown.value = false;
+};
+
+const selectFilterMachineCategory = (val: string) => {
+  filterFolderMachineCategory.value = val;
+  openMachineCategoryDropdown.value = false;
+  machineCategorySearch.value = '';
+};
+
+const hasActiveFolderFilters = computed(() => {
+  return filterFolderProductType.value !== 'all' || filterFolderMachineCategory.value !== 'all';
+});
+
+const activeFiltersCount = computed(() => {
+  let count = 0;
+  if (filterFolderProductType.value !== 'all') count++;
+  if (filterFolderMachineCategory.value !== 'all') count++;
+  return count;
+});
+
+const clearFolderFilters = () => {
+  filterFolderProductType.value = 'all';
+  filterFolderMachineCategory.value = 'all';
+  machineCategorySearch.value = '';
+};
+
+// Reset category option selection if no longer allowed under attachment
+watch(filterFolderProductType, (newType) => {
+  if (newType === 'attachment') {
+    if (filterFolderMachineCategory.value !== 'all' && filterFolderMachineCategory.value !== 'not_set' && !ATTACHMENT_MACHINE_CATEGORIES.includes(filterFolderMachineCategory.value)) {
+      filterFolderMachineCategory.value = 'all';
+    }
+  }
+});
+
+const filteredMachineCategoryOptions = computed(() => {
+  const q = machineCategorySearch.value.trim().toLowerCase();
+  const cats = filterFolderProductType.value === 'equipment'
+    ? ALL_MACHINE_CATEGORIES
+    : filterFolderProductType.value === 'attachment'
+      ? ATTACHMENT_MACHINE_CATEGORIES
+      : ALL_MACHINE_CATEGORIES;
+
+  let list = cats.map(cat => ({ value: cat, label: cat }));
+  const options = [
+    { value: 'all', label: 'All Machine Categories' },
+    ...list,
+    { value: 'not_set', label: 'Not Set' }
+  ];
+
+  if (q) {
+    return options.filter(o => o.label.toLowerCase().includes(q));
+  }
+  return options;
+});
+
+const closeFilterDropdowns = (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+  if (!target.closest('.custom-dropdown-container')) {
+    openProductTypeDropdown.value = false;
+    openMachineCategoryDropdown.value = false;
+  }
+};
 
 // Selections
 const selectedImageKeys = ref<string[]>([]);
@@ -2195,6 +3798,8 @@ const renameImageInputRef = ref<HTMLInputElement[] | null>(null);
 
 // Folder action dropdown menu tracker
 const activeFolderMenuId = ref<string | null>(null);
+const menuActiveFolder = ref<CustomFolder | null>(null);
+const folderMenuPosition = ref({ top: 0, left: 0 });
 
 // Detail Drawer States
 const drawerOpen = ref(false);
@@ -2222,6 +3827,20 @@ const includeNoFeatureFolders = ref(true);
 const exportingCsv = ref(false);
 const exportSearchQuery = ref('');
 const exportImagesOnlyFilter = ref(false);
+const exportFormat = ref<'csv' | 'json'>('csv');
+const csvExportType = ref<'woocommerce' | 'framework' | 'simple'>('framework');
+const exportIncludeHeaderRow = ref(true);
+const exportScope = ref<'selected' | 'filtered' | 'all'>('selected');
+
+// Selected folders that can actually be deleted: real folders (not the
+// "uncategorized" pseudo-folder) the current user is allowed to manage.
+const deletableSelectedFolderIds = computed(() =>
+  selectedExportFolderIds.value.filter((id) => {
+    if (id === 'uncategorized') return false;
+    const folder = customFolders.value.find((f) => f.id === id);
+    return !!folder && canManageFolder(folder);
+  })
+);
 
 // ─── Folder Content Editing States ───────────────────────────────────────────
 const showEditFolderInfoModal = ref(false);
@@ -2230,8 +3849,33 @@ const editFolderName = ref('');
 const editFolderShortDescription = ref('');
 const editFolderDescription = ref('');
 const editFolderButtonUrl = ref('');
+const editFolderSku = ref('');
+const editFolderGtin = ref('');
+const editFolderPrice = ref('');
+const editFolderProductType = ref<'' | ProductType>('');
+const editFolderMachineCategory = ref<string>('');
 const editFolderError = ref('');
 const savingFolderInfo = ref(false);
+
+const availableMachineCategories = computed(() => {
+  if (editFolderProductType.value === 'equipment') {
+    return ALL_MACHINE_CATEGORIES;
+  }
+  if (editFolderProductType.value === 'attachment') {
+    return ATTACHMENT_MACHINE_CATEGORIES;
+  }
+  return [];
+});
+
+watch(editFolderProductType, (newType) => {
+  if (!newType) {
+    editFolderMachineCategory.value = '';
+  } else if (newType === 'attachment') {
+    if (!ATTACHMENT_MACHINE_CATEGORIES.includes(editFolderMachineCategory.value)) {
+      editFolderMachineCategory.value = '';
+    }
+  }
+});
 const exportIncludeContentFields = ref(true);
 
 const canEditFolderInfo = (folder: CustomFolder) => {
@@ -2241,27 +3885,35 @@ const canEditFolderInfo = (folder: CustomFolder) => {
 };
 
 const hasFolderContent = (folder: CustomFolder) => {
-  return !!(folder.short_description || folder.description || folder.button_url);
+  return !!(
+    folder.short_description ||
+    folder.description ||
+    folder.button_url ||
+    folder.sku ||
+    folder.product_price ||
+    folder.product_type
+  );
 };
 
-const validateAndFormatUrl = (url: string): { isValid: boolean; formattedUrl: string } => {
-  if (!url || url.trim() === '') {
-    return { isValid: true, formattedUrl: '' };
-  }
-  let target = url.trim();
-  if (!/^https?:\/\//i.test(target)) {
-    target = 'https://' + target;
-  }
-  try {
-    const parsed = new URL(target);
-    if (!parsed.hostname || !parsed.hostname.includes('.')) {
-      return { isValid: false, formattedUrl: '' };
-    }
-    return { isValid: true, formattedUrl: target };
-  } catch (e) {
-    return { isValid: false, formattedUrl: '' };
-  }
+/**
+ * The button URL "can be anything" — a full URL, a relative path (/cart),
+ * an anchor, mailto:, or even plain text used by a custom button. We never
+ * reject it. We only auto-prefix https:// for a bare domain (single token,
+ * has a dot, no scheme/space/slash) as a convenience.
+ */
+const normalizeButtonUrl = (value: string): string => {
+  const v = (value || '').trim();
+  if (!v) return '';
+  if (/^[a-z][a-z0-9+.-]*:/i.test(v)) return v; // has a scheme (https:, mailto:, tel:…)
+  if (/^[/#?]/.test(v)) return v; // relative path / anchor / query
+  // bare domain like "example.com/page" → https://
+  if (!/\s/.test(v) && /^[^\s/]+\.[^\s/]+/.test(v)) return 'https://' + v;
+  return v; // anything else: keep verbatim
 };
+
+/** True when a button URL string is something a browser can open as a link. */
+const isLinkLikeUrl = (value: string | null | undefined): boolean =>
+  !!value && (/^https?:\/\//i.test(value) || /^(mailto:|tel:|\/|#)/i.test(value));
 
 const activeFolderObj = computed(() => {
   if (currentFolder.value === 'all' || currentFolder.value === 'uncategorized') return null;
@@ -2287,6 +3939,11 @@ const openEditFolderInfo = (folder: CustomFolder) => {
   editFolderShortDescription.value = folder.short_description || '';
   editFolderDescription.value = folder.description || '';
   editFolderButtonUrl.value = folder.button_url || '';
+  editFolderSku.value = folder.sku || '';
+  editFolderGtin.value = folder.gtin || folder.product_gtin || '';
+  editFolderPrice.value = folder.product_price || '';
+  editFolderProductType.value = folder.product_type || '';
+  editFolderMachineCategory.value = folder.machine_category || '';
   editFolderError.value = '';
   showEditFolderInfoModal.value = true;
 };
@@ -2300,40 +3957,40 @@ const saveFolderInfo = async () => {
     return;
   }
   
-  const { isValid, formattedUrl } = validateAndFormatUrl(editFolderButtonUrl.value);
-  if (!isValid) {
-    editFolderError.value = 'Please enter a valid URL.';
-    return;
-  }
-  
+  // Button URL can be anything (full URL, relative path, anchor, plain text).
+  const buttonUrl = normalizeButtonUrl(editFolderButtonUrl.value);
+
   savingFolderInfo.value = true;
   editFolderError.value = '';
-  
+
   try {
     const folderId = editingFolderObj.value.id;
+    const patch = {
+      name,
+      short_description: editFolderShortDescription.value.trim() || null,
+      description: editFolderDescription.value.trim() || null,
+      button_url: buttonUrl || null,
+      sku: editFolderSku.value.trim() || null,
+      product_gtin: editFolderGtin.value.trim() || null,
+      gtin: editFolderGtin.value.trim() || null,
+      product_price: editFolderPrice.value.trim() || null,
+      product_type: editFolderProductType.value || null,
+      machine_category: editFolderMachineCategory.value || null,
+      updated_at: new Date().toISOString()
+    };
     const { error } = await supabase
       .from('team_folders')
-      .update({
-        name,
-        short_description: editFolderShortDescription.value.trim() || null,
-        description: editFolderDescription.value.trim() || null,
-        button_url: formattedUrl || null,
-        updated_at: new Date().toISOString()
-      })
+      .update(patch)
       .eq('id', folderId);
-      
+
     if (error) throw error;
-    
+
     // Update local state instantly
     const folderIndex = customFolders.value.findIndex(f => f.id === folderId);
     if (folderIndex !== -1) {
       customFolders.value[folderIndex] = {
         ...customFolders.value[folderIndex],
-        name,
-        short_description: editFolderShortDescription.value.trim() || null,
-        description: editFolderDescription.value.trim() || null,
-        button_url: formattedUrl || null,
-        updated_at: new Date().toISOString()
+        ...patch
       };
     }
     
@@ -2512,18 +4169,24 @@ const openExportModal = () => {
   exportSearchQuery.value = '';
   exportImagesOnlyFilter.value = false;
   
-  if (currentFolder.value !== 'all' && currentFolder.value !== 'uncategorized') {
+  if (selectedFolderIds.value.length > 0) {
+    selectedExportFolderIds.value = [...selectedFolderIds.value];
+    exportScope.value = 'selected';
+  } else if (currentFolder.value !== 'all' && currentFolder.value !== 'uncategorized') {
     const hasPermission = exportFoldersList.value.some(f => f.id === currentFolder.value);
     if (hasPermission) {
       selectedExportFolderIds.value = [currentFolder.value];
+      exportScope.value = 'selected';
     }
   } else if (currentFolder.value === 'uncategorized') {
     const hasUncategorized = exportFoldersList.value.some(f => f.id === 'uncategorized');
     if (hasUncategorized) {
       selectedExportFolderIds.value = ['uncategorized'];
+      exportScope.value = 'selected';
     }
   } else {
     selectedExportFolderIds.value = exportFoldersList.value.map(f => f.id);
+    exportScope.value = 'all';
   }
   showExportModal.value = true;
 };
@@ -2569,18 +4232,30 @@ const getExportFilename = () => {
   } else {
     baseName = `selected-folder-images-${dateStr}`;
   }
-  return `${baseName}.csv`;
+  return `${baseName}.${exportFormat.value === 'json' ? 'json' : 'csv'}`;
 };
 
-const triggerCsvExport = async () => {
-  if (selectedExportFolderIds.value.length === 0) {
-    showToast(t('mediaLibrary.toast.exportSelectFolder'));
-    return;
+const fetchAllImages = async (
+  apply: (q: any) => any,
+  columns = 'id, url, folder_id, is_feature_image, sort_order'
+): Promise<any[]> => {
+  const PAGE = 1000;
+  let out: any[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await apply(supabase.from('team_images').select(columns))
+      .order('id', { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    out = out.concat(data);
+    if (data.length < PAGE) break;
   }
-  
-  // Calculate if there are valid folders after skip rules
-  if (selectedFoldersStats.value.readyFoldersCount === 0) {
-    showToast(t('mediaLibrary.toast.exportNoValidFolders'));
+  return out;
+};
+
+const runCsvExport = async (folderIds: string[]) => {
+  if (folderIds.length === 0) {
+    showToast(t('mediaLibrary.toast.exportSelectFolder'));
     return;
   }
   
@@ -2588,33 +4263,22 @@ const triggerCsvExport = async () => {
   showToast(t('mediaLibrary.toast.preparingExport'));
   
   try {
-    const realFolderIds = selectedExportFolderIds.value.filter(id => id !== 'uncategorized');
+    const realFolderIds = folderIds.filter(id => id !== 'uncategorized');
     let allImages: any[] = [];
     
-    // Fetch custom folders' images
     if (realFolderIds.length > 0) {
-      const { data, error } = await supabase
-        .from('team_images')
-        .select('id, url, folder_id, is_feature_image, sort_order')
-        .in('folder_id', realFolderIds);
-      if (error) throw error;
-      allImages = [...allImages, ...(data || [])];
+      const data = await fetchAllImages((q) => q.in('folder_id', realFolderIds));
+      allImages = [...allImages, ...data];
     }
-    
-    // Fetch uncategorized images if selected
-    if (selectedExportFolderIds.value.includes('uncategorized')) {
-      const { data, error } = await supabase
-        .from('team_images')
-        .select('id, url, folder_id, is_feature_image, sort_order')
-        .is('folder_id', null);
-      if (error) throw error;
-      allImages = [...allImages, ...(data || [])];
+
+    if (folderIds.includes('uncategorized')) {
+      const data = await fetchAllImages((q) => q.is('folder_id', null));
+      allImages = [...allImages, ...data];
     }
     
     let hasMissingUrls = false;
     const validImgs = allImages.filter(img => {
       if (!img.url) {
-        console.warn(`[csv-export] Image ${img.id} is missing URL. Skipping.`);
         hasMissingUrls = true;
         return false;
       }
@@ -2630,18 +4294,34 @@ const triggerCsvExport = async () => {
       images: string;
       shortDescription: string;
       description: string;
+      descriptionHtml: string;
       buttonUrl: string;
+      sku: string;
+      gtin: string;
+      price: string;
+      category: string;
+      productType: string;
+      machineCategory: string;
+      featureImage: string;
+      galleryImages: string;
     }[] = [];
-    
-    selectedExportFolderIds.value.forEach(folderId => {
+
+    folderIds.forEach(folderId => {
       let folderName = '';
       let imgs: any[] = [];
       let isVirtualFolder = false;
       let hasFeature = false;
       let shortDesc = '';
       let desc = '';
+      let descHtml = '';
       let btnUrl = '';
-      
+      let sku = '';
+      let gtin = '';
+      let price = '';
+      let category = '';
+      let productType = '';
+      let machineCategory = '';
+
       if (folderId === 'uncategorized') {
         folderName = t('mediaLibrary.uncategorized');
         imgs = validImgs.filter(img => !img.folder_id);
@@ -2652,26 +4332,30 @@ const triggerCsvExport = async () => {
         folderName = folder.name;
         imgs = validImgs.filter(img => img.folder_id === folderId);
         hasFeature = folder.hasFeature;
-        
-        const realFolderObj = customFolders.value.find(f => f.id === folderId);
+
+        const realFolderObj = customFolders.value.find(cf => cf.id === folderId);
         if (realFolderObj) {
           shortDesc = realFolderObj.short_description || '';
-          desc = stripHtml(realFolderObj.description || '');
+          descHtml = isMetadataOnlyText(realFolderObj.description) ? '' : (realFolderObj.description || '');
+          desc = isMetadataOnlyText(realFolderObj.description) ? '' : stripHtml(realFolderObj.description || '');
           btnUrl = realFolderObj.button_url || '';
+          sku = realFolderObj.sku || '';
+          gtin = realFolderObj.gtin || realFolderObj.product_gtin || '';
+          price = realFolderObj.product_price || '';
+          category = realFolderObj.product_category || '';
+          productType = getFolderProductType(realFolderObj) || '';
+          machineCategory = realFolderObj.machine_category || 'Not set';
         }
       }
       
-      // Skip if empty and skip empty active
       if (imgs.length === 0 && skipEmptyFolders.value) {
         return;
       }
       
-      // Skip if missing feature and includeNoFeatureFolders is false
       if (!isVirtualFolder && imgs.length > 0 && !hasFeature && !includeNoFeatureFolders.value) {
         return;
       }
       
-      // Sort images: Feature first, then sort_order ascending
       imgs.sort((a, b) => {
         if (a.is_feature_image && !b.is_feature_image) return -1;
         if (!a.is_feature_image && b.is_feature_image) return 1;
@@ -2682,12 +4366,24 @@ const triggerCsvExport = async () => {
       });
       
       const uniqueUrls = [...new Set(imgs.map(img => img.url))];
+      const featureImg = imgs.find(img => img.is_feature_image);
+      const featureUrl = featureImg ? featureImg.url : (uniqueUrls[0] || '');
+      const galleryUrls = uniqueUrls.filter(u => u !== featureUrl);
       csvRows.push({
         name: folderName,
         images: uniqueUrls.join(', '),
         shortDescription: shortDesc,
         description: desc,
-        buttonUrl: btnUrl
+        descriptionHtml: descHtml,
+        buttonUrl: btnUrl,
+        sku,
+        gtin,
+        price,
+        category,
+        productType,
+        machineCategory,
+        featureImage: featureUrl,
+        galleryImages: galleryUrls.join(', ')
       });
     });
     
@@ -2697,21 +4393,68 @@ const triggerCsvExport = async () => {
       return;
     }
     
-    let header = 'Name,Images';
-    let body = '';
-    
-    if (exportIncludeContentFields.value) {
-      header = 'Name,Images,Short Description,Description,Button URL';
-      body = csvRows.map(r => 
-        `${escapeCSV(r.name)},${escapeCSV(r.images)},${escapeCSV(r.shortDescription)},${escapeCSV(r.description)},${escapeCSV(r.buttonUrl)}`
-      ).join('\n');
+    const splitUrls = (joined: string) => joined.split(', ').map(u => u.trim()).filter(Boolean);
+
+    let fileContent = '';
+    let mimeType = 'text/csv;charset=utf-8;';
+
+    if (exportFormat.value === 'json') {
+      mimeType = 'application/json;charset=utf-8;';
+      const records = csvRows.map(r => {
+        const base: Record<string, unknown> = {
+          name: r.name,
+          featureImage: r.featureImage,
+          galleryImages: splitUrls(r.galleryImages),
+          images: splitUrls(r.images),
+        };
+        if (exportIncludeContentFields.value) {
+          base.productType = r.productType;
+          base.machineCategory = r.machineCategory;
+          base.category = r.category;
+          base.sku = r.sku;
+          base.gtin = r.gtin;
+          base.price = r.price;
+          base.shortDescription = r.shortDescription;
+          base.description = r.descriptionHtml;
+          base.buttonUrl = r.buttonUrl;
+        }
+        return base;
+      });
+      fileContent = JSON.stringify(records, null, 2);
     } else {
-      body = csvRows.map(r => `${escapeCSV(r.name)},${escapeCSV(r.images)}`).join('\n');
+      let header = '';
+      let body = '';
+
+      if (csvExportType.value === 'woocommerce') {
+        header = 'Type,SKU,GTIN,Name,Published,Short description,Description,Regular price,Categories,Images,External URL,Button text,Meta: product_type,Meta: machine_category';
+        body = csvRows.map(r =>
+          `"simple",${escapeCSV(r.sku)},${escapeCSV(r.gtin)},${escapeCSV(r.name)},"1",${escapeCSV(r.shortDescription)},${escapeCSV(r.description)},${escapeCSV(r.price)},${escapeCSV(r.category)},${escapeCSV(r.images)},${escapeCSV(r.buttonUrl)},"Buy Now",${escapeCSV(r.productType)},${escapeCSV(r.machineCategory)}`
+        ).join('\n');
+      } else if (csvExportType.value === 'simple') {
+        header = 'Name,SKU,GTIN,Price,Images';
+        body = csvRows.map(r =>
+          `${escapeCSV(r.name)},${escapeCSV(r.sku)},${escapeCSV(r.gtin)},${escapeCSV(r.price)},${escapeCSV(r.images)}`
+        ).join('\n');
+      } else {
+        if (exportIncludeContentFields.value) {
+          header = 'Name,Product Type,Machine Category,Category,SKU,GTIN,Price,Short Description,Description,Images,Feature Image,Gallery Images,Button URL';
+          body = csvRows.map(r =>
+            `${escapeCSV(r.name)},${escapeCSV(r.productType)},${escapeCSV(r.machineCategory)},${escapeCSV(r.category)},${escapeCSV(r.sku)},${escapeCSV(r.gtin)},${escapeCSV(r.price)},${escapeCSV(r.shortDescription)},${escapeCSV(r.description)},${escapeCSV(r.images)},${escapeCSV(r.featureImage)},${escapeCSV(r.galleryImages)},${escapeCSV(r.buttonUrl)}`
+          ).join('\n');
+        } else {
+          header = 'Name,Images';
+          body = csvRows.map(r => `${escapeCSV(r.name)},${escapeCSV(r.images)}`).join('\n');
+        }
+      }
+
+      if (exportIncludeHeaderRow.value) {
+        fileContent = '\ufeff' + header + '\n' + body;
+      } else {
+        fileContent = '\ufeff' + body;
+      }
     }
-    
-    const csvContent = '\ufeff' + header + '\n' + body;
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    const blob = new Blob([fileContent], { type: mimeType });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
@@ -2722,7 +4465,6 @@ const triggerCsvExport = async () => {
     document.body.removeChild(link);
     
     showToast(t('mediaLibrary.toast.exportSuccess'));
-    showExportModal.value = false;
   } catch (err) {
     console.error('[csv-export] Export failed:', err);
     showToast(t('mediaLibrary.toast.exportFailed'));
@@ -2730,6 +4472,1052 @@ const triggerCsvExport = async () => {
     exportingCsv.value = false;
   }
 };
+
+const triggerCsvExport = async () => {
+  let targetIds: string[] = [];
+  if (exportScope.value === 'selected') {
+    targetIds = selectedExportFolderIds.value;
+  } else if (exportScope.value === 'filtered') {
+    targetIds = filteredFolders.value.map(f => f.id);
+  } else {
+    targetIds = customFolders.value.map(f => f.id);
+  }
+  await runCsvExport(targetIds);
+  showExportModal.value = false;
+};
+
+const triggerSelectedCsvExport = async () => {
+  if (selectedFolderIds.value.length === 0) {
+    showToast('Select at least one product to export.');
+    return;
+  }
+  await runCsvExport(selectedFolderIds.value);
+};
+
+const selectAllVisibleFolders = () => {
+  const visibleIds = filteredFolders.value.map(f => f.id);
+  selectedFolderIds.value = Array.from(new Set([...selectedFolderIds.value, ...visibleIds]));
+};
+
+/* ─── Product Data Auto-Import ──────────────────────────────────────────────
+   Scans a WooCommerce category via the scan-product-category edge function,
+   maps scanned products by exact product identity, and applies
+   SKU / short / full description with safe defaults (never overwrites populated
+   fields unless the user chooses Replace). */
+interface ScannedProduct {
+  productId?: string | null;
+  sourceSlug?: string | null;
+  productType?: ProductType | 'unknown' | null;
+  title: string;
+  url: string;
+  sku: string | null;
+  gtin?: string | null;
+  price?: string | null;
+  shortDescription: string | null;
+  description: string | null;
+  category: string | null;
+  imageUrl: string | null;
+  metaDescription: string | null;
+  sources?: {
+    title?: string;
+    sku?: string;
+    short?: string;
+    full?: string;
+    title_source?: string;
+    sku_source?: string;
+    gtin_source?: string;
+    price_source?: string;
+    category_source?: string;
+    short_description_source?: string;
+    full_description_source?: string;
+    full_description_character_count?: number;
+    extraction_warnings?: string[];
+  };
+  warnings?: string[];
+  shortLength?: number;
+  fullLength?: number;
+}
+type ImportStatus =
+  | 'ready'
+  | 'needs_review'
+  | 'wrong_match_suspected'
+  | 'invalid_description'
+  | 'missing_full_description'
+  | 'missing_short_description'
+  | 'no_match'
+  | 'conflict'
+  | 'already_has_data'
+  | 'verified_match'
+  | 'applied'
+  | 'ignored';
+type MatchMethod = 'auto' | 'manual';
+type MatchTier = 'high' | 'medium' | 'low' | 'none';
+type MatchReason = 'verified_url' | 'product_id' | 'product_slug' | 'mapping_file' | 'folder_path_slug' | 'manual' | 'fuzzy_name' | 'none';
+interface ImportRow {
+  folderId: string;
+  folderName: string;
+  match: ScannedProduct | null;
+  score: number;
+  tier: MatchTier;
+  conflict: boolean;
+  status: ImportStatus;
+  alternatives: { product: ScannedProduct; score: number }[];
+  /** Top fuzzy candidates for the conflict resolver (best→worst, with keywords). */
+  conflictCandidates?: { product: ScannedProduct; score: number; matchedTokens: string[] }[];
+  /** Folder tokens that matched the current `match` title — for display in the dropdown. */
+  matchedKeywords?: string[];
+  searchQuery?: string;
+  showDropdown?: boolean;
+  matchMethod: MatchMethod;
+  matchReason: MatchReason;
+  productId: string;
+  productType: ProductType | null;
+  productSlug: string;
+  verified: boolean;
+  warnings: string[];
+}
+
+interface ImportScanSummary {
+  categoryPagesScanned?: number;
+  productUrlsFound?: number;
+  duplicatesSkipped?: number;
+  productPagesScanned?: number;
+  detailPagesScanned?: number;
+  failedCategoryPages?: string[];
+  failedProductPages?: string[];
+  failedPages?: string[];
+  missingSku?: number;
+  missingShort?: number;
+  missingFull?: number;
+  invalidFullDescriptions?: number;
+  equipmentProducts?: number;
+  attachmentProducts?: number;
+  unknownTypeProducts?: number;
+}
+
+const showImportModal = ref(false);
+const importSourceUrl = ref('https://typhonmachinery.com/product-category/equipment/');
+const importScanning = ref(false);
+const importProgress = ref('');
+const importError = ref('');
+const importRows = ref<ImportRow[]>([]);
+const scannedProducts = ref<ScannedProduct[]>([]);
+const importScannedCount = ref(0);
+const importScanSummary = ref<ImportScanSummary | null>(null);
+const previewRow = ref<ImportRow | null>(null);
+const previewAction = ref<'missing' | 'replace' | 'save' | null>(null);
+
+// Widescreen & Split Review UX variables
+const selectedRow = ref<ImportRow | null>(null);
+const selectedRowIds = ref<string[]>([]);
+const bulkApplying = ref(false);
+const bulkApplyMode = ref<'missing' | 'replace'>('missing');
+const isLargeScreen = ref(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+const activeMobileTab = ref<'list' | 'detail'>('list');
+
+const importStatusFilter = ref<'all' | 'ready' | 'needs_review' | 'missing_sku' | 'missing_short_description' | 'missing_full_description' | 'invalid_description' | 'wrong_match_suspected' | 'no_match' | 'verified_match' | 'conflict'>('all');
+const importTypeFilter = ref<'all' | ProductType | 'unknown'>('all');
+const importStatusFilterOptions = [
+  { value: 'all' as const, label: 'All' },
+  { value: 'ready' as const, label: 'Ready' },
+  { value: 'verified_match' as const, label: 'Verified Match' },
+  { value: 'needs_review' as const, label: 'Review' },
+  { value: 'conflict' as const, label: 'Conflicts' },
+  { value: 'no_match' as const, label: 'No Match' },
+  { value: 'invalid_description' as const, label: 'Invalid Description' }
+];
+const importTypeFilterOptions: { value: typeof importTypeFilter.value; label: string }[] = [
+  { value: 'all', label: 'All Types' },
+  { value: 'equipment', label: 'Equipment' },
+  { value: 'attachment', label: 'Attachments' },
+  { value: 'unknown', label: 'Needs Type' }
+];
+
+const readyCount = computed(() => importRows.value.filter(r => r.status === 'ready' || r.status === 'verified_match').length);
+const reviewCount = computed(() => importRows.value.filter(r => ['needs_review', 'wrong_match_suspected', 'invalid_description', 'missing_short_description', 'missing_full_description', 'already_has_data'].includes(r.status)).length);
+const noMatchCount = computed(() => importRows.value.filter(r => r.status === 'no_match').length);
+const conflictCount = computed(() => importRows.value.filter(r => r.conflict || r.status === 'conflict').length);
+
+const currentFolderObj = (id: string) => customFolders.value.find(f => f.id === id) || null;
+
+const confBadgeClass = (tier: MatchTier) =>
+  tier === 'high' ? 'bg-status-approved-bg/20 text-status-approved-fg'
+    : tier === 'medium' ? 'bg-status-submitted-bg/20 text-status-submitted-fg'
+      : 'bg-status-needs-fix-bg/20 text-status-needs-fix-fg';
+const tierForConfidence = (confidence: number): MatchTier => {
+  if (confidence >= 100) return 'high';
+  if (confidence >= 70) return 'medium';
+  if (confidence > 0) return 'low';
+  return 'none';
+};
+const matchReasonLabel = (reason: MatchReason) =>
+  ({
+    verified_url: 'verified URL',
+    product_id: 'product ID',
+    product_slug: 'product slug',
+    mapping_file: 'mapping file',
+    folder_path_slug: 'folder path',
+    manual: 'manual',
+    fuzzy_name: 'name match',
+    none: 'not mapped'
+  } as Record<MatchReason, string>)[reason];
+const statusLabel = (s: ImportStatus) =>
+  ({
+    ready: 'Ready',
+    needs_review: 'Needs Review',
+    wrong_match_suspected: 'Wrong Match Suspected',
+    invalid_description: 'Invalid Description',
+    missing_full_description: 'Missing Full Description',
+    missing_short_description: 'Missing Short Description',
+    no_match: 'No Match',
+    conflict: 'Conflict',
+    already_has_data: 'Already Has Data',
+    verified_match: 'Verified Match',
+    applied: 'Applied',
+    ignored: 'Ignored'
+  } as Record<ImportStatus, string>)[s];
+const statusBadgeClass = (s: ImportStatus) =>
+  s === 'ready' || s === 'verified_match' || s === 'applied' ? 'bg-status-approved-bg/20 text-status-approved-fg'
+    : s === 'needs_review' || s === 'already_has_data' ? 'bg-status-submitted-bg/20 text-status-submitted-fg'
+      : s === 'wrong_match_suspected' || s === 'invalid_description' || s === 'missing_full_description' || s === 'missing_short_description' || s === 'conflict'
+        ? 'bg-status-needs-fix-bg/20 text-status-needs-fix-fg'
+        : 'bg-soft text-text-muted';
+
+const metadataOnlyTextPattern = /^\s*(gtin|gtin-?8|gtin-?12|gtin-?13|gtin-?14|sku|upc|ean|isbn|mpn|price|category|categories|tag|tags|brand|availability|shipping|stock)\s*:?\s*[-#A-Z0-9., $/]+\.?\s*$/i;
+const metadataLabelPattern = /\b(gtin|gtin-?8|gtin-?12|gtin-?13|gtin-?14|sku|upc|ean|isbn|mpn|price|category|categories|tag|tags|brand|availability|shipping|stock|weight|dimensions?)\b/i;
+
+const isMetadataOnlyText = (raw: string | null | undefined) => {
+  const text = stripHtml(raw || '').trim();
+  if (!text) return false;
+  if (metadataOnlyTextPattern.test(text)) return true;
+  const lines = text.split(/\n|\. /).map((line) => line.trim()).filter(Boolean);
+  if (!lines.length) return false;
+  const metadataLines = lines.filter((line) => metadataOnlyTextPattern.test(line) || metadataLabelPattern.test(line));
+  return metadataLines.length / lines.length >= 0.65;
+};
+
+const hasUsableDescription = (raw: string | null | undefined) =>
+  !!raw?.trim() && !isMetadataOnlyText(raw);
+
+const rowHasExistingData = (folder: CustomFolder | null) =>
+  !!(folder?.sku?.trim() || hasUsableDescription(folder?.short_description) || hasUsableDescription(folder?.description));
+
+const productWarnings = (product: ScannedProduct | null) => {
+  if (!product) return [] as string[];
+  const warnings = new Set<string>(product.warnings || product.sources?.extraction_warnings || []);
+  if (!getProductType(product)) warnings.add('product_type_required');
+  if (isMetadataOnlyText(product.description)) {
+    warnings.add('invalid_full_description');
+    warnings.add('description_metadata_only');
+  }
+  if (isMetadataOnlyText(product.shortDescription)) {
+    warnings.add('invalid_short_description');
+  }
+  if (warnings.has('description_metadata_only')) warnings.add('invalid_full_description');
+  if (!product.description) warnings.add('missing_full_description');
+  if (!product.shortDescription) warnings.add('missing_short_description');
+  if (product.description && stripHtml(product.description).length < 40) warnings.add('full_description_very_short');
+  if (
+    product.shortDescription &&
+    product.description &&
+    stripHtml(product.shortDescription).toLowerCase() === stripHtml(product.description).toLowerCase()
+  ) {
+    warnings.add('short_full_identical');
+  }
+  return [...warnings];
+};
+
+const warningText = (warning: string) => ({
+  missing_sku: 'Missing SKU.',
+  missing_short_description: 'Missing Short Description.',
+  missing_full_description: 'Missing Full Description.',
+  full_description_very_short: 'Full description may be incomplete.',
+  full_description_short_review: 'Full description is short and needs review.',
+  invalid_short_description: 'Invalid short description.',
+  invalid_full_description: 'Invalid Description.',
+  description_metadata_only: 'Description candidate was metadata only.',
+  short_full_identical: 'Short and full description look identical.',
+  full_from_meta_only: 'Full description came from meta description only.',
+  exact_identity_required: 'Exact product identity is required before importing.',
+  missing_identity_mapping: 'Folder needs product slug or mapping file entry.',
+  missing_product_type_mapping: 'Folder needs equipment or attachment type before matching.',
+  folder_type_conflicts_mapping: 'Folder type conflicts with the exact mapping file entry.',
+  product_type_required: 'Product type is required before importing.',
+  cross_product_type_blocked: 'Equipment and attachment products cannot be matched together.',
+  saved_match_not_in_latest_scan: 'Saved match was not found in this scan.'
+} as Record<string, string>)[warning] || warning.replace(/_/g, ' ');
+
+const statusForRow = (row: Pick<ImportRow, 'match' | 'tier' | 'conflict' | 'verified' | 'score' | 'warnings' | 'matchMethod'>, folder: CustomFolder | null): ImportStatus => {
+  if (!row.match) return 'no_match';
+  if (row.conflict) return 'conflict';
+  if (row.warnings.includes('invalid_full_description') || row.warnings.includes('description_metadata_only')) return 'invalid_description';
+  if (row.verified) return 'verified_match';
+  if (row.matchMethod === 'manual') return 'needs_review';
+  // Exact identity (100) OR a high-confidence fuzzy name match (tier 'high', >=90)
+  // are Ready-eligible; everything weaker is review/no-match.
+  if (row.tier !== 'high') return row.score > 0 ? 'needs_review' : 'no_match';
+  if (row.warnings.includes('missing_full_description')) return 'missing_full_description';
+  if (row.warnings.includes('missing_short_description')) return 'missing_short_description';
+  if (row.warnings.includes('invalid_short_description') || row.warnings.includes('full_description_very_short') || row.warnings.includes('full_description_short_review') || row.warnings.includes('short_full_identical')) return 'needs_review';
+  if (rowHasExistingData(folder)) return 'already_has_data';
+  return 'ready';
+};
+
+const productSearchText = (p: ScannedProduct) =>
+  [
+    p.productId || '',
+    p.sourceSlug || '',
+    productTypeLabel(getProductType(p)),
+    getProductIdentitySlug(p),
+    p.title,
+    p.sku || '',
+    p.gtin || '',
+    p.price || '',
+    p.category || '',
+    p.url,
+    ...tokenizeProductModelPieces(p.title),
+    ...tokenizeProductModelPieces(p.sku || '')
+  ].join(' ').toLowerCase();
+
+const tokenizeProductModelPieces = (raw: string) =>
+  (raw || '').toLowerCase().match(/[a-z]+[\s-]?\d+(?:\.\d+)?|\d+(?:\.\d+)?[a-z]*/g) || [];
+
+const formatDescriptionStatus = (product: ScannedProduct | null, field: 'short' | 'full') => {
+  if (!product) return 'Missing';
+  const warnings = new Set(productWarnings(product));
+  if (field === 'full' && (warnings.has('invalid_full_description') || warnings.has('description_metadata_only'))) return 'Invalid Description';
+  if (field === 'short' && warnings.has('invalid_short_description')) return 'Invalid Short';
+  if (field === 'short') return product.shortDescription ? 'Present' : 'Missing Short Description';
+  return product.description ? (warnings.has('full_description_short_review') || stripHtml(product.description).length < 120 ? 'Review' : 'Present') : 'Missing Full Description';
+};
+
+const hasInvalidFullDescription = (product: ScannedProduct | null) => {
+  if (!product) return false;
+  const warnings = new Set(productWarnings(product));
+  return warnings.has('invalid_full_description') || warnings.has('description_metadata_only');
+};
+
+const hasInvalidShortDescription = (product: ScannedProduct | null) => {
+  if (!product) return false;
+  return new Set(productWarnings(product)).has('invalid_short_description');
+};
+
+const cleanDescriptionPreview = (html: string | null | undefined, fallback = '—') => {
+  const text = stripHtml(html || '').trim();
+  return text || fallback;
+};
+
+const identityScoreForProduct = (folder: CustomFolder | { name: string }, product: ScannedProduct) =>
+  exactIdentityConfidence(folder, product);
+
+const productSlugFromSavedFolder = (folder: CustomFolder) =>
+  slugifyProductIdentity(folder.product_slug || folder.product_id || productSlugFromUrl(folder.matched_product_url) || '');
+
+const identityWarningsForFolder = (folder: CustomFolder) => {
+  const warnings: string[] = [];
+  const explicitType = normalizeProductType(folder.product_type);
+  const mapping = mappingForFolder(folder);
+  if (!getFolderProductType(folder)) warnings.push('missing_product_type_mapping');
+  if (explicitType && mapping && explicitType !== mapping.type) warnings.push('folder_type_conflicts_mapping');
+  if (!folder.product_id && !folder.product_slug && !folder.product_folder_path && !mappingForFolder(folder)) {
+    warnings.push('missing_identity_mapping');
+  }
+  return warnings;
+};
+
+const makeSavedProduct = (folder: CustomFolder): ScannedProduct | null => {
+  if (!folder.matched_product_url && !folder.matched_product_title) return null;
+  return {
+    productId: folder.product_id || folder.product_slug || productSlugFromSavedFolder(folder),
+    sourceSlug: folder.product_slug || productSlugFromSavedFolder(folder),
+    productType: getFolderProductType(folder) || 'unknown',
+    title: folder.matched_product_title || folder.imported_product_title || folder.name,
+    url: folder.matched_product_url || folder.imported_from_url || '',
+    sku: folder.matched_product_sku || folder.sku || null,
+    gtin: folder.product_gtin || null,
+    price: folder.product_price || null,
+    shortDescription: null,
+    description: null,
+    category: folder.product_category || null,
+    imageUrl: null,
+    metaDescription: null,
+    warnings: ['saved_match_not_in_latest_scan']
+  };
+};
+
+/* ── Fuzzy name matching (fallback when there is no exact identity match) ───
+   Used so folders without a product_type/slug still get suggestions. Weights
+   model codes (V980, X1300, 1.5) and roman numerals (XI, XIII, XVIII) strongly;
+   ignores generic words (mini, loader, excavator, machine, typhon…). Roman
+   numerals must match EXACTLY so XI never matches XIII / XIX. */
+const FUZZY_STOPWORDS = new Set(['the','a','an','for','and','with','of','to','new','sale','machine','machinery','equipment','series','model','type','typhon','konstructz','konstruct','mini','compact','loader','excavator','skid','steer','dumper','trencher','crusher','stone','wheel','backhoe','towable','tracked']);
+const FUZZY_ROMAN_RE = /^(m{0,4})(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})$/i;
+const fuzzyTokenize = (raw: string): string[] =>
+  (raw || '').toLowerCase().replace(/[^a-z0-9.]+/g, ' ').split(' ').map(t => t.replace(/^\.+|\.+$/g, '')).filter(t => t && t !== '.');
+const isDigitTok = (t: string) => /\d/.test(t);
+const isRomanTok = (t: string) => t.length >= 1 && t.length <= 7 && /^[ivxlcdm]+$/i.test(t) && FUZZY_ROMAN_RE.test(t);
+const isModelTok = (t: string) => isDigitTok(t) || isRomanTok(t);
+
+interface FuzzyDetail { score: number; matchedTokens: string[]; missingModel: boolean; hasModel: boolean; }
+
+const fuzzyNameDetail = (folderName: string, title: string): FuzzyDetail => {
+  const f = fuzzyTokenize(folderName);
+  const tt = fuzzyTokenize(title);
+  if (!f.length || !tt.length) return { score: 0, matchedTokens: [], missingModel: false, hasModel: false };
+  const tset = new Set(tt);
+  const weightOf = (t: string) => isModelTok(t) ? 3 : FUZZY_STOPWORDS.has(t) ? 0.25 : 1;
+  const matches = (t: string): boolean => {
+    if (tset.has(t)) return true;
+    if (isRomanTok(t)) return false;                                   // roman: exact only
+    if (isDigitTok(t)) return t.length >= 2 && tt.some(x => isDigitTok(x) && (x.includes(t) || t.includes(x)));
+    if (!FUZZY_STOPWORDS.has(t) && t.length >= 4) return tt.some(x => x.includes(t) || t.includes(x));
+    return false;
+  };
+  let total = 0, matched = 0, missingModel = false, distinctive = false;
+  const matchedTokens: string[] = [];
+  for (const t of f) {
+    const w = weightOf(t); total += w;
+    if (matches(t)) {
+      matched += w;
+      // Surface model tokens + distinctive words (not stopwords) as "matched keywords"
+      if (isModelTok(t) || !FUZZY_STOPWORDS.has(t)) matchedTokens.push(t);
+      if (!isModelTok(t) && !FUZZY_STOPWORDS.has(t)) distinctive = true;
+    } else if (isModelTok(t)) missingModel = true;
+  }
+  let score = total > 0 ? Math.round((matched / total) * 100) : 0;
+  const hasModel = f.some(isModelTok);
+  if (hasModel && missingModel) score = Math.min(score, 45);          // model mismatch = danger
+  if (!hasModel && !distinctive) score = Math.min(score, 55);         // all-generic = weak
+  return { score, matchedTokens, missingModel, hasModel };
+};
+
+const fuzzyNameScore = (folderName: string, title: string): number => fuzzyNameDetail(folderName, title).score;
+
+interface FuzzyCandidate { product: ScannedProduct; score: number; matchedTokens: string[]; hasModel: boolean; missingModel: boolean; }
+
+const fuzzyRankAll = (folderName: string, products: ScannedProduct[], folderMachineCategory?: string | null): FuzzyCandidate[] => {
+  const out: FuzzyCandidate[] = [];
+  for (const p of products) {
+    const pType = getProductType(p);
+    const pMC = inferMachineCategory(p.title, pType);
+    if (folderMachineCategory && pMC && folderMachineCategory.toLowerCase() !== pMC.toLowerCase()) {
+      continue;
+    }
+    const d = fuzzyNameDetail(folderName, p.title);
+    if (d.score <= 0) continue;
+    out.push({ product: p, score: d.score, matchedTokens: d.matchedTokens, hasModel: d.hasModel, missingModel: d.missingModel });
+  }
+  out.sort((a, b) => b.score - a.score);
+  return out;
+};
+
+const buildRows = (products: ScannedProduct[]) => {
+  const rows: ImportRow[] = customFolders.value.map(folder => {
+    const folderType = getFolderProductType(folder);
+    const folderWarnings = identityWarningsForFolder(folder);
+    const savedProductFromScan = products.find(p => folder.matched_product_url && p.url === folder.matched_product_url) || null;
+    const savedProductType = savedProductFromScan ? getProductType(savedProductFromScan) : null;
+    const exact = resolveExactProductMatch(folder, products);
+    const alternatives = products
+      .filter(p => identityScoreForProduct(folder, p) === 100)
+      .map(p => ({ product: p, score: 100 }));
+
+    if (!exact && folder.match_verified_by_user && folderType && (folder.matched_product_url || folder.matched_product_title)) {
+      const savedMatch = makeSavedProduct(folder);
+      if (savedMatch && getProductType(savedMatch) === folderType && getProductIdentitySlug(savedMatch)) {
+        const productSlug = getProductIdentitySlug(savedMatch);
+        const warnings = productWarnings(savedMatch);
+        return {
+          folderId: folder.id,
+          folderName: folder.name,
+          match: savedMatch,
+          score: 100,
+          tier: 'high' as MatchTier,
+          conflict: false,
+          status: 'verified_match' as ImportStatus,
+          alternatives,
+          searchQuery: savedMatch.title,
+          showDropdown: false,
+          matchMethod: 'manual' as MatchMethod,
+          matchReason: 'verified_url' as MatchReason,
+          productId: folder.product_id || productSlug,
+          productType: folderType,
+          productSlug,
+          verified: true,
+          warnings
+        };
+      }
+    }
+
+    if (!exact) {
+      // Fuzzy fallback — full ranked list so we can show alternatives & resolve
+      // conflicts without re-scoring later.
+      const ranked = fuzzyRankAll(folder.name, products, folder.machine_category);
+      const FUZZY_MIN = 70;
+      const best = ranked[0];
+      if (best && best.score >= FUZZY_MIN) {
+        const second = ranked[1];
+        const tier: MatchTier = best.score >= 90 ? 'high' : 'medium';
+        // Strict conflict: BOTH candidates must be high (≥90) AND within 5 points
+        // AND share the model-token signature. Stops "Stomp V980 vs V1000" (45 vs 100)
+        // from being flagged, but keeps genuinely ambiguous high-score ties.
+        const conflict =
+          !!second && best.score >= 90 && second.score >= 90 && (best.score - second.score) <= 5 &&
+          best.hasModel === second.hasModel && !best.missingModel && !second.missingModel;
+        const productSlug = getProductIdentitySlug(best.product) || '';
+        return {
+          folderId: folder.id,
+          folderName: folder.name,
+          match: best.product,
+          score: best.score,
+          tier,
+          conflict,
+          status: 'needs_review' as ImportStatus,
+          alternatives,
+          conflictCandidates: ranked.slice(0, 6).map(c => ({ product: c.product, score: c.score, matchedTokens: c.matchedTokens })),
+          matchedKeywords: best.matchedTokens,
+          searchQuery: best.product.title,
+          showDropdown: false,
+          matchMethod: 'auto' as MatchMethod,
+          matchReason: 'fuzzy_name' as MatchReason,
+          productId: productSlug,
+          productType: folderType || getProductType(best.product) || 'equipment',
+          productSlug,
+          verified: false,
+          warnings: productWarnings(best.product)
+        };
+      }
+
+      const mapping = mappingForFolder(folder);
+      const warnings = [...folderWarnings, 'exact_identity_required'];
+      if (savedProductFromScan && folderType && savedProductType && savedProductType !== folderType) {
+        warnings.push('cross_product_type_blocked');
+      }
+      return {
+        folderId: folder.id,
+        folderName: folder.name,
+        match: null,
+        score: 0,
+        tier: 'none' as MatchTier,
+        conflict: false,
+        status: 'no_match' as ImportStatus,
+        alternatives,
+        searchQuery: folder.product_slug || mapping?.slug || '',
+        showDropdown: false,
+        matchMethod: 'auto' as MatchMethod,
+        matchReason: 'none' as MatchReason,
+        productId: folder.product_id || mapping?.productId || '',
+        productType: folderType,
+        productSlug: folder.product_slug || mapping?.slug || '',
+        verified: false,
+        warnings
+      };
+    }
+    const warnings = productWarnings(exact.product);
+    const verified = !!folder.match_verified_by_user && (
+      (!!folder.matched_product_url && folder.matched_product_url === exact.product.url) ||
+      (!!productSlugFromSavedFolder(folder) && productSlugFromSavedFolder(folder) === exact.slug)
+    );
+    return {
+      folderId: folder.id,
+      folderName: folder.name,
+      match: exact.product,
+      score: exact.confidence,
+      tier: tierForConfidence(exact.confidence),
+      conflict: false,
+      status: 'needs_review' as ImportStatus,
+      alternatives,
+      searchQuery: exact.product.title,
+      showDropdown: false,
+      matchMethod: 'auto' as MatchMethod,
+      matchReason: exact.reason,
+      productId: exact.productId,
+      productType: exact.productType,
+      productSlug: exact.slug,
+      verified,
+      warnings
+    };
+  });
+
+  // ── Enforce one-to-one auto matching ─────────────────────────────────
+  // When multiple folders auto-pick the SAME product URL, only the highest-scoring
+  // folder keeps it; the losers slide down to their next-best fuzzy alternative
+  // (>=70) or fall to no_match. Verified/manual matches are sacrosanct.
+  const ownedByUrl = new Map<string, ImportRow>();
+  const claimable = rows.filter(r => r.match && !r.verified && r.matchMethod === 'auto')
+    .sort((a, b) => b.score - a.score);
+  for (const r of claimable) {
+    const url = r.match!.url;
+    const owner = ownedByUrl.get(url);
+    if (!owner) { ownedByUrl.set(url, r); continue; }
+    // r loses — try to slide it down to its next fuzzy alternative
+    const next = (r.conflictCandidates || []).find(c => c.product.url !== url && c.score >= 70 && !ownedByUrl.has(c.product.url));
+    if (next) {
+      const slug = getProductIdentitySlug(next.product) || '';
+      r.match = next.product;
+      r.score = next.score;
+      r.tier = next.score >= 90 ? 'high' : 'medium';
+      r.matchedKeywords = next.matchedTokens;
+      r.productId = slug;
+      r.productSlug = slug;
+      r.searchQuery = next.product.title;
+      r.warnings = productWarnings(next.product);
+      ownedByUrl.set(next.product.url, r);
+    } else {
+      r.match = null;
+      r.score = 0;
+      r.tier = 'none';
+      r.matchedKeywords = [];
+      r.matchReason = 'none';
+      r.status = 'no_match';
+    }
+  }
+
+  // ── Conflict flag is now ONLY from the strict per-row check above ─────
+  // (the old global URL cascade is gone — it created false conflicts).
+
+  for (const r of rows) {
+    const folder = currentFolderObj(r.folderId);
+    r.status = statusForRow(r, folder);
+    // Auto-open the resolver dropdown for conflict rows so the user sees the
+    // candidates immediately (they can still close it manually).
+    if (r.conflict && (r.conflictCandidates?.length ?? 0) > 1) r.showDropdown = true;
+  }
+  importRows.value = rows;
+};
+
+const DETAIL_BATCH_SIZE = 25;
+
+const runScan = async () => {
+  const url = importSourceUrl.value.trim();
+  if (!/^https?:\/\//i.test(url)) { importError.value = 'Enter a valid http(s) URL.'; return; }
+  importScanning.value = true;
+  importError.value = '';
+  importProgress.value = 'Discovering products…';
+  scannedProducts.value = [];
+  importRows.value = [];
+  importScannedCount.value = 0;
+  try {
+    // 1. DISCOVER — fast crawl of all category pages → product URLs only.
+    const { data: disc, error: discErr } = await supabase.functions.invoke('scan-product-category', {
+      body: { sourceUrl: url, websiteType: 'woocommerce', mode: 'discover' },
+    });
+    if (discErr) { importError.value = `Could not reach scan-product-category: ${discErr.message}`; return; }
+    if (!disc || !disc.ok) { importError.value = (disc && disc.message) || 'No products were found at that URL.'; return; }
+    const urls: string[] = disc.productUrls || [];
+    if (urls.length === 0) { importError.value = 'No product links were found at that URL.'; return; }
+
+    // 2. DETAILS — scan in batches so no single request times out; render live.
+    const all: ScannedProduct[] = [];
+    const failed: string[] = [];
+    for (let i = 0; i < urls.length; i += DETAIL_BATCH_SIZE) {
+      const batch = urls.slice(i, i + DETAIL_BATCH_SIZE);
+      importProgress.value = `Scanning products ${Math.min(i + batch.length, urls.length)} / ${urls.length}…`;
+      const { data: det, error: detErr } = await supabase.functions.invoke('scan-product-category', {
+        body: { mode: 'details', urls: batch },
+      });
+      if (detErr || !det || !det.ok) {
+        failed.push(...batch);
+        continue; // keep going — a failed batch shouldn't abort the whole scan
+      }
+      all.push(...((det.products || []) as ScannedProduct[]));
+      if (det.failed) failed.push(...det.failed);
+      scannedProducts.value = [...all];
+      importScannedCount.value = all.length;
+    }
+
+    // 3. Dedupe scanned products by canonical URL + slug (req #5: pagination
+    //    can yield the same product twice; matching needs a clean unique set).
+    const canonical = (u: string) => u.split('#')[0].split('?')[0].replace(/\/+$/, '');
+    const dedupedMap = new Map<string, ScannedProduct>();
+    for (const p of all) {
+      const key = canonical(p.url) || p.productId || p.sourceSlug || p.title.toLowerCase();
+      // keep the richer record (more SKU/description info wins)
+      const prev = dedupedMap.get(key);
+      const score = (x: ScannedProduct) => (x.sku ? 1 : 0) + (x.shortDescription ? 1 : 0) + (x.description ? 2 : 0);
+      if (!prev || score(p) > score(prev)) dedupedMap.set(key, p);
+    }
+    const deduped = [...dedupedMap.values()];
+    const duplicatesMerged = all.length - deduped.length;
+    scannedProducts.value = deduped;
+    importScannedCount.value = deduped.length;
+
+    // 4. Build the review table once with the full set (so conflict detection is correct).
+    importScanSummary.value = {
+      ...(disc.summary || {}),
+      detailPagesScanned: urls.length,
+      duplicatesSkipped: (disc.summary?.duplicatesSkipped ?? 0) + duplicatesMerged,
+      failedPages: failed,
+      missingSku: deduped.filter(p => !p.sku).length,
+      missingShort: deduped.filter(p => !p.shortDescription).length,
+      missingFull: deduped.filter(p => !p.description).length,
+    } as ImportScanSummary;
+    buildRows(deduped);
+    if (all.length === 0) importError.value = 'No product details could be scanned.';
+  } catch (e: any) {
+    importError.value = e?.message || 'Scan failed.';
+  } finally {
+    importScanning.value = false;
+    importProgress.value = '';
+  }
+};
+
+const setRowMatch = (row: ImportRow, product: ScannedProduct | null) => {
+  if (!product) {
+    row.match = null;
+    row.score = 0;
+    row.tier = 'none';
+    row.status = 'no_match';
+    row.searchQuery = '';
+    row.conflict = false;
+    row.matchMethod = 'manual';
+    row.matchReason = 'none';
+    row.productId = '';
+    row.productType = null;
+    row.productSlug = '';
+    row.verified = false;
+    row.warnings = [];
+    return;
+  }
+  // A deliberate manual pick is always honored — type is never a hard gate here
+  // (apply still requires user confirmation, so a manual choice is safe). Cross-type
+  // picks just carry a soft warning. Unknown product type defaults to the folder
+  // type, or equipment for this category scan.
+  const folder = currentFolderObj(row.folderId);
+  const folderType = folder ? getFolderProductType(folder) : null;
+  const productType = getProductType(product);
+  const warnings = productWarnings(product);
+  if (folderType && productType && folderType !== productType) warnings.unshift('cross_product_type_review');
+  const productSlug = getProductIdentitySlug(product);
+  row.match = product;
+  row.score = 100;
+  row.tier = 'high';
+  row.conflict = false;             // a deliberate manual pick clears the conflict flag for this row
+  row.matchMethod = 'manual';
+  row.matchReason = 'manual';
+  row.productId = product.productId || productSlug;
+  row.productType = productType || folderType || 'equipment';
+  row.productSlug = productSlug;
+  row.verified = false;
+  row.warnings = warnings;
+  row.status = statusForRow(row, folder);
+  row.searchQuery = product.title;
+};
+
+/** Best-of exact-identity and fuzzy-name score for a candidate against a row's folder. */
+const productMatchScore = (row: ImportRow, p: ScannedProduct) => {
+  const folder = currentFolderObj(row.folderId) || { name: row.folderName };
+  return Math.max(identityScoreForProduct(folder, p), fuzzyNameScore(row.folderName, p.title));
+};
+
+/** Folder tokens that matched this candidate — shown as keyword chips in the resolver. */
+const matchedKeywordsFor = (row: ImportRow, p: ScannedProduct): string[] =>
+  fuzzyNameDetail(row.folderName, p.title).matchedTokens;
+
+const getFilteredProducts = (row: ImportRow) => {
+  const query = (row.searchQuery || '').toLowerCase().trim();
+  const folder = currentFolderObj(row.folderId) || { name: row.folderName };
+  // Rank by best of exact-identity and fuzzy-name score so relevant suggestions
+  // surface first even for folders without an identity mapping.
+  const scored = (p: ScannedProduct) => Math.max(identityScoreForProduct(folder, p), fuzzyNameScore(row.folderName, p.title));
+  // Search ALL scanned products by default; only the explicit global type filter narrows.
+  const typedProducts = scannedProducts.value.filter((p) => {
+    if (importTypeFilter.value !== 'all') return (getProductType(p) || 'unknown') === importTypeFilter.value;
+    return true;
+  });
+  if (!query) {
+    return typedProducts
+      .map(p => ({ product: p, score: scored(p) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 30)
+      .map(item => item.product);
+  }
+  return typedProducts
+    .filter(p =>
+      productSearchText(p).includes(query)
+    )
+    .map(p => ({ product: p, score: scored(p) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 30)
+    .map(item => item.product);
+};
+
+const selectProductFromSearch = (row: ImportRow, product: ScannedProduct | null) => {
+  setRowMatch(row, product);
+  row.showDropdown = false;
+};
+
+const closeSearchDropdown = (row: ImportRow) => {
+  row.showDropdown = false;
+  row.searchQuery = row.match ? row.match.title : '';
+};
+
+const filteredImportRows = computed(() => {
+  const rows = importRows.value.filter((row) => {
+    if (importTypeFilter.value === 'all') return true;
+    return (row.productType || (row.match ? getProductType(row.match) : null) || 'unknown') === importTypeFilter.value;
+  });
+  if (importStatusFilter.value === 'all') return rows;
+  if (importStatusFilter.value === 'ready') return rows.filter(row => row.status === 'ready' || row.status === 'verified_match');
+  if (importStatusFilter.value === 'needs_review') return rows.filter(row => ['needs_review', 'wrong_match_suspected', 'invalid_description', 'missing_short_description', 'missing_full_description', 'already_has_data'].includes(row.status));
+  if (importStatusFilter.value === 'invalid_description') return rows.filter(row => row.status === 'invalid_description' || row.warnings.includes('invalid_full_description') || row.warnings.includes('description_metadata_only'));
+  if (importStatusFilter.value === 'conflict') return rows.filter(row => row.conflict || row.status === 'conflict');
+  if (importStatusFilter.value === 'no_match') return rows.filter(row => row.status === 'no_match');
+  
+  // fallback compatibility
+  if (importStatusFilter.value === 'missing_sku') return rows.filter(row => !row.match?.sku);
+  if (importStatusFilter.value === 'missing_short_description') return rows.filter(row => !row.match?.shortDescription || row.status === 'missing_short_description');
+  if (importStatusFilter.value === 'missing_full_description') return rows.filter(row => !row.match?.description || row.status === 'missing_full_description');
+  if (importStatusFilter.value === 'wrong_match_suspected') return rows.filter(row => row.status === 'wrong_match_suspected' || row.status === 'conflict');
+  return rows.filter(row => row.status === importStatusFilter.value);
+});
+
+const scanSummaryItems = computed(() => {
+  const s = importScanSummary.value;
+  if (!s) return [] as { label: string; value: number }[];
+  return [
+    { label: 'category pages', value: s.categoryPagesScanned ?? 0 },
+    { label: 'URLs found', value: s.productUrlsFound ?? 0 },
+    { label: 'duplicates skipped', value: s.duplicatesSkipped ?? 0 },
+    { label: 'product pages', value: s.productPagesScanned ?? s.detailPagesScanned ?? 0 },
+    { label: 'failed products', value: (s.failedProductPages ?? s.failedPages ?? []).length },
+    { label: 'equipment', value: s.equipmentProducts ?? 0 },
+    { label: 'attachments', value: s.attachmentProducts ?? 0 },
+    { label: 'unknown type', value: s.unknownTypeProducts ?? 0 },
+    { label: 'missing SKU', value: s.missingSku ?? 0 },
+    { label: 'missing short', value: s.missingShort ?? 0 },
+    { label: 'missing full', value: s.missingFull ?? 0 },
+    { label: 'invalid full', value: s.invalidFullDescriptions ?? 0 }
+  ];
+});
+
+const completenessForRow = (row: ImportRow) => {
+  const folder = currentFolderObj(row.folderId);
+  const imgs = library.value.filter(img => img.folderId === row.folderId);
+  return {
+    hasImages: imgs.length > 0,
+    hasFeatureImage: imgs.some(img => img.isFeatureImage),
+    hasSku: !!(folder?.sku || row.match?.sku),
+    hasShortDescription: !!(hasUsableDescription(folder?.short_description) || row.match?.shortDescription),
+    hasFullDescription: !!(hasUsableDescription(folder?.description) || row.match?.description),
+    hasVerifiedMatch: !!(folder?.match_verified_by_user || row.verified)
+  };
+};
+
+const openPreview = (row: ImportRow, action: 'missing' | 'replace' | 'save' | null = null) => {
+  previewRow.value = row;
+  previewAction.value = action;
+};
+
+const previewWarnings = computed(() => {
+  const row = previewRow.value;
+  if (!row) return [] as string[];
+  const folder = currentFolderObj(row.folderId);
+  const warnings = new Set<string>();
+  if (row.score < 90 || row.tier !== 'high') warnings.add('Confidence is not high.');
+  if (row.status === 'wrong_match_suspected' || row.status === 'conflict') warnings.add('Product identity does not clearly map to this folder.');
+  if (!row.productType) warnings.add('Equipment or attachment type is missing.');
+  if (!row.productSlug) warnings.add('Exact product slug is missing.');
+  if (row.warnings.includes('invalid_full_description') || row.warnings.includes('description_metadata_only')) warnings.add('Invalid Description.');
+  if (!row.match?.description) warnings.add('Missing full description.');
+  if (row.match?.description && stripHtml(row.match.description).length < 120) warnings.add('Full description is short and needs review.');
+  if (rowHasExistingData(folder)) warnings.add('Existing folder already has data.');
+  row.warnings.forEach(w => warnings.add(warningText(w)));
+  return [...warnings];
+});
+
+const saveMatchOnly = async (row: ImportRow, verified = true) => {
+  if (!row.match) return;
+  const folder = customFolders.value.find(f => f.id === row.folderId);
+  if (!folder) return;
+  const productType = row.productType || getProductType(row.match);
+  const folderType = getFolderProductType(folder);
+  if (!productType) {
+    showToast('Save blocked: product type is missing.');
+    return;
+  }
+  if (folderType && folderType !== productType) {
+    showToast('Save blocked: equipment and attachment matches cannot be mixed.');
+    return;
+  }
+  const patch: Partial<CustomFolder> = {
+    matched_product_url: row.match.url || null,
+    matched_product_title: row.match.title,
+    matched_product_sku: row.match.sku || null,
+    product_gtin: row.match.gtin || null,
+    product_price: row.match.price || null,
+    product_category: row.match.category || null,
+    match_method: row.matchMethod,
+    match_confidence: row.score,
+    match_verified_by_user: verified,
+    matched_at: new Date().toISOString(),
+    product_id: row.productId || row.productSlug || null,
+    product_type: productType,
+    product_slug: row.productSlug || null,
+    product_folder_path: slugifyProductIdentity(folder.product_folder_path || folder.name),
+    image_folder_path: folder.image_folder_path || slugifyProductIdentity(folder.name),
+    product_mapping_status: verified ? 'mapped' : 'needs_manual_mapping',
+    updated_at: new Date().toISOString()
+  };
+  try {
+    const { error } = await supabase.from('team_folders').update(patch).eq('id', folder.id);
+    if (error) throw error;
+    const idx = customFolders.value.findIndex(f => f.id === folder.id);
+    if (idx !== -1) customFolders.value[idx] = { ...customFolders.value[idx], ...patch };
+    row.verified = verified;
+    row.status = verified ? 'verified_match' : statusForRow(row, customFolders.value[idx] || folder);
+    showToast(verified ? `Saved verified match for "${folder.name}".` : `Saved match for "${folder.name}".`);
+  } catch (e: any) {
+    console.error('[product-import] save match failed', e);
+    showToast('Save match failed — ' + (e?.message || 'unknown error'));
+  }
+};
+
+const applyRow = async (row: ImportRow, mode: 'missing' | 'replace', silent = false) => {
+  if (!row.match) return;
+  const folder = customFolders.value.find(f => f.id === row.folderId);
+  if (!folder) return;
+  const p = row.match;
+  const productType = row.productType || getProductType(p);
+  const folderType = getFolderProductType(folder);
+  if (!productType) {
+    if (!silent) showToast('Import blocked: product type is missing.');
+    return;
+  }
+  if (folderType && folderType !== productType) {
+    if (!silent) showToast('Import blocked: equipment and attachment matches cannot be mixed.');
+    return;
+  }
+  const patch: Record<string, any> = {};
+  const setField = (col: 'sku' | 'short_description' | 'description' | 'machine_category' | 'product_gtin' | 'gtin', current: string | null | undefined, incoming: string | null) => {
+    if (!incoming || !incoming.trim()) return;                       // nothing to import
+    if (mode === 'missing' && current && current.trim()) {
+      if ((col !== 'description' && col !== 'short_description') || !isMetadataOnlyText(current)) return; // keep existing usable content
+    }
+    patch[col] = incoming;
+  };
+  setField('sku', folder.sku, p.sku);
+  setField('product_gtin', folder.product_gtin, p.gtin || (p as any).product_gtin || null);
+  setField('gtin', folder.gtin, p.gtin || (p as any).product_gtin || null);
+  setField('short_description', folder.short_description, hasInvalidShortDescription(p) ? null : p.shortDescription);
+  setField('description', folder.description, hasInvalidFullDescription(p) ? null : p.description);
+
+  const suggestedMC = inferMachineCategory(p.title, productType);
+  setField('machine_category', folder.machine_category, suggestedMC);
+
+  // Always record provenance metadata.
+  patch.matched_product_url = p.url || null;
+  patch.matched_product_title = p.title;
+  patch.matched_product_sku = p.sku || null;
+  patch.product_gtin = p.gtin || null;
+  patch.product_price = p.price || null;
+  patch.product_category = p.category || null;
+  patch.match_method = row.matchMethod;
+  patch.match_confidence = row.score;
+  patch.match_verified_by_user = row.matchMethod === 'manual' || row.verified;
+  patch.matched_at = new Date().toISOString();
+  patch.product_id = row.productId || row.productSlug || null;
+  patch.product_type = productType;
+  patch.product_slug = row.productSlug || getProductIdentitySlug(p) || null;
+  patch.product_folder_path = slugifyProductIdentity(folder.product_folder_path || folder.name);
+  patch.image_folder_path = folder.image_folder_path || slugifyProductIdentity(folder.name);
+  patch.product_mapping_status = 'mapped';
+  patch.imported_from_url = p.url;
+  patch.imported_product_title = p.title;
+  patch.import_confidence = row.score;
+  patch.imported_at = new Date().toISOString();
+  patch.imported_by = auth.user?.id ?? null;
+  patch.updated_at = new Date().toISOString();
+
+  try {
+    const { error } = await supabase.from('team_folders').update(patch).eq('id', folder.id);
+    if (error) throw error;
+    const idx = customFolders.value.findIndex(f => f.id === folder.id);
+    if (idx !== -1) customFolders.value[idx] = { ...customFolders.value[idx], ...patch };
+    row.status = 'applied';
+    row.verified = patch.match_verified_by_user;
+    if (!silent) {
+      showToast(`Imported into "${folder.name}".`);
+    }
+  } catch (e: any) {
+    console.error('[product-import] apply failed', e);
+    if (!silent) {
+      showToast('Import failed — ' + (e?.message || 'unknown error'));
+    }
+    throw e;
+  }
+};
+
+const triggerBulkApply = async () => {
+  if (selectedRowIds.value.length === 0) return;
+  bulkApplying.value = true;
+  let successCount = 0;
+  let failCount = 0;
+  
+  const idsToProcess = [...selectedRowIds.value];
+  
+  for (const folderId of idsToProcess) {
+    const row = importRows.value.find(r => r.folderId === folderId);
+    if (!row || !row.match) continue;
+    
+    // Safety check: only import ready or verified matches
+    if (row.status !== 'ready' && row.status !== 'verified_match') continue;
+    
+    try {
+      await applyRow(row, bulkApplyMode.value, true);
+      successCount++;
+    } catch (err) {
+      console.error(`Bulk apply failed for folder ${row.folderName}:`, err);
+      failCount++;
+    }
+  }
+  
+  showToast(`Bulk apply complete: ${successCount} folder(s) updated successfully.` + (failCount > 0 ? ` ${failCount} failed.` : ''));
+  selectedRowIds.value = selectedRowIds.value.filter(id => {
+    const row = importRows.value.find(r => r.folderId === id);
+    return row && row.status !== 'applied';
+  });
+  bulkApplying.value = false;
+};
+
+const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('Source URL copied to clipboard.');
+  } catch (err) {
+    console.error('Failed to copy text: ', err);
+    showToast('Failed to copy URL.');
+  }
+};
+
+const applyFromPreview = async (mode: 'missing' | 'replace' | 'save') => {
+  if (previewRow.value) {
+    if (mode === 'save') await saveMatchOnly(previewRow.value, true);
+    else await applyRow(previewRow.value, mode);
+  }
+  previewRow.value = null;
+  previewAction.value = null;
+};
+const previewPairs = computed(() => {
+  const row = previewRow.value;
+  if (!row || !row.match) return [] as { label: string; current: string; imported: string }[];
+  const f = currentFolderObj(row.folderId);
+  return [
+    { label: 'Folder', current: f?.name || row.folderName, imported: row.match.title || '' },
+    { label: 'Type', current: productTypeLabel(getFolderProductType(f || { name: row.folderName })), imported: productTypeLabel(row.productType || getProductType(row.match)) },
+    { label: 'Machine Category', current: f?.machine_category || 'Not set', imported: (row.match as any).machine_category || inferMachineCategory(row.match.title, row.productType || getProductType(row.match)) || 'Not set' },
+    { label: 'Product ID', current: f?.product_id || '', imported: row.productId || row.productSlug || '' },
+    { label: 'Slug', current: f?.product_slug || '', imported: row.productSlug || getProductIdentitySlug(row.match) || '' },
+    { label: 'SKU', current: f?.sku || '', imported: row.match.sku || '' },
+    { label: 'GTIN', current: f?.gtin || f?.product_gtin || '', imported: (row.match as any).gtin || (row.match as any).product_gtin || '' },
+    { label: 'Price', current: f?.product_price || '', imported: row.match.price || '' },
+    { label: 'Category', current: f?.product_category || '', imported: row.match.category || '' },
+    { label: 'Short', current: isMetadataOnlyText(f?.short_description) ? 'Invalid Short Description' : f?.short_description || '', imported: hasInvalidShortDescription(row.match) ? 'Invalid Short Description' : cleanDescriptionPreview(row.match.shortDescription, '') },
+    { label: 'Full', current: isMetadataOnlyText(f?.description) ? 'Invalid Description' : cleanDescriptionPreview(f?.description, ''), imported: hasInvalidFullDescription(row.match) ? 'Invalid Description' : cleanDescriptionPreview(row.match.description, '') },
+    { label: 'Confidence', current: f?.import_confidence != null ? `${f.import_confidence}%` : '', imported: `${row.score}% (${row.matchMethod}, ${matchReasonLabel(row.matchReason)})` },
+    { label: 'Extraction', current: '', imported: `Title: ${row.match.sources?.title_source || row.match.sources?.title || '—'}\nSKU: ${row.match.sources?.sku_source || row.match.sources?.sku || '—'}\nGTIN: ${row.match.sources?.gtin_source || '—'}\nPrice: ${row.match.sources?.price_source || '—'}\nCategory: ${row.match.sources?.category_source || '—'}\nShort: ${row.match.sources?.short_description_source || row.match.sources?.short || '—'}\nFull: ${row.match.sources?.full_description_source || row.match.sources?.full || '—'}\nFull chars: ${row.match.sources?.full_description_character_count ?? row.match.fullLength ?? 0}` },
+  ];
+});
 
 watch(currentFolder, (newVal) => {
   isOrganizeMode.value = false;
@@ -2960,20 +5748,40 @@ const loadLibraryFromDB = async () => {
     // 1. Fetch folders
     const { data: foldersData, error: foldersErr } = await supabase
       .from('team_folders')
-      .select('id, name, created_by, short_description, description, button_url, updated_at')
+      .select('id, name, created_by, short_description, description, button_url, updated_at, sku, product_gtin, gtin, product_price, product_category, imported_from_url, imported_product_title, import_confidence, imported_at, imported_by, matched_product_url, matched_product_title, matched_product_sku, match_method, match_confidence, match_verified_by_user, matched_at, product_id, product_type, machine_category, product_slug, product_folder_path, image_folder_path, product_mapping_status, deleted_at, deleted_by')
       .order('created_at', { ascending: true });
-    
+
     if (!foldersErr && foldersData) {
-      customFolders.value = foldersData;
+      // Active folders exclude anything in the Trash; trashed ones live in their
+      // own list (newest-trashed first) for the Trash view.
+      const all = foldersData as CustomFolder[];
+      customFolders.value = all.filter((f) => !f.deleted_at);
+      trashedFolders.value = all
+        .filter((f) => !!f.deleted_at)
+        .sort((a, b) => (b.deleted_at || '').localeCompare(a.deleted_at || ''));
     }
 
-    // 2. Fetch images (joining profiles to get uploader full_name)
-    const { data: imagesData, error: imagesErr } = await supabase
-      .from('team_images')
-      .select('id, url, name, folder_id, uploaded_by, created_at, source, file_type, file_size, file_size_bytes, width, height, storage_path, is_feature_image, sort_order, profiles(full_name)')
-      .order('created_at', { ascending: false });
+    // 2. Fetch images (joining profiles to get uploader full_name).
+    // Supabase caps each request at 1000 rows, so we page through with .range()
+    // until every image is loaded — otherwise only the newest 1000 would show
+    // and older folders would appear (wrongly) to have lost their images.
+    const PAGE = 1000;
+    let imagesData: any[] = [];
+    let imagesErr: any = null;
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from('team_images')
+        .select('id, url, name, folder_id, uploaded_by, created_at, source, file_type, file_size, file_size_bytes, width, height, storage_path, is_feature_image, sort_order, profiles(full_name)')
+        .order('created_at', { ascending: false })
+        .order('id', { ascending: false }) // stable tiebreaker for clean paging
+        .range(from, from + PAGE - 1);
+      if (error) { imagesErr = error; break; }
+      if (!data || data.length === 0) break;
+      imagesData = imagesData.concat(data);
+      if (data.length < PAGE) break; // last page
+    }
 
-    if (!imagesErr && imagesData) {
+    if (!imagesErr) {
       dbImages.value = (imagesData as any[]).map((r) => {
         // Handle PostgREST relation shapes (can be array or object)
         const profileObj = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
@@ -3064,15 +5872,84 @@ const isFolderOnlyFilter = computed(() => {
          !filterMyUploads.value;
 });
 
+// ─── "Missing info" completeness check ───────────────────────────────────────
+// A product folder is "incomplete" if it's missing any core product field.
+// Returns the list of missing field keys so we can show exactly what's absent.
+const folderMissingFields = (folder: CustomFolder): string[] => {
+  const missing: string[] = [];
+  if (!hasUsableDescription(folder.short_description)) missing.push('short');
+  if (!hasUsableDescription(folder.description)) missing.push('full');
+  if (!folder.sku?.trim()) missing.push('sku');
+  if (!folder.product_price?.trim()) missing.push('price');
+  if (!getFolderProductType(folder)) missing.push('type');
+  const imgs = library.value.filter((i) => i.folderId === folder.id);
+  if (imgs.length === 0) missing.push('images');
+  else if (!imgs.some((i) => i.isFeatureImage)) missing.push('feature');
+  return missing;
+};
+const isFolderMissingInfo = (folder: CustomFolder): boolean =>
+  folderMissingFields(folder).length > 0;
+
+const missingFieldLabel = (key: string): string =>
+  ({
+    short: t('mediaLibrary.shortDescription'),
+    full: t('mediaLibrary.fullDescription'),
+    sku: t('mediaLibrary.sku'),
+    price: t('mediaLibrary.price'),
+    type: t('mediaLibrary.productType'),
+    feature: t('mediaLibrary.featureImageLabel'),
+    images: t('mediaLibrary.imagesLabel'),
+  } as Record<string, string>)[key] || key;
+
+const folderMissingSummary = (folder: CustomFolder): string => {
+  const fields = folderMissingFields(folder).map(missingFieldLabel);
+  return fields.length ? `${t('mediaLibrary.missingPrefix')} ${fields.join(', ')}` : '';
+};
+
+const incompleteFolderCount = computed(
+  () => customFolders.value.filter(isFolderMissingInfo).length
+);
+
 const filteredFolders = computed(() => {
   const q = folderSearchQuery.value.trim().toLowerCase();
-  if (!q) return customFolders.value;
-  return customFolders.value.filter((f) => {
-    return f.name.toLowerCase().includes(q) ||
-           (f.short_description && f.short_description.toLowerCase().includes(q)) ||
-           (f.description && f.description.toLowerCase().includes(q)) ||
-           (f.button_url && f.button_url.toLowerCase().includes(q));
-  });
+  let list = customFolders.value;
+  if (q) {
+    list = list.filter((f) =>
+      f.name.toLowerCase().includes(q) ||
+      (f.short_description && f.short_description.toLowerCase().includes(q)) ||
+      (f.description && f.description.toLowerCase().includes(q)) ||
+      (f.button_url && f.button_url.toLowerCase().includes(q)) ||
+      (f.sku && f.sku.toLowerCase().includes(q)) ||
+      (f.matched_product_title && f.matched_product_title.toLowerCase().includes(q)) ||
+      (f.imported_product_title && f.imported_product_title.toLowerCase().includes(q)) ||
+      (f.machine_category && f.machine_category.toLowerCase().includes(q))
+    );
+  }
+  if (folderMissingFilter.value) list = list.filter(isFolderMissingInfo);
+
+  // Product Type filter
+  if (filterFolderProductType.value !== 'all') {
+    list = list.filter((f) => {
+      const type = getFolderProductType(f);
+      return type === filterFolderProductType.value;
+    });
+  }
+
+  // Machine Category filter
+  if (filterFolderMachineCategory.value !== 'all') {
+    list = list.filter((f) => {
+      if (filterFolderMachineCategory.value === 'not_set') {
+        return !f.machine_category;
+      }
+      return f.machine_category === filterFolderMachineCategory.value;
+    });
+  }
+
+  return list;
+});
+
+const shouldScrollFolders = computed(() => {
+  return filteredFolders.value.length > 5;
 });
 
 // Dynamic uploader list for filters
@@ -3244,6 +6121,107 @@ const saveFolderRename = async (folderId: string) => {
   editingFolderId.value = null;
 };
 
+/* ─── Folder Trash (soft delete) ─────────────────────────────────────────────
+   Moving to Trash is reversible: it sets deleted_at so the folder is hidden
+   from the library but kept. Restore clears it; permanent delete (from the
+   Trash view) removes the row (images fall back to Uncategorized via FK). */
+
+// Move the given folders to Trash. Only folders the user may manage are moved.
+const moveFoldersToTrash = async (ids: string[]): Promise<boolean> => {
+  if (!supabaseConfigured) return false;
+  const manageable = ids.filter((id) => {
+    const f = customFolders.value.find((x) => x.id === id);
+    return !!f && canManageFolder(f);
+  });
+  if (manageable.length === 0) {
+    showToast(t('mediaLibrary.toast.trashSelectNone'));
+    return false;
+  }
+  processingTrash.value = true;
+  try {
+    const { error } = await supabase
+      .from('team_folders')
+      .update({ deleted_at: new Date().toISOString(), deleted_by: auth.user?.id ?? null })
+      .in('id', manageable);
+    if (error) throw error;
+    if (manageable.includes(currentFolder.value)) currentFolder.value = 'all';
+    showToast(t('mediaLibrary.toast.movedToTrash', { count: manageable.length }));
+    await loadLibraryFromDB();
+    return true;
+  } catch (e) {
+    console.error('[trash] move failed', e);
+    showToast(t('mediaLibrary.toast.trashFailed'));
+    return false;
+  } finally {
+    processingTrash.value = false;
+  }
+};
+
+// Sidebar multi-select
+const toggleFolderSelectMode = () => {
+  folderSelectMode.value = !folderSelectMode.value;
+  if (!folderSelectMode.value) selectedFolderIds.value = [];
+};
+const toggleFolderSelection = (id: string) => {
+  const i = selectedFolderIds.value.indexOf(id);
+  if (i >= 0) selectedFolderIds.value.splice(i, 1);
+  else selectedFolderIds.value.push(id);
+};
+const moveSelectedToTrash = async () => {
+  const ok = await moveFoldersToTrash([...selectedFolderIds.value]);
+  if (ok) {
+    selectedFolderIds.value = [];
+    folderSelectMode.value = false;
+  }
+};
+
+// Restore a trashed folder back to the library.
+const restoreFolder = async (folder: CustomFolder) => {
+  if (!supabaseConfigured) return;
+  processingTrash.value = true;
+  try {
+    const { error } = await supabase
+      .from('team_folders')
+      .update({ deleted_at: null, deleted_by: null })
+      .eq('id', folder.id);
+    if (error) throw error;
+    showToast(t('mediaLibrary.toast.folderRestored', { name: folder.name }));
+    await loadLibraryFromDB();
+  } catch (e) {
+    console.error('[trash] restore failed', e);
+    showToast(t('mediaLibrary.toast.trashFailed'));
+  } finally {
+    processingTrash.value = false;
+  }
+};
+
+// Permanently delete a trashed folder (its images return to Uncategorized).
+const deleteFolderPermanently = async (folder: CustomFolder) => {
+  if (!supabaseConfigured) return;
+  if (!confirm(t('mediaLibrary.confirm.deletePermanent', { name: folder.name }))) return;
+  processingTrash.value = true;
+  try {
+    const { error } = await supabase.from('team_folders').delete().eq('id', folder.id);
+    if (error) throw error;
+    showToast(t('mediaLibrary.toast.folderDeletedPermanently'));
+    await loadLibraryFromDB();
+  } catch (e) {
+    console.error('[trash] permanent delete failed', e);
+    showToast(t('mediaLibrary.toast.deleteFolderFailed'));
+  } finally {
+    processingTrash.value = false;
+  }
+};
+
+// Export-modal "Move to Trash" action (reuses the shared soft-delete).
+const deleteSelectedFolders = async () => {
+  const ok = await moveFoldersToTrash(deletableSelectedFolderIds.value);
+  if (ok) {
+    selectedExportFolderIds.value = [];
+    showExportModal.value = false;
+  }
+};
+
 const deleteFolder = async (folderId: string) => {
   if (!supabaseConfigured) return;
   const targetFolder = customFolders.value.find(f => f.id === folderId);
@@ -3281,16 +6259,33 @@ const copyFolderLink = (folderId: string) => {
   closeFolderMenu();
 };
 
-const toggleFolderMenu = (folderId: string) => {
-  if (activeFolderMenuId.value === folderId) {
-    activeFolderMenuId.value = null;
-  } else {
-    activeFolderMenuId.value = folderId;
+const toggleFolderMenu = (folder: CustomFolder, event: MouseEvent) => {
+  if (activeFolderMenuId.value === folder.id) {
+    closeFolderMenu();
+    return;
   }
+  
+  activeFolderMenuId.value = folder.id;
+  menuActiveFolder.value = folder;
+  
+  // Calculate viewport coordinates for fixed positioning
+  const buttonRect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const dropdownWidth = 176; // w-44 is 11rem = 176px
+  const hasMoveAction = selectedImageKeys.value.length > 0;
+  const dropdownHeight = hasMoveAction ? 122 : 90;
+  
+  const spaceBelow = window.innerHeight - buttonRect.bottom;
+  const showUpward = spaceBelow < dropdownHeight + 20;
+  
+  folderMenuPosition.value = {
+    top: showUpward ? (buttonRect.top - dropdownHeight - 4) : (buttonRect.bottom + 4),
+    left: Math.max(10, buttonRect.right - dropdownWidth)
+  };
 };
 
 const closeFolderMenu = () => {
   activeFolderMenuId.value = null;
+  menuActiveFolder.value = null;
 };
 
 const getFolderImageCount = (folderId: string) => {
@@ -3850,6 +6845,10 @@ const resetAllFilters = () => {
   filterMyUploads.value = false;
   sortBy.value = 'newest';
   currentFolder.value = 'all';
+  folderSearchQuery.value = '';
+  folderMissingFilter.value = false;
+  filterFolderProductType.value = 'all';
+  filterFolderMachineCategory.value = 'all';
 };
 
 // ─── Bulk Actions ─────────────────────────────────────────────────────────────
@@ -4078,6 +7077,10 @@ const fmtDateFull = (dateStr: string) => {
   }
 };
 
+const handleResize = () => {
+  isLargeScreen.value = window.innerWidth >= 1024;
+};
+
 // Lifecycle Hooks
 onMounted(() => {
   // Sync selected folder from URL params if present
@@ -4089,6 +7092,8 @@ onMounted(() => {
   subscribeRealtime();
   window.addEventListener('paste', onGlobalPaste);
   window.addEventListener('keydown', handleKeydown);
+  window.addEventListener('resize', handleResize);
+  handleResize();
 });
 
 onUnmounted(() => {
@@ -4096,6 +7101,7 @@ onUnmounted(() => {
   if (imagesSubscription) imagesSubscription.unsubscribe();
   window.removeEventListener('paste', onGlobalPaste);
   window.removeEventListener('keydown', handleKeydown);
+  window.removeEventListener('resize', handleResize);
 });
 </script>
 
@@ -4210,14 +7216,14 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.375rem; /* gap-1.5 */
   padding: 0.375rem 0.75rem; /* px-3 py-1.5 */
-  border-radius: 9999px; /* rounded-full */
+  border-radius: 8px; /* rounded-lg */
   font-size: 0.75rem; /* text-xs */
   font-weight: 600; /* font-semibold */
   cursor: pointer;
   user-select: none;
   flex-shrink: 0;
   transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
-  height: 2.25rem; /* Consistent row height on mobile */
+  height: auto; /* auto height */
   color: var(--text-muted);
   background-color: rgba(var(--color-soft-bg, 0, 0, 0), 0.3);
 }
@@ -4230,6 +7236,12 @@ onUnmounted(() => {
 .folder-row.active {
   background-color: var(--primary-soft);
   color: var(--primary);
+}
+
+/* Selected for Trash (select mode) */
+.folder-row.folder-selected {
+  background-color: var(--primary-soft);
+  box-shadow: inset 2px 0 0 0 var(--primary);
 }
 
 /* Drag over animations */
@@ -4245,10 +7257,10 @@ onUnmounted(() => {
     grid-template-columns: 24px minmax(0, 1fr) auto 16px;
     align-items: center;
     gap: 0.5rem; /* gap: 8px */
-    padding: 0 0.125rem 0 0.375rem; /* Tighter padding to extend content close to scrollbar */
+    padding: 0.375rem 0.125rem 0.375rem 0.375rem;
     border-radius: 6px; /* rounded-btn */
     background-color: transparent;
-    height: 2rem; /* Consistent row height on desktop */
+    min-height: 4.25rem; /* Taller on desktop to support stacked metadata details */
     color: var(--text-muted);
   }
   
@@ -4345,14 +7357,18 @@ onUnmounted(() => {
 /* Folder Custom Scrollbar */
 @media (min-width: 768px) {
   .folder-list-scroll {
-    overflow-y: auto !important;
-    max-height: 480px;
+    overflow-y: visible; /* Default to visible so dropdowns are not clipped when list is small */
+    max-height: calc(100vh - 220px); /* fill available viewport height so more folders are visible */
     scrollbar-gutter: stable;
     padding-right: 2px; /* Reduced right padding so content naturally extends close to the edge */
     margin-right: -4px; /* Pull container closer to the sidebar edge */
     padding-left: 2px;
     scrollbar-width: thin;
     scrollbar-color: var(--primary) #2C2C2F;
+  }
+
+  .folder-list-scroll.scroll-active {
+    overflow-y: auto !important;
   }
   
   .folder-list-scroll::-webkit-scrollbar {

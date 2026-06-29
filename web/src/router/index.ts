@@ -158,6 +158,14 @@ const routes: RouteRecordRaw[] = [
       { path: 'cms/blog',         name: 'cms-blog',          meta: adminOrMember, component: () => import('@/pages/cms/CmsBlogPostsListPage.vue') },
       { path: 'cms/blog/:id',     name: 'cms-blog-edit',     meta: adminOrMember, component: () => import('@/pages/cms/CmsBlogPostEditPage.vue') },
 
+      // ── Product Sync (master controller → e-commerce framework receivers) ──
+      // Admin-class only. The Sync Center pushes cms_products out to connected
+      // receiver sites; Connected Websites manages the receivers + secrets.
+      { path: 'product-sync',          name: 'product-sync',          meta: adminOnly, component: () => import('@/pages/sync/SyncCenterPage.vue') },
+      { path: 'product-sync/websites', name: 'product-sync-websites', meta: adminOnly, component: () => import('@/pages/sync/ConnectedWebsitesPage.vue') },
+      { path: 'product-sync/logs',     name: 'product-sync-logs',     meta: adminOnly, component: () => import('@/pages/sync/SyncLogsPage.vue') },
+      { path: 'product-sync/settings', name: 'product-sync-settings', meta: adminOnly, component: () => import('@/pages/sync/SyncSettingsPage.vue') },
+
       // ── Images dashboard ───────────────────────────────────────────────────
       // Standalone hub for blog imagery: WebP converter + visibility-scoped
       // library. Extensible — more image tools will land here over time.

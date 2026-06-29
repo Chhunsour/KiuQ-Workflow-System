@@ -38,6 +38,12 @@
         <option value="draft">{{ $t('Draft') }}</option>
         <option value="published">{{ $t('Published') }}</option>
       </select>
+      <select v-model="productTypeFilter" class="cms-select">
+        <option value="all">{{ $t('All types') }}</option>
+        <option value="equipment">{{ $t('Equipment') }}</option>
+        <option value="attachment">{{ $t('Attachments') }}</option>
+        <option value="unknown">{{ $t('Needs Type') }}</option>
+      </select>
       <select v-model="categoryFilter" class="cms-select">
         <option value="all">{{ $t('All categories') }}</option>
         <option v-for="c in categoryOptions" :key="c" :value="c">{{ c }}</option>
@@ -70,6 +76,7 @@
         <thead>
           <tr>
             <th>{{ $t('Product') }}</th>
+            <th>{{ $t('Type') }}</th>
             <th>{{ $t('Category') }}</th>
             <th>{{ $t('Status') }}</th>
             <th>{{ $t('Updated') }}</th>
@@ -89,6 +96,9 @@
                   <span class="cms-product-slug">/{{ p.slug || 'no-slug' }}</span>
                 </div>
               </div>
+            </td>
+            <td>
+              <span class="cms-tag">{{ productTypeLabel(p.productType) }}</span>
             </td>
             <td>
               <span v-if="p.category" class="cms-tag">{{ p.category }}</span>
@@ -142,6 +152,7 @@ import CmsLockedScreen from '@/components/cms/CmsLockedScreen.vue';
 import { useCmsProductsStore, type CmsProduct } from '@/stores/cmsProducts';
 import { useAuthStore } from '@/stores/auth';
 import { usePageRealtime } from '@/services/realtimeService';
+import { productTypeLabel } from '@/lib/productIdentity';
 
 usePageRealtime(['cms_products']);
 
@@ -151,6 +162,7 @@ const auth   = useAuthStore();
 
 const search         = ref('');
 const statusFilter   = ref<'all' | 'draft' | 'published'>('all');
+const productTypeFilter = ref<'all' | 'equipment' | 'attachment' | 'unknown'>('all');
 const categoryFilter = ref<string>('all');
 const creating       = ref(false);
 const busyId         = ref<string | null>(null);
@@ -168,15 +180,16 @@ const categoryOptions = computed(() => {
 });
 
 const hasActiveFilters = computed(
-  () => !!(search.value || statusFilter.value !== 'all' || categoryFilter.value !== 'all')
+  () => !!(search.value || statusFilter.value !== 'all' || productTypeFilter.value !== 'all' || categoryFilter.value !== 'all')
 );
 
 const filtered = computed(() => {
   const q = search.value.trim().toLowerCase();
   return store.products.filter((p) => {
     if (statusFilter.value !== 'all' && p.status !== statusFilter.value) return false;
+    if (productTypeFilter.value !== 'all' && (p.productType || 'unknown') !== productTypeFilter.value) return false;
     if (categoryFilter.value !== 'all' && p.category !== categoryFilter.value) return false;
-    if (q && !p.productName.toLowerCase().includes(q) && !p.slug.toLowerCase().includes(q)) return false;
+    if (q && !p.productName.toLowerCase().includes(q) && !p.slug.toLowerCase().includes(q) && !p.compatibleWith.join(' ').toLowerCase().includes(q)) return false;
     return true;
   });
 });

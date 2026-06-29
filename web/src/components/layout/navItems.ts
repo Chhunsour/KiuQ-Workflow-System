@@ -85,6 +85,14 @@ const cmsChildren: NavItem[] = [
   { label: 'Blog Posts', to: '/cms/blog',     icon: ICON.pen  },
 ];
 
+const productSyncChildren: NavItem[] = [
+  { label: 'Sync Center',        to: '/product-sync',                    icon: ICON.dashboard },
+  { label: 'Connected Websites', to: '/product-sync/websites',           icon: ICON.globe     },
+  { label: 'Sync Logs',          to: '/product-sync/logs',               icon: ICON.activity  },
+  { label: 'Failed Syncs',       to: '/product-sync/logs?status=failed', icon: ICON.alert     },
+  { label: 'Sync Settings',      to: '/product-sync/settings',           icon: ICON.settings  },
+];
+
 const promptChildren: NavItem[] = [
   { label: 'Prompt Dashboard', to: '/prompt', icon: ICON.dashboard },
   { label: 'Prompt Library', to: '/prompt/library', icon: ICON.book },
@@ -132,6 +140,7 @@ export const adminNavItems: NavItem[] = [
   { section: 'Content', label: 'Websites', to: '/websites', icon: ICON.globe, children: websiteChildren },
   { label: 'Performance', to: '/performance', icon: ICON.performance, children: performanceChildren },
   { label: 'CMS', to: '/cms', icon: ICON.cms, children: cmsChildren },
+  { label: 'Product Sync', to: '/product-sync', icon: ICON.cube, children: productSyncChildren },
   { label: 'Blog Center', to: '/blog-center', icon: ICON.bolt },
   { label: 'Images', to: '/images', icon: ICON.image },
   { label: 'Prompt', to: '/prompt', icon: ICON.chat, children: promptChildren },

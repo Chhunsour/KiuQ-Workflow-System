@@ -44,8 +44,23 @@
 
             <div class="cpe-row2">
               <div>
+                <label class="cpe-label">{{ $t('Product type') }}</label>
+                <select v-model="form.productType" class="cpe-input">
+                  <option :value="null">{{ $t('Needs Type') }}</option>
+                  <option value="equipment">{{ $t('Equipment') }}</option>
+                  <option value="attachment">{{ $t('Attachment') }}</option>
+                </select>
+              </div>
+              <div>
                 <label class="cpe-label">{{ $t('Category') }}</label>
                 <input v-model="form.category" class="cpe-input" type="text" :placeholder="$t('e.g. Heavy Machinery')" />
+              </div>
+            </div>
+
+            <div class="cpe-row2">
+              <div v-if="form.productType === 'attachment'">
+                <label class="cpe-label">{{ $t('Compatible with') }}</label>
+                <input v-model="form.compatibleWithText" class="cpe-input" type="text" :placeholder="$t('Mini Excavator, Mini Skid Steer')" />
               </div>
               <div>
                 <label class="cpe-label">{{ $t('Price (optional)') }}</label>
@@ -72,7 +87,7 @@
             <div v-else class="cpe-rows">
               <div v-for="(s, i) in form.specs" :key="`spec-${i}`" class="cpe-row">
                 <input v-model="s.label" class="cpe-input" type="text" :placeholder="$t('Label (e.g. Weight)')" />
-                <input v-model="s.value" class="cpe-input" type="text" :placeholder="$t('Value (e.g. 2,400 kg)')" />
+                <input v-model="s.value" class="cpe-input" type="text" :placeholder="$t('Value (e.g. 2,400 lbs)')" />
                 <button type="button" class="cpe-row-remove" :title="$t('Remove')" @click="form.specs.splice(i, 1)">×</button>
               </div>
             </div>
@@ -241,6 +256,7 @@ import {
 import { useAuthStore } from '@/stores/auth';
 import CmsLockedScreen from '@/components/cms/CmsLockedScreen.vue';
 import { usePageRealtime } from '@/services/realtimeService';
+import type { ProductType } from '@/lib/productIdentity';
 
 usePageRealtime(['cms_products']);
 
@@ -261,7 +277,9 @@ const lastSavedAt = ref<number | null>(null);
 interface EditForm {
   productName: string;
   slug: string;
+  productType: ProductType | null;
   category: string;
+  compatibleWithText: string;
   shortDescription: string;
   fullDescription: string;
   productImages: CmsProductImage[];
@@ -278,7 +296,9 @@ interface EditForm {
 const blankForm = (): EditForm => ({
   productName: '',
   slug: '',
+  productType: null,
   category: '',
+  compatibleWithText: '',
   shortDescription: '',
   fullDescription: '',
   productImages: [],
@@ -310,7 +330,9 @@ const load = async () => {
 const hydrateFromProduct = (p: CmsProduct) => {
   form.productName      = p.productName;
   form.slug             = p.slug;
+  form.productType      = p.productType;
   form.category         = p.category;
+  form.compatibleWithText = p.compatibleWith.join(', ');
   form.shortDescription = p.shortDescription;
   form.fullDescription  = p.fullDescription;
   form.productImages    = [...p.productImages];
@@ -433,7 +455,9 @@ const save = async () => {
     const updated = await store.updateProduct(productId.value, {
       productName:      form.productName,
       slug:             form.slug,
+      productType:      form.productType,
       category:         form.category,
+      compatibleWith:   form.compatibleWithText.split(',').map((s) => s.trim()).filter(Boolean),
       shortDescription: form.shortDescription,
       fullDescription:  form.fullDescription,
       productImages:    form.productImages,

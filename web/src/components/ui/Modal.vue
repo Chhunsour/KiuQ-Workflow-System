@@ -3,11 +3,11 @@
     <div
       v-if="open"
       class="modal-overlay fixed inset-0 z-50 flex items-start justify-center px-4 py-10 overflow-y-auto"
-      @click.self="$emit('close')"
+      @click.self="onBackdropClick"
     >
       <div
         class="modal-panel card relative w-full bg-card"
-        :class="sizeClass"
+        :class="[sizeClass, panelClass]"
       >
         <header class="modal-header flex items-start justify-between gap-4 border-b border-border px-5 py-3.5">
           <div class="min-w-0">
@@ -17,7 +17,7 @@
           <button
             type="button"
             class="btn-ghost h-8 w-8 px-0 flex-shrink-0"
-            aria-:label="$t('Close')"
+            aria-label="$t('Close')"
             @click="$emit('close')"
           >
             <svg
@@ -34,7 +34,7 @@
             </svg>
           </button>
         </header>
-        <div class="modal-body px-5 py-4">
+        <div class="modal-body px-5 py-4" :class="bodyClass">
           <slot />
         </div>
         <footer
@@ -52,11 +52,25 @@
 import { computed } from 'vue';
 
 const props = withDefaults(
-  defineProps<{ open: boolean; title: string; subtitle?: string; size?: 'sm' | 'md' | 'lg' | 'xl' }>(),
-  { size: 'md' }
+  defineProps<{
+    open: boolean;
+    title: string;
+    subtitle?: string;
+    size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+    panelClass?: string;
+    bodyClass?: string;
+    /** When false, clicking the backdrop does NOT close the modal (prevents
+     *  accidental loss of unsaved edits). Defaults to true. */
+    closeOnBackdrop?: boolean;
+  }>(),
+  { size: 'md', panelClass: '', bodyClass: '', closeOnBackdrop: true }
 );
 
-defineEmits<{ (e: 'close'): void }>();
+const emit = defineEmits<{ (e: 'close'): void }>();
+
+const onBackdropClick = () => {
+  if (props.closeOnBackdrop) emit('close');
+};
 
 const sizeClass = computed(() => {
   switch (props.size) {
@@ -66,6 +80,8 @@ const sizeClass = computed(() => {
       return 'max-w-3xl';
     case 'xl':
       return 'max-w-5xl';
+    case 'xxl':
+      return 'max-w-[1700px] w-[95vw]';
     default:
       return 'max-w-xl';
   }
