@@ -917,7 +917,23 @@ export const useDataStore = defineStore('data', () => {
         errors.members = error.message;
         return false;
       }
+
+      // Cascading cleanups for the deactivated member
+      await supabase.from('websites').delete().eq('created_by', id);
+      await supabase.from('prompt_assignments').delete().eq('assigned_member_id', id);
+      await supabase.from('project_members').delete().eq('member_id', id);
+      await supabase.from('section_tasks').delete().eq('assigned_member_id', id);
+      await supabase.from('quality_issues').delete().eq('assigned_to', id);
+      await supabase.from('docs_assignments').delete().eq('assigned_to', id);
+
+      // Refresh stores to update UI immediately
       await fetchMembers();
+      await fetchWebsites(true);
+      await fetchAssignments(true);
+      await fetchSectionTasks(true);
+      await fetchDocsAssignments();
+      await fetchProjects(true);
+
       return true;
     } catch (err) {
       console.error('[data] deactivateMember:', err);
