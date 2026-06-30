@@ -80,8 +80,8 @@
           </div>
         </div>
         <span class="bl-folder-hint">
-          <template v-if="canCreate">{{ $t('New posts go to') }} <b>{{ selectedWebsite?.name || selectedWebsite?.domain }}</b></template>
-          <template v-else>{{ $t('Pick a website to start a new post') }}</template>
+          <template v-if="selectedWebsite">{{ $t('New posts go to') }} <b>{{ selectedWebsite.name || selectedWebsite.domain }}</b></template>
+          <template v-else>{{ $t('New posts publish to all connected sites on “Sync to sites”.') }}</template>
         </span>
         <span class="bl-folder-count">{{ filtered.length }} {{ filtered.length === 1 ? 'post' : 'posts' }}</span>
       </div>
@@ -297,7 +297,9 @@ const selectedWebsite = computed<Website | null>(() =>
     ? websiteById.value.get(websiteFilter.value) ?? null
     : null
 );
-const canCreate = computed(() => !!selectedWebsite.value);
+// Blog posts don't require a website: "Sync to sites" pushes every published
+// post to all connected framework sites. Assigning a site is optional organizing.
+const canCreate = computed(() => true);
 
 // ── Status tab counts (respect the current website folder) ────────────
 const inFolder = (p: CmsBlogPost) => {
@@ -380,14 +382,14 @@ const clearFilters = () => {
 };
 
 const onCreateNew = async () => {
-  if (!canCreate.value || !selectedWebsite.value) return;
+  if (creating.value) return;
   creating.value = true;
   try {
     const post = await store.createPost({
       title: 'Untitled post',
       slug: '',
       status: 'draft',
-      websiteId: selectedWebsite.value.id,
+      websiteId: selectedWebsite.value?.id ?? null,
     });
     if (post) await router.push(`/cms/blog/${post.id}`);
   } finally {

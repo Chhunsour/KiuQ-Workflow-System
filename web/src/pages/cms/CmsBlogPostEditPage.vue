@@ -111,7 +111,7 @@
             <!-- Website — which site this post publishes to -->
             <section class="be-card be-side-card be-website-card">
               <h3 class="be-side-title">{{ $t('Website') }}</h3>
-              <p class="be-website-help">{{ $t('Tap the site this post belongs to.') }}</p>
+              <p class="be-website-help">{{ $t('Optional — published posts sync to all connected sites. Pick one only to organize.') }}</p>
               <div class="be-site-tiles">
                 <button
                   v-for="w in websites"
@@ -127,8 +127,7 @@
                   <span class="be-site-tile-name">{{ w.name || w.domain }}</span>
                 </button>
               </div>
-              <p v-if="!websites.length && !auth.isAdmin" class="be-website-warn">{{ $t('You haven\'t created any websites yet — add one under Websites first.') }}</p>
-              <p v-else-if="!form.websiteId" class="be-website-warn">{{ $t('Assign a website so it publishes to the right place.') }}</p>
+              <p v-if="!websites.length" class="be-website-help">{{ $t('No framework site to assign — that’s fine. Published posts still go to every connected site on “Sync to sites”.') }}</p>
             </section>
 
             <!-- Publish status -->
