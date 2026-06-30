@@ -28,6 +28,7 @@ export interface CmsBlogPost {
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;
+  archived: boolean;
 }
 
 export type CmsBlogPostInput = Partial<
@@ -57,6 +58,7 @@ const rowToPost = (r: any): CmsBlogPost => ({
   createdAt:        r.created_at,
   updatedAt:        r.updated_at,
   publishedAt:      r.published_at ?? null,
+  archived:         r.archived ?? false,
 });
 
 const inputToRow = (input: CmsBlogPostInput): Record<string, unknown> => {
@@ -91,7 +93,7 @@ export const slugify = (raw: string): string => {
 
 const CMS_BUCKET = 'cms-media';
 
-const SELECT_COLS = 'id,title,slug,excerpt,category,website_id,content,featured_image,featured_image_alt,author,publish_date,seo_title,seo_description,status,created_by,updated_by,created_at,updated_at,published_at';
+const SELECT_COLS = 'id,title,slug,excerpt,category,website_id,content,featured_image,featured_image_alt,author,publish_date,seo_title,seo_description,status,created_by,updated_by,created_at,updated_at,published_at,archived';
 
 export const useCmsBlogPostsStore = defineStore('cmsBlogPosts', () => {
   const posts   = ref<CmsBlogPost[]>([]);
@@ -211,6 +213,21 @@ export const useCmsBlogPostsStore = defineStore('cmsBlogPosts', () => {
     return updatePost(id, { status: 'published' });
   };
 
+  // ── Archive / restore (hide from views + sync, reversible) ───────────
+  const setArchived = async (id: string, archived: boolean): Promise<boolean> => {
+    if (!canEdit()) { error.value = 'You do not have permission to archive posts.'; return false; }
+    if (!supabaseConfigured) return false;
+    const { data, error: err } = await supabase
+      .from('cms_blog_posts').update({ archived }).eq('id', id).select(SELECT_COLS).single();
+    if (err || !data) { error.value = err?.message ?? 'Could not update post.'; return false; }
+    const post = rowToPost(data);
+    const idx = posts.value.findIndex((p) => p.id === id);
+    if (idx !== -1) posts.value[idx] = post;
+    return true;
+  };
+  const archivePost = (id: string) => setArchived(id, true);
+  const unarchivePost = (id: string) => setArchived(id, false);
+
   const unpublishPost = async (id: string): Promise<CmsBlogPost | null> => {
     if (!canPublish()) { error.value = 'You do not have permission to unpublish.'; return null; }
     return updatePost(id, { status: 'draft' });
@@ -306,6 +323,8 @@ export const useCmsBlogPostsStore = defineStore('cmsBlogPosts', () => {
     deletePost,
     publishPost,
     unpublishPost,
+    archivePost,
+    unarchivePost,
     uploadPostImage,
     syncBlogs,
     handleRealtimePayload,

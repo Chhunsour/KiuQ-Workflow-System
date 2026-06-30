@@ -203,6 +203,16 @@
               <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             </button>
             <button
+              type="button"
+              class="bl-action"
+              :title="p.archived ? 'Restore from archive' : 'Archive (hide, keep in DB)'"
+              :disabled="busyId === p.id"
+              @click="toggleArchive(p)"
+            >
+              <svg v-if="p.archived" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h2"/><path d="M20 8v11a2 2 0 0 1-2 2h-2"/><path d="m9 15 3-3 3 3"/><path d="M12 12v9"/></svg>
+              <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
+            </button>
+            <button
               v-if="store.canDelete()"
               type="button"
               class="bl-action bl-action--danger"
@@ -235,7 +245,7 @@ const store  = useCmsBlogPostsStore();
 const data   = useDataStore();
 const auth   = useAuthStore();
 
-type StatusTab = 'all' | 'published' | 'draft';
+type StatusTab = 'all' | 'published' | 'draft' | 'archived';
 const search         = ref('');
 const statusFilter   = ref<StatusTab>('all');
 const categoryFilter = ref('all');
@@ -296,13 +306,17 @@ const inFolder = (p: CmsBlogPost) => {
   return p.websiteId === websiteFilter.value;
 };
 const folderPosts = computed(() => store.posts.filter(inFolder));
+// Archived posts are hidden from the normal tabs; they live only in "Archived".
+const activePosts   = computed(() => folderPosts.value.filter((p) => !p.archived));
+const archivedPosts = computed(() => folderPosts.value.filter((p) => p.archived));
 
-const publishedCount = computed(() => folderPosts.value.filter((p) => p.status === 'published').length);
-const draftCount     = computed(() => folderPosts.value.filter((p) => p.status === 'draft').length);
+const publishedCount = computed(() => activePosts.value.filter((p) => p.status === 'published').length);
+const draftCount     = computed(() => activePosts.value.filter((p) => p.status === 'draft').length);
 const tabs = computed(() => [
-  { key: 'all' as const,       label: 'All',       count: folderPosts.value.length },
+  { key: 'all' as const,       label: 'All',       count: activePosts.value.length },
   { key: 'published' as const, label: 'Published', count: publishedCount.value },
   { key: 'draft' as const,     label: 'Drafts',    count: draftCount.value },
+  { key: 'archived' as const,  label: 'Archived',  count: archivedPosts.value.length },
 ]);
 
 const categoryOptions = computed(() => {
@@ -317,8 +331,9 @@ const hasActiveFilters = computed(
 
 const filtered = computed(() => {
   const q = search.value.trim().toLowerCase();
-  const list = folderPosts.value.filter((p) => {
-    if (statusFilter.value !== 'all' && p.status !== statusFilter.value) return false;
+  const base = statusFilter.value === 'archived' ? archivedPosts.value : activePosts.value;
+  const list = base.filter((p) => {
+    if (statusFilter.value !== 'all' && statusFilter.value !== 'archived' && p.status !== statusFilter.value) return false;
     if (categoryFilter.value !== 'all' && p.category !== categoryFilter.value) return false;
     if (q && !p.title.toLowerCase().includes(q) && !p.slug.toLowerCase().includes(q)) return false;
     return true;
@@ -333,6 +348,7 @@ const filtered = computed(() => {
 });
 
 const emptyTitle = computed(() => {
+  if (statusFilter.value === 'archived') return 'No archived posts.';
   if (hasActiveFilters.value) return 'No posts match your filters.';
   if (statusFilter.value === 'draft') return 'No drafts here yet.';
   if (statusFilter.value === 'published') return 'Nothing published here yet.';
@@ -384,6 +400,16 @@ const togglePublish = async (p: CmsBlogPost) => {
   try {
     if (p.status === 'published') await store.unpublishPost(p.id);
     else                          await store.publishPost(p.id);
+  } finally {
+    busyId.value = null;
+  }
+};
+
+const toggleArchive = async (p: CmsBlogPost) => {
+  busyId.value = p.id;
+  try {
+    if (p.archived) await store.unarchivePost(p.id);
+    else            await store.archivePost(p.id);
   } finally {
     busyId.value = null;
   }

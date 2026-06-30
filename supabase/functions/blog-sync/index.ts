@@ -130,6 +130,7 @@ serve(async (req) => {
     .from("cms_blog_posts")
     .select("id,title,slug,excerpt,category,content,featured_image,featured_image_alt,author,seo_title,seo_description,status,published_at,created_at,updated_at")
     .eq("status", "published")
+    .eq("archived", false)
     .order("published_at", { ascending: false });
   if (Array.isArray(body.postIds)) pq = pq.in("id", body.postIds as string[]);
   const { data: posts, error: postErr } = await pq;
