@@ -460,6 +460,9 @@ export const usePerformanceStore = defineStore('performance', () => {
     try {
       const ok = await runSync({ website_id: websiteId, days: daysParam as 7 | 28 | 90 | 'last_16_months' });
       await Promise.all([fetchConnections(), fetchStats()]);
+      if (ok) {
+        void auth.recordActivity('gsc_synced', 'page', websiteId, `Synced Search Console performance data.`);
+      }
       return ok;
     } finally {
       const next = new Set(syncingIds.value);
@@ -474,6 +477,9 @@ export const usePerformanceStore = defineStore('performance', () => {
     try {
       const ok = await runSync({ all: true, days: daysParam as 7 | 28 | 90 | 'last_16_months' });
       await Promise.all([fetchConnections(), fetchStats()]);
+      if (ok) {
+        void auth.recordActivity('gsc_synced', 'page', null, `Synced Search Console performance data for all connected websites.`);
+      }
       return ok;
     } finally {
       syncAllRunning.value = false;

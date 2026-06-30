@@ -185,7 +185,10 @@ export type ActivityAction =
   | 'created_prompt'
   | 'prompt_replaced'
   | 'replaced_prompt'
-  | 'prompt_replacement';
+  | 'prompt_replacement'
+  | 'csv_exported'
+  | 'gsc_synced'
+  | 'product_updated';
 
 export interface Member {
   id: string;
@@ -919,7 +922,7 @@ export const useDataStore = defineStore('data', () => {
       }
 
       // Cascading cleanups for the deactivated member
-      await supabase.from('websites').delete().eq('created_by', id);
+      await supabase.from('websites').update({ status: 'inactive' }).eq('created_by', id);
       await supabase.from('prompt_assignments').delete().eq('assigned_member_id', id);
       await supabase.from('project_members').delete().eq('member_id', id);
       await supabase.from('section_tasks').delete().eq('assigned_member_id', id);

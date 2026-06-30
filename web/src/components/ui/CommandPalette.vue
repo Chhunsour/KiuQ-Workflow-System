@@ -121,8 +121,12 @@ const navTargets = computed<NavTarget[]>(() => {
     out.push({ label, to, icon });
   };
   navSource.value.forEach((item) => {
+    if (item.isComingSoon || item.to === '#') return;
     push(item.label, item.to, item.icon || ICON.page);
-    item.children?.forEach((c) => push(c.label, c.to, c.icon || ICON.page));
+    item.children?.forEach((c) => {
+      if (c.isComingSoon || c.to === '#') return;
+      push(c.label, c.to, c.icon || ICON.page);
+    });
   });
   return out;
 });

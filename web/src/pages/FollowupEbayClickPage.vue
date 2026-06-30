@@ -31,84 +31,10 @@
 
     <LoadingBlock :loading="followup.loadingEbay" :error="followup.errorEbay" :retry="load">
 
-      <!-- ═══════════════════════════════════════════════════════
-           ADMIN VIEW — overview + optional per-member calendar
-           ═══════════════════════════════════════════════════════ -->
-      <template v-if="auth.isAdmin && !viewingMemberId">
-
-        <!-- Summary cards -->
-        <div class="ecf-summary-row">
-          <div class="ecf-summary-card">
-            <div class="ecf-summary-icon ecf-summary-icon--done">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="ecf-summary-body">
-              <div class="ecf-summary-num">{{ completedToday }}</div>
-              <div class="ecf-summary-label">{{ $t('Completed Today') }}</div>
-            </div>
-          </div>
-          <div class="ecf-summary-card">
-            <div class="ecf-summary-icon ecf-summary-icon--pending">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div class="ecf-summary-body">
-              <div class="ecf-summary-num">{{ pendingToday }}</div>
-              <div class="ecf-summary-label">{{ $t('Pending Today') }}</div>
-            </div>
-          </div>
-          <div class="ecf-summary-card">
-            <div class="ecf-summary-icon ecf-summary-icon--missed">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-            </div>
-            <div class="ecf-summary-body">
-              <div class="ecf-summary-num">{{ missedThisWeek }}</div>
-              <div class="ecf-summary-label">{{ $t('Missed This Week') }}</div>
-            </div>
-          </div>
-          <div class="ecf-summary-card">
-            <div class="ecf-summary-icon ecf-summary-icon--progress">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <div class="ecf-summary-body">
-              <div class="ecf-summary-num">{{ teamWeekDone }}/{{ teamWeekRequired }}</div>
-              <div class="ecf-summary-label">{{ $t('Team This Week') }}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Grouped-by-member overview -->
-        <FollowupMemberGroups kind="ebay" />
-      </template>
-
-      <!-- ═══════════════════════════════════════════════════════
-           CALENDAR VIEW — member view OR admin viewing a member
-           ═══════════════════════════════════════════════════════ -->
-      <template v-else>
-
-        <!-- Admin: back to overview + member name -->
-        <div v-if="auth.isAdmin && viewingMemberId" class="ecf-calendar-topbar">
-          <button class="btn-ghost ecf-back-btn" type="button" @click="viewingMemberId = null">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-            {{ $t('All Members') }}
-          </button>
-          <div class="ecf-viewing-member">
-            <div class="ecf-member-avatar ecf-member-avatar--sm">
-              <img
-                v-if="viewingMember?.avatarUrl"
-                :src="viewingMember.avatarUrl"
-                :alt="viewingMember?.fullName"
-                class="ecf-avatar-img cursor-pointer transition hover:scale-110"
-                @click.prevent.stop="openPhotoPreview"
-                @error="(e) => ((e.target as HTMLImageElement).style.display = 'none')"
-              />
-              <span v-else>{{ initials(viewingMember?.fullName ?? '?') }}</span>
-            </div>
-            <span class="ecf-viewing-name">{{ viewingMember?.fullName }}</span>
-          </div>
-        </div>
-
-        <!-- Member self-view: mini stats -->
-        <div v-if="!auth.isAdmin" class="ecf-self-stats">
+      <!-- Direct daily/monthly calendar tracker -->
+      <div>
+        <!-- Self-view: mini stats -->
+        <div class="ecf-self-stats">
           <div class="ecf-self-stat">
             <span class="ecf-self-num">{{ selfWeekDone }}/{{ memberWeekRequired }}</span>
             <span class="ecf-self-label">{{ $t('This Week') }}</span>
@@ -209,7 +135,7 @@
             </template>
           </div>
         </div>
-      </template>
+      </div>
 
     </LoadingBlock>
 

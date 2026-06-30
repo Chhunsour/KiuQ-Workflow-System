@@ -141,14 +141,21 @@ const error     = ref<string | null>(null);
 const savingId  = ref<string | null>(null);
 
 const websites = computed(() => {
-  if (auth.isAdmin) return data.websites;
+  if (auth.isAdmin || auth.isHeadOrSupervisor || auth.isAssistantHead) return data.websites;
   const userId = auth.user?.id ?? '';
   // Members see websites they created or have any speed slot assigned for
   const slotWebsiteIds = new Set(
     followup.speedSlots.filter((s) => s.assignedTo === userId).map((s) => s.websiteId)
   );
+  // Add websites that have follow-up schedules or slots
+  const allFollowupIds = new Set([
+    ...followup.blogSchedules.map((s) => s.websiteId),
+    ...followup.blogSlots.map((s) => s.websiteId),
+    ...followup.pluginSlots.map((s) => s.websiteId),
+    ...followup.speedSlots.map((s) => s.websiteId),
+  ]);
   return data.websites.filter(
-    (w) => w.createdBy === userId || slotWebsiteIds.has(w.id)
+    (w) => w.createdBy === userId || slotWebsiteIds.has(w.id) || allFollowupIds.has(w.id)
   );
 });
 

@@ -32,11 +32,8 @@
       </template>
     </EmptyState>
 
-    <!-- Admin: grouped-by-member overview -->
-    <FollowupMemberGroups v-else-if="auth.isAdmin" kind="plugin" />
-
-    <!-- Member: own website grid -->
-    <div v-else>
+    <!-- Direct website grid -->
+    <div>
       <div class="mb-5">
         <input v-model="search" class="input max-w-sm" type="search" :placeholder="$t('Search websites…')" />
       </div>
@@ -125,7 +122,7 @@ import { computed, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
-import FollowupMemberGroups from '@/components/followup/FollowupMemberGroups.vue';
+
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
 import { useFollowupStore, type PluginSlotStatus } from '@/stores/followup';
@@ -143,14 +140,21 @@ const error     = ref<string | null>(null);
 const savingId  = ref<string | null>(null);
 
 const websites = computed(() => {
-  if (auth.isAdmin) return data.websites;
+  if (auth.isAdmin || auth.isHeadOrSupervisor || auth.isAssistantHead) return data.websites;
   const userId = auth.user?.id ?? '';
   // Websites with plugin slots assigned to this user
   const slotWebsiteIds = new Set(
     followup.pluginSlots.filter((s) => s.assignedTo === userId).map((s) => s.websiteId)
   );
+  // Add websites that have follow-up schedules or slots
+  const allFollowupIds = new Set([
+    ...followup.blogSchedules.map((s) => s.websiteId),
+    ...followup.blogSlots.map((s) => s.websiteId),
+    ...followup.pluginSlots.map((s) => s.websiteId),
+    ...followup.speedSlots.map((s) => s.websiteId),
+  ]);
   return data.websites.filter(
-    (w) => w.createdBy === userId || slotWebsiteIds.has(w.id)
+    (w) => w.createdBy === userId || slotWebsiteIds.has(w.id) || allFollowupIds.has(w.id)
   );
 });
 

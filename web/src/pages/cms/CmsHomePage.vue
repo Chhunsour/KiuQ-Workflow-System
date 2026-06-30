@@ -20,8 +20,8 @@
         <div class="cms-sidebar-scroll">
           <!-- Action Buttons -->
           <div class="cms-sidebar-actions">
-            <button type="button" class="btn-primary btn-sm btn-sidebar-new" :disabled="creatingPost" @click="onNewPost">
-              {{ $t('+ New Post') }}
+            <button type="button" class="btn-primary btn-sm btn-sidebar-new" :disabled="creatingProduct" @click="onNewProduct">
+              {{ $t('+ New Product') }}
             </button>
           </div>
 
@@ -77,10 +77,7 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 {{ creatingProduct ? 'Creating…' : 'New Product' }}
               </button>
-              <button type="button" class="btn-primary" :disabled="creatingPost" @click="onNewPost">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                {{ creatingPost ? 'Creating…' : 'New Post' }}
-              </button>
+              <!-- Removed '+ New Post' button -->
             </div>
           </header>
 
@@ -157,8 +154,8 @@
               </div>
             </article>
 
-            <!-- Blog Posts -->
-            <article class="card card-pad card-hover flex flex-col gap-4 reveal" style="--d: 500ms" @click="go('/cms/blog')">
+            <!-- Blog Posts (Coming Soon) -->
+            <article class="card card-pad opacity-60 flex flex-col gap-4 reveal select-none cursor-not-allowed" style="--d: 500ms">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <span class="icon-tile icon-tile--violet">
@@ -169,44 +166,18 @@
                     <h3 class="section-title mt-0.5">{{ $t('Blog Posts') }}</h3>
                   </div>
                 </div>
-                <span class="text-2xl font-bold text-text-soft font-mono">{{ postsStore.posts.length }}</span>
+                <span class="text-xs uppercase font-bold tracking-wider text-text-muted">Coming Soon</span>
               </div>
-              <div class="flex items-center gap-2">
-                <span class="badge bg-green-500/10 text-green-600"><span class="badge-dot bg-green-500" />{{ publishedPosts }} live</span>
-                <span class="badge bg-gray-500/10 text-text-muted"><span class="badge-dot bg-gray-400" />{{ draftPosts }} drafts</span>
-              </div>
-
-              <div class="flex flex-col gap-1.5 mt-1">
-                <div
-                  v-for="p in recentPosts"
-                  :key="p.id"
-                  class="flex items-center justify-between p-2 rounded-btn hover:bg-soft transition-colors cursor-pointer"
-                  @click.stop="go(`/cms/blog/${p.id}`)"
-                >
-                  <div class="flex items-center gap-2.5 min-w-0">
-                    <span v-if="p.featuredImage" class="w-8 h-8 rounded-lg overflow-hidden border border-border flex-shrink-0">
-                      <img :src="p.featuredImage" :alt="p.title" class="w-full h-full object-cover" />
-                    </span>
-                    <span v-else class="w-8 h-8 rounded-lg bg-soft text-primary font-bold text-xs flex items-center justify-center border border-border flex-shrink-0">
-                      {{ initials(p.title) }}
-                    </span>
-                    <span class="text-sm font-semibold text-text-main truncate">{{ p.title || 'Untitled' }}</span>
-                  </div>
-                  <span class="badge text-[10px] px-1.5 py-0.5" :class="p.status === 'published' ? 'bg-green-500/10 text-green-600' : 'bg-gray-500/10 text-text-muted'">
-                    {{ p.status === 'published' ? 'Live' : 'Draft' }}
-                  </span>
-                </div>
-                <div v-if="!recentPosts.length" class="py-4 text-center text-text-muted text-xs italic">
-                  {{ $t('No posts yet.') }}
-                </div>
+              
+              <div class="py-6 text-center text-text-muted text-sm italic">
+                {{ $t('The Blog Dashboard is being rebuilt.') }}
               </div>
 
               <div class="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
-                <span class="text-xs text-primary font-bold hover:underline flex items-center gap-1">
+                <span class="text-xs text-text-muted font-bold flex items-center gap-1">
                   {{ $t('Manage Posts') }}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 </span>
-                <button type="button" class="btn-secondary py-1 px-3 text-xs rounded-lg" :disabled="creatingPost" @click.stop="onNewPost">
+                <button type="button" class="btn-secondary py-1 px-3 text-xs rounded-lg" disabled>
                   {{ $t('+ New') }}
                 </button>
               </div>
@@ -549,22 +520,19 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import CmsLockedScreen from '@/components/cms/CmsLockedScreen.vue';
 import { useCmsProductsStore } from '@/stores/cmsProducts';
-import { useCmsBlogPostsStore } from '@/stores/cmsBlogPosts';
 import { useDataStore, type Website } from '@/stores/data';
 import { useAuthStore } from '@/stores/auth';
 import { usePageRealtime } from '@/services/realtimeService';
 import { supabase } from '@/lib/supabase';
 
-usePageRealtime(['cms_products', 'cms_blog_posts', 'websites']);
+usePageRealtime(['cms_products', 'websites']);
 
 const router        = useRouter();
 const productsStore = useCmsProductsStore();
-const postsStore    = useCmsBlogPostsStore();
 const dataStore     = useDataStore();
 const auth          = useAuthStore();
 
 const creatingProduct = ref(false);
-const creatingPost    = ref(false);
 const loading         = ref(false);
 const activeSetupWebsite = ref<Website | null>(null);
 const copiedField = ref<string | null>(null);
@@ -598,7 +566,6 @@ onMounted(async () => {
   try {
     await Promise.all([
       productsStore.fetchProducts(),
-      postsStore.fetchPosts(),
       dataStore.fetchWebsites()
     ]);
   } finally {
@@ -750,22 +717,14 @@ watch(currentBrowserUrl, () => {
   if (selectedWebsite.value) {
     loadingIframe.value = true;
   }
-});
-
-watch(selectedWebsite, (w) => {
-  if (w) {
-    adminPathInput.value = getAdminPath(w.id);
-    editAdminPath.value = false;
-    showCredsDrawer.value = false;
-  }
+  activeSetupWebsite.value = null;
+  testResult.value = null;
 });
 
 // ── Counts ───────────────────────────────────────────────────────────
 const publishedProducts = computed(() => productsStore.products.filter((p) => p.status === 'published').length);
 const draftProducts     = computed(() => productsStore.products.filter((p) => p.status === 'draft').length);
-const publishedPosts    = computed(() => postsStore.posts.filter((p) => p.status === 'published').length);
-const draftPosts        = computed(() => postsStore.posts.filter((p) => p.status === 'draft').length);
-const totalLive         = computed(() => publishedProducts.value + publishedPosts.value);
+const totalLive         = computed(() => publishedProducts.value);
 
 // ── Count-up animation ───────────────────────────────────────────────
 const createCounter = (source: () => number) => {
@@ -789,17 +748,12 @@ const createCounter = (source: () => number) => {
 
 const productsCount = createCounter(() => productsStore.products.length);
 const liveCount     = createCounter(() => totalLive.value);
-const postsCount    = createCounter(() => postsStore.posts.length);
-const draftCount    = createCounter(() => draftProducts.value + draftPosts.value);
+const draftCount    = createCounter(() => draftProducts.value);
 
 const kpis = computed(() => [
   {
     key: 'products', label: 'Products', tone: 'blue', display: productsCount.value,
     icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
-  },
-  {
-    key: 'posts', label: 'Blog Posts', tone: 'violet', display: postsCount.value,
-    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
   },
   {
     key: 'live', label: 'Published Live', tone: 'green', display: liveCount.value,
@@ -815,12 +769,9 @@ const kpis = computed(() => [
 const recentProducts = computed(() =>
   [...productsStore.products].sort(byUpdated).slice(0, 3)
 );
-const recentPosts = computed(() =>
-  [...postsStore.posts].sort(byUpdated).slice(0, 3)
-);
 
 interface ActivityItem {
-  id: string; kind: 'product' | 'post'; title: string;
+  id: string; kind: 'product'; title: string;
   status: string; updatedAt: string; image: string | null; to: string;
 }
 const recentActivity = computed<ActivityItem[]>(() => {
@@ -829,11 +780,6 @@ const recentActivity = computed<ActivityItem[]>(() => {
       id: `prod-${p.id}`, kind: 'product' as const, title: p.productName,
       status: p.status, updatedAt: p.updatedAt, image: p.productImages[0]?.url ?? null,
       to: `/cms/products/${p.id}`,
-    })),
-    ...postsStore.posts.map((p) => ({
-      id: `post-${p.id}`, kind: 'post' as const, title: p.title,
-      status: p.status, updatedAt: p.updatedAt, image: p.featuredImage || null,
-      to: `/cms/blog/${p.id}`,
     })),
   ];
   return items.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 4);
@@ -864,17 +810,6 @@ const onNewProduct = async () => {
     if (p) await router.push(`/cms/products/${p.id}`);
   } finally {
     creatingProduct.value = false;
-  }
-};
-
-const onNewPost = async () => {
-  if (creatingPost.value) return;
-  creatingPost.value = true;
-  try {
-    const p = await postsStore.createPost({ title: 'Untitled post', slug: '', status: 'draft' });
-    if (p) await router.push(`/cms/blog/${p.id}`);
-  } finally {
-    creatingPost.value = false;
   }
 };
 </script>

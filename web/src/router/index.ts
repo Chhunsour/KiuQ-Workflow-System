@@ -155,10 +155,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'cms',              name: 'cms-home',          meta: headOnly, component: () => import('@/pages/cms/CmsHomePage.vue') },
       { path: 'cms/products',     name: 'cms-products',      meta: headOnly, component: () => import('@/pages/cms/CmsProductsListPage.vue') },
       { path: 'cms/products/:id', name: 'cms-product-edit',  meta: headOnly, component: () => import('@/pages/cms/CmsProductEditPage.vue') },
-      // Blog admin is opened to admin-class users (it powers Framework Website
-      // blog distribution); the rest of CMS stays Head-only.
-      { path: 'cms/blog',         name: 'cms-blog',          meta: adminOnly, component: () => import('@/pages/cms/CmsBlogPostsListPage.vue') },
-      { path: 'cms/blog/:id',     name: 'cms-blog-edit',     meta: adminOnly, component: () => import('@/pages/cms/CmsBlogPostEditPage.vue') },
+      { path: 'cms/konstructz-blog', name: 'konstructz-blog', meta: adminOrMember, component: () => import('@/pages/cms/KonstructzBlogPage.vue') },
 
       // ── Framework Website (umbrella for the product distribution layer) ────
       // Admin-class only. /framework is the overview dashboard; the Product Sync
@@ -171,6 +168,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'product-sync',          name: 'product-sync',          meta: adminOnly, component: () => import('@/pages/sync/SyncCenterPage.vue') },
       { path: 'product-sync/websites', name: 'product-sync-websites', meta: adminOnly, component: () => import('@/pages/sync/ConnectedWebsitesPage.vue') },
       { path: 'product-sync/logs',     name: 'product-sync-logs',     meta: adminOnly, component: () => import('@/pages/sync/SyncLogsPage.vue') },
+      { path: 'product-sync/messages', name: 'product-sync-messages', meta: adminOnly, component: () => import('@/pages/sync/WebsiteMessagesPage.vue') },
       { path: 'product-sync/settings', name: 'product-sync-settings', meta: adminOnly, component: () => import('@/pages/sync/SyncSettingsPage.vue') },
 
       // ── Images dashboard ───────────────────────────────────────────────────

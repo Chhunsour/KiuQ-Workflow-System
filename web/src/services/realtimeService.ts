@@ -7,14 +7,13 @@ import { useFollowupStore } from '@/stores/followup';
 import { useQualityCheckStore } from '@/stores/qualityCheck';
 import { useNotificationsStore } from '@/stores/notifications';
 import { useCmsProductsStore } from '@/stores/cmsProducts';
-import { useCmsBlogPostsStore } from '@/stores/cmsBlogPosts';
 import { useBlogImageCenterStore } from '@/stores/blogImageCenter';
 import { useCommandCenterStore } from '@/stores/commandCenter';
 import { useWinnerCenterStore } from '@/stores/winnerCenter';
 
 const FOLLOWUP_TABLES = new Set(['blog_upload_slots', 'blog_followup_schedules', 'plugin_update_slots', 'speed_optimization_slots', 'ebay_click_followup']);
 const QUALITY_TABLES  = new Set(['quality_issues', 'quality_issue_comments', 'quality_classes']);
-const CMS_TABLES      = new Set(['cms_products', 'cms_blog_posts']);
+const CMS_TABLES      = new Set(['cms_products']);
 const BLOG_IMAGE_TABLES = new Set(['blog_images', 'blog_image_prompts', 'blog_image_workflows']);
 const WINNER_CENTER_TABLES = new Set([
   'winner_center_prizes',
@@ -201,13 +200,8 @@ const handlePayload = (payload: RealtimePayload) => {
       qc.handleRealtimePayload(payload);
     }
   } else if (CMS_TABLES.has(payload.table)) {
-    if (payload.table === 'cms_blog_posts') {
-      const blogPosts = useCmsBlogPostsStore();
-      blogPosts.handleRealtimePayload(payload);
-    } else {
-      const cms = useCmsProductsStore();
-      cms.handleRealtimePayload(payload);
-    }
+    const cms = useCmsProductsStore();
+    cms.handleRealtimePayload(payload);
   } else if (BLOG_IMAGE_TABLES.has(payload.table)) {
     const blogImage = useBlogImageCenterStore();
     if (typeof blogImage.handleRealtimePayload === 'function') {

@@ -4465,6 +4465,7 @@ const runCsvExport = async (folderIds: string[]) => {
     document.body.removeChild(link);
     
     showToast(t('mediaLibrary.toast.exportSuccess'));
+    void auth.recordActivity('csv_exported', 'profile', auth.user?.id || null, `Exported ${folderIds.length} product folders to ${exportFormat.value.toUpperCase()}.`);
   } catch (err) {
     console.error('[csv-export] Export failed:', err);
     showToast(t('mediaLibrary.toast.exportFailed'));

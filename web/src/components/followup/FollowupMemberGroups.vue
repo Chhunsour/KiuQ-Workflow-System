@@ -257,6 +257,7 @@ const props = defineProps<{ kind: Kind }>();
 
 const data = useDataStore();
 const followup = useFollowupStore();
+const auth = useAuthStore();
 
 const memberSearch = ref('');
 const websiteSearch = ref('');
@@ -552,13 +553,15 @@ interface Group {
 
 const groups = computed<Group[]>(() => {
   const wq = websiteSearch.value.trim().toLowerCase();
+  const list: Group[] = [];
 
-  return activeMembers.value.map((member) => {
+  // 1. Group for each active member
+  activeMembers.value.forEach((member) => {
     if (props.kind === 'ebay') {
       const w = ebayWeek(member.id);
       const mo = ebayMonth(member.id);
       const todayStatus = ebayTodayStatus(member.id);
-      return {
+      list.push({
         member,
         websites: [],
         done: w.completed,
@@ -570,11 +573,21 @@ const groups = computed<Group[]>(() => {
         ebayWeekRequired: w.required,
         ebayMonthDone: mo.completed,
         ebayMonthRequired: mo.required
-      };
+      });
+      return;
     }
 
-    const ownWebsites = data.websites.filter((wsite) => wsite.createdBy === member.id);
-    const wsEntries: WsEntry[] = ownWebsites
+    // A website belongs to a member if they created it OR have a slot/schedule assigned to them
+    const memberWebsites = data.websites.filter((wsite) => {
+      if (wsite.createdBy === member.id) return true;
+      if (props.kind === 'blog') {
+        return followup.blogSlots.some(s => s.websiteId === wsite.id && s.assignedTo === member.id);
+      } else {
+        return followup.pluginSlots.some(s => s.websiteId === wsite.id && s.assignedTo === member.id);
+      }
+    });
+
+    const wsEntries: WsEntry[] = memberWebsites
       .filter((wsite) => {
         if (!wq) return true;
         return (
@@ -595,28 +608,22 @@ const groups = computed<Group[]>(() => {
         };
       });
 
-    // Slot-level counts. For blog: Tue+Sat day-slots across all owned
-    // websites (so "0 done" only when truly 0 days done, not just "any
-    // website still has 1/2 incomplete"). For plugin: weekly slot per
-    // website. Counts use ALL owned websites (not search-filtered) for
-    // accurate member summary.
     let done = 0;
     let pending = 0;
     let missed = 0;
     let total = 0;
     if (props.kind === 'blog') {
-      ownWebsites.forEach((wsite) => {
+      memberWebsites.forEach((wsite) => {
         const days = blogWeekDays(wsite.id);
         days.forEach((d) => {
           total++;
           if (d.state === 'done') done++;
           else if (d.state === 'missed') missed++;
-          else pending++;        // pending (today) + upcoming (future)
+          else pending++;
         });
       });
     } else {
-      // plugin — 1 slot per website per week
-      ownWebsites.forEach((wsite) => {
+      memberWebsites.forEach((wsite) => {
         total++;
         const k = pluginWebsiteStatus(wsite.id).kind;
         if (k === 'done') done++;
@@ -625,7 +632,7 @@ const groups = computed<Group[]>(() => {
       });
     }
 
-    return {
+    list.push({
       member,
       websites: wsEntries,
       done,
@@ -637,8 +644,80 @@ const groups = computed<Group[]>(() => {
       ebayWeekRequired: 0,
       ebayMonthDone: 0,
       ebayMonthRequired: 0
-    };
+    });
   });
+
+  // 2. Virtual group for Unassigned/Inactive Member websites (visible to management)
+  if (props.kind !== 'ebay' && (auth.isAdmin || auth.isHeadOrSupervisor || auth.isAssistantHead)) {
+    const activeMemberIds = new Set(activeMembers.value.map(m => m.id));
+    const unassignedWebsites = data.websites.filter(w => !activeMemberIds.has(w.createdBy));
+
+    if (unassignedWebsites.length > 0) {
+      const wsEntries: WsEntry[] = unassignedWebsites
+        .filter((wsite) => {
+          if (!wq) return true;
+          return (
+            wsite.name.toLowerCase().includes(wq) ||
+            (wsite.domain || '').toLowerCase().includes(wq)
+          );
+        })
+        .map((wsite) => {
+          const st = websiteStatus(wsite.id);
+          const mo = monthFor(wsite.id);
+          return {
+            website: wsite,
+            statusKind: st.kind,
+            statusLabel: st.label,
+            monthDone: mo.done,
+            monthTotal: mo.total,
+            blogDays: props.kind === 'blog' ? blogWeekDays(wsite.id) : []
+          };
+        });
+
+      let done = 0, pending = 0, missed = 0, total = 0;
+      if (props.kind === 'blog') {
+        unassignedWebsites.forEach((wsite) => {
+          const days = blogWeekDays(wsite.id);
+          days.forEach((d) => {
+            total++;
+            if (d.state === 'done') done++;
+            else if (d.state === 'missed') missed++;
+            else pending++;
+          });
+        });
+      } else {
+        unassignedWebsites.forEach((wsite) => {
+          total++;
+          const k = pluginWebsiteStatus(wsite.id).kind;
+          if (k === 'done') done++;
+          else if (k === 'missed') missed++;
+          else pending++;
+        });
+      }
+
+      list.push({
+        member: {
+          id: 'unassigned-legacy',
+          fullName: 'Unassigned & Inactive Member Sites',
+          email: 'system@kiuq.net',
+          role: 'system' as any,
+          status: 'active'
+        } as any as Member,
+        websites: wsEntries,
+        done,
+        pending,
+        missed,
+        total,
+        pct: total > 0 ? Math.round((done / total) * 100) : 0,
+        ebayWeekDone: 0,
+        ebayWeekRequired: 0,
+        ebayMonthDone: 0,
+        ebayMonthRequired: 0
+      });
+    }
+  }
+
+  return list;
 });
 
 const visibleGroups = computed(() => {
@@ -651,7 +730,7 @@ const visibleGroups = computed(() => {
     if (statusFilter.value === 'pending' && g.pending === 0) return false;
     if (statusFilter.value === 'missed' && g.missed === 0) return false;
     // Hide members with no websites entirely (blog/plugin) unless searching
-    if (props.kind !== 'ebay' && g.total === 0 && !mq) return false;
+    if (props.kind !== 'ebay' && g.websites.length === 0 && !mq) return false;
     return true;
   });
 });
@@ -660,7 +739,8 @@ const visibleGroups = computed(() => {
 const periodWord = computed(() => (isPastWeek.value ? 'last week' : 'this week'));
 
 const websiteSummaryText = (g: Group) => {
-  if (g.total === 0) return 'No websites assigned';
+  if (g.websites.length === 0) return 'No websites assigned';
+  if (g.total === 0) return 'No schedules this week';
   const unit = props.kind === 'blog' ? 'blogs' : 'websites';
   const label = props.kind === 'blog' ? 'Blog Followup' : 'Plugin Update';
   return `${label}: ${g.done}/${g.total} ${unit} done ${periodWord.value}`;
@@ -691,7 +771,6 @@ const ebayPillClass = (s: StatusKind) => ({
 // ── Inline mark-done actions ─────────────────────────────────────────────────
 // Lets admin/member tick a slot done right on this overview, no need to open
 // the calendar for the routine case. Auth + RLS still enforced server-side.
-const auth = useAuthStore();
 const saving = ref<string | null>(null);   // key: `${websiteId}:${dow}` or `${websiteId}:plugin` or `${websiteId}:all`
 
 const markBlogDay = async (websiteId: string, dateStr: string, dow: number) => {

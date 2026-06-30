@@ -33,13 +33,13 @@ async function main() {
 
   console.log('\nStarting database cleanup for these users...');
 
-  // 1. Delete websites created by deactivated users
+  // 1. Mark websites created by deactivated users as inactive
   const { error: webError } = await supabase
     .from('websites')
-    .delete()
+    .update({ status: 'inactive' })
     .in('created_by', deactivatedIds);
-  if (webError) console.error('Error deleting websites:', webError.message);
-  else console.log('✓ Cleaned up websites created by deactivated users.');
+  if (webError) console.error('Error updating websites status:', webError.message);
+  else console.log('✓ Marked websites created by deactivated users as inactive.');
 
   // 2. Delete prompt assignments
   const { error: promptError } = await supabase

@@ -197,7 +197,33 @@ const data     = useDataStore();
 const followup = useFollowupStore();
 
 const websiteId = computed(() => route.params.websiteId as string);
-const website   = computed(() => data.websiteById(websiteId.value));
+const website = computed(() => {
+  const realSite = data.websiteById(websiteId.value);
+  if (realSite) return realSite;
+
+  // Reconstruct from slots
+  const firstSlotWithUrl = slots.value.find(s => s.blogUrl);
+  let parsedDomain = 'deleted-website.com';
+  if (firstSlotWithUrl && firstSlotWithUrl.blogUrl) {
+    try {
+      parsedDomain = new URL(firstSlotWithUrl.blogUrl).hostname;
+    } catch (e) {}
+  }
+
+  return {
+    id: websiteId.value,
+    name: parsedDomain !== 'deleted-website.com' ? `${parsedDomain} (Legacy)` : 'Legacy Website',
+    domain: parsedDomain,
+    status: 'inactive',
+    faviconUrl: '',
+    primaryColor: '#4f46e5',
+    secondaryColor: '#312e81',
+    accentColor: '#6366f1',
+    isFramework: false,
+    platformType: 'wordpress',
+    products: []
+  } as any;
+});
 
 const loading    = ref(false);
 const error      = ref<string | null>(null);

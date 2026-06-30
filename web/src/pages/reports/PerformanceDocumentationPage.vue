@@ -103,30 +103,34 @@
       <!-- Mode 1: TEAM REPORT VIEW -->
       <div v-if="selectedMemberId === ''" class="flex flex-col gap-6 w-full animate-fade-in">
         <!-- Team Summary KPI cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-2 lg:grid-cols-7 gap-4">
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
             <span class="text-xs text-text-muted font-semibold">{{ $t('Total Members') }}</span>
             <span class="text-2xl font-black text-text-main mt-2">{{ filteredActiveMembers.length }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">{{ $t('Total Completed') }}</span>
-            <span class="text-2xl font-black text-emerald-500 mt-2">{{ teamSummaryStats.tasksCompleted }}</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Plugin Updates') }}</span>
+            <span class="text-2xl font-black text-emerald-500 mt-2">{{ teamSummaryStats.pluginsCompleted }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">{{ $t('Total In Progress') }}</span>
-            <span class="text-2xl font-black text-blue-500 mt-2">{{ teamSummaryStats.tasksPending }}</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('eBay Clicks') }}</span>
+            <span class="text-2xl font-black text-blue-500 mt-2">{{ teamSummaryStats.ebayCompleted }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">{{ $t('Total Overdue') }}</span>
-            <span class="text-2xl font-black text-rose-500 mt-2">{{ teamSummaryStats.tasksOverdue }}</span>
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Optimizations') }}</span>
+            <span class="text-2xl font-black text-rose-500 mt-2">{{ teamSummaryStats.speedCompleted }}</span>
+          </div>
+          <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
+            <span class="text-xs text-text-muted font-semibold">{{ $t('Blogs Posted') }}</span>
+            <span class="text-2xl font-black text-amber-500 mt-2">{{ teamSummaryStats.blogCompleted }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
             <span class="text-xs text-text-muted font-semibold">{{ $t('Quality Checks') }}</span>
             <span class="text-2xl font-black text-indigo-500 mt-2">{{ teamSummaryStats.qualityIssuesLogged }}</span>
           </div>
           <div class="card card-pad bg-card border border-border flex flex-col justify-between hover:scale-[1.02] transition shadow-sm">
-            <span class="text-xs text-text-muted font-semibold">{{ $t('Follow-Ups Completed') }}</span>
-            <span class="text-2xl font-black text-indigo-400 mt-2">{{ teamSummaryStats.followupsCompleted }}</span>
+            <span class="text-xs text-text-muted font-semibold text-primary">{{ $t('Total Follow-Ups') }}</span>
+            <span class="text-2xl font-black text-primary mt-2">{{ teamSummaryStats.followupsCompleted }}</span>
           </div>
         </div>
 
@@ -139,10 +143,11 @@
                 <tr class="bg-soft text-text-muted font-bold border-b border-border text-xs uppercase">
                   <th class="py-3 px-4">{{ $t('Name') }}</th>
                   <th class="py-3 px-4">{{ $t('Position') }}</th>
-                  <th class="py-3 px-4 text-center">{{ $t('Completed Tasks') }}</th>
-                  <th class="py-3 px-4 text-center">{{ $t('In Progress') }}</th>
-                  <th class="py-3 px-4 text-center">{{ $t('Overdue Tasks') }}</th>
-                  <th class="py-3 px-4 text-center">{{ $t('Completed Follow-Ups') }}</th>
+                  <th class="py-3 px-4 text-center">{{ $t('Plugin Updates') }}</th>
+                  <th class="py-3 px-4 text-center">{{ $t('eBay Clicks') }}</th>
+                  <th class="py-3 px-4 text-center">{{ $t('Optimizations') }}</th>
+                  <th class="py-3 px-4 text-center">{{ $t('Blogs Posted') }}</th>
+                  <th class="py-3 px-4 text-center text-primary">{{ $t('Total Follow-Ups') }}</th>
                   <th class="py-3 px-4 text-center">{{ $t('Action') }}</th>
                 </tr>
               </thead>
@@ -167,10 +172,11 @@
                     </div>
                   </td>
                   <td class="py-3.5 px-4 text-text-muted text-xs font-normal">{{ getMemberPosition(m.id) }}</td>
-                  <td class="py-3.5 px-4 text-center text-emerald-500 font-bold">{{ getMemberTaskFraction(m.id, 'completed') }}</td>
-                  <td class="py-3.5 px-4 text-center text-blue-500 font-bold">{{ getMemberTaskFraction(m.id, 'inProgress') }}</td>
-                  <td class="py-3.5 px-4 text-center text-rose-500 font-bold">{{ getMemberTaskFraction(m.id, 'overdue') }}</td>
-                  <td class="py-3.5 px-4 text-center text-indigo-400 font-bold">{{ getMemberFollowupFraction(m.id) }}</td>
+                  <td class="py-3.5 px-4 text-center text-emerald-500 font-bold font-mono">{{ getMemberTypeFraction(m.id, 'Plugin') }}</td>
+                  <td class="py-3.5 px-4 text-center text-blue-500 font-bold font-mono">{{ getMemberTypeFraction(m.id, 'eBay') }}</td>
+                  <td class="py-3.5 px-4 text-center text-rose-500 font-bold font-mono">{{ getMemberTypeFraction(m.id, 'Speed') }}</td>
+                  <td class="py-3.5 px-4 text-center text-amber-500 font-bold font-mono">{{ getMemberTypeFraction(m.id, 'Blog') }}</td>
+                  <td class="py-3.5 px-4 text-center text-primary font-bold font-mono">{{ getMemberFollowupFraction(m.id) }}</td>
                   <td class="py-3.5 px-4 text-center">
                     <button type="button" class="text-xs text-primary font-extrabold hover:underline" @click="selectedMemberId = m.id">
                       {{ $t('Expand & View Details') }}
@@ -204,72 +210,7 @@
           </div>
         </div>
 
-        <!-- Work Board Section -->
-        <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-4">
-          <div class="flex items-center justify-between border-b border-border pb-3 flex-wrap gap-3">
-            <h3 class="text-base font-bold text-text-main">{{ $t('Work Board Section') }}</h3>
-            <!-- Tabs/Filter groupings -->
-            <div class="flex gap-1.5 flex-wrap">
-              <button
-                v-for="grp in workTabKeys"
-                :key="grp"
-                type="button"
-                class="chip capitalize text-xs"
-                :class="{ 'chip-active': activeWorkTab === grp }"
-                @click="activeWorkTab = grp"
-              >
-                {{ grp.replace('inProgress', 'In Progress') }} ({{ getMemberAssignmentsGrouped(selectedMemberId)[grp].length }})
-              </button>
-            </div>
-          </div>
 
-          <!-- Tasks table -->
-          <div class="overflow-x-auto border border-border rounded-btn">
-            <table class="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr class="bg-soft border-b border-border text-xs text-text-muted font-bold uppercase">
-                  <th class="py-2.5 px-3">{{ $t('Task Name') }}</th>
-                  <th class="py-2.5 px-3">{{ $t('Description') }}</th>
-                  <th class="py-2.5 px-3">{{ $t('Project') }}</th>
-                  <th class="py-2.5 px-3 text-center">{{ $t('Assigned Date') }}</th>
-                  <th class="py-2.5 px-3 text-center">{{ $t('Due Date') }}</th>
-                  <th class="py-2.5 px-3 text-center">{{ $t('Current Status') }}</th>
-                  <th class="py-2.5 px-3 text-center">{{ $t('Completion Date') }}</th>
-                  <th class="py-2.5 px-3">{{ $t('Notes') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="task in getMemberAssignmentsGrouped(selectedMemberId)[activeWorkTab]"
-                  :key="task.id"
-                  class="border-b border-border text-text-main hover:bg-soft/20 transition font-semibold"
-                >
-                  <td class="py-3 px-3 font-bold text-text-main">{{ getTaskTitle(task.promptId) }}</td>
-                  <td class="py-3 px-3 text-text-muted text-xs max-w-[150px] truncate" :title="getTaskDescription(task.promptId)">
-                    {{ getTaskDescription(task.promptId) || 'No description' }}
-                  </td>
-                  <td class="py-3 px-3 text-text-muted text-xs max-w-[100px] truncate" :title="getProjectName(task.projectId)">
-                    {{ getProjectName(task.projectId) }}
-                  </td>
-                  <td class="py-3 px-3 text-center text-text-muted text-xs">{{ formatDate(task.assignedAt) }}</td>
-                  <td class="py-3 px-3 text-center text-text-muted text-xs">{{ formatDate(task.dueDate) || '—' }}</td>
-                  <td class="py-3 px-3 text-center">
-                    <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold" :class="getTaskStatusClass(task.status)">
-                      {{ task.status.replace('_', ' ') }}
-                    </span>
-                  </td>
-                  <td class="py-3 px-3 text-center text-text-muted text-xs">{{ formatDate(task.completedAt) || '—' }}</td>
-                  <td class="py-3 px-3 text-text-muted text-xs max-w-[150px] truncate" :title="task.adminNote || getTaskNotes(task.promptId)">
-                    {{ task.adminNote || getTaskNotes(task.promptId) || '—' }}
-                  </td>
-                </tr>
-                <tr v-if="getMemberAssignmentsGrouped(selectedMemberId)[activeWorkTab].length === 0">
-                  <td colspan="8" class="py-8 text-center text-text-muted italic">{{ $t('No tasks found in this grouping.') }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
 
         <!-- Quality Check Section -->
         <div class="card bg-card border border-border p-5 rounded-card shadow-sm flex flex-col gap-4">
@@ -473,19 +414,23 @@
                   <td style="text-align: right; font-weight: bold;">{{ filteredActiveMembers.length }}</td>
                 </tr>
                 <tr>
-                  <td>{{ $t('Total Tasks Completed') }}</td>
-                  <td style="text-align: right; font-weight: bold; color: #10b981;">{{ teamSummaryStats.tasksCompleted }}</td>
+                  <td>{{ $t('Total Plugin Updates Completed') }}</td>
+                  <td style="text-align: right; font-weight: bold; color: #10b981;">{{ teamSummaryStats.pluginsCompleted }}</td>
                 </tr>
                 <tr>
-                  <td>{{ $t('Total Tasks Pending / In Progress') }}</td>
-                  <td style="text-align: right; font-weight: bold; color: #3b82f6;">{{ teamSummaryStats.tasksPending }}</td>
+                  <td>{{ $t('Total eBay Clicks Completed') }}</td>
+                  <td style="text-align: right; font-weight: bold; color: #3b82f6;">{{ teamSummaryStats.ebayCompleted }}</td>
                 </tr>
                 <tr>
-                  <td>{{ $t('Total Tasks Overdue') }}</td>
-                  <td style="text-align: right; font-weight: bold; color: #ef4444;">{{ teamSummaryStats.tasksOverdue }}</td>
+                  <td>{{ $t('Total Website Optimizations') }}</td>
+                  <td style="text-align: right; font-weight: bold; color: #ef4444;">{{ teamSummaryStats.speedCompleted }}</td>
                 </tr>
                 <tr>
-                  <td>{{ $t('Total Quality Checks Approved') }}</td>
+                  <td>{{ $t('Total Blogs Posted') }}</td>
+                  <td style="text-align: right; font-weight: bold; color: #f59e0b;">{{ teamSummaryStats.blogCompleted }}</td>
+                </tr>
+                <tr>
+                  <td>{{ $t('Total Quality Checks Passed') }}</td>
                   <td style="text-align: right; font-weight: bold; color: #4f46e5;">{{ teamSummaryStats.qualityIssuesLogged }}</td>
                 </tr>
                 <tr>
@@ -514,21 +459,23 @@
             <table class="report-table">
               <thead>
                 <tr>
-                  <th style="width: 25%">{{ $t('Member Name') }}</th>
-                  <th style="width: 25%">{{ $t('Position / Department') }}</th>
-                  <th style="width: 12.5%; text-align: center;">{{ $t('Completed') }}</th>
-                  <th style="width: 12.5%; text-align: center;">{{ $t('In Progress') }}</th>
-                  <th style="width: 12.5%; text-align: center;">{{ $t('Overdue') }}</th>
-                  <th style="width: 12.5%; text-align: center;">{{ $t('Follow-Ups') }}</th>
+                  <th style="width: 20%">{{ $t('Member Name') }}</th>
+                  <th style="width: 20%">{{ $t('Position') }}</th>
+                  <th style="width: 12%; text-align: center;">{{ $t('Plugins') }}</th>
+                  <th style="width: 12%; text-align: center;">{{ $t('eBay Clicks') }}</th>
+                  <th style="width: 12%; text-align: center;">{{ $t('Speed Opts') }}</th>
+                  <th style="width: 12%; text-align: center;">{{ $t('Blogs') }}</th>
+                  <th style="width: 12%; text-align: center;">{{ $t('Follow-Ups') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="m in filteredActiveMembers" :key="m.id">
                   <td style="font-weight: bold;">{{ m.fullName || m.email }}</td>
                   <td>{{ getMemberPosition(m.id) }}</td>
-                  <td style="text-align: center; font-weight: bold; color: #10b981;">{{ getMemberTaskFraction(m.id, 'completed') }}</td>
-                  <td style="text-align: center; font-weight: bold; color: #3b82f6;">{{ getMemberTaskFraction(m.id, 'inProgress') }}</td>
-                  <td style="text-align: center; font-weight: bold; color: #ef4444;">{{ getMemberTaskFraction(m.id, 'overdue') }}</td>
+                  <td style="text-align: center; font-weight: bold; color: #10b981;">{{ getMemberTypeFraction(m.id, 'Plugin') }}</td>
+                  <td style="text-align: center; font-weight: bold; color: #3b82f6;">{{ getMemberTypeFraction(m.id, 'eBay') }}</td>
+                  <td style="text-align: center; font-weight: bold; color: #ef4444;">{{ getMemberTypeFraction(m.id, 'Speed') }}</td>
+                  <td style="text-align: center; font-weight: bold; color: #f59e0b;">{{ getMemberTypeFraction(m.id, 'Blog') }}</td>
                   <td style="text-align: center; font-weight: bold; color: #4f46e5;">{{ getMemberFollowupFraction(m.id) }}</td>
                 </tr>
                 <tr v-if="filteredActiveMembers.length === 0">
@@ -589,7 +536,7 @@
               
               <div class="report-summary-paragraph mt-4">
                 <p class="report-paragraph">
-                  {{ $t('This section outlines the personal metrics and work records of') }} <strong>{{ m.fullName }}</strong>{{ $t('. During this reporting window from') }} <strong>{{ formatDate(localFilters.startDate) }}</strong> {{ $t('to') }} <strong>{{ formatDate(localFilters.endDate) }}</strong>{{ $t(', a total of') }} <strong>{{ getMemberAssignmentsForPeriod(m.id).length }}</strong> {{ $t('tasks were assigned, out of which') }} <strong>{{ getMemberAssignmentsGrouped(m.id).completed.length }}</strong> {{ $t('were completed. The team member maintains') }} <strong>{{ getMemberAssignmentsGrouped(m.id).inProgress.length }}</strong> {{ $t('tasks in progress, and') }} <strong>{{ getMemberAssignmentsGrouped(m.id).overdue.length }}</strong> {{ $t('tasks are overdue. A total of') }} <strong>{{ getMemberQualityIssues(m.id).filter(i => i.status === 'approved').length }}</strong> {{ $t('quality checks passed compliance guidelines, and') }} <strong>{{ getMemberFollowupRows(m.id).filter(s => s.status === 'done' || s.status === 'late').length }}</strong> {{ $t('routines were completed.') }}
+                  {{ $t('This section outlines the personal metrics and work records of') }} <strong>{{ m.fullName }}</strong>{{ $t('. During this reporting window from') }} <strong>{{ formatDate(localFilters.startDate) }}</strong> {{ $t('to') }} <strong>{{ formatDate(localFilters.endDate) }}</strong>{{ $t(', a total of') }} <strong>{{ getMemberFollowupRows(m.id).filter(s => s.status === 'done' || s.status === 'late').length }}</strong> {{ $t('follow-up routines were completed, and') }} <strong>{{ getMemberQualityIssues(m.id).filter(i => i.status === 'approved').length }}</strong> {{ $t('quality checks passed compliance guidelines.') }}
                 </p>
               </div>
 
@@ -602,27 +549,27 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{{ $t('Total Tasks Assigned in Period') }}</td>
-                    <td style="text-align: right; font-weight: bold;">{{ getMemberAssignmentsForPeriod(m.id).length }}</td>
+                    <td>{{ $t('Plugin Updates Completed') }}</td>
+                    <td style="text-align: right; font-weight: bold; color: #10b981;">{{ getMemberFollowupRows(m.id).filter(s => s.type === 'Plugin Update Follow-Up' && (s.status === 'done' || s.status === 'late')).length }}</td>
                   </tr>
                   <tr>
-                    <td>{{ $t('Tasks Completed') }}</td>
-                    <td style="text-align: right; font-weight: bold; color: #10b981;">{{ getMemberAssignmentsGrouped(m.id).completed.length }}</td>
+                    <td>{{ $t('eBay Clicks Completed') }}</td>
+                    <td style="text-align: right; font-weight: bold; color: #3b82f6;">{{ getMemberFollowupRows(m.id).filter(s => s.type === 'eBay Follow-Up' && (s.status === 'done' || s.status === 'late')).length }}</td>
                   </tr>
                   <tr>
-                    <td>{{ $t('Tasks In Progress') }}</td>
-                    <td style="text-align: right; font-weight: bold; color: #3b82f6;">{{ getMemberAssignmentsGrouped(m.id).inProgress.length }}</td>
+                    <td>{{ $t('Website Optimizations') }}</td>
+                    <td style="text-align: right; font-weight: bold; color: #ef4444;">{{ getMemberFollowupRows(m.id).filter(s => s.type === 'Website Optimization Follow-Up' && (s.status === 'done' || s.status === 'late')).length }}</td>
                   </tr>
                   <tr>
-                    <td>{{ $t('Tasks Overdue') }}</td>
-                    <td style="text-align: right; font-weight: bold; color: #ef4444;">{{ getMemberAssignmentsGrouped(m.id).overdue.length }}</td>
+                    <td>{{ $t('Blogs Posted') }}</td>
+                    <td style="text-align: right; font-weight: bold; color: #f59e0b;">{{ getMemberFollowupRows(m.id).filter(s => s.type === 'Blog Follow-Up' && (s.status === 'done' || s.status === 'late')).length }}</td>
                   </tr>
                   <tr>
                     <td>{{ $t('Quality Checks Completed / Approved') }}</td>
                     <td style="text-align: right; font-weight: bold; color: #4f46e5;">{{ getMemberQualityIssues(m.id).filter(i => i.status === 'approved').length }}</td>
                   </tr>
                   <tr>
-                    <td>{{ $t('Follow-Ups Completed') }}</td>
+                    <td>{{ $t('Total Follow-Ups Completed') }}</td>
                     <td style="text-align: right; font-weight: bold; color: #4f46e5;">{{ getMemberFollowupRows(m.id).filter(s => s.status === 'done' || s.status === 'late').length }}</td>
                   </tr>
                 </tbody>
@@ -634,55 +581,16 @@
             </div>
           </div>
 
-          <!-- Booklet Page 3: Work Board Activities -->
-          <div class="pdf-page print-page flex flex-col justify-between">
-            <div class="flex flex-col gap-6 flex-1">
-              <div class="report-header flex justify-between items-center">
-                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Work Board Activities') }}</span>
-                <span class="text-xs font-bold">{{ m.fullName }}</span>
-              </div>
-              <h2 class="report-section-title">{{ $t('2. Work Board Activities') }}</h2>
-              <p class="report-paragraph" style="margin-bottom: 12px;">{{ $t('Detailed table listing assignments completed or active in the period.') }}</p>
-              <table class="report-table">
-                <thead>
-                  <tr>
-                    <th style="width: 25%">{{ $t('Task Name') }}</th>
-                    <th style="width: 30%">{{ $t('Description') }}</th>
-                    <th style="width: 15%">{{ $t('Project') }}</th>
-                    <th style="width: 10%; text-align: center;">{{ $t('Assigned') }}</th>
-                    <th style="width: 10%; text-align: center;">{{ $t('Completed') }}</th>
-                    <th style="width: 10%; text-align: center;">{{ $t('Status') }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="task in getMemberAssignmentsForPeriod(m.id).slice(0, 15)" :key="task.id">
-                    <td style="font-weight: bold;">{{ getTaskTitle(task.promptId) }}</td>
-                    <td>{{ getTaskDescription(task.promptId) || 'No description' }}</td>
-                    <td>{{ getProjectName(task.projectId) }}</td>
-                    <td style="text-align: center;">{{ formatDate(task.assignedAt) }}</td>
-                    <td style="text-align: center;">{{ formatDate(task.completedAt) || '—' }}</td>
-                    <td style="text-align: center; font-weight: bold;">{{ task.status.replace('_', ' ') }}</td>
-                  </tr>
-                  <tr v-if="getMemberAssignmentsForPeriod(m.id).length === 0">
-                    <td colspan="6" style="text-align: center; padding: 24px; color: #9ca3af; font-style: italic;">{{ $t('No tasks recorded for this period.') }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="report-footer">
-              <span>{{ $t('Performance Summary Booklet') }}</span>
-              <span>{{ $t('Page 3 of Booklet') }}</span>
-            </div>
-          </div>
 
-          <!-- Booklet Page 4: Quality Checks -->
+
+          <!-- Booklet Page 3: Quality Checks -->
           <div class="pdf-page print-page flex flex-col justify-between">
             <div class="flex flex-col gap-6 flex-1">
               <div class="report-header flex justify-between items-center">
                 <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Quality Check Activities') }}</span>
                 <span class="text-xs font-bold">{{ m.fullName }}</span>
               </div>
-              <h2 class="report-section-title">{{ $t('3. Quality Check Activities') }}</h2>
+              <h2 class="report-section-title">{{ $t('2. Quality Check Activities') }}</h2>
               <p class="report-paragraph" style="margin-bottom: 12px;">{{ $t('Audited link results, spacing checks, and UI review status logs.') }}</p>
               <table class="report-table">
                 <thead>
@@ -715,18 +623,17 @@
             </div>
             <div class="report-footer">
               <span>{{ $t('Performance Summary Booklet') }}</span>
-              <span>{{ $t('Page 4 of Booklet') }}</span>
+              <span>{{ $t('Page 3 of Booklet') }}</span>
             </div>
           </div>
-
-          <!-- Booklet Page 5: Follow-Up Activities -->
+          <!-- Booklet Page 4: Follow-Up Activities -->
           <div class="pdf-page print-page flex flex-col justify-between">
             <div class="flex flex-col gap-6 flex-1">
               <div class="report-header flex justify-between items-center">
                 <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">{{ $t('Follow-Up Activities') }}</span>
                 <span class="text-xs font-bold">{{ m.fullName }}</span>
               </div>
-              <h2 class="report-section-title">{{ $t('4. Follow-Up Activities') }}</h2>
+              <h2 class="report-section-title">{{ $t('3. Follow-Up Activities') }}</h2>
               <p class="report-paragraph" style="margin-bottom: 12px;">{{ $t('Operational records of completed and pending follow-ups.') }}</p>
               <table class="report-table">
                 <thead>
@@ -739,7 +646,10 @@
                 </thead>
                 <tbody>
                   <tr v-for="slot in getMemberFollowupRows(m.id).slice(0, 15)" :key="slot.id">
-                    <td style="font-weight: bold;">{{ slot.type }}</td>
+                    <td style="font-weight: bold;">
+                      {{ slot.type }}
+                      <div style="font-size: 7.5px; font-weight: normal; color: #6b7280; margin-top: 2px;" v-if="slot.websiteId">Website: {{ getWebsiteName(slot.websiteId) }}</div>
+                    </td>
                     <td style="text-align: center;">{{ slot.scheduledDate }}</td>
                     <td style="text-align: center; font-weight: bold;">{{ slot.status }}</td>
                     <td>{{ slot.notes || '—' }}</td>
@@ -752,11 +662,11 @@
             </div>
             <div class="report-footer">
               <span>{{ $t('Performance Summary Booklet') }}</span>
-              <span>{{ $t('Page 5 of Booklet') }}</span>
+              <span>{{ $t('Page 4 of Booklet') }}</span>
             </div>
           </div>
 
-          <!-- Booklet Page 6: Evaluator Notes -->
+          <!-- Booklet Page 5: Evaluator Notes -->
           <div class="pdf-page print-page flex flex-col justify-between">
             <div class="flex flex-col gap-6 flex-1">
               <div class="report-header flex justify-between items-center">
@@ -1555,39 +1465,47 @@ const filteredSummaries = computed(() => {
 });
 
 const teamSummaryStats = computed(() => {
-  const list = filteredSummaries.value;
-  if (list.length === 0) {
-    return {
-      tasksCompleted: 0,
-      tasksPending: 0,
-      tasksOverdue: 0,
-      qualityIssuesLogged: 0,
-      followupsCompleted: 0
-    };
-  }
-
-  const tasksCompleted = list.reduce((acc, s) => acc + s.tasksCompleted, 0);
-  const tasksPending = list.reduce((acc, s) => acc + s.tasksInProgress + s.tasksPostponed, 0);
-  const tasksOverdue = list.reduce((acc, s) => acc + s.tasksOverdue, 0);
-
   let qualityIssuesLogged = 0;
   filteredActiveMembers.value.forEach(m => {
     qualityIssuesLogged += getMemberQualityIssues(m.id).length;
   });
 
   let followupsCompleted = 0;
+  let pluginsCompleted = 0;
+  let ebayCompleted = 0;
+  let speedCompleted = 0;
+  let blogCompleted = 0;
+
   filteredActiveMembers.value.forEach(m => {
-    followupsCompleted += getMemberFollowupRows(m.id).filter(s => s.status === 'done' || s.status === 'late').length;
+    const rows = getMemberFollowupRows(m.id);
+    followupsCompleted += rows.filter(s => s.status === 'done' || s.status === 'late').length;
+    pluginsCompleted += rows.filter(s => s.type === 'Plugin Update Follow-Up' && (s.status === 'done' || s.status === 'late')).length;
+    ebayCompleted += rows.filter(s => s.type === 'eBay Follow-Up' && (s.status === 'done' || s.status === 'late')).length;
+    speedCompleted += rows.filter(s => s.type === 'Website Optimization Follow-Up' && (s.status === 'done' || s.status === 'late')).length;
+    blogCompleted += rows.filter(s => s.type === 'Blog Follow-Up' && (s.status === 'done' || s.status === 'late')).length;
   });
 
   return {
-    tasksCompleted,
-    tasksPending,
-    tasksOverdue,
     qualityIssuesLogged,
-    followupsCompleted
+    followupsCompleted,
+    pluginsCompleted,
+    ebayCompleted,
+    speedCompleted,
+    blogCompleted
   };
 });
+
+const getMemberTypeFraction = (memberId: string, typeKey: 'Blog' | 'Plugin' | 'Speed' | 'eBay') => {
+  const rows = getMemberFollowupRows(memberId).filter(s => {
+    if (typeKey === 'Blog') return s.type === 'Blog Follow-Up';
+    if (typeKey === 'Plugin') return s.type === 'Plugin Update Follow-Up';
+    if (typeKey === 'Speed') return s.type === 'Website Optimization Follow-Up';
+    if (typeKey === 'eBay') return s.type === 'eBay Follow-Up';
+    return false;
+  });
+  const completed = rows.filter(s => s.status === 'done' || s.status === 'late').length;
+  return `${completed}/${rows.length}`;
+};
 
 // Member details resolvers
 const getMemberCompletedAssignments = (memberId: string) => {

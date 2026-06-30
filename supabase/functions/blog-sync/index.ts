@@ -37,19 +37,20 @@ const chunk = <T,>(arr: T[], size: number): T[][] => {
 // deno-lint-ignore no-explicit-any
 const buildPost = (b: any) => ({
   id: b.id,
+  target_website_id: b.target_website_id,
   slug: b.slug || b.id,
   title: b.title ?? "",
   excerpt: b.excerpt ?? "",
   content: b.content ?? "",
   category: b.category ?? "",
-  author: b.author ?? "",
-  featuredImage: b.featured_image || null,
-  featuredImageAlt: b.featured_image_alt ?? "",
+  author: "",
+  featuredImage: b.featured_image_url || null,
+  featuredImageAlt: "",
   publishedAt: b.published_at ?? b.updated_at ?? b.created_at ?? null,
   seoTitle: b.seo_title || null,
   seoDescription: b.seo_description || null,
   keywords: null,
-  tags: [],
+  tags: b.tags || [],
   updatedAt: b.updated_at ?? null,
 });
 
@@ -127,11 +128,15 @@ serve(async (req) => {
 
   // ── load published posts ──
   let pq = admin
-    .from("cms_blog_posts")
-    .select("id,title,slug,excerpt,category,content,featured_image,featured_image_alt,author,seo_title,seo_description,status,published_at,created_at,updated_at")
-    .eq("status", "published")
-    .eq("archived", false)
+    .from("blog_posts")
+    .select("id,title,slug,excerpt,category,content,featured_image_url,seo_title,seo_description,status,tags,published_at,created_at,updated_at,target_website_id")
+    .eq("status", "Published")
     .order("published_at", { ascending: false });
+
+  if (Array.isArray(websiteIds)) {
+    pq = pq.in("target_website_id", websiteIds);
+  }
+
   // A "full" sync (postIds = all / omitted) is authoritative — the connected
   // sites mirror exactly this set, so archived/removed posts disappear there too.
   const isFullSync = !Array.isArray(body.postIds);
@@ -151,10 +156,11 @@ serve(async (req) => {
 
   // Send the whole authoritative set in one request so "replace" is atomic.
   for (const site of sites) {
-    const res = await postBatch(site, payload, timeoutMs, isFullSync);
+    const sitePayload = payload.filter((p: any) => p.target_website_id === site.id);
+    const res = await postBatch(site, sitePayload, timeoutMs, isFullSync);
     if (res.ok && res.body) {
       successCount++;
-      results.push({ website: site.name, ok: true, count: payload.length });
+      results.push({ website: site.name, ok: true, count: sitePayload.length });
     } else {
       failedCount++;
       results.push({ website: site.name, ok: false, error: (res.error ?? `Receiver HTTP ${res.status}`) + (res.body?.error ? `: ${res.body.error}` : "") });

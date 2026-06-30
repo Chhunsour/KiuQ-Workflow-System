@@ -242,7 +242,24 @@ const data     = useDataStore();
 const followup = useFollowupStore();
 
 const websiteId = computed(() => route.params.websiteId as string);
-const website   = computed(() => data.websiteById(websiteId.value));
+const website = computed(() => {
+  const realSite = data.websiteById(websiteId.value);
+  if (realSite) return realSite;
+
+  return {
+    id: websiteId.value,
+    name: 'Legacy Website',
+    domain: 'deleted-website.com',
+    status: 'inactive',
+    faviconUrl: '',
+    primaryColor: '#4f46e5',
+    secondaryColor: '#312e81',
+    accentColor: '#6366f1',
+    isFramework: false,
+    platformType: 'wordpress',
+    products: []
+  } as any;
+});
 
 const loading    = ref(false);
 const error      = ref<string | null>(null);

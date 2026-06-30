@@ -10,6 +10,7 @@ export interface NavItem {
   /** Winner Center surface — Owner/Admin/Head only (excludes Supervisor & below). */
   isWinnerCenterOnly?: boolean;
   isLocked?: boolean;
+  isComingSoon?: boolean;
   isTaskAlertManagerOnly?: boolean;
   isHeadOnly?: boolean;
   hideFromAdmin?: boolean;
@@ -86,17 +87,22 @@ const websiteChildren: NavItem[] = [
 const cmsChildren: NavItem[] = [
   { label: 'Overview',   to: '/cms',          icon: ICON.dashboard },
   { label: 'Products',   to: '/cms/products', icon: ICON.cube, isLocked: true },
-  { label: 'Blog Posts', to: '/cms/blog',     icon: ICON.pen  },
+  { label: 'Blog Posts', to: '/cms/konstructz-blog', icon: ICON.pen },
 ];
 
 const frameworkChildren: NavItem[] = [
   { label: 'Overview',           to: '/framework',                       icon: ICON.dashboard },
   { label: 'Sync Center',        to: '/product-sync',                    icon: ICON.cube      },
-  { label: 'Blog Posts',         to: '/cms/blog',                        icon: ICON.pen       },
+  { label: 'Blog Posts',         to: '/cms/konstructz-blog',             icon: ICON.pen },
   { label: 'Connected Websites', to: '/product-sync/websites',           icon: ICON.globe     },
+  { label: 'Messages',           to: '/product-sync/messages',           icon: ICON.chat      },
   { label: 'Sync Logs',          to: '/product-sync/logs',               icon: ICON.activity  },
   { label: 'Failed Syncs',       to: '/product-sync/logs?status=failed', icon: ICON.alert     },
   { label: 'Sync Settings',      to: '/product-sync/settings',           icon: ICON.settings  },
+];
+
+const blogDashboardChildren: NavItem[] = [
+  { label: 'Konstructz Blog', to: '/cms/konstructz-blog', icon: ICON.pen }
 ];
 
 const promptChildren: NavItem[] = [
@@ -155,6 +161,7 @@ export const adminNavItems: NavItem[] = [
   { label: 'Performance', to: '/performance', icon: ICON.performance, children: performanceChildren },
   { label: 'CMS', to: '/cms', icon: ICON.cms, children: cmsChildren, isHeadOnly: true, hideFromAdmin: true },
   { label: 'Framework Website', to: '/framework', icon: ICON.globe, children: frameworkChildren },
+  { label: 'Blog Dashboard', to: '/cms/konstructz-blog', icon: ICON.pen, children: blogDashboardChildren },
   { label: 'Blog Center', to: '/blog-center', icon: ICON.bolt, hideFromAdmin: true },
   { label: 'Images', to: '/images', icon: ICON.image },
   { label: 'Prompt', to: '/prompt', icon: ICON.chat, children: promptChildren, hideFromAdmin: true },
@@ -220,6 +227,7 @@ export const memberNavItems: NavItem[] = [
   { section: 'Content', label: 'Websites', to: '/websites', icon: ICON.globe, children: websiteChildren },
   { label: 'Performance', to: '/performance', icon: ICON.performance, children: performanceChildren },
   { label: 'CMS', to: '/cms', icon: ICON.cms, children: cmsChildren, isHeadOnly: true },
+  { label: 'Blog Dashboard', to: '/cms/konstructz-blog', icon: ICON.pen, children: blogDashboardChildren },
   { label: 'Blog Center', to: '/blog-center', icon: ICON.bolt },
   { label: 'Images', to: '/images', icon: ICON.image },
 

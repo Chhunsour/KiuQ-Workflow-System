@@ -82,27 +82,52 @@
           <Transition name="nav-dropdown">
             <div v-if="openGroup === item.to && !collapsed" class="nav-dropdown">
               <div class="space-y-0.5">
-                <RouterLink
-                  v-for="child in item.children"
-                  :key="child.to"
-                  :to="child.to"
-                  class="nav-item text-sm"
-                  :class="{ 'nav-item-active': isActive(child) }"
-                >
-                  <span class="flex h-4 w-4 items-center justify-center" v-html="child.icon"></span>
-                  <span class="min-w-0 flex-1 truncate">
-                    {{ getNavTranslationKey(child.label) ? $t(getNavTranslationKey(child.label)) : child.label }}
-                  </span>
-                  <span v-if="child.isLocked" class="ml-auto flex items-center justify-center text-text-muted opacity-70" :title="$t('Locked')">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                  </span>
-                </RouterLink>
+                <template v-for="child in item.children" :key="child.label">
+                  <div
+                    v-if="child.isComingSoon"
+                    class="nav-item text-sm opacity-50 cursor-not-allowed select-none"
+                    :title="$t('Coming Soon')"
+                  >
+                    <span class="flex h-4 w-4 items-center justify-center" v-html="child.icon"></span>
+                    <span class="min-w-0 flex-1 truncate">
+                      {{ getNavTranslationKey(child.label) ? $t(getNavTranslationKey(child.label)) : child.label }}
+                    </span>
+                    <span class="ml-auto text-[10px] uppercase font-bold tracking-wider text-text-muted">Soon</span>
+                  </div>
+                  <RouterLink
+                    v-else
+                    :to="child.to"
+                    class="nav-item text-sm"
+                    :class="{ 'nav-item-active': isActive(child) }"
+                  >
+                    <span class="flex h-4 w-4 items-center justify-center" v-html="child.icon"></span>
+                    <span class="min-w-0 flex-1 truncate">
+                      {{ getNavTranslationKey(child.label) ? $t(getNavTranslationKey(child.label)) : child.label }}
+                    </span>
+                    <span v-if="child.isLocked" class="ml-auto flex items-center justify-center text-text-muted opacity-70" :title="$t('Locked')">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                      </svg>
+                    </span>
+                  </RouterLink>
+                </template>
               </div>
             </div>
           </Transition>
+        </div>
+
+        <!-- Coming soon regular item -->
+        <div
+          v-else-if="item.isComingSoon"
+          class="nav-item opacity-50 cursor-not-allowed select-none"
+          :title="$t('Coming Soon')"
+        >
+          <span class="flex h-5 w-5 items-center justify-center" v-html="item.icon"></span>
+          <span class="min-w-0 flex-1 truncate">
+            {{ getNavTranslationKey(item.label) ? $t(getNavTranslationKey(item.label)) : item.label }}
+          </span>
+          <span class="ml-auto text-[10px] uppercase font-bold tracking-wider text-text-muted">Soon</span>
         </div>
 
         <!-- Regular item -->
