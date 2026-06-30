@@ -54,7 +54,7 @@ const buildPost = (b: any) => ({
 });
 
 // deno-lint-ignore no-explicit-any
-const postBatch = async (site: any, posts: any[], timeoutMs: number) => {
+const postBatch = async (site: any, posts: any[], timeoutMs: number, replace: boolean) => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -62,7 +62,7 @@ const postBatch = async (site: any, posts: any[], timeoutMs: number) => {
       method: "POST",
       signal: controller.signal,
       headers: { "Content-Type": "application/json", "X-Sync-Token": site.secret_token },
-      body: JSON.stringify({ action: "sync-blogs", posts }),
+      body: JSON.stringify({ action: "sync-blogs", posts, replace }),
     });
     const text = await res.text();
     let body: unknown = null;
@@ -132,31 +132,33 @@ serve(async (req) => {
     .eq("status", "published")
     .eq("archived", false)
     .order("published_at", { ascending: false });
+  // A "full" sync (postIds = all / omitted) is authoritative — the connected
+  // sites mirror exactly this set, so archived/removed posts disappear there too.
+  const isFullSync = !Array.isArray(body.postIds);
   if (Array.isArray(body.postIds)) pq = pq.in("id", body.postIds as string[]);
   const { data: posts, error: postErr } = await pq;
   if (postErr) return json({ error: postErr.message }, 500);
-  if (!posts || posts.length === 0) return json({ error: "No published blog posts to sync." }, 400);
+  const safePosts = posts ?? [];
+  // Allow an empty full sync (it clears the blog on every site). Only a targeted
+  // sync with nothing to send is an error.
+  if (safePosts.length === 0 && !isFullSync) return json({ error: "No published blog posts to sync." }, 400);
 
-  const payload = posts.map(buildPost);
+  const payload = safePosts.map(buildPost);
   const timeoutMs = 60000;
 
   let successCount = 0, failedCount = 0;
   const results: Array<{ website: string; ok: boolean; count?: number; error?: string }> = [];
 
+  // Send the whole authoritative set in one request so "replace" is atomic.
   for (const site of sites) {
-    let siteOk = true, siteCount = 0, siteErr: string | null = null;
-    for (const group of chunk(payload, 10)) {
-      const res = await postBatch(site, group, timeoutMs);
-      if (res.ok && res.body) {
-        siteCount += Array.isArray(res.body.results) ? res.body.results.filter((r: { ok?: boolean }) => r.ok !== false).length : group.length;
-      } else {
-        siteOk = false;
-        siteErr = (res.error ?? `Receiver HTTP ${res.status}`) + (res.body?.error ? `: ${res.body.error}` : "");
-        break;
-      }
+    const res = await postBatch(site, payload, timeoutMs, isFullSync);
+    if (res.ok && res.body) {
+      successCount++;
+      results.push({ website: site.name, ok: true, count: payload.length });
+    } else {
+      failedCount++;
+      results.push({ website: site.name, ok: false, error: (res.error ?? `Receiver HTTP ${res.status}`) + (res.body?.error ? `: ${res.body.error}` : "") });
     }
-    if (siteOk) { successCount++; results.push({ website: site.name, ok: true, count: siteCount }); }
-    else { failedCount++; results.push({ website: site.name, ok: false, error: siteErr ?? "Failed" }); }
   }
 
   return json({ ok: failedCount === 0, success: successCount, failed: failedCount, posts: payload.length, results });
