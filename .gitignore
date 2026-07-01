@@ -40,3 +40,6 @@ notification-service/.wwebjs_cache/
 supabase-go
 supabase.tar.gz
 
+
+# Local archive of removed dev scripts / junk (not part of the app)
+archive/
