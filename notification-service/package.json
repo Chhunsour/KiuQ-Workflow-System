@@ -2,6 +2,7 @@
   "name": "kiuq-whatsapp-notification-service",
   "version": "1.0.0",
   "description": "Standalone Node.js service for KiuQ WhatsApp notifications",
+  "author": "Seng Chhunsour <https://github.com/Chhunsour>",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
